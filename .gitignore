@@ -210,3 +210,7 @@ AGENT_HANDOFF_*.md
 .omc
 
 exe/
+
+codebase.yaml
+codebase.py
+CODE.md
