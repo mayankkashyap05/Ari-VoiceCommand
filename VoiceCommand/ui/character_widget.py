@@ -1,5 +1,5 @@
 """
-Shimeji 스타일 캐릭터 위젯 (최적화 버전)
+Shimeji 스타일 Character 위젯 (최적화 버전)
 """
 import json
 import os
@@ -70,7 +70,7 @@ def _append_bubble_history(text: str) -> None:
             with open(path, "w", encoding="utf-8") as handle:
                 json.dump(data, handle, ensure_ascii=False, indent=2)
     except Exception as exc:
-        logging.debug("히스토리 저장 실패: %s", exc)
+        logging.debug("History save failed: %s", exc)
 
 
 def _bubble_history_worker() -> None:
@@ -112,7 +112,7 @@ def _load_random_custom_message() -> str:
         messages = data.get("messages", [])
         return secrets.SystemRandom().choice(messages) if messages else ""
     except Exception as exc:
-        logging.debug("커스텀 메시지 로드 실패: %s", exc)
+        logging.debug("Custom message load failed: %s", exc)
         return ""
 
 
@@ -126,7 +126,7 @@ from ui.image_cache import LRUCache
 
 
 class CharacterWidget(QWidget):
-    # 캐릭터 표시 배율 허용 범위. 기본 리소스는 표시 해상도로 제작되어 1.0이 기본값이다.
+    # Character 표시 배율 허용 범위. Default 리소스는 표시 해상도로 제작되어 1.0이 Default값이다.
     SCALE_MIN = 0.3
     SCALE_MAX = 3.0
     # 바닥 정렬 보정값(px) 허용 범위. 커스텀 이미지의 하단 여백을 사용자가 직접 보정한다.
@@ -199,7 +199,7 @@ class CharacterWidget(QWidget):
         self._current_head_top_offset = 0
         self.ground_offset = self.GROUND_OFFSET_DEFAULT
         self._load_display_settings()
-        self.facing_right = True  # 캐릭터 방향
+        self.facing_right = True  # Character 방향
         self.is_thinking = False   # 추가: 생각 중 여부
 
         # 물리 엔진
@@ -237,9 +237,9 @@ class CharacterWidget(QWidget):
 
         # 트레이 공유 메뉴 (set_tray_menu로 주입)
         self._tray_menu = None
-        # 트레이 없이 연 설정 창에도 넘길 업데이트 확인기
+        # 트레이 없이 연 Settings 창에도 넘길 Update checker
         self._update_checker = None
-        # 플러그인이 우클릭 컨텍스트 메뉴를 억제할 수 있는 플래그
+        # Plugins이 우클릭 컨텍스트 메뉴를 억제할 수 있는 플래그
         self._context_menu_enabled = True
 
         self._stream_buffer = ""
@@ -263,7 +263,7 @@ class CharacterWidget(QWidget):
         self._yawn_timer.setSingleShot(True)
         self._yawn_timer.timeout.connect(self._do_yawn)
 
-        # 윈도우 설정
+        # 윈도우 Settings
         self.setWindowFlags(
             Qt.FramelessWindowHint |
             Qt.WindowStaysOnTopHint |
@@ -276,7 +276,7 @@ class CharacterWidget(QWidget):
         # 이동 애니메이션 상태는 첫 update_frame() 전에 준비되어 있어야 한다.
         self.move_animation = None
         self._walk_target_y: Optional[int] = None
-        # 현재 캐릭터가 위치한 화면 (멀티모니터 지원)
+        # 현재 Character가 위치한 화면 (멀티모니터 지원)
         self._current_screen = QApplication.primaryScreen()
 
         # 애니메이션 로드
@@ -331,17 +331,17 @@ class CharacterWidget(QWidget):
             self.hide()
         self._update_sleepy_mode()
 
-        # Windows에서 HWND_TOPMOST 강제 적용
+        # Windows에서 HWND_TOPMOST 강제 Apply
         if sys.platform == 'win32':
             self._enforce_topmost()
-            # 주기적으로 최상위 상태 재적용 (0.5초마다)
+            # 주기적으로 최상위 상태 재Apply (0.5초마다)
             self.topmost_timer = QTimer(self)
             self.topmost_timer.timeout.connect(self._enforce_topmost)
             self.topmost_timer.start(500)
 
     @Slot(bool)
     def set_thinking(self, thinking: bool):
-        """생각 중 상태 설정 (메인 스레드 호출)"""
+        """생각 중 상태 Settings (메인 스레드 호출)"""
         self.is_thinking = thinking
         if thinking:
             self.set_animation("idle")
@@ -405,7 +405,7 @@ class CharacterWidget(QWidget):
 
     @classmethod
     def _clamp(cls, value, low, high, default):
-        """설정값을 허용 범위로 제한한다. 잘못된 값이면 기본값으로 되돌린다."""
+        """Settings값을 허용 범위로 제한한다. 잘못된 값이면 Default값으로 되돌린다."""
         try:
             number = float(value)
         except (TypeError, ValueError):
@@ -415,7 +415,7 @@ class CharacterWidget(QWidget):
         return max(low, min(high, number))
 
     def _load_display_settings(self) -> tuple[float, int]:
-        """설정에서 표시 배율과 바닥 보정값을 읽어 적용한다."""
+        """Settings에서 표시 배율과 바닥 보정값을 읽어 Apply한다."""
         settings = ConfigManager.load_settings()
         self.image_scale = self._clamp(
             settings.get("character_scale", 1.0), self.SCALE_MIN, self.SCALE_MAX, 1.0
@@ -427,10 +427,10 @@ class CharacterWidget(QWidget):
         return self.image_scale, self.ground_offset
 
     def apply_display_settings(self, scale=None, ground_offset=None):
-        """표시 배율과 바닥 위치를 다시 적용한다.
+        """표시 배율과 바닥 위치를 다시 Apply한다.
 
-        값을 넘기지 않으면 저장된 설정을 읽는다. 설정 창의 실시간 미리보기는
-        저장 전 값을 직접 넘겨 호출한다.
+        값을 넘기지 않으면 Save된 Settings을 읽는다. Settings 창의 실시간 미리보기는
+        Save 전 값을 직접 넘겨 호출한다.
         """
         if scale is None and ground_offset is None:
             self._load_display_settings()
@@ -446,7 +446,7 @@ class CharacterWidget(QWidget):
         self.update_frame()
 
     def load_animations(self):
-        """애니메이션 프레임 로드"""
+        """애니메이션 frames 로드"""
         from core.resource_manager import ResourceManager
 
         self._base_images_dir = ResourceManager.get_images_dir()
@@ -482,10 +482,10 @@ class CharacterWidget(QWidget):
         self.image_head_top_cache.clear()
         self.animations = loaded
         if not self.animations:
-            logging.error("캐릭터 애니메이션을 하나도 로드하지 못했습니다. images 경로를 확인하세요.")
+            logging.error("Character No animations could be loaded. images 경로를 OK하세요.")
         else:
             total_frames = sum(len(frames) for frames in self.animations.values())
-            logging.info(f"캐릭터 애니메이션 로드 완료: {len(self.animations)}종류 / {total_frames}프레임")
+            logging.info(f"Character Animation loading complete: {len(self.animations)}types / {total_frames}frames")
         if self.current_animation not in self.animations:
             self.current_animation = "idle" if "idle" in self.animations else next(iter(self.animations))
             self.frame_index = 0
@@ -494,7 +494,7 @@ class CharacterWidget(QWidget):
         return True
 
     def register_character_pack(self, pack_name: str, directory: str, activate: bool = False) -> bool:
-        """플러그인이 캐릭터 이미지 세트를 등록한다."""
+        """Plugins이 Character 이미지 세트를 등록한다."""
         normalized_name = str(pack_name or "").strip()
         normalized_dir = os.path.abspath(str(directory or "").strip())
         if not normalized_name or not os.path.isdir(normalized_dir):
@@ -507,7 +507,7 @@ class CharacterWidget(QWidget):
         return True
 
     def activate_character_pack(self, pack_name: Optional[str]) -> bool:
-        """등록된 캐릭터 이미지 세트를 활성화한다. None이면 기본 세트로 복원한다."""
+        """등록된 Character 이미지 세트를 활성화한다. None이면 Default 세트로 복원한다."""
         if not pack_name:
             self._active_character_pack = None
             return self._reload_animation_set(self._base_images_dir)
@@ -521,7 +521,7 @@ class CharacterWidget(QWidget):
         return True
 
     def unregister_character_pack(self, pack_name: str) -> bool:
-        """등록된 캐릭터 이미지 세트를 제거한다."""
+        """등록된 Character 이미지 세트를 제거한다."""
         normalized_name = str(pack_name or "").strip()
         if normalized_name not in self._character_packs:
             return False
@@ -532,7 +532,7 @@ class CharacterWidget(QWidget):
         return True
 
     def _get_virtual_desktop_rect(self) -> QRect:
-        """모든 화면을 포함하는 가상 데스크톱 전체 영역을 반환한다."""
+        """모든 화면을 포함하는 가상 데스크톱 전체 zero역을 반환한다."""
         screens = QApplication.screens()
         if not screens:
             primary = QApplication.primaryScreen()
@@ -545,7 +545,7 @@ class CharacterWidget(QWidget):
         return QRect(left, top, right - left + 1, bottom - top + 1)
 
     def _update_current_screen(self) -> None:
-        """캐릭터 중심이 속한 화면으로 _current_screen을 갱신한다."""
+        """Character 중심이 속한 화면으로 _current_screen을 갱신한다."""
         screens = QApplication.screens()
         if not screens:
             return
@@ -584,12 +584,12 @@ class CharacterWidget(QWidget):
             full_geom = screen.geometry()
             avail_geom = screen.availableGeometry()
             
-            # 기본은 가용 영역 (작업표시줄 제외)
+            # Default은 가용 zero역 (작업표시줄 제외)
             self._screen_geom_cache = avail_geom
 
             if sys.platform == 'win32':
                 try:
-                    # 1. 포그라운드 창이 전체화면인지 확인 (유튜브 전체화면, 게임 등)
+                    # 1. 포그라운드 창이 전체화면인지 OK (YouTube 전체화면, 게임 등)
                     fullscreen = self.activity_monitor is not None and (
                         self.activity_monitor.foreground_covers(
                             full_geom.width(), full_geom.height()
@@ -600,7 +600,7 @@ class CharacterWidget(QWidget):
                         self._screen_geom_cache_time = time.time()
                         return self._screen_geom_cache
 
-                    # 2. 작업표시줄 자체가 숨겨져 있는지 확인 (자동 숨김 모드 등)
+                    # 2. 작업표시줄 자체가 숨겨져 있는지 OK (자동 숨김 모드 등)
                     taskbar_hidden = (
                         self.activity_monitor.taskbar_hidden
                         if self.activity_monitor is not None
@@ -611,9 +611,9 @@ class CharacterWidget(QWidget):
                         self._screen_geom_cache_time = time.time()
                         return self._screen_geom_cache
                 except Exception as exc:
-                    logging.debug(f"화면 상태 감지 폴백 사용: {exc}")
+                    logging.debug(f"Using screen state detection fallback: {exc}")
             
-            # 3. 일반적인 가용 높이 체크 (시스템 설정상 작업표시줄이 없을 때)
+            # 3. General적인 가용 높이 체크 (시스템 Settings상 작업표시줄이 없을 때)
             if avail_geom.height() >= full_geom.height() - 10:
                 self._screen_geom_cache = full_geom
 
@@ -623,13 +623,13 @@ class CharacterWidget(QWidget):
         return self._screen_geom_cache or QRect()
 
     def get_ground_y(self, height=None):
-        """바닥 Y 좌표 계산 (동적 화면 정보 반영)"""
+        """바닥 Y 좌표 계산 (동적 화면 정보 반zero)"""
         if height is None:
             height = self.height()
         screen = self.get_screen_geometry()
         ground_bottom = screen.y() + screen.height()
         
-        # 전체화면 상태(가용영역==전체영역)일 때는 오프셋을 줄여서 바닥에 딱 붙게 함
+        # 전체화면 상태(가용zero역==전체zero역)일 때는 오프셋을 줄여서 바닥에 딱 붙게 함
         current_screen = self._current_screen or QApplication.primaryScreen()
         screen_full = current_screen.geometry() if current_screen else screen
         is_full_screen = screen.height() >= screen_full.height() - 10
@@ -641,7 +641,7 @@ class CharacterWidget(QWidget):
         return ground_bottom - height + offset
 
     def update_frame(self):
-        """현재 프레임 업데이트 (레이아웃 호출 최소화로 최적화)"""
+        """현재 frames Update (레이아웃 호출 최소화로 최적화)"""
         self._current_head_top_offset = 0
         if self.current_animation not in self.animations:
             return
@@ -660,7 +660,7 @@ class CharacterWidget(QWidget):
         cache_key = f"{frame_path}_{'flip' if flip else 'normal'}_0"
         self._current_head_top_offset = self.image_head_top_cache.get(cache_key, 0)
 
-        # 크기 변경 여부 확인
+        # 크기 변경 여부 OK
         size_changed = (pixmap.size() != self.label.size())
         
         self.label.setPixmap(pixmap)
@@ -687,7 +687,7 @@ class CharacterWidget(QWidget):
         return self._current_head_top_offset
 
     def next_frame(self):
-        """다음 프레임으로 (불필요한 호출 방지)"""
+        """다음 frames으로 (불필요한 호출 방지)"""
         if self.current_animation in self.animations:
             frame_count = len(self.animations[self.current_animation])
             if frame_count > 0:
@@ -887,7 +887,7 @@ class CharacterWidget(QWidget):
 
         vd = self._get_virtual_desktop_rect()
         margin = max(0, (self.width() // 2) - 30)
-        # 벽 밀착 판정 (캐릭터 너비의 40% 이상 나갔을 때)
+        # 벽 밀착 판정 (Character 너비의 40% 이상 나갔을 때)
         at_left_edge = self.x() <= vd.x() - margin + 10
         at_right_edge = self.x() >= vd.x() + vd.width() - self.width() + margin - 10
 
@@ -951,7 +951,7 @@ class CharacterWidget(QWidget):
         self.set_animation("climb")
         
         screen = self.get_screen_geometry()
-        # 가용 영역의 상단(작업표시줄 반대편)으로 이동
+        # 가용 zero역의 상단(작업표시줄 반대편)으로 이동
         target_y = screen.y() - 5 # 약간 화면 밖으로
 
         if self.move_animation:
@@ -959,7 +959,7 @@ class CharacterWidget(QWidget):
 
         self._walk_target_y = None
         self.move_animation = QPropertyAnimation(self, b"geometry")
-        # 현재 위치에서 상단까지의 거리에 비례한 시간 (최대 5초)
+        # 현재 위치에서 상단까지의 거리에 비례한 시간 (max 5초)
         distance = abs(self.y() - target_y)
         self.move_animation.setDuration(max(100, min(5000, distance * 10)))
         self.move_animation.setStartValue(self.geometry())
@@ -1026,7 +1026,7 @@ class CharacterWidget(QWidget):
         target_y = self.get_ground_y()
         self._walk_target_y = int(target_y)
 
-        # 캐릭터 방향 설정 및 프레임 업데이트
+        # Character 방향 Settings 및 frames Update
         self.facing_right = (new_x > self.x())
         self.update_frame()
 
@@ -1050,7 +1050,7 @@ class CharacterWidget(QWidget):
         self.move_animation.start()
 
     def _enforce_topmost(self):
-        """Win32 API로 항상 최상위 강제 적용 (Windows 전용)"""
+        """Win32 API로 항상 최상위 강제 Apply (Windows 전용)"""
         if sys.platform != 'win32':
             return
         try:
@@ -1064,7 +1064,7 @@ class CharacterWidget(QWidget):
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE
             )
         except Exception as exc:
-            logging.debug(f"최상위 윈도우 강제 적용 실패: {exc}")
+            logging.debug(f"Topmost window force apply failed: {exc}")
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -1092,8 +1092,8 @@ class CharacterWidget(QWidget):
 
                 if affinity_mgr:
                     reaction = affinity_mgr.get_greeting()
-                    # 더블클릭 press에서는 추가 저장 없이 반응만 표시
-                    # (첫 클릭 release에서 이미 +1 저장됨)
+                    # 더블클릭 press에서는 추가 Save 없이 반응만 표시
+                    # (첫 클릭 release에서 이미 +1 Save됨)
                     _say = getattr(self, "_affinity_original_say", self.say)
                 else:
                     reactions = [
@@ -1119,7 +1119,7 @@ class CharacterWidget(QWidget):
                     from VoiceCommand import is_tts_playing
                     self._voice_press_stop_speaking = is_tts_playing()
                 except (ImportError, AttributeError, RuntimeError) as exc:
-                    logging.debug("TTS 재생 상태 확인 생략: %s", exc)
+                    logging.debug("TTS Play state OK skipped: %s", exc)
             self._voice_press_eligible = (
                 self.voice_thread is not None
                 and not self._voice_press_stop_speaking
@@ -1180,7 +1180,7 @@ class CharacterWidget(QWidget):
             nx = max(vd.x() - margin, min(nx, vd.x() + vd.width() - self.width() + margin))
             ny = max(vd.y(), min(ny, vd.y() + vd.height() - self.height() + 25))
 
-            # 방향 감지 및 프레임 업데이트
+            # 방향 감지 및 frames Update
             dx = nx - self.x()
             if abs(dx) > 2: # 최소 이동 거리 기준
                 self.facing_right = (dx > 0)
@@ -1193,7 +1193,7 @@ class CharacterWidget(QWidget):
             if len(self.drag_history) > 5:
                 self.drag_history.pop(0)
 
-            # 말풍선 위치 업데이트
+            # 말풍선 위치 Update
             if self.speech_bubble:
                 self.speech_bubble.update_position()
 
@@ -1259,17 +1259,17 @@ class CharacterWidget(QWidget):
 
             self.is_falling = True
             self.set_animation("fall")
-            # 릴리즈 후 일정 시간 뒤에 idle로 (강제 착지 연출 방지)
+            # 릴리즈 later 일정 시간 뒤에 idle로 (강제 착지 연출 방지)
             QTimer.singleShot(800, lambda: self.set_animation("idle") if not self.dragging and not self.is_falling and not getattr(self, '_is_landing', False) else None)
 
     def set_text_interface(self, text_interface):
-        """텍스트 인터페이스 참조 설정"""
+        """Text interface 참조 Settings"""
         self.text_interface = text_interface
 
     def apply_microphone_settings(self):
         """Apply a saved microphone selection on the voice worker thread."""
         if self.voice_thread is None:
-            logging.warning("음성 인식 스레드가 없어 마이크 설정을 적용할 수 없습니다.")
+            logging.warning("speech recognition thread unavailable, cannot Microphone apply settings.")
             return False
 
         microphone = ConfigManager.load_settings().get("microphone", "")
@@ -1277,21 +1277,21 @@ class CharacterWidget(QWidget):
         return True
 
     def open_text_interface(self):
-        """텍스트 대화창 열기 (캐릭터 위치 기준)"""
+        """텍스트 대화창 열기 (Character 위치 기준)"""
         if hasattr(self, 'text_interface') and self.text_interface:
             self.text_interface.show_near(self.x(), self.y(), self.width(), self.height())
 
     def set_tray_menu(self, menu) -> None:
-        """트레이 아이콘 메뉴를 공유한다. 이후 우클릭 시 해당 메뉴를 표시한다."""
+        """트레이 아이콘 메뉴를 공유한다. 이later 우클릭 시 해당 메뉴를 표시한다."""
         self._tray_menu = menu
 
     def set_update_checker(self, update_checker) -> None:
-        """설정 창에 전달할 업데이트 확인기를 보관한다."""
+        """Settings 창에 전달할 Update checker를 보관한다."""
         self._update_checker = update_checker
 
     def set_context_menu_enabled(self, enabled: bool) -> None:
-        """캐릭터 우클릭 컨텍스트 메뉴 표시 여부를 설정한다.
-        플러그인에서 context.set_character_menu_enabled(False)로 억제할 수 있다."""
+        """Character 우클릭 컨텍스트 메뉴 표시 여부를 Settings한다.
+        Plugins에서 context.set_character_menu_enabled(False)로 억제할 수 있다."""
         self._context_menu_enabled = bool(enabled)
 
     def contextMenuEvent(self, event):
@@ -1300,7 +1300,7 @@ class CharacterWidget(QWidget):
             return
 
         if self._tray_menu is not None:
-            # aboutToShow 시그널로 체크박스 상태·테마가 자동 갱신됨
+            # aboutToShow 시그널로 체크박스 상태·Theme가 자동 갱신됨
             self._tray_menu.exec(event.globalPos())
             return
 
@@ -1316,7 +1316,7 @@ class CharacterWidget(QWidget):
 
         menu.addSeparator()
 
-        settings_action = QAction(_("설정"), self)
+        settings_action = QAction(_("Settings"), self)
         settings_action.triggered.connect(self.open_settings)
         menu.addAction(settings_action)
 
@@ -1335,13 +1335,13 @@ class CharacterWidget(QWidget):
         game_action.triggered.connect(toggle_game_mode)
         menu.addAction(game_action)
 
-        smart_action = QAction(_("스마트 어시스턴트 모드"), self)
+        smart_action = QAction(_("Smart assistant mode"), self)
         smart_action.setCheckable(True)
         smart_action.setChecked(learning_mode['enabled'])
         def toggle_smart_mode(checked):
             learning_mode['enabled'] = checked
             status = _("활성화") if checked else _("비활성화")
-            self.say(_("스마트 어시스턴트 모드가 {status}되었습니다.").format(status=status), duration=3000)
+            self.say(_("Smart assistant mode가 {status}되었습니다.").format(status=status), duration=3000)
         smart_action.triggered.connect(toggle_smart_mode)
         menu.addAction(smart_action)
 
@@ -1351,7 +1351,7 @@ class CharacterWidget(QWidget):
         mouse_action.triggered.connect(self.toggle_mouse_tracking)
         menu.addAction(mouse_action)
 
-        hide_action = QAction(_("캐릭터 숨기기"), self)
+        hide_action = QAction(_("Character 숨기기"), self)
         hide_action.triggered.connect(self.hide)
         menu.addAction(hide_action)
 
@@ -1368,7 +1368,7 @@ class CharacterWidget(QWidget):
         self.mouse_tracking_enabled = not self.mouse_tracking_enabled
 
     def open_settings(self):
-        """설정 창 열기"""
+        """Settings 창 열기"""
         from ui.settings_dialog import (
             SettingsDialog, reinitialize_tts_async, should_apply_microphone,
         )
@@ -1383,7 +1383,7 @@ class CharacterWidget(QWidget):
                     from ui.theme_runtime import apply_live_theme
                     apply_live_theme(character_widget=self)
                 except Exception as e:
-                    logging.error(f"실시간 테마 반영 실패: {e}")
+                    logging.error(f"Real-time theme reflection failed: {e}")
 
     def _begin_character_push_to_talk(self):
         if not self._voice_press_eligible or self.voice_thread is None:
@@ -1394,7 +1394,7 @@ class CharacterWidget(QWidget):
         )
 
     def refresh_voice_input_settings(self):
-        """음성 설정을 실행 중인 입력 경로에 적용한다."""
+        """음성 Settings을 실행 중인 Input 경로에 Apply한다."""
         try:
             if self.voice_thread is not None:
                 self.voice_thread.refresh_voice_settings()
@@ -1402,18 +1402,18 @@ class CharacterWidget(QWidget):
             if hotkey_filter is not None:
                 hotkey_filter.configure()
         except (AttributeError, OSError, RuntimeError, ValueError) as exc:
-            logging.warning("음성 입력 설정 적용 실패: %s", exc)
+            logging.warning("음성 Input settings apply failed: %s", exc)
 
     def refresh_theme(self):
-        """테마 변경 후 캐릭터 관련 UI를 갱신한다."""
+        """Theme 변경 later Character 관련 UI를 갱신한다."""
         if self.speech_bubble:
             text = self.speech_bubble.text
             self._hide_speech_bubble_slot()
             self._show_speech_bubble_slot(text, 5000)
 
     def exit_program(self):
-        """프로그램 종료 요청"""
-        logging.info("캐릭터 메뉴를 통한 프로그램 종료 요청")
+        """Application exiting 요청"""
+        logging.info("Character Exit request via menu")
         app = QApplication.instance()
         if app:
             app.quit()
@@ -1447,7 +1447,7 @@ class CharacterWidget(QWidget):
 
         lock_vertical_position = anim_running and self._walk_target_y is not None and self.velocity_y == 0
 
-        # 중력 적용 로직 (임계값을 10px로 줄여 더 정확한 스냅 지원)
+        # 중력 Apply 로직 (임계값을 10px로 줄여 더 정확한 스냅 지원)
         if not lock_vertical_position and (current_y < target_y - 10 or self.velocity_y < 0):
             self.is_falling = True
             self.velocity_y = min(self.velocity_y + self.gravity, 20)
@@ -1456,7 +1456,7 @@ class CharacterWidget(QWidget):
             # 착지 판정
             if new_y >= target_y:
                 new_y = target_y
-                # 착지 직전 속도 저장
+                # 착지 직전 속도 Save
                 impact_vel = abs(self.velocity_y)
                 
                 if impact_vel > 3:
@@ -1516,7 +1516,7 @@ class CharacterWidget(QWidget):
                 moved = True
                 self._update_current_screen()
 
-            # 마찰 적용
+            # 마찰 Apply
             if self.is_falling:
                 self.velocity_x *= self.friction_air
             else:
@@ -1531,7 +1531,7 @@ class CharacterWidget(QWidget):
                 self._pet_cooldown = 0.0
                 self._is_being_petted = False
 
-        # 말풍선 위치 업데이트
+        # 말풍선 위치 Update
         if moved and self.speech_bubble:
             self.speech_bubble.update_position()
 
@@ -1602,13 +1602,13 @@ class CharacterWidget(QWidget):
             self._mouse_scared = False
 
     def set_emotion(self, emotion):
-        """감정 설정 (외부에서 호출 - 스레드 안전)"""
+        """감정 Settings (외부에서 호출 - 스레드 안전)"""
         self.change_emotion_signal.emit(emotion)
 
     @Slot(str)
     def _change_emotion_slot(self, emotion):
-        """실제 감정 표현 처리 (메인 스레드)"""
-        logging.debug(f"캐릭터 감정 표현: {emotion}")
+        """실제 Emotion expression 처리 (메인 스레드)"""
+        logging.debug(f"Character Emotion expression: {emotion}")
         
         details = EMOTION_CATALOG.get(emotion)
         if not details:
@@ -1651,7 +1651,7 @@ class CharacterWidget(QWidget):
             self._present_speech_bubble(self._stream_buffer, 0)
 
     def _reset_stream_buffer(self) -> None:
-        """스트리밍 완료 후 버퍼를 초기화합니다."""
+        """스트리밍 완료 later 버퍼를 초기화합니다."""
         self._stream_buffer = ""
 
     @Slot(str, int)
@@ -1680,9 +1680,9 @@ class CharacterWidget(QWidget):
         if duration > 0:
             self.bubble_hide_timer.start(duration)
         else:
-            # duration=0 (TTS 대기)인 경우에도 최대 60초 후에는 사라지도록 안전장치 설정 (긴 문장 대응)
+            # duration=0 (TTS 대기)인 경우에도 max 60초 later에는 사라지도록 안전장치 Settings (긴 문장 대응)
             self.bubble_hide_timer.start(60000)
-            logging.debug("말풍선 대기 모드 (60초 안전장치 작동)")
+            logging.debug("말풍선 Wait mode (60초 safety mechanism active)")
 
         _enqueue_bubble_history(text)
 
@@ -1694,14 +1694,14 @@ class CharacterWidget(QWidget):
     def _hide_speech_bubble_slot(self):
         """실제 말풍선 숨김 (메인 스레드에서만 실행)"""
         if self.speech_bubble:
-            logging.debug("말풍선 숨김 처리")
+            logging.debug("말풍선 Hide processing")
             self.speech_bubble.hide()
             self.speech_bubble.deleteLater()
             self.speech_bubble = None
         self.bubble_hide_timer.stop()
 
     def time_based_greeting(self):
-        """사건 발화를 확인한다."""
+        """사건 발화를 OK한다."""
         try:
             from agent.speech_scheduler import get_speech_scheduler
         except (ImportError, OSError, RuntimeError, TypeError, ValueError):
@@ -1711,7 +1711,7 @@ class CharacterWidget(QWidget):
             try:
                 scheduler.tick()
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                logging.debug("사건 발화 확인을 건너뜁니다: %s", exc)
+                logging.debug("Skipping event speech OK: %s", exc)
 
     def cleanup(self):
         """정리"""

@@ -145,7 +145,7 @@ class CharacterWidgetHelperTests(unittest.TestCase):
         widget = self._make_widget()
 
         with patch("ui.character_widget._RNG.choices", return_value=["idle"]):
-            widget._change_emotion_slot("기쁨")
+            widget._change_emotion_slot("Joy")
 
         self.assertEqual(widget.current_animation, "idle")
         self.assertFalse(hasattr(widget, "emote_overlay"))

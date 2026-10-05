@@ -19,7 +19,7 @@ def compile_po(po_path: str, mo_path: str) -> None:
         for raw in f:
             line = raw.strip()
             if not line or line.startswith("#"):
-                # 공백이나 주석일 때 이전까지의 데이터를 저장
+                # 공백이나 주석일 때 이전까지의 데이터를 Save
                 if msgid is not None and msgstr is not None:
                     messages[msgid] = msgstr
                     msgid = msgstr = None
@@ -40,7 +40,7 @@ def compile_po(po_path: str, mo_path: str) -> None:
                 elif in_msgstr:
                     msgstr = (msgstr or "") + content
 
-        # 마지막 엔트리 저장
+        # 마지막 엔트리 Save
         if msgid is not None and msgstr is not None:
             messages[msgid] = msgstr
 

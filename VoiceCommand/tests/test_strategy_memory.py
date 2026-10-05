@@ -237,7 +237,7 @@ class StrategyMemoryTests(unittest.TestCase):
                 patch("agent.strategy_memory.datetime", _FrozenDateTime):
             memory = StrategyMemory(filepath=os.path.join(tmp, "strategy.json"))
             now = fixed_now.isoformat()
-            memory.record("브라우저 다운로드 자동화", [], False, error="timeout", failure_kind="timeout", lesson="대기 후 재확인", duration_ms=120)
+            memory.record("브라우저 다운로드 자동화", [], False, error="timeout", failure_kind="timeout", lesson="대기 later 재확인", duration_ms=120)
             memory.record("브라우저 다운로드 자동화", [], False, error="timeout", failure_kind="timeout", lesson="도메인별 셀렉터 점검", duration_ms=150)
             memory.record("브라우저 다운로드 자동화", [], True, duration_ms=90)
             for record in memory._records:
@@ -249,7 +249,7 @@ class StrategyMemoryTests(unittest.TestCase):
             repeated = memory.get_repeated_failures(min_count=2)
 
             self.assertEqual(len(lessons), 2)
-            self.assertIn("대기 후 재확인", lessons)
+            self.assertIn("대기 later 재확인", lessons)
             self.assertEqual(stats["total"], 3)
             self.assertEqual(stats["fail"], 2)
             self.assertTrue(any(kind == "timeout" and count == 2 for kind, count in repeated))

@@ -66,7 +66,7 @@ def _create_search_client():
 # ── DuckDuckGo 검색 및 단순 Fetch ─────────────────────────────────────────────
 
 def web_search(query: str, max_results: int = 5) -> str:
-    """인터넷 검색 후 결과를 텍스트로 반환한다."""
+    """인터넷 검색 later 결과를 텍스트로 반환한다."""
     try:
         with _create_search_client() as ddgs:
             results = list(ddgs.text(query, max_results=max_results))
@@ -75,13 +75,13 @@ def web_search(query: str, max_results: int = 5) -> str:
         
         lines = []
         for i, r in enumerate(results, 1):
-            lines.append(f"[{i}] {r.get('title', _('제목 없음'))}")
+            lines.append(f"[{i}] {r.get('title', _('제목 None'))}")
             lines.append(f"    {r.get('body', '')[:200]}")
             lines.append(f"    URL: {r.get('href', '')}")
         return "\n".join(lines)
     except Exception as e:
-        logging.error("[WebTools] 검색 오류: %s", e)
-        return _("검색 중 오류 발생: {error}", error=e)
+        logging.error("[WebTools] 검색 Error: %s", e)
+        return _("검색 중 Error 발생: {error}", error=e)
 
 def web_fetch(url: str, max_chars: int = 3000) -> str:
     """URL의 본문 텍스트를 추출한다."""
@@ -150,7 +150,7 @@ class SmartBrowser:
                 )
                 self._download_isolated = True
             except OSError as exc:
-                logging.warning("[SmartBrowser] 전용 다운로드 폴더 생성 실패, 기본 폴더 사용: %s", exc)
+                logging.warning("[SmartBrowser] 전용 다운로드 폴더 생성 실패, Default 폴더 사용: %s", exc)
                 self._browser_download_dir = self.download_dir
                 self._download_isolated = False
 
@@ -211,11 +211,11 @@ class SmartBrowser:
             try:
                 results.append(self._execute_browser_action(action, current_domain, wait, By, EC))
             except UnsafeUrlError as e:
-                results.append(f"오류: {action.get('type')} ({str(e)[:50]})")
+                results.append(f"Error: {action.get('type')} ({str(e)[:50]})")
                 break
             except Exception as e:
                 act_type = action.get("type")
-                results.append(f"오류: {act_type} ({str(e)[:50]})")
+                results.append(f"Error: {act_type} ({str(e)[:50]})")
 
         self._last_action_summary = " | ".join(results)
         if plan_key and actions and self._should_remember_action_plan(results):
@@ -261,7 +261,7 @@ class SmartBrowser:
 
         found_el, matched_selector = self._find_element_for_action(action, current_domain, action_key, wait, by_module, ec_module)
         if not found_el:
-            return f"실패: {act_type} (셀렉터를 찾을 수 없음)"
+            return f"실패: {act_type} (셀렉터를 찾을 수 None)"
 
         if act_type == "click":
             wait.until(ec_module.element_to_be_clickable((by_module.CSS_SELECTOR, matched_selector))).click()
@@ -351,7 +351,7 @@ class SmartBrowser:
                         self._validate_current_page()
                         return element
                 except Exception as exc:
-                    logging.debug("[SmartBrowser] 요소 표시 상태 확인 실패: %s", exc)
+                    logging.debug("[SmartBrowser] 요소 표시 상태 OK 실패: %s", exc)
                     continue
         return None
 
@@ -390,7 +390,7 @@ class SmartBrowser:
         replan_callback=None,
         max_replan_rounds: int = 2,
     ) -> Dict[str, Any]:
-        """로그인 후 DOM 상태를 분석하고 후속 액션을 동적으로 실행한다."""
+        """로그인 later DOM 상태를 분석하고 later속 액션을 동적으로 실행한다."""
         validate_browser_url(url)
         self._ensure_driver()
         # 명시적으로 지정한 이동은 그 주소가 새 기준이 된다.
@@ -414,7 +414,7 @@ class SmartBrowser:
         self._validate_current_page()
         dom_state = analyse_dom(self.driver)
         if not dom_state.logged_in and not dom_state.login_detected:
-            logging.warning("[SmartBrowser] 로그인 상태 확인이 불확실합니다.")
+            logging.warning("[SmartBrowser] 로그인 상태 OK이 불확실합니다.")
         elif not dom_state.logged_in and dom_state.login_detected:
             return {
                 "success": False,
@@ -433,7 +433,7 @@ class SmartBrowser:
             action_results.append({"action": action, "result": result})
             self._validate_current_page()
             dom_state = analyse_dom(self.driver)
-            if dom_state.alerts and any(token in " ".join(dom_state.alerts).lower() for token in ("error", "오류", "실패")):
+            if dom_state.alerts and any(token in " ".join(dom_state.alerts).lower() for token in ("error", "Error", "실패")):
                 if replan_callback is None or replan_count >= max_replan_rounds:
                     return {
                         "success": False,
@@ -623,7 +623,7 @@ class SmartBrowser:
             with open(path, "w", encoding="utf-8") as handle:
                 json.dump(self._selector_history, handle, ensure_ascii=False, indent=2)
         except Exception as e:
-            logging.warning("[SmartBrowser] 셀렉터 히스토리 저장 실패: %s", e)
+            logging.warning("[SmartBrowser] 셀렉터 History save failed: %s", e)
 
     def _load_action_plan_history(self) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
         path = self._action_plan_history_path()
@@ -653,7 +653,7 @@ class SmartBrowser:
             with open(path, "w", encoding="utf-8") as handle:
                 json.dump(self._action_plan_history, handle, ensure_ascii=False, indent=2)
         except Exception as e:
-            logging.warning("[SmartBrowser] 액션 플랜 저장 실패: %s", e)
+            logging.warning("[SmartBrowser] 액션 플랜 Save 실패: %s", e)
 
     def _normalize_plan_key(self, goal_hint: str) -> str:
         return normalize_goal_hint(goal_hint)
@@ -662,7 +662,7 @@ class SmartBrowser:
         return (
             bool(results)
             and any(item.startswith("성공:") or item.startswith("다운로드 완료:") for item in results)
-            and not any(item.startswith(("실패:", "오류:")) for item in results)
+            and not any(item.startswith(("실패:", "Error:")) for item in results)
         )
 
     def _tokenize_plan_key(self, key: str) -> set[str]:
@@ -784,8 +784,8 @@ class SmartBrowser:
         if not getattr(self, "_download_isolated", False):
             return
         with self._download_lock:
-            # 잠금을 기다리는 사이 브라우저가 닫혔으면 폴더가 일반 다운로드 폴더로 바뀌어 있다.
-            # 그 폴더의 파일을 옮기면 안 되므로 잠금 안에서 다시 확인한다.
+            # 잠금을 기다리는 사이 브라우저가 닫혔으면 폴더가 General 다운로드 폴더로 바뀌어 있다.
+            # 그 폴더의 파일을 옮기면 안 되므로 잠금 안에서 다시 OK한다.
             if self._download_isolated:
                 self._pending_downloads.extend(self._move_completed_downloads(self._browser_download_dir))
 

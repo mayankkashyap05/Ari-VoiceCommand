@@ -1,4 +1,4 @@
-"""사용자 계정에 묶인 별도 비밀 저장소. 평문 저장 대체 경로는 없다."""
+"""사용자 계정에 묶인 별도 비밀 Save소. 평문 Save 대체 경로는 없다."""
 from __future__ import annotations
 
 import hashlib
@@ -13,7 +13,7 @@ from core.custom_llm_providers import is_custom_secret_key
 
 
 class SecretStoreError(RuntimeError):
-    """비밀값을 포함하지 않는 저장소 오류."""
+    """비밀값을 포함하지 않는 Save소 Error."""
 
 
 def _is_secret_key(key: object) -> bool:

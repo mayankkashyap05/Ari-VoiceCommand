@@ -1,7 +1,7 @@
 """
 학습 엔진 (Learning Engine)
 실행 결과를 전략 메모리·에피소드 메모리·학습 지표에 기록하고,
-플래너 피드백 루프 업데이트와 실패 반성(Reflection)을 담당한다.
+플래너 피드백 루프 Update와 실패 반성(Reflection)을 담당한다.
 """
 import logging
 import threading
@@ -187,7 +187,7 @@ class LearningEngine:
                 failure_kind=str(getattr(reflection_result, "root_cause", "") or ""),
             )
             if not updated:
-                logger.debug("[LearningEngine] reflection lesson 업데이트 대상이 없습니다.")
+                logger.debug("[LearningEngine] reflection lesson Update 대상이 없습니다.")
         except Exception as exc:
             logger.debug("[LearningEngine] reflection lesson 기록 실패: %s", exc)
 
@@ -234,7 +234,7 @@ class LearningEngine:
                 tags=feedback_loop.infer_tags(goal=goal, steps=steps),
             )
         except Exception as e:
-            logger.debug("[LearningEngine] planner feedback 업데이트 실패: %s", e)
+            logger.debug("[LearningEngine] planner feedback Update 실패: %s", e)
 
         # 2. 스킬 추출 (개발자 목표 제외)
         if not self._is_developer_goal(goal):

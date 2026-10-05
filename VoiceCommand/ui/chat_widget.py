@@ -16,7 +16,7 @@ from core.emotions import EMOTION_EMOJI, parse_emotion_text
 # ── 채팅 위젯 ────────────────────────────────────────────────────────────────
 
 class ChatWidget(QFrame):
-    """채팅 메시지를 표시하는 위젯. 최대 MAX_MESSAGES개 메시지 유지."""
+    """채팅 메시지를 표시하는 위젯. max MAX_MESSAGES개 메시지 유지."""
 
     MAX_MESSAGES = 50
     MIN_BUBBLE_WIDTH = 220

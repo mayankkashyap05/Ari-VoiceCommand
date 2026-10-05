@@ -7,7 +7,7 @@ Plan → Execute+Self-Fix → Verify 다층 루프로 목표를 자율적으로 
      단일 코드 실행 + 자동 수정 (기존 executor 대체)
 
   2. run(goal)
-     복잡한 목표 → 다단계 계획 → 병렬 실행+자동수정 → 코드 기반 검증 → [재계획] 루프
+     복잡한 목표 → 다steps 계획 → 병렬 실행+자동수정 → 코드 기반 검증 → [재계획] 루프
 """
 import logging
 import threading
@@ -42,7 +42,7 @@ class AgentRunResult:
     summary: str = ""
     total_iterations: int = 0
     learning_components: Dict[str, bool] = field(default_factory=dict)
-    # 단계는 모두 성공했지만 상태를 확인할 수단이 없었다. 다시 실행하면 동작이 중복된다.
+    # steps는 모두 성공했지만 상태를 OK할 수단이 없었다. 다시 실행하면 동작이 중복된다.
     verification_unavailable: bool = False
     learning_component_trials: Dict[str, Dict[str, bool]] = field(default_factory=dict)
 
@@ -55,8 +55,8 @@ class AgentRunResult:
 class AgentOrchestrator:
     """Plan → Execute+Self-Fix → Verify 다층 자율 실행기"""
 
-    MAX_PLAN_ITERATIONS = 4   # 전체 재계획 최대 횟수
-    MAX_STEP_RETRIES = 2      # 단계 당 자동 수정 최대 횟수
+    MAX_PLAN_ITERATIONS = 4   # 전체 재계획 max 횟수
+    MAX_STEP_RETRIES = 2      # steps 당 자동 수정 max 횟수
 
     def __init__(
         self,
@@ -104,12 +104,12 @@ class AgentOrchestrator:
     # ── 공개 API ──────────────────────────────────────────────────────────────
 
     def set_progress_callback(self, cb: Optional[Callable]) -> None:
-        """진행 이벤트 콜백 설정. UI 대시보드 연결에 사용."""
+        """진행 이벤트 콜백 Settings. UI 대시보드 연결에 사용."""
         self.progress_callback = cb
         self._exec.progress_callback = cb
 
     def set_thinking_callback(self, cb: Optional[Callable]) -> None:
-        """생각 중(Thinking) 상태 콜백 설정. 캐릭터 애니메이션 제어에 사용."""
+        """생각 중(Thinking) 상태 콜백 Settings. Character 애니메이션 제어에 사용."""
         self.thinking_callback = cb
 
     def _load_timeout_seconds(self) -> float:
@@ -138,15 +138,15 @@ class AgentOrchestrator:
             if callable(cancel):
                 cancel()
         except Exception as exc:
-            logger.debug("[Orchestrator] 실행 프로세스 중단 요청 실패: %s", exc)
+            logger.debug("[Orchestrator] Failed to request process stop: %s", exc)
         self._emit_progress("interrupt_requested")
 
     def resume(self, additional_goal: str = "") -> AgentRunResult:
-        """마지막 중단 체크포인트의 미완료 단계와 실행 문맥을 복원한다."""
+        """마지막 중단 체크포인트의 미완료 steps와 실행 문맥을 복원한다."""
         checkpoint = dict(self._last_checkpoint or {})
         goal = str(checkpoint.get("goal", "") or "").strip()
         if additional_goal:
-            goal = f"{goal}\n\n추가 지시: {additional_goal}" if goal else additional_goal
+            goal = f"{goal}\n\nAdditional instructions: {additional_goal}" if goal else additional_goal
         if not goal:
             return AgentRunResult(goal=additional_goal, achieved=False, summary=_("재개할 작업이 없습니다."))
         return self.run(goal, _checkpoint=checkpoint)
@@ -167,7 +167,7 @@ class AgentOrchestrator:
             context_text = str(context or "").strip()
         delegated_goal = goal
         if context_text:
-            delegated_goal = f"{goal}\n\n[전달 컨텍스트]\n{context_text[:2000]}"
+            delegated_goal = f"{goal}\n\n[Delegated context]\n{context_text[:2000]}"
 
         # 자식마다 중단 신호를 따로 둬야 시간 초과 때 부모를 멈추지 않고 그 자식만 멈출 수 있다.
         # 부모의 중단은 interrupt()가 _children을 돌며 전달한다.
@@ -207,7 +207,7 @@ class AgentOrchestrator:
             self._emit_progress("subagent_timeout", goal=goal)
             return AgentRunResult(goal=goal, achieved=False, summary=_("subagent.timeout"))
         except Exception as exc:
-            logger.error("[Orchestrator] 하위 에이전트 실패: %s", exc, exc_info=True)
+            logger.error("[Orchestrator] Sub-agent failed: %s", exc, exc_info=True)
             self._emit_progress("subagent_error", goal=goal, error=str(exc))
             return AgentRunResult(goal=goal, achieved=False, summary=_("subagent.failed").format(error=exc))
 
@@ -217,7 +217,7 @@ class AgentOrchestrator:
         step_type: str,
         goal: str,
     ) -> ExecutionResult:
-        """단일 단계 실행 + 자동 수정 (단순 도구 호출용)"""
+        """단일 steps 실행 + 자동 수정 (단순 도구 호출용)"""
         step = ActionStep(
             step_id=0,
             step_type=step_type,
@@ -236,7 +236,7 @@ class AgentOrchestrator:
         """복잡한 목표를 다층 루프로 자율 달성."""
         self._learn.wait_for_background_thread()
         if not self._run_lock.acquire(blocking=False):
-            logger.warning("[Orchestrator] 이미 에이전트가 실행 중입니다.")
+            logger.warning("[Orchestrator] Agent is already running.")
             return AgentRunResult(goal=goal, summary=_("다른 작업이 진행 중입니다."))
 
         start_time = time.time()
@@ -329,7 +329,7 @@ class AgentOrchestrator:
                 ):
                     mood_state.record_task_result(run_result.achieved)
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                logger.debug("[Orchestrator] 기분 상태 갱신 생략: %s", exc)
+                logger.debug("[Orchestrator] Mood state update skipped: %s", exc)
             payload = {"goal": goal, "achieved": run_result.achieved, "summary": run_result.summary}
             self._emit_plugin_event("on_agent_complete", payload)
             if run_result.achieved:
@@ -348,7 +348,7 @@ class AgentOrchestrator:
                 TypeError,
                 ValueError,
             ) as exc:
-                logger.debug("작업 완료 발화 예약을 건너뜁니다: %s", exc)
+                logger.debug("Skipping completion speech scheduling: %s", exc)
             return run_result
         finally:
             self._set_thinking(False)
@@ -488,7 +488,7 @@ class AgentOrchestrator:
             ]
 
         if checkpoint or self._interrupt_requested.is_set() or self._should_prefer_template_over_skill(goal):
-            logger.info("[Orchestrator] 안정 템플릿 우선 적용: skill 재사용 생략")
+            logger.info("[Orchestrator] Stable template priority applied: skill reuse skipped")
         else:
             skill_result = self._run_with_skill_if_available(
                 goal, context, learning_components, component_trials
@@ -501,7 +501,7 @@ class AgentOrchestrator:
 
         difficulty = self._estimate_goal_difficulty(goal)
         max_iterations = max(2, min(2 + round(difficulty * 4), 6))
-        logger.info("[Orchestrator] 목표 난이도 %.2f → 최대 %d회 반복", difficulty, max_iterations)
+        logger.info("[Orchestrator] Goal difficulty %.2f → max %diterations", difficulty, max_iterations)
         replan_reasons: list[str] = []
 
         start_iteration = int(checkpoint.get("iteration", 0)) if checkpoint else 0
@@ -514,11 +514,11 @@ class AgentOrchestrator:
                 break
             run_result.total_iterations = iteration + 1
             logger.info(
-                f"[Orchestrator] 계획 수립 (반복 {iteration+1}/{max_iterations})"
+                f"[Orchestrator] Plan established (반복 {iteration+1}/{max_iterations})"
             )
 
             # Layer 1: Plan
-            timeout_hint = context.pop("이전_단계_타임아웃", "")
+            timeout_hint = context.pop("이전_steps_타임아웃", "")
             if timeout_hint:
                 with self._context_lock:
                     context["재계획_힌트"] = (
@@ -539,12 +539,12 @@ class AgentOrchestrator:
                 learning_components, self.planner.get_last_learning_signals()
             )
             if not steps and not restoring:
-                run_result.summary = _("계획 수립에 실패했습니다.")
+                run_result.summary = _("Plan established에 실패했습니다.")
                 break
             prevalidation_issues = self._prevalidate_steps(steps)
             if prevalidation_issues:
                 reason = " | ".join(prevalidation_issues[:3])
-                logger.warning("[Orchestrator] 사전 검증 실패, 재계획: %s", reason)
+                logger.warning("[Orchestrator] Pre-validation failed, re-planning: %s", reason)
                 with self._context_lock:
                     context["이전_시도"] = reason
                 self._emit_progress(
@@ -554,7 +554,7 @@ class AgentOrchestrator:
                 )
                 reason_sig = reason[:80]
                 if reason_sig in replan_reasons:
-                    logger.info("[Orchestrator] 동일 재계획 이유 반복, 루프 조기 종료: %s", reason_sig)
+                    logger.info("[Orchestrator] Same replan reason repeated, early loop exit: %s", reason_sig)
                     run_result.summary = _("반복 실패 패턴 감지: {reason}", reason=reason)
                     break
                 replan_reasons.append(reason_sig)
@@ -595,10 +595,10 @@ class AgentOrchestrator:
                     context.update(adaptive_ctx)
                 reason = adaptive_ctx.get("재계획_이유", "실행 실패")
                 self._emit_progress("replan", iteration=iteration, reason=reason)
-                self._say(_("[진지] 접근 방법을 바꿔서 다시 시도합니다."))
+                self._say(_("[Serious] 접근 방법을 바꿔서 다시 시도합니다."))
                 reason_sig = reason[:80]
                 if reason_sig in replan_reasons:
-                    logger.info("[Orchestrator] 동일 재계획 이유 반복, 루프 조기 종료: %s", reason_sig)
+                    logger.info("[Orchestrator] Same replan reason repeated, early loop exit: %s", reason_sig)
                     run_result.summary = _("반복 실패 패턴 감지: {reason}", reason=reason)
                     break
                 replan_reasons.append(reason_sig)
@@ -620,11 +620,11 @@ class AgentOrchestrator:
 
             if achieved:
                 self._emit_progress("achieved", summary=summary)
-                self._say(f"[기쁨] {summary}")
+                self._say(f"[Joy] {summary}")
                 break
             else:
-                # 모든 단계가 성공했고 상태를 확인할 수단만 없으면 다시 실행하지 않는다.
-                # 재계획하면 이미 끝난 동작(파일 생성, 전송 등)이 한 번 더 실행되고 얻은 결과도 사라진다.
+                # 모든 steps가 성공했고 상태를 OK할 수단만 없으면 다시 실행하지 않는다.
+                # 재계획하면 이미 끝난 동작(파일 생성, Send 등)이 한 번 더 실행되고 얻은 결과도 사라진다.
                 if summary == _("요청한 결과를 실제 상태로 검증하지 못했습니다."):
                     output = next(
                         (
@@ -644,10 +644,10 @@ class AgentOrchestrator:
                 self._emit_progress(
                     "not_achieved", summary=summary, iteration=iteration
                 )
-                self._say(_("[진지] 목표를 아직 달성하지 못했어요. 다시 시도합니다."))
+                self._say(_("[Serious] 목표를 아직 달성하지 못했어요. 다시 시도합니다."))
                 reason_sig = summary[:80]
                 if reason_sig in replan_reasons:
-                    logger.info("[Orchestrator] 동일 재계획 이유 반복, 루프 조기 종료: %s", reason_sig)
+                    logger.info("[Orchestrator] Same replan reason repeated, early loop exit: %s", reason_sig)
                     run_result.summary = _("반복 실패 패턴 감지: {reason}", reason=summary)
                     break
                 replan_reasons.append(reason_sig)
@@ -677,7 +677,7 @@ class AgentOrchestrator:
             ):
                 additions["recent_goal_episodes"] = summary[:600]
         except Exception as exc:
-            logger.debug("[Orchestrator] episode memory 생략: %s", exc)
+            logger.debug("[Orchestrator] episode memory skipped: %s", exc)
 
         try:
             from agent.goal_predictor import get_goal_predictor
@@ -699,9 +699,9 @@ class AgentOrchestrator:
                     sample_size=prediction.sample_size,
                     success_rate=prediction.estimated_success_rate,
                 )
-                self._say(f"[진지] {prediction.warning}")
+                self._say(f"[Serious] {prediction.warning}")
         except Exception as exc:
-            logger.debug("[Orchestrator] goal predictor 생략: %s", exc)
+            logger.debug("[Orchestrator] goal predictor skipped: %s", exc)
 
         return additions
 
@@ -710,7 +710,7 @@ class AgentOrchestrator:
         from i18n.translator import get_language
 
         connectors_by_language: dict[str, list[str]] = {
-            "ko": ["그리고", "다음에", "이후에", "후에", "그 다음", "마지막으로"],
+            "ko": ["그리고", "다음에", "이later에", "later에", "그 다음", "마지막으로"],
             "en": ["and then", "next", "after that", "then", "finally"],
             "ja": ["そして", "次に", "その後", "最後に"],
         }
@@ -732,7 +732,7 @@ class AgentOrchestrator:
             elif matched_domains >= 2:
                 score += 0.15
         except Exception as exc:
-            logger.debug("[Orchestrator] 태그 기반 난이도 추정 생략: %s", exc)
+            logger.debug("[Orchestrator] Tag-based difficulty estimation skipped: %s", exc)
 
         try:
             from agent.strategy_memory import get_strategy_memory
@@ -743,7 +743,7 @@ class AgentOrchestrator:
                 if avg_steps > 5:
                     score += 0.25
         except Exception as exc:
-            logger.debug("[Orchestrator] 전략 기억 기반 난이도 추정 생략: %s", exc)
+            logger.debug("[Orchestrator] Strategy memory difficulty estimation skipped: %s", exc)
 
         return min(score, 1.0)
 
@@ -755,7 +755,7 @@ class AgentOrchestrator:
                 return True
             template_steps = self.planner._build_template_plan(goal)
         except Exception as exc:
-            logger.debug("[Orchestrator] 템플릿 우선 판단 생략: %s", exc)
+            logger.debug("[Orchestrator] Template priority judgment skipped: %s", exc)
             return False
         return bool(template_steps)
 
@@ -813,14 +813,14 @@ class AgentOrchestrator:
                         context["skill_id"] = skill.skill_id
                     result.learning_components["SkillLibrary"] = True
                     return result
-                # 컴파일 스킬 실패 → 일반 스텝 실행으로 폴백
+                # Compiled skill 실패 → General 스텝 실행으로 폴백
 
             steps = [
                 ActionStep(
                     step_id=item.get("step_id", idx),
                     step_type=item.get("step_type", "python"),
                     content=item.get("content", ""),
-                    description_kr=item.get("description_kr", f"스킬 단계 {idx+1}"),
+                    description_kr=item.get("description_kr", f"Skill step {idx+1}"),
                     expected_output=item.get("expected_output", ""),
                     condition=item.get("condition", ""),
                     on_failure=item.get("on_failure", "abort"),
@@ -850,7 +850,7 @@ class AgentOrchestrator:
                         context["skill_id"] = skill.skill_id
                     get_skill_library().record_feedback(skill.skill_id, positive=True)
                     return result
-            # 실패 시 에러 수집 후 자기수정 트리거
+            # 실패 시 에러 수집 later 자기수정 트리거
             error = " | ".join(
                 (sr.exec_result.error or sr.exec_result.output or "")[:120]
                 for sr in step_results
@@ -858,7 +858,7 @@ class AgentOrchestrator:
             )
             get_skill_library().deprecate_if_failing(skill.skill_id, error=error)
         except Exception as e:
-            logger.debug("[Orchestrator] skill 실행 생략: %s", e)
+            logger.debug("[Orchestrator] skill execution skipped: %s", e)
         return None
 
     def _run_compiled_skill(self, skill, goal: str) -> Optional[AgentRunResult]:
@@ -879,18 +879,18 @@ class AgentOrchestrator:
                 result.achieved, result.summary = self._verify_engine.verify(goal, result.step_results)
                 if result.achieved:
                     get_skill_library().record_feedback(skill.skill_id, positive=True)
-                    logger.info("[Orchestrator] 컴파일 스킬 실행 성공: %s", skill.name)
+                    logger.info("[Orchestrator] Compiled skill execution successful: %s", skill.name)
                 return result
-            # 실패 → 코드 수정 트리거 후 None 반환 (스텝 폴백)
+            # 실패 → 코드 수정 트리거 later None 반환 (스텝 폴백)
             logger.info(
-                f"[Orchestrator] 컴파일 스킬 실패, 코드 수정 예약: {output[:100]}"
+                f"[Orchestrator] Compiled skill failed, scheduling code fix: {output[:100]}"
             )
             get_skill_library().record_feedback(
                 skill.skill_id, positive=False, error=output
             )
             return None
         except Exception as exc:
-            logger.debug("[Orchestrator] 컴파일 스킬 실행 오류: %s", exc)
+            logger.debug("[Orchestrator] Compiled skill execution error: %s", exc)
             return None
 
     # ── 유틸리티 ──────────────────────────────────────────────────────────────
@@ -909,14 +909,14 @@ class AgentOrchestrator:
             try:
                 self.progress_callback(event_type, **kwargs)
             except Exception as e:
-                logger.debug("[Orchestrator] 진행 콜백 오류: %s", e)
+                logger.debug("[Orchestrator] Progress callback error: %s", e)
 
     def _set_thinking(self, thinking: bool) -> None:
         if self.thinking_callback:
             try:
                 self.thinking_callback(thinking)
             except Exception as e:
-                logger.debug("[Orchestrator] 생각 콜백 오류: %s", e)
+                logger.debug("[Orchestrator] Thought callback error: %s", e)
 
     def _is_timeout_exceeded(self, deadline: Optional[float]) -> bool:
         return deadline is not None and time.time() > deadline
@@ -926,20 +926,20 @@ class AgentOrchestrator:
             from core.plugin_loader import get_plugin_manager
             get_plugin_manager().emit_event(event_name, payload)
         except Exception as exc:
-            logger.debug("[Orchestrator] 플러그인 이벤트 발행 생략 (%s): %s", event_name, exc)
+            logger.debug("[Orchestrator] Plugins Event publishing skipped (%s): %s", event_name, exc)
 
     def _say(self, msg: str) -> None:
         if self.tts:
             self.tts(msg)
 
     def _log_plan(self, steps: List[ActionStep]) -> None:
-        logger.info("[Orchestrator] %d단계 계획 수립됨", len(steps))
+        logger.info("[Orchestrator] %dsteps Plan established됨", len(steps))
 
     def _prevalidate_steps(self, steps: List[ActionStep]) -> List[str]:
         issues: List[str] = []
         for step in steps:
             if step.step_type == "shell" and not step.content.strip():
-                issues.append(f"빈 shell 명령 감지: {step.step_id}")
+                issues.append(f"Empty shell command detected: {step.step_id}")
                 continue
             if step.step_type != "python" or not step.content.strip():
                 continue
@@ -948,9 +948,9 @@ class AgentOrchestrator:
 
                 report = get_safety_checker().check_python(step.content)
                 if report.level == DangerLevel.DANGEROUS:
-                    issues.append(f"위험 코드 감지: {step.step_id}")
+                    issues.append(f"Dangerous code detected: {step.step_id}")
             except Exception as exc:
-                logger.debug("[Orchestrator] 사전 검증 생략(step=%s): %s", step.step_id, exc)
+                logger.debug("[Orchestrator] Pre-validation skipped(step=%s): %s", step.step_id, exc)
         return issues
 
     # ── 엔진 위임 proxy (테스트·외부 호환) ──────────────────────────────────────

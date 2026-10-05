@@ -30,9 +30,9 @@ _BASE_HEADERS = {
 
 
 def _marketplace_available() -> bool:
-    """API URL이 설정된 경우에만 True (anon key는 선택)."""
+    """API URL이 Settings된 경우에만 True (anon key는 선택)."""
     if not MARKETPLACE_API:
-        logger.debug("마켓플레이스 API URL 미설정 — 작업 건너뜀")
+        logger.debug("마켓플레이스 API URL 미Settings — 작업 건너뜀")
         return False
     return True
 
@@ -84,7 +84,7 @@ def _resolve_zip_plugin_metadata(archive: zipfile.ZipFile, plugin_name: str, ent
         resolved_name = str(meta.get("name", "") or resolved_name)
         resolved_entry = str(meta.get("entry", "") or resolved_entry)
     except Exception as exc:
-        logger.debug("ZIP 내부 plugin.json 재확인 실패: %s", exc)
+        logger.debug("ZIP 내부 plugin.json 재OK 실패: %s", exc)
 
     root_python_files = [
         name for name in archive.namelist()
@@ -100,7 +100,7 @@ def _resolve_zip_plugin_metadata(archive: zipfile.ZipFile, plugin_name: str, ent
 
 
 def fetch_plugins(search: str = "", sort: str = "install_count") -> List[Dict]:
-    """마켓플레이스 플러그인 목록 조회."""
+    """마켓플레이스 Plugins 목록 조회."""
     if not _marketplace_available():
         return []
     query = urllib.parse.urlencode({"search": search, "sort": sort})
@@ -108,19 +108,19 @@ def fetch_plugins(search: str = "", sort: str = "install_count") -> List[Dict]:
 
 
 def fetch_plugin(plugin_id: str) -> Optional[Dict]:
-    """특정 플러그인 상세 조회."""
+    """특정 Plugins 상세 조회."""
     if not _marketplace_available():
         return None
     try:
         return _get(f"{MARKETPLACE_API}/get-plugin?plugin_id={plugin_id}")
     except urllib.error.HTTPError as e:
         if e.code == 404:
-            logger.info("플러그인 없음 (plugin_id=%s): HTTP 404", plugin_id)
+            logger.info("Plugins None (plugin_id=%s): HTTP 404", plugin_id)
         else:
-            logger.error("플러그인 조회 실패 — 네트워크 오류 (plugin_id=%s): %s", plugin_id, e)
+            logger.error("Plugins 조회 실패 — 네트워크 Error (plugin_id=%s): %s", plugin_id, e)
         return None
     except Exception as e:
-        logger.error("플러그인 조회 실패 — 네트워크 오류 (plugin_id=%s): %s", plugin_id, e)
+        logger.error("Plugins 조회 실패 — 네트워크 Error (plugin_id=%s): %s", plugin_id, e)
         return None
 
 
@@ -131,10 +131,10 @@ def install_plugin(
     trust_after_install: bool = False,
 ) -> bool:
     """
-    플러그인을 설치한다.
+    Plugins을 설치한다.
     1. install-plugin 호출 → install_count 증가 + release_url 획득
-    2. ZIP 다운로드 후 plugin_dir에 ZIP 그대로 저장
-    3. 요청된 경우 설치 동의를 신뢰 목록에 저장하고 플러그인을 로드
+    2. ZIP 다운로드 later plugin_dir에 ZIP 그대로 Save
+    3. 요청된 경우 설치 동의를 신뢰 목록에 Save하고 Plugins을 로드
     """
     if not _marketplace_available():
         return False
@@ -209,13 +209,13 @@ def install_plugin(
         try:
             os.remove(legacy_path)
         except OSError as exc:
-            logger.warning("기존 단일 파일 플러그인 제거 실패: %s", exc)
+            logger.warning("기존 Single file Plugins 제거 실패: %s", exc)
 
     if not installed_files:
         logger.error("설치할 entry 파일이 없습니다.")
         return False
 
-    logger.info("플러그인 설치 완료: %s → %s", installed_files, plugin_dir)
+    logger.info("Plugins 설치 완료: %s → %s", installed_files, plugin_dir)
 
     if trust_after_install:
         from core.plugin_loader import get_plugin_manager
@@ -224,7 +224,7 @@ def install_plugin(
         for fname in installed_files:
             path = os.path.join(plugin_dir, fname)
             if not manager.trust_plugin(path):
-                logger.warning("플러그인 설치 동의를 신뢰 목록에 저장하지 못했습니다: %s", fname)
+                logger.warning("Plugins 설치 동의를 신뢰 목록에 Save하지 못했습니다: %s", fname)
 
     if load_after_install:
         try:
@@ -234,10 +234,10 @@ def install_plugin(
                 path = os.path.join(plugin_dir, fname)
                 pm.unload_plugin(plugin_name)
                 pm.load_plugin(path)
-                logger.info("플러그인 로드: %s", fname)
+                logger.info("Plugins 로드: %s", fname)
         except Exception as e:
             raise RuntimeError(
-                _("플러그인 파일은 저장되었지만 활성화에 실패했습니다: {error}", error=e)
+                _("Plugins 파일은 Save되었지만 활성화에 실패했습니다: {error}", error=e)
             ) from e
 
     return True

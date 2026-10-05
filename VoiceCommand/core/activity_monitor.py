@@ -151,7 +151,7 @@ class ActivityMonitor(QObject):
             if not self._lock_notifications_available:
                 app.removeNativeEventFilter(self._native_filter)
                 self._native_filter = None
-                logging.warning("세션 잠금 알림을 등록하지 못해 주기 확인으로 대신합니다.")
+                logging.warning("세션 잠금 알림을 등록하지 못해 주기 OK으로 대신합니다.")
             self._refresh_session_state()
 
             self._foreground_hook, self._native_callback = self._api.install_foreground_hook(
@@ -165,11 +165,11 @@ class ActivityMonitor(QObject):
             self._ide_long_use_timer.start(60000)
             self._on_foreground_event()
         except Exception:
-            # 부분 등록을 해제한 뒤 시작 오류는 호출부에서 처리한다.
+            # 부분 등록을 해제한 뒤 시작 Error는 호출부에서 처리한다.
             try:
                 self.stop()
             except Exception:
-                log_exception("활동 감지 시작 실패 후 부분 정리 실패")
+                log_exception("Activity monitor 시작 실패 later 부분 정리 실패")
             raise
         return True
 

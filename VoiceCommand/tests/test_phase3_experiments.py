@@ -54,7 +54,7 @@ class Phase3FeatureTests(unittest.TestCase):
 
     def test_presence_features_have_positive_and_negative_signals(self):
         examples = {
-            "url_presence": ("https://example.com/help", "웹 주소 없음"),
+            "url_presence": ("https://example.com/help", "웹 주소 None"),
             "file_path_presence": (r"C:\Users\Ari\report.json", "파일 이름만 말해줘"),
             "app_alias": ("디코 켜줘", "음악을 틀어줘"),
             "entity_signal": ("서울 날씨 알려줘", "무엇을 할지 모르겠어"),

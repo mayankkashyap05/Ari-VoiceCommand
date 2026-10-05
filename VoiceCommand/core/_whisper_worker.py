@@ -2,7 +2,7 @@
 Whisper STT 워커 프로세스.
 메인 프로세스와 stdin/stdout IPC로 통신:
   - IPC 연결 시 "PREPARING\\n", 모델 준비 완료 시 "READY\\n" 출력
-  - 입력: base64 WAV와 인식 모드가 담긴 JSON 한 줄 (구형 base64 입력도 허용)
+  - Input: base64 WAV와 인식 모드가 담긴 JSON 한 줄 (구형 base64 Input도 허용)
   - 출력: 전사 텍스트 한 줄, 결과 없으면 "__NONE__"
   - "QUIT" 수신 시 종료
 """
@@ -15,7 +15,7 @@ import subprocess
 import sys
 import wave
 
-# 메인 프로세스와 동일한 KMP 설정 상속 (혹은 기본 적용)
+# 메인 프로세스와 동일한 KMP Settings 상속 (혹은 Default Apply)
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
 
 
@@ -23,10 +23,10 @@ WORKER_ARGUMENT = "--ari-whisper-worker"
 WORKER_SELF_TEST_ARGUMENT = "--ari-whisper-worker-self-test"
 
 
-def normalize_language(language: str = "ko") -> str:
-    """faster-whisper에서 지원하는 음성 언어 태그를 정규화한다."""
-    value = str(language or "ko").strip().lower().replace("_", "-").split("-", 1)[0]
-    return value if value in {"ko", "en", "ja"} else "ko"
+def normalize_language(language: str = "en") -> str:
+    """Normalize speech language tags supported by faster-whisper."""
+    value = str(language or "en").strip().lower().replace("_", "-").split("-", 1)[0]
+    return value if value in {"ko", "en", "ja"} else "en"
 
 
 def _is_bundled_executable() -> bool:
@@ -73,7 +73,7 @@ def _stop_worker_process(process) -> bool:
     try:
         process.kill()
     except (OSError, ValueError) as exc:
-        # 시간 초과 직후 종료 신호를 보내기 전에 자식 프로세스가 먼저 끝날 수 있다.
+        # 시간 초과 직later 종료 신호를 보내기 전에 자식 프로세스가 먼저 끝날 수 있다.
         logging.debug("Whisper worker self-test child kill failed: %s", type(exc).__name__)
 
     try:
@@ -82,7 +82,7 @@ def _stop_worker_process(process) -> bool:
         try:
             process.kill()
         except (OSError, ValueError) as exc:
-            # 아래에서 제한 시간 내 회수를 다시 시도해 종료 여부를 확인한다.
+            # 아래에서 제한 시간 내 회수를 다시 시도해 종료 여부를 OK한다.
             logging.debug("Whisper worker self-test retry kill failed: %s", type(exc).__name__)
         try:
             process.communicate(timeout=3)
@@ -98,7 +98,7 @@ def run_worker_self_test(
     result_path: str | None = None,
     timeout_seconds: float = 10.0,
 ) -> int:
-    """모델이나 오디오 장치를 불러오지 않고 실행 파일 자체의 워커 IPC를 확인한다."""
+    """모델이나 오디오 장치를 불러오지 않고 실행 파일 자체의 워커 IPC를 OK한다."""
     language = normalize_language(language)
     result = {"ok": False, "scope": "worker_ipc_only", "language": language}
     process = None

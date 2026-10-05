@@ -13,20 +13,20 @@ class FastPathMixin:
     """`_execute_tool_calls`와 `_emit_user_message`를 가진 명령 클래스에 섞어 쓴다."""
 
     _INSTANT_ACK_RESPONSE_POOL = {
-        "good": ("확인하겠습니다.", "바로 살펴보겠습니다."),
-        "calm": ("잠시만요.", "곧 확인하겠습니다."),
+        "good": ("OK하겠습니다.", "바로 살펴보겠습니다."),
+        "calm": ("잠시만요.", "곧 OK하겠습니다."),
         "down": ("조금만 기다려 주세요.", "바로 살펴보겠습니다."),
     }
     _FAST_PATH_RESPONSE_POOLS = {
         "get_running_apps": {
-            "good": ("실행 중인 앱 목록을 확인했습니다.",),
-            "calm": ("실행 중인 앱 목록을 확인했습니다.",),
-            "down": ("실행 중인 앱 목록을 확인했습니다.",),
+            "good": ("실행 중인 앱 목록을 OK했습니다.",),
+            "calm": ("실행 중인 앱 목록을 OK했습니다.",),
+            "down": ("실행 중인 앱 목록을 OK했습니다.",),
         },
         "take_screenshot": {
-            "good": ("스크린샷을 저장했습니다.",),
-            "calm": ("스크린샷을 저장했습니다.",),
-            "down": ("스크린샷을 저장했습니다.",),
+            "good": ("스크린샷을 Save했습니다.",),
+            "calm": ("스크린샷을 Save했습니다.",),
+            "down": ("스크린샷을 Save했습니다.",),
         },
         "adjust_volume": {
             "good": ("볼륨을 조절했습니다.",),
@@ -52,7 +52,7 @@ class FastPathMixin:
         return self._decision_engine
 
     def try_fast_path(self, text: str) -> Optional["FastPathResult"]:
-        """선택적 로컬 분류 실패는 기존 대화 경로에 영향을 주지 않는다."""
+        """선택적 로컬 분류 실패는 기존 대화 경로에 zero향을 주지 않는다."""
         try:
             from core.config_manager import ConfigManager
 
@@ -75,14 +75,14 @@ class FastPathMixin:
             normalized = result.strip().casefold()
             return normalized.startswith(
                 (
-                    "오류:",
+                    "Error:",
                     "error:",
                     "failed:",
                     "failed to adjust volume",
                     "볼륨 조절 실패",
                     "실행 앱 목록 조회 실패",
                     "スクリーンショットの保存に失敗",
-                    # 현재 언어로 번역된 실패 문구도 실패로 본다.
+                    # 현재 Language로 번역된 실패 문구도 실패로 본다.
                     _("볼륨 조절 실패").casefold(),
                     _("실행 앱 목록 조회 실패: {error}").split("{", 1)[0].strip().casefold(),
                 )
@@ -123,7 +123,7 @@ class FastPathMixin:
             return None
         if name == "take_screenshot" and handler_result:
             path_phrases = {
-                bucket: ("스크린샷을 저장했습니다: {path}",)
+                bucket: ("스크린샷을 Save했습니다: {path}",)
                 for bucket in ("good", "calm", "down")
             }
             return self._fixed_response(

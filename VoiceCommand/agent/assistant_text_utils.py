@@ -7,7 +7,7 @@ import re
 from agent.decision.semantics import DIRECT_CANDIDATES, parse_candidate
 
 _GENERIC_AGENT_PHRASES = (
-    "복합 작업으로 판단되어 단계별 실행으로 전환할게요",
+    "복합 작업으로 판단되어 steps별 실행으로 전환할게요",
     "복합 작업을 실행할게요",
     "진행할게요",
     "처리할게요",
@@ -31,7 +31,7 @@ _SPECIFIC_GOAL_MARKERS = (
 )
 
 
-# "A 그리고 B", "캡처해서 저장해줘"처럼 동작이 이어지는 표현. "설명해서 알려줘"는 동작 하나다.
+# "A 그리고 B", "캡처해서 Save해줘"처럼 동작이 이어지는 표현. "설명해서 알려줘"는 동작 하나다.
 _SEQUENCE_RE = re.compile(r"(?:^|\s)그리고(?:\s|$)|한\s*뒤|고\s*나서|해서(?!\s*(?:알려|말해|보여|설명))")
 # "다음" 바로 앞 글자를 잡는다. 뒤에 시간 명사와 조사가 오면("다음 주에") 제외하고, "다음 주소"는 남긴다.
 _NEXT_AFTER_VERB_RE = re.compile(
@@ -42,7 +42,7 @@ _NEXT_AFTER_VERB_RE = re.compile(
 def _has_step_sequence(text: str) -> bool:
     if _SEQUENCE_RE.search(text):
         return True
-    # "다음"은 받침 ㄴ으로 끝나는 동사 뒤("연 다음", "저장한 다음")에서만 순서를 뜻한다.
+    # "다음"은 받침 ㄴ으로 끝나는 동사 뒤("연 다음", "Save한 다음")에서만 순서를 뜻한다.
     # 조사 "는" 뒤나 "다음 주(에)", "다음 달이야" 같은 시간 표현은 제외한다.
     return any(
         "가" <= match.group(1) <= "힣" and match.group(1) != "는" and (ord(match.group(1)) - 0xAC00) % 28 == 4
@@ -61,9 +61,9 @@ def analyze_tool_request(user_message: str) -> dict:
     if any(token in text for token in ("예약해줘", "예약", "스케줄 잡아", "알람", "타이머")):
         intent = "schedule"
         force_tool = True
-        if "취소" in text:
+        if "Cancel" in text:
             preferred = "cancel_timer" if "타이머" in text else "cancel_scheduled_task"
-        elif "목록" in text or "뭐 있어" in text or "확인" in text:
+        elif "목록" in text or "뭐 있어" in text or "OK" in text:
             preferred = "list_scheduled_tasks"
         else:
             preferred = "set_timer" if "타이머" in text else "schedule_task"
@@ -82,13 +82,13 @@ def analyze_tool_request(user_message: str) -> dict:
         intent = "vision"
         force_tool = True
         preferred = "analyze_screenshot" if "이미지" not in text else "analyze_image_file"
-    elif any(token in text for token in ("기억해", "기억나", "저번에", "지난번", "메모해", "저장해 둔")):
+    elif any(token in text for token in ("기억해", "기억나", "저번에", "지난번", "메모해", "Save해 둔")):
         intent = "memory"
     elif any(
         token in text
         for token in (
             "화면 상태",
-            "화면 확인",
+            "화면 OK",
             "실행",
             "열어",
             "켜줘",
@@ -100,8 +100,8 @@ def analyze_tool_request(user_message: str) -> dict:
             "삭제",
             "이동",
             "복사",
-            "저장해줘",
-            "재생해줘",
+            "Save해줘",
+            "play해줘",
             "볼륨",
             "종료해줘",
             "보고서 만들",

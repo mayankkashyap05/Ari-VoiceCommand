@@ -119,7 +119,7 @@ def _selection(probabilities, targets, labels, threshold, eligible=None):
 
 
 def parser_confirmed_eligibility(rows, predictions, eligible):
-    """정책상 가능한 예측마다 의미 해석기의 확인을 요구한다."""
+    """정책상 가능한 예측마다 의미 해석기의 OK을 요구한다."""
 
     return [
         allowed and parse_candidate(row["text"], prediction.choice).parse_success
@@ -131,7 +131,7 @@ def family_metrics(rows, probabilities, targets, labels, threshold=0.92, eligibl
     """변형이 많은 묶음이 결과를 좌우하지 않도록 템플릿 family마다 한 번씩 점수를 매긴다.
 
     family 하나는 띄어쓰기·잡음·숫자 변형으로 수십에서 수백 행으로 늘어난다.
-    그래서 행 평균은 처음 보는 표현에 얼마나 일반화하는지가 아니라, 변형을 가장
+    그래서 행 평균은 처음 보는 표현에 얼마나 General화하는지가 아니라, 변형을 가장
     많이 만든 family를 얼마나 잘 처리하는지를 보여 준다. 여기서는 행 수와 관계없이
     family마다 한 표씩 준다.
     """
@@ -163,7 +163,7 @@ def family_metrics(rows, probabilities, targets, labels, threshold=0.92, eligibl
 
 
 def macro_metrics(rows, probabilities, targets, labels, threshold=0.92, eligible=None) -> dict:
-    """드문 클래스도 비중을 잃지 않도록 라벨별·언어별로 평균한다."""
+    """드문 클래스도 비중을 잃지 않도록 라벨별·Language별로 평균한다."""
     probabilities = np.asarray(probabilities, dtype=float)
     targets = np.asarray(targets, dtype=int)
     if not len(targets):

@@ -1,5 +1,5 @@
 """
-테마 팔레트 편집 위젯.
+Theme 팔레트 편집 위젯.
 """
 
 from __future__ import annotations
@@ -97,8 +97,8 @@ class ThemeEditorWidget(QWidget):
         palette_group = QGroupBox(_("팔레트 편집"))
         palette_layout = QVBoxLayout(palette_group)
         top = QHBoxLayout()
-        self.name_input.setPlaceholderText(_("테마 이름"))
-        save_btn = QPushButton(_("테마로 저장"))
+        self.name_input.setPlaceholderText(_("Theme 이름"))
+        save_btn = QPushButton(_("Theme로 Save"))
         reset_btn = QPushButton(_("프리셋 초기화"))
         save_btn.clicked.connect(self._on_save)
         reset_btn.clicked.connect(self._on_reset)
@@ -129,7 +129,7 @@ class ThemeEditorWidget(QWidget):
         self.json_edit.setFont(QFont("Consolas", 9))
         json_layout.addWidget(self.json_edit)
         buttons = QHBoxLayout()
-        parse_btn = QPushButton(_("JSON 적용"))
+        parse_btn = QPushButton(_("JSON Apply"))
         copy_btn = QPushButton(_("복사"))
         parse_btn.clicked.connect(self._on_parse_json)
         copy_btn.clicked.connect(lambda: self.json_edit.selectAll() or self.json_edit.copy())
@@ -160,7 +160,7 @@ class ThemeEditorWidget(QWidget):
             if not isinstance(parsed, dict):
                 raise ValueError(_("dict 형식 필요"))
         except Exception:
-            QMessageBox.warning(self, _("JSON 형식 오류"), _("JSON 형식 오류"))
+            QMessageBox.warning(self, _("JSON 형식 Error"), _("JSON 형식 Error"))
             return
         self._load_colors({str(key): str(value) for key, value in parsed.items()})
         self.palette_changed.emit()
@@ -171,9 +171,9 @@ class ThemeEditorWidget(QWidget):
         try:
             theme.save_custom_theme(theme_key, name, self._colors, "")
         except Exception as exc:
-            QMessageBox.warning(self, _("테마 저장 실패"), str(exc))
+            QMessageBox.warning(self, _("Theme Save 실패"), str(exc))
             return
-        QMessageBox.information(self, _("테마 저장 완료"), _("'{name}' 저장됨").format(name=name))
+        QMessageBox.information(self, _("Theme Save complete"), _("'{name}' Save됨").format(name=name))
         self.theme_saved.emit(theme_key)
 
     def _on_reset(self):
@@ -209,7 +209,7 @@ class ThemeEditorDialog(QDialog):
         self.editor.theme_saved.connect(self.theme_saved)
         layout.addWidget(self.editor)
 
-        close_btn = QPushButton(_("닫기"))
+        close_btn = QPushButton(_("Close"))
         close_btn.clicked.connect(self.close)
         btn_row = QHBoxLayout()
         btn_row.addStretch()

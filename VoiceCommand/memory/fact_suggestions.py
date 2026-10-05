@@ -114,7 +114,7 @@ class FactSuggestionStore:
         try:
             write_json_atomic(self.path, self._data, ensure_ascii=False, indent=2)
         except (OSError, TypeError, ValueError) as exc:
-            logging.warning("제안 파일 저장 실패: %s", exc)
+            logging.warning("제안 파일 Save 실패: %s", exc)
             return False
         return True
 

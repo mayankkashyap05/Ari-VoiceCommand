@@ -1,4 +1,4 @@
-﻿"""OpenAPI 기반 외부 REST API 연결 프레임워크."""
+"""OpenAPI 기반 외부 REST API 연결 frames워크."""
 from __future__ import annotations
 
 import json
@@ -63,7 +63,7 @@ class ApiConnector:
             if len(matches) == 1:
                 op = matches[0]
         if op is None:
-            raise KeyError(f"등록되지 않은 API 작업: {service}.{operation_id}")
+            raise KeyError(f"Unregistered API operation: {service}.{operation_id}")
         path = op.path
         query: dict[str, Any] = {}
         for key, value in params.items():

@@ -1,4 +1,4 @@
-"""커밋된 로컬 판단 모델의 배포 검사 테스트."""
+"""커밋된 Local decision model의 배포 검사 테스트."""
 
 from __future__ import annotations
 

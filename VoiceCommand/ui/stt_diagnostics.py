@@ -33,7 +33,7 @@ class STTSampleThread(QThread):
             devices = [pa.get_device_info_by_index(i) for i in range(pa.get_device_count())]
             microphone_index = resolve_input_device_index(self.microphone_name, devices)
             if not audio_lock.acquire(timeout=3):
-                raise RuntimeError(_("마이크가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."))
+                raise RuntimeError(_("Microphone가 다른 작업에서 사용 중입니다. 잠시 later 다시 시도해 주세요."))
             audio_acquired = True
 
             recognizer = sr.Recognizer()
@@ -44,7 +44,7 @@ class STTSampleThread(QThread):
             microphone = SharedMicrophone(device_index=microphone_index)
             with microphone as source:
                 if microphone.stream is None:
-                    raise OSError(_("선택한 마이크를 찾을 수 없습니다. 장치를 다시 선택해 주세요."))
+                    raise OSError(_("선택한 Microphonenot found. 장치를 다시 선택해 주세요."))
                 if recognizer.dynamic_energy_threshold:
                     recognizer.adjust_for_ambient_noise(source, duration=0.25)
                 audio_data = recognizer.listen(source, timeout=5, phrase_time_limit=4)
@@ -60,7 +60,7 @@ class STTSampleThread(QThread):
             if "sr" in locals() and isinstance(exc, sr.WaitTimeoutError):
                 self.done.emit(False, _("음성을 듣지 못했습니다. 다시 시험해 주세요."))
             else:
-                self.done.emit(False, _("음성 인식 시험에 실패했습니다: {error}").format(error=exc))
+                self.done.emit(False, _("speech recognition 시험에 실패했습니다: {error}").format(error=exc))
         finally:
             if locals().get("audio_acquired"):
                 audio_lock.release()
@@ -68,7 +68,7 @@ class STTSampleThread(QThread):
 
 class STTSampleDiagnosticPanel(QGroupBox):
     def __init__(self, settings_provider: Callable[[], dict], microphone_name: str, parent=None):
-        super().__init__(_("음성 인식 시험"), parent)
+        super().__init__(_("speech recognition 시험"), parent)
         self._settings_provider = settings_provider
         self._microphone_name = microphone_name
         self._thread: STTSampleThread | None = None
@@ -95,7 +95,7 @@ class STTSampleDiagnosticPanel(QGroupBox):
         settings = self._settings_provider()
         self._closing = False
         self.button.setEnabled(False)
-        self.status.setText(_("마이크를 준비하고 있습니다..."))
+        self.status.setText(_("Microphone를 준비하고 있습니다..."))
         self.status.setStyleSheet("color: #888;")
         thread = STTSampleThread(settings, self._microphone_name)
         thread.status_changed.connect(self._on_status_changed)

@@ -1,4 +1,4 @@
-"""배포 실행 파일에 묶인 판단 모델을 읽고 고정 문장으로 확인한다."""
+"""배포 실행 파일에 묶인 판단 모델을 읽고 고정 문장으로 OK한다."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ _SAMPLES = (
 )
 
 
-# .mo 파일은 저장소에 없고 빌드 때 만들어지므로, 번역이 빠진 채 묶였는지도 확인한다.
+# .mo 파일은 Save소에 없고 빌드 때 만들어지므로, 번역이 빠진 채 묶였는지도 OK한다.
 _TRANSLATION_PROBE = "볼륨을 조절했습니다."
 _TRANSLATED_LANGUAGES = ("en", "ja")
 

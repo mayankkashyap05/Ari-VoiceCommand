@@ -1,4 +1,4 @@
-"""명령 기본 인터페이스"""
+"""명령 Default 인터페이스"""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import Any
@@ -14,16 +14,16 @@ class CommandResult:
 
 
 class BaseCommand(ABC):
-    """명령 기본 클래스.
+    """명령 Default 클래스.
 
-    priority: 낮을수록 먼저 매칭 시도. 기본값 50.
+    priority: 낮을수록 먼저 매칭 시도. Default값 50.
     특수 명령(종료, 타이머 등)은 낮은 값(10~30), AI fallback은 높은 값(100).
     """
     priority: int = 50
 
     @abstractmethod
     def matches(self, text: str) -> bool:
-        """명령어 매칭 여부 확인"""
+        """명령어 매칭 여부 OK"""
         pass
 
     @abstractmethod

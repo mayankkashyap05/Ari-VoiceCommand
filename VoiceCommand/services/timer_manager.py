@@ -51,7 +51,7 @@ class TimerManager:
             normalized_name = (name or "").strip() or self._auto_name()
             replacing = normalized_name in self._timers
             if not replacing and len(self._timers) >= self._MAX_TIMERS:
-                raise ValueError(_("타이머는 최대 {max}개까지 설정할 수 있습니다.", max=self._MAX_TIMERS))
+                raise ValueError(_("타이머는 max {max}개까지 Settings할 수 있습니다.", max=self._MAX_TIMERS))
             if replacing:
                 self._timers[normalized_name].cancel()
 
@@ -73,14 +73,14 @@ class TimerManager:
 
         if announce:
             if auto_named:
-                self.tts_callback(_("{label} 타이머를 설정했습니다.", label=label))
+                self.tts_callback(_("{label} 타이머를 Settings했습니다.", label=label))
             else:
-                message = _("'{name}' 타이머를 설정했습니다. ({label})").format(
+                message = _("'{name}' 타이머를 Settings했습니다. ({label})").format(
                     name=normalized_name,
                     label=label,
                 )
                 self.tts_callback(message)
-        logging.info("타이머 설정: %s (%s)", normalized_name, label)
+        logging.info("타이머 Settings: %s (%s)", normalized_name, label)
         return normalized_name
 
     def cancel(self):
@@ -104,9 +104,9 @@ class TimerManager:
 
         if announce:
             if entry.auto_named:
-                self.tts_callback(_("타이머가 취소되었습니다."))
+                self.tts_callback(_("타이머가 Cancel되었습니다."))
             else:
-                self.tts_callback(_("'{name}' 타이머를 취소했습니다.", name=target_name))
+                self.tts_callback(_("'{name}' 타이머를 Cancel했습니다.", name=target_name))
         return True
 
     def list_timers(self) -> list[dict]:

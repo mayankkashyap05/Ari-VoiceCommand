@@ -26,7 +26,7 @@ _SENSITIVE_KEYWORDS = re.compile(
 
 
 def is_sensitive_memory_text(text: str) -> bool:
-    """민감 숫자 패턴이나 건강·범죄 용어가 있는지 확인한다."""
+    """민감 숫자 패턴이나 건강·범죄 용어가 있는지 OK한다."""
     candidate = str(text or "")
     return any(pattern.search(candidate) for pattern in SENSITIVE_PATTERNS) or bool(
         _SENSITIVE_KEYWORDS.search(candidate)

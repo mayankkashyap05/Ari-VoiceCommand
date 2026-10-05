@@ -155,7 +155,7 @@ class TextInterfaceStreamingTests(unittest.TestCase):
         self.assertLess(bubble.maximumWidth(), widget.width())
 
     def test_chat_widget_bubble_grows_with_wrapped_lines(self):
-        # 실제 UI와 같이 크기 조절되는 스크롤 영역 안에 넣어야 잘림이 재현된다.
+        # 실제 UI와 같이 크기 조절되는 스크롤 zero역 안에 넣어야 잘림이 재현된다.
         host = QWidget()
         host_layout = QVBoxLayout(host)
         scroll = QScrollArea()
@@ -359,10 +359,10 @@ class TextInterfaceStreamingTests(unittest.TestCase):
             task_id="task-1",
             name="매우 긴 예약 작업 이름 " * 4,
             goal="예약 작업 설명이 길어서 여러 줄로 자연스럽게 줄바꿈되어야 합니다. " * 4,
-            schedule_expr="매주 수요일 오후 11시 45분마다 아주 긴 설명이 붙는 스케줄",
+            schedule_expr="매주 수요일 오later 11시 45분마다 아주 긴 설명이 붙는 스케줄",
             next_run="2026-04-06T23:45:00",
             last_run="2026-04-05T23:45:00",
-            last_result="이전 실행 결과도 길어서 오른쪽으로 밀리지 않고 영역 안에서 줄바꿈되어야 합니다. " * 2,
+            last_result="이전 실행 결과도 길어서 오른쪽으로 밀리지 않고 zero역 안에서 줄바꿈되어야 합니다. " * 2,
         )
         row = TaskRow(task)
         labels = row.findChildren(QLabel)

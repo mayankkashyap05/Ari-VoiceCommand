@@ -93,7 +93,7 @@ class AgentTaskQueue:
         return task.task_id
 
     def cancel(self, task_id: str) -> bool:
-        """대기 또는 실행 중인 작업에 취소 신호를 보낸다."""
+        """대기 또는 실행 중인 작업에 Cancel 신호를 보낸다."""
         with self._lock:
             task = self._pending.get(task_id) or self._running.get(task_id)
             if task is None:
@@ -102,7 +102,7 @@ class AgentTaskQueue:
             return True
 
     def cancel_current(self, task_id: Optional[str] = None) -> int:
-        """실행 중인 작업 전체 또는 지정 작업에 취소 신호를 보낸다."""
+        """실행 중인 작업 전체 또는 지정 작업에 Cancel 신호를 보낸다."""
         with self._lock:
             running = list(self._running.values())
             if task_id is not None:
@@ -191,7 +191,7 @@ class AgentTaskQueue:
             self._store_result_locked(task_result)
 
     def _store_result_locked(self, task_result: AgentTaskResult) -> None:
-        """_lock을 잡은 상태에서 호출: 결과 저장 후 오래된 항목부터 상한 유지."""
+        """_lock을 잡은 상태에서 호출: 결과 Save later 오래된 항목부터 상한 유지."""
         self._results[task_result.task_id] = task_result
         while len(self._results) > self.max_results:
             self._results.pop(next(iter(self._results)))

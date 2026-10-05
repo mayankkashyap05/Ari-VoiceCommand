@@ -45,13 +45,13 @@ def register_fonts():
                 families = QFontDatabase.applicationFontFamilies(font_id)
                 if families:
                     _font_family = families[0]
-                    logging.info(f"말풍선 폰트 로드 완료: {_font_family}")
+                    logging.info(f"말풍선 Font loading complete: {_font_family}")
         else:
-            logging.warning(f"말풍선 폰트 파일을 찾지 못했습니다: {font_path}")
+            logging.warning(f"말풍선 Font file not found: {font_path}")
 
         if _font_family is None:
             _font_family = "맑은 고딕"
-            logging.warning("말풍선 폰트를 기본값(맑은 고딕)으로 사용합니다.")
+            logging.warning("말풍선 폰트를 Default값(맑은 고딕)으로 사용합니다.")
 
     return _font_family
 
@@ -66,11 +66,11 @@ class SpeechBubble(QWidget):
         self.text = text
         self.parent_widget = parent
 
-        # 윈도우 설정
+        # 윈도우 Settings
         self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        # 폰트 설정 (이미 등록된 폰트 사용)
+        # 폰트 Settings (이미 등록된 폰트 사용)
         font_family = register_fonts()
         self.font = QFont(font_family, theme_module.FONT_SIZE_LARGE + 1)
         self.fm = QFontMetrics(self.font)
@@ -82,7 +82,7 @@ class SpeechBubble(QWidget):
             # 위치 계산
             self.update_position()
         except Exception as e:
-            logging.error(f"SpeechBubble 초기화 중 오류: {e}")
+            logging.error(f"SpeechBubble 초기화 중 Error: {e}")
 
     def _text_height(self, text: str, width: int) -> int:
         # 그리기와 같은 폭·flags로 높이를 잰다
@@ -135,11 +135,11 @@ class SpeechBubble(QWidget):
         self.update()
 
     def update_position(self):
-        """말풍선 위치 업데이트"""
+        """말풍선 위치 Update"""
         if not self.parent_widget:
             return
 
-        # 캐릭터의 화면 좌표
+        # Character의 화면 좌표
         parent_rect = self.parent_widget.rect()
         parent_pos = self.parent_widget.mapToGlobal(parent_rect.topLeft())
 
@@ -150,7 +150,7 @@ class SpeechBubble(QWidget):
         head_top_offset = int(head_top_offset() or 0) if callable(head_top_offset) else 0
         y = parent_pos.y() + head_top_offset - self.bubble_height - 5
 
-        # 캐릭터가 있는 화면의 작업 영역 안으로 제한 (머리 위 배치는 유지)
+        # Character가 있는 화면의 작업 zero역 안으로 제한 (머리 위 배치는 유지)
         screen = self.parent_widget.screen()
         if screen is not None:
             area = screen.availableGeometry()
@@ -166,10 +166,10 @@ class SpeechBubble(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # 말풍선 영역 (꼬리 제외)
+        # 말풍선 zero역 (꼬리 제외)
         bubble_rect = QRect(0, 0, self.bubble_width, self.bubble_height - 15)
 
-        # 테마 기반 색상
+        # Theme 기반 색상
         bg_color = QColor(theme_module.COLOR_BG_WHITE)
         bg_color.setAlpha(245)
         border_color = QColor(210, 210, 210)

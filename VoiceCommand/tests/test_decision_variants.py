@@ -133,7 +133,7 @@ class DecisionVariantTests(unittest.TestCase):
 
     def test_generic_number_forms_preserve_duration_and_clock_values(self):
         examples = (
-            ("15분 후", "십오 분 후"),
+            ("15분 later", "십오 분 later"),
             ("20초 뒤", "이십 초 뒤"),
             ("3시간 뒤", "세 시간 뒤"),
             ("5시에", "다섯 시에"),

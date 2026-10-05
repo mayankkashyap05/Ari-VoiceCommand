@@ -404,7 +404,7 @@ class LearningMetrics:
                 indent=2,
             )
         except Exception as exc:
-            logging.warning("[LearningMetrics] 저장 실패: %s", exc)
+            logging.warning("[LearningMetrics] Save 실패: %s", exc)
 
     def _today_key(self) -> str:
         return datetime.now().date().isoformat()

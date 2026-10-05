@@ -1,5 +1,5 @@
 """
-AgentPlanner — 목표 분해 / 단계 수정 / 결과 검증 플래너 핵심 로직.
+AgentPlanner — 목표 분해 / steps 수정 / 결과 검증 플래너 핵심 로직.
 """
 import json
 import logging
@@ -21,15 +21,15 @@ from agent.planner.action_step import ActionStep
 from agent.planner.template_plans import TemplatePlansMixin
 
 _DEV_SCOPE_RE = re.compile(
-    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:저장소|repository|codebase|repo)\b)?|voicecommand/validate_repo\.py\b|\bdocs\b)",
+    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:Save소|repository|codebase|repo)\b)?|voicecommand/validate_repo\.py\b|\bdocs\b)",
     re.IGNORECASE,
 )
 _DEV_PRODUCT_RE = re.compile(r"\bvoicecommand\b", re.IGNORECASE)
 _DEV_ACTION_RE = re.compile(
-    r"(validate_repo\.py|--compile-only|pytest|unittest|회귀|리팩토링|코드\s*(?:변경|수정)|테스트(?:\s*실행)?|문서\s*수정|bug|fix|refactor|구현|검증|개선(?:\s*과제)?|분석|전체\s*파악|영향받는\s*테스트)",
+    r"(validate_repo\.py|--compile-only|pytest|unittest|회귀|리팩토링|코드\s*(?:변경|수정)|테스트(?:\s*실행)?|문서\s*수정|bug|fix|refactor|구현|검증|개선(?:\s*과제)?|분석|전체\s*파악|zero향받는\s*테스트)",
     re.IGNORECASE,
 )
-_DEV_REPO_RE = re.compile(r"(저장소|repository|codebase|\brepo\b|프로젝트)", re.IGNORECASE)
+_DEV_REPO_RE = re.compile(r"(Save소|repository|codebase|\brepo\b|프로젝트)", re.IGNORECASE)
 _DISALLOWED_DEVELOPER_PATTERNS = (
     (re.compile(r"step_outputs\s*\[\s*\d+\s*\]"), "numeric step_outputs access"),
     (re.compile(r"os\.environ\s*\[\s*['\"]repo_root['\"]\s*\]"), "repo_root env access"),
@@ -88,7 +88,7 @@ def _get_lang() -> str:
         from i18n.translator import get_language
         return get_language()
     except Exception as exc:
-        logging.debug("[Planner] 언어 설정 조회 실패, ko 기본값 사용: %s", exc)
+        logging.debug("[Planner] Language Settings 조회 실패, ko Default값 사용: %s", exc)
         return "ko"
 
 
@@ -117,7 +117,7 @@ def _get_reflect_prompt() -> str:
 
 
 class AgentPlanner(TemplatePlansMixin):
-    """목표 분해 / 단계 수정 / 결과 검증 플래너"""
+    """목표 분해 / steps 수정 / 결과 검증 플래너"""
 
     def __init__(self, llm_provider):
         self.llm = llm_provider
@@ -154,7 +154,7 @@ class AgentPlanner(TemplatePlansMixin):
         context: Dict[str, str] = None,
         component_trials: Optional[Dict[str, Dict[str, bool]]] = None,
     ) -> List[ActionStep]:
-        """목표를 실행 단계 목록으로 분해 (planner_model 사용)"""
+        """목표를 실행 steps 목록으로 분해 (planner_model 사용)"""
         from agent.dag_builder import extract_resources, build_dag, assign_parallel_groups, annotate_steps
         from agent.few_shot_injector import get_few_shot_injector
         from agent.planner_feedback import get_planner_feedback_loop
@@ -250,7 +250,7 @@ class AgentPlanner(TemplatePlansMixin):
                 step_id=i,
                 step_type=s.get("step_type", "python"),
                 content=s.get("content", ""),
-                description_kr=s.get("description_kr", f"단계 {i+1}"),
+                description_kr=s.get("description_kr", f"steps {i+1}"),
                 expected_output=s.get("expected_output", ""),
                 condition=s.get("condition", ""),
                 on_failure=s.get("on_failure", "abort"),
@@ -292,13 +292,13 @@ class AgentPlanner(TemplatePlansMixin):
         if retry_items:
             retry_items = self._sanitize_developer_items(retry_items, goal=goal, context=context)
         if retry_items:
-            logging.info("[Planner] 개발 목표 후속 계획 재요청 성공")
+            logging.info("[Planner] 개발 목표 later속 계획 재요청 성공")
             return retry_items
         logging.warning("[Planner] decompose_retry 실패 → 최소 변경 fallback 없이 계획 실패 처리")
         return []
 
     def _build_developer_bootstrap_plan(self, context: Dict[str, str] = None) -> List[ActionStep]:
-        """개발자 모드 초기화 플랜 생성 — 저장소 스캔·검증 스크립트 확인·테스트 목록 수집."""
+        """개발자 모드 초기화 플랜 생성 — Save소 스캔·검증 스크립트 OK·테스트 목록 수집."""
         context = context or {}
         if any(key.startswith("step_") for key in context):
             return []
@@ -329,7 +329,7 @@ class AgentPlanner(TemplatePlansMixin):
                     "    summary[label] = {'file_count': len(files), 'samples': files[:5]}\n"
                     "print(json.dumps(summary, ensure_ascii=False))"
                 ),
-                description_kr="저장소 구조 스캔",
+                description_kr="Save소 구조 스캔",
                 expected_output="target directory summary json",
                 on_failure="abort",
             ),
@@ -349,7 +349,7 @@ class AgentPlanner(TemplatePlansMixin):
                     "# 경로만 출력 — 소스 전체를 읽으면 컨텍스트가 폭발하므로 금지\n"
                     "print(f'validate_repo_path={target_path}')"
                 ),
-                description_kr="검증 스크립트 확인",
+                description_kr="검증 스크립트 OK",
                 expected_output="validate_repo_path=<path>",
                 on_failure="abort",
             ),
@@ -382,7 +382,7 @@ class AgentPlanner(TemplatePlansMixin):
         goal: str,
         context: Dict[str, str] = None,
     ) -> Optional[ActionStep]:
-        """실패한 단계를 LLM으로 수정 (execution_model 사용)"""
+        """실패한 steps를 LLM으로 수정 (execution_model 사용)"""
         # 과거 실패 패턴도 힌트로 제공
         failure_hints = self._get_failure_hints(goal)
         ctx_block = self._fmt_context(context)
@@ -434,12 +434,12 @@ class AgentPlanner(TemplatePlansMixin):
         goal: str,
         context: Dict[str, str] = None,
     ) -> Optional[ActionStep]:
-        """LLM 수정안이 깨졌을 때 적용하는 규칙 기반 복구."""
+        """LLM 수정안이 깨졌을 때 Apply하는 규칙 기반 복구."""
         content = step.content or ""
         normalized_error = (error or "").lower()
         normalized_goal = goal or ""
 
-        if "검색 결과를 저장할 수 없습니다" in error and any(token in normalized_goal for token in ("검색", "뉴스", "웹")):
+        if "검색 결과를 Save할 수 없습니다" in error and any(token in normalized_goal for token in ("검색", "뉴스", "웹")):
             return ActionStep(
                 step_id=step.step_id,
                 step_type="python",
@@ -447,12 +447,12 @@ class AgentPlanner(TemplatePlansMixin):
                     "folder_path = step_outputs.get('step_0_output', '').strip()\n"
                     "results_text = step_outputs.get('step_1_output', '')\n"
                     "if not folder_path:\n"
-                    "    raise RuntimeError('저장 경로가 없습니다.')\n"
+                    "    raise RuntimeError('Save 경로가 없습니다.')\n"
                     "fallback_content = '# 검색 결과\\n\\n' + (results_text or '검색 결과를 가져오지 못했습니다.')\n"
                     "saved_path = save_document(folder_path, 'search_results_fallback', fallback_content, preferred_format='md', title='검색 결과')\n"
                     "print(saved_path)"
                 ),
-                description_kr="검색 결과 폴백 저장",
+                description_kr="검색 결과 폴백 Save",
                 expected_output="fallback search file path",
                 condition=step.condition,
                 on_failure=step.on_failure,
@@ -491,8 +491,8 @@ class AgentPlanner(TemplatePlansMixin):
         lines = []
         for i, r in enumerate(step_results):
             status = "성공" if r.success else "실패"
-            out = r.output[:150] if r.output else (r.error[:150] if r.error else "없음")
-            lines.append(f"  단계 {i+1} [{status}]: {out}")
+            out = r.output[:150] if r.output else (r.error[:150] if r.error else "None")
+            lines.append(f"  steps {i+1} [{status}]: {out}")
         results_summary = "\n".join(lines)
         prompt = _get_verify_prompt().format(goal=goal, results_summary=results_summary)
         client, provider, model = self._get_role_target("planner")
@@ -511,7 +511,7 @@ class AgentPlanner(TemplatePlansMixin):
             from agent.strategy_memory import get_strategy_memory
             return callback(get_strategy_memory())
         except Exception as exc:
-            logging.debug("[Planner] StrategyMemory 접근 실패, 기본값 사용: %s", exc)
+            logging.debug("[Planner] StrategyMemory 접근 실패, Default값 사용: %s", exc)
             return default
 
     def _with_episode_memory(self, callback, default):
@@ -519,7 +519,7 @@ class AgentPlanner(TemplatePlansMixin):
             from agent.episode_memory import get_episode_memory
             return callback(get_episode_memory())
         except Exception as exc:
-            logging.debug("[Planner] EpisodeMemory 접근 실패, 기본값 사용: %s", exc)
+            logging.debug("[Planner] EpisodeMemory 접근 실패, Default값 사용: %s", exc)
             return default
 
     def _get_strategy_context(self, goal: str) -> str:
@@ -600,7 +600,7 @@ class AgentPlanner(TemplatePlansMixin):
                         if has_fallback and delay >= 8.0:
                             next_model = candidates[candidate_index + 1][2]
                             logging.warning(
-                                "[Planner] %s 장기 대기 오류(%.1fs) → 선택된 대체 모델 %s로 즉시 전환: %s",
+                                "[Planner] %s 장기 대기 Error(%.1fs) → 선택된 대체 모델 %s로 즉시 전환: %s",
                                 target_model,
                                 delay,
                                 next_model,
@@ -610,7 +610,7 @@ class AgentPlanner(TemplatePlansMixin):
                             break
                         if attempt < 2 and is_retryable_llm_error(e):
                             logging.warning(
-                                "[Planner] LLM 일시 오류 (%s) → %.1fs 대기 후 재시도: %s",
+                                "[Planner] LLM 일시 Error (%s) → %.1fs 대기 later 재시도: %s",
                                 target_model,
                                 delay,
                                 error_for_log,
@@ -627,7 +627,7 @@ class AgentPlanner(TemplatePlansMixin):
                             )
                             failed = True
                             break
-                        logging.error("[Planner] LLM 호출 오류 (%s): %s", target_model, error_for_log)
+                        logging.error("[Planner] LLM 호출 Error (%s): %s", target_model, error_for_log)
                         # 이어받기 중에 실패하면 잘린 JSON을 돌려주지 않는다.
                         return ""
                 if failed:
@@ -703,16 +703,16 @@ class AgentPlanner(TemplatePlansMixin):
             sanitized.append(item)
         if has_repo_context:
             if any(str(item.get("step_type", "") or "").lower() == "think" for item in sanitized):
-                logging.warning("[Planner] 개발 계획 거부 (bootstrap 이후 think 단계 재등장)")
+                logging.warning("[Planner] 개발 계획 거부 (bootstrap 이later think steps 재등장)")
                 return []
             if not has_code_change:
-                logging.warning("[Planner] 개발 계획 거부 (실제 코드 변경 단계 없음)")
+                logging.warning("[Planner] 개발 계획 거부 (실제 코드 변경 steps None)")
                 return []
             if self._developer_goal_requests_validate_repo(goal) and not has_validate_repo:
-                logging.warning("[Planner] 개발 계획 거부 (validate_repo 검증 단계 없음)")
+                logging.warning("[Planner] 개발 계획 거부 (validate_repo 검증 steps None)")
                 return []
             if self._developer_goal_requests_tests(goal) and not has_test_validation:
-                logging.warning("[Planner] 개발 계획 거부 (영향 테스트 검증 단계 없음)")
+                logging.warning("[Planner] 개발 계획 거부 (zero향 테스트 검증 steps None)")
                 return []
         return sanitized
 
@@ -808,7 +808,7 @@ class AgentPlanner(TemplatePlansMixin):
         return "validate_repo.py" in normalized or "--compile-only" in normalized or "검증" in (goal or "")
 
     def _developer_goal_requests_tests(self, goal: str) -> bool:
-        return bool(re.search(r"(영향받는\s*테스트|관련\s*테스트|pytest|unittest|tests?)", goal or "", re.IGNORECASE))
+        return bool(re.search(r"(zero향받는\s*테스트|관련\s*테스트|pytest|unittest|tests?)", goal or "", re.IGNORECASE))
 
     def _is_validate_repo_validation_step(self, content: str) -> bool:
         normalized = self._normalize_developer_path(content)
@@ -844,7 +844,7 @@ class AgentPlanner(TemplatePlansMixin):
     def _fmt_context(self, context: Dict[str, str]) -> str:
         if not context:
             return ""
-        lines = ["이전 단계 결과:"]
+        lines = ["이전 steps 결과:"]
         for k, v in context.items():
             lines.append(f"  {k}: {str(v)[:120]}")
         return "\n".join(lines) + "\n"
@@ -868,7 +868,7 @@ class AgentPlanner(TemplatePlansMixin):
     def _fmt_developer_context(self, context: Dict[str, str], goal: str = "") -> str:
         if not context:
             return ""
-        lines = ["저장소 개발 컨텍스트:"]
+        lines = ["Save소 개발 컨텍스트:"]
 
         repo_scan = str(context.get("step_0_output", "") or "")
         if repo_scan:
@@ -933,7 +933,7 @@ class AgentPlanner(TemplatePlansMixin):
                     f"{'=' * 80}\n"
                 )
         except Exception as e:
-            logging.warning("[Planner] trace 저장 실패: %s", e)
+            logging.warning("[Planner] trace Save 실패: %s", e)
 
 
 # ── 싱글톤 ─────────────────────────────────────────────────────────────────────

@@ -132,7 +132,7 @@ search_coupang_products
                     """---
 name: lck-analytics
 skill_type: search
-description: 기본 설명
+description: Default 설명
 description_en: English description
 triggers_en:
   - LCK

@@ -1,6 +1,6 @@
-﻿"""에이전트 성능 벤치마크 실행기.
+"""에이전트 성능 벤치마크 실행기.
 
-pytest 기본 수집 대상은 아니며 필요 시 직접 실행한다:
+pytest Default 수집 대상은 아니며 필요 시 직접 실행한다:
     py -3.11 VoiceCommand/tests/benchmark_agent.py
 """
 from __future__ import annotations
@@ -35,9 +35,9 @@ TASKS = [
     BenchmarkTask("code", "버그를 수정한다"),
     BenchmarkTask("code", "테스트를 추가한다"),
     BenchmarkTask("code", "문서를 생성한다"),
-    BenchmarkTask("complex", "두 단계 파일 작업을 수행한다"),
-    BenchmarkTask("complex", "조사 후 요약한다"),
-    BenchmarkTask("complex", "상태 확인 후 보고한다"),
+    BenchmarkTask("complex", "두 steps 파일 작업을 수행한다"),
+    BenchmarkTask("complex", "조사 later 요약한다"),
+    BenchmarkTask("complex", "상태 확인 later 보고한다"),
     BenchmarkTask("complex", "계획 실행 검증을 수행한다"),
 ]
 

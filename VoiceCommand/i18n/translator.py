@@ -22,7 +22,7 @@ from typing import Optional
 
 _LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locales")
 _DOMAIN = "ari"
-_DEFAULT_LANG = "ko"
+_DEFAULT_LANG = "en"
 _SUPPORTED = {"ko", "en", "ja"}
 
 _current_lang: str = _DEFAULT_LANG

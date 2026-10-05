@@ -15,7 +15,7 @@ _LEGACY_KNOWLEDGE_BASE_FILES = (
     "knowledge_base.db-wal",
     "knowledge_base.db-shm",
 )
-# 사용자가 편집하지 않는 앱 리소스. 업데이트 뒤 번들본과 다르면 새로 복사한다.
+# 사용자가 편집하지 않는 앱 리소스. Update 뒤 번들본과 다르면 새로 복사한다.
 _APP_MANAGED_FILES = frozenset({"icon.png"})
 _LEGACY_RUNTIME_MAPPINGS = (
     ("ari_settings.json", "ari_settings.json"),
@@ -52,7 +52,7 @@ def _is_bundled() -> bool:
 
 
 def is_bundled() -> bool:
-    """다른 모듈이 배포 실행 파일 여부를 확인할 때 쓰는 공개 이름."""
+    """다른 모듈이 배포 실행 파일 여부를 OK할 때 쓰는 공개 이름."""
     return _is_bundled()
 
 
@@ -147,7 +147,7 @@ class ResourceManager:
 
     @staticmethod
     def _contents_match(source: str, destination: str) -> bool:
-        """원본의 모든 파일이 대상에 같은 내용으로 있는지 확인한다.
+        """원본의 모든 파일이 대상에 같은 내용으로 있는지 OK한다.
 
         여러 원본 폴더가 한 대상 폴더로 합쳐지므로 대상에만 있는 파일은 따지지 않는다.
         """
@@ -263,7 +263,7 @@ class ResourceManager:
         try:
             os.makedirs(base, exist_ok=True)
         except OSError as exc:
-            logging.warning("사용자 데이터 디렉터리를 만들 수 없어 저장 기능이 제한될 수 있습니다: %s", exc)
+            logging.warning("사용자 데이터 디렉터리를 만들 수 없어 Save 기능이 제한될 수 있습니다: %s", exc)
             ResourceManager._app_data_dir = base
             return base
         ResourceManager._cleanup_legacy_knowledge_base(base)
@@ -314,7 +314,7 @@ class ResourceManager:
             logging.info("✓ 파일 갱신: %s", os.path.basename(destination))
             return True
         except OSError as e:
-            logging.error("리소스 갱신 실패 %s: %s", os.path.basename(destination), e)
+            logging.error("리소스 Update failed %s: %s", os.path.basename(destination), e)
             return False
 
     @staticmethod
@@ -364,7 +364,7 @@ class ResourceManager:
 
     @staticmethod
     def ensure_theme_files() -> str:
-        """테마 JSON 파일을 사용자 편집 가능한 위치에 보장한다."""
+        """Theme JSON 파일을 사용자 편집 가능한 위치에 보장한다."""
         writable = ResourceManager.get_writable_path("theme")
         source = ResourceManager.get_bundle_path("theme")
         os.makedirs(writable, exist_ok=True)
@@ -380,12 +380,12 @@ class ResourceManager:
                     elif os.path.isfile(src) and not os.path.exists(dst):
                         shutil.copy2(src, dst)
         except Exception as e:
-            logging.warning("테마 파일 준비 실패: %s", e)
+            logging.warning("Theme 파일 준비 실패: %s", e)
         return writable
 
     @staticmethod
     def ensure_plugin_files() -> str:
-        """플러그인 템플릿 파일을 사용자 편집 가능한 위치에 보장한다."""
+        """Plugins 템플릿 파일을 사용자 편집 가능한 위치에 보장한다."""
         writable = ResourceManager.get_writable_path("plugins")
         source = ResourceManager.get_bundle_path("plugins")
         os.makedirs(writable, exist_ok=True)
@@ -401,5 +401,5 @@ class ResourceManager:
                     elif os.path.isfile(src) and not os.path.exists(dst):
                         shutil.copy2(src, dst)
         except Exception as e:
-            logging.warning("플러그인 파일 준비 실패: %s", e)
+            logging.warning("Plugins 파일 준비 실패: %s", e)
         return writable

@@ -101,7 +101,7 @@ class McpSession:
         try:
             self._post_notification(_INITIALIZED_NOTIFICATION)
         except Exception as exc:
-            logger.warning("[MCP] notifications/initialized 전송 실패: %s", exc)
+            logger.warning("[MCP] notifications/initialized Send 실패: %s", exc)
 
         if notification_cb and self.session_id:
             self._start_sse_listener()

@@ -144,7 +144,7 @@ class RealVerifierTests(unittest.TestCase):
             [
                 _DummyStepResult(
                     "데스크톱 앱 워크플로우 실행",
-                    output='{"window_title":"제목 없음 - 메모장","actions":["성공: type","성공: hotkey(ctrl,s)"]}',
+                    output='{"window_title":"제목 None - 메모장","actions":["성공: type","성공: hotkey(ctrl,s)"]}',
                 )
             ],
         )
@@ -281,7 +281,7 @@ class RealVerifierTests(unittest.TestCase):
 
         code = verifier._generate_verification_code(
             "저장소 작업이 실제로 검증됐는지 확인해줘",
-            [_DummyStepResult("검증 단계", output="[validate] compile-only checks passed")],
+            [_DummyStepResult("검증 steps", output="[validate] compile-only checks passed")],
         )
 
         self.assertEqual(code, "print(True)")
@@ -306,7 +306,7 @@ class RealVerifierTests(unittest.TestCase):
 
         code = verifier._generate_verification_code(
             "검증 코드 생성",
-            [_DummyStepResult("검증 단계", output="something")],
+            [_DummyStepResult("검증 steps", output="something")],
         )
 
         self.assertIsNone(code)
@@ -363,7 +363,7 @@ class RealVerifierTests(unittest.TestCase):
         verifier = RealVerifier(llm_provider=None, executor=_DummyExecutor())
 
         result = verifier.verify(
-            "VoiceCommand 저장소 전체 파악 후, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료",
+            "VoiceCommand 저장소 전체 파악 later, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료",
             [
                 _DummyStepResult(
                     "코드 수정",
@@ -386,7 +386,7 @@ class RealVerifierTests(unittest.TestCase):
         verifier = RealVerifier(llm_provider=None, executor=_DummyExecutor())
 
         result = verifier.verify(
-            "VoiceCommand 저장소 전체 파악 후 코드 변경 및 검증까지 완료",
+            "VoiceCommand 저장소 전체 파악 later 코드 변경 및 검증까지 완료",
             [
                 _DummyStepResult(
                     "코드 수정",
@@ -471,7 +471,7 @@ class RealVerifierTests(unittest.TestCase):
                 ),
             ):
                 result = verifier.verify(
-                    "VoiceCommand 저장소 전체 파악 후, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료",
+                    "VoiceCommand 저장소 전체 파악 later, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료",
                     [
                         _DummyStepResult("저장소 구조 스캔", output='{"agent": {"file_count": 1}}', content="print('scan')"),
                         _DummyStepResult("검증 스크립트 확인", output="validate_repo.py lines", content="print('validate')"),

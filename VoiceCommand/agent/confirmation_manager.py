@@ -1,6 +1,6 @@
 """
-확인 다이얼로그 관리자 (Confirmation Manager)
-위험한 명령 실행 전 사용자 확인을 요청한다.
+OK 다이얼로그 관리자 (Confirmation Manager)
+위험한 명령 실행 전 사용자 OK을 요청한다.
 크로스-스레드 안전한 Qt 다이얼로그를 제공한다.
 """
 import threading
@@ -16,7 +16,7 @@ from i18n.translator import _
 
 
 class ConfirmationDialog(QDialog):
-    """위험 작업 확인 다이얼로그 (15초 자동 취소)"""
+    """위험 작업 OK 다이얼로그 (15초 자동 Cancel)"""
 
     COUNTDOWN_SECONDS = 15
 
@@ -25,7 +25,7 @@ class ConfirmationDialog(QDialog):
         self._confirmed = False
         self._remaining = self.COUNTDOWN_SECONDS
 
-        self.setWindowTitle(_("⚠️ 위험한 작업 확인"))
+        self.setWindowTitle(_("⚠️ 위험한 작업 OK"))
         self.setWindowFlags(
             Qt.WindowStaysOnTopHint | Qt.Dialog
         )
@@ -80,10 +80,10 @@ class ConfirmationDialog(QDialog):
 
         layout.addSpacing(8)
 
-        # 버튼 영역
+        # 버튼 zero역
         btn_layout = QHBoxLayout()
 
-        self._cancel_btn = QPushButton(_("취소"))
+        self._cancel_btn = QPushButton(_("Cancel"))
         self._cancel_btn.setStyleSheet(
             "QPushButton { background: #e0e0e0; padding: 8px 24px; border-radius: 4px; font-size: 13px; }"
             "QPushButton:hover { background: #bdbdbd; }"
@@ -132,7 +132,7 @@ class _Bridge(QObject):
 
 
 class ConfirmationManager:
-    """비-UI 스레드에서 확인 다이얼로그를 요청하는 매니저"""
+    """비-UI 스레드에서 OK 다이얼로그를 요청하는 매니저"""
 
     def __init__(self):
         self._bridge = _Bridge()
@@ -145,7 +145,7 @@ class ConfirmationManager:
             dialog.exec()
             holder["result"] = dialog.confirmed
         except Exception as e:
-            logging.error("확인 다이얼로그 오류: %s", e)
+            logging.error("OK 다이얼로그 Error: %s", e)
             holder["result"] = False
         finally:
             holder["event"].set()
@@ -159,14 +159,14 @@ class ConfirmationManager:
         """
         CommandExecutionThread(비-UI)에서 호출 — 블로킹.
         메인 스레드에서 다이얼로그를 열고, threading.Event로 결과를 동기화한다.
-        timeout=20초 후 자동 취소.
+        timeout=20초 later 자동 Cancel.
         holder 딕셔너리를 호출별로 생성하여 self._result 공유 변수 경쟁 조건을 방지한다.
         """
         if tts_func:
             try:
                 tts_func(_("위험한 작업이 감지됐어요. {summary}. 실행할까요?", summary=report.summary))
             except Exception as e:
-                logging.debug("확인 안내 TTS 실패: %s", e)
+                logging.debug("OK 안내 TTS 실패: %s", e)
 
         holder: dict = {"event": threading.Event(), "result": False}
         self._bridge.request_dialog.emit(action_desc, report, holder)
@@ -174,7 +174,7 @@ class ConfirmationManager:
         wait_sec = ConfirmationDialog.COUNTDOWN_SECONDS + 5
         confirmed = holder["event"].wait(timeout=wait_sec)
         if not confirmed:
-            logging.warning("확인 다이얼로그 timeout (%d초)", wait_sec)
+            logging.warning("OK 다이얼로그 timeout (%d초)", wait_sec)
             holder.clear()
             return False
 

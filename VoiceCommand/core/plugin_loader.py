@@ -1,12 +1,12 @@
-"""사용자 플러그인 로더.
+"""사용자 Plugins 로더.
 
-`plugins/*.py`와 `plugins/*.zip` 파일을 스캔하고, 각 플러그인의
+`plugins/*.py`와 `plugins/*.zip` 파일을 스캔하고, 각 Plugins의
 `register(context)` 함수를 호출해 확장 기능을 로드한다.
 
 표준 이벤트명:
 - on_agent_complete: 에이전트 실행 완료
 - on_voice_command: 음성/텍스트 명령 처리 완료
-- on_tts_start / on_tts_end: TTS 재생 시작/종료
+- on_tts_start / on_tts_end: TTS playback started/종료
 - on_game_mode_change: 게임 모드 상태 변경
 """
 from __future__ import annotations
@@ -70,7 +70,7 @@ class PluginContext:
     register_tool: Optional[ToolRegistrar] = None
     register_character_pack: Optional[CharacterPackRegistrar] = None
     run_sandboxed: Optional[SandboxRunner] = None
-    set_character_menu_enabled: Optional[CharacterMenuToggle] = None  # callable(bool) — 캐릭터 우클릭 메뉴 표시 여부 제어
+    set_character_menu_enabled: Optional[CharacterMenuToggle] = None  # callable(bool) — Character 우클릭 메뉴 표시 여부 제어
     emit_event: Optional[PluginEventEmitter] = None
     subscribe_event: Optional[PluginEventSubscriber] = None
     confirm_plugin_load: Optional[PluginLoadApprover] = None
@@ -96,11 +96,11 @@ class PluginInfo:
     registered_character_packs: List[str] = field(default_factory=list)
     registered_event_unsubscribers: List[Callable[[], None]] = field(default_factory=list)
     api_specs: List[str] = field(default_factory=list)
-    character_menu_disabled: bool = False  # 이 플러그인이 캐릭터 우클릭 메뉴를 비활성화했는지
+    character_menu_disabled: bool = False  # 이 Plugins이 Character 우클릭 메뉴를 비활성화했는지
 
 
 class _PluginEventBus:
-    """플러그인 간 통신을 위한 가벼운 인-프로세스 이벤트 버스."""
+    """Plugins 간 통신을 위한 가벼운 인-프로세스 이벤트 버스."""
 
     def __init__(self) -> None:
         self._subscribers: dict[str, list[PluginEventHandler]] = {}
@@ -157,11 +157,11 @@ class PluginManager:
         except FileNotFoundError:
             return {}
         except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-            logger.warning("플러그인 신뢰 목록을 읽지 못했습니다: %s", exc)
+            logger.warning("Plugins 신뢰 목록을 읽지 못했습니다: %s", exc)
             return {}
 
         if not isinstance(stored, dict):
-            logger.warning("플러그인 신뢰 목록 형식이 올바르지 않습니다.")
+            logger.warning("Plugins 신뢰 목록 형식is invalid.")
             return {}
         return {
             name: digest.lower()
@@ -196,20 +196,20 @@ class PluginManager:
         return False
 
     def trust_plugin(self, path: str) -> bool:
-        """사용자가 설치에 동의한 플러그인의 현재 해시를 신뢰 목록에 저장한다."""
+        """사용자가 설치에 동의한 Plugins의 현재 해시를 신뢰 목록에 Save한다."""
         with self._load_lock:
             filename = os.path.basename(path)
             try:
                 digest = self._plugin_sha256(path)
             except OSError as exc:
-                logger.warning("플러그인 해시를 읽지 못했습니다 (%s): %s", filename, exc)
+                logger.warning("Plugins 해시를 읽지 못했습니다 (%s): %s", filename, exc)
                 return False
             self._trusted_plugin_hashes[filename] = digest
             self._rejected_plugin_hashes.discard((filename, digest))
             try:
                 self._save_trusted_plugin_hashes()
             except OSError as exc:
-                logger.warning("플러그인 신뢰 목록을 저장하지 못했습니다: %s", exc)
+                logger.warning("Plugins 신뢰 목록을 Save하지 못했습니다: %s", exc)
                 return False
             return True
 
@@ -234,10 +234,10 @@ class PluginManager:
                 try:
                     self._save_trusted_plugin_hashes()
                 except OSError as exc:
-                    logger.warning("플러그인 신뢰 목록을 저장하지 못했습니다: %s", exc)
+                    logger.warning("Plugins 신뢰 목록을 Save하지 못했습니다: %s", exc)
                 return digest
         except (ImportError, AttributeError, OSError) as exc:
-            logger.debug("번들 플러그인 비교 생략 (%s): %s", filename, exc)
+            logger.debug("번들 Plugins 비교 생략 (%s): %s", filename, exc)
 
         if key in self._rejected_plugin_hashes:
             return None
@@ -248,12 +248,12 @@ class PluginManager:
             return None
 
         if self._plugin_sha256(plugin.path) != digest:
-            raise RuntimeError(_("플러그인 파일이 승인 후 변경되었습니다."))
+            raise RuntimeError(_("Plugins 파일이 승인 later 변경되었습니다."))
         self._trusted_plugin_hashes[filename] = digest
         try:
             self._save_trusted_plugin_hashes()
         except OSError as exc:
-            logger.warning("플러그인 신뢰 목록을 저장하지 못했습니다: %s", exc)
+            logger.warning("Plugins 신뢰 목록을 Save하지 못했습니다: %s", exc)
         return digest
 
     def plugin_dir(self) -> str:
@@ -321,14 +321,14 @@ class PluginManager:
             with open(module_path, "r", encoding="utf-8") as handle:
                 source = handle.read()
         except UnicodeDecodeError as exc:
-            raise RuntimeError(f"플러그인 소스 인코딩을 읽을 수 없습니다: {module_path}") from exc
+            raise RuntimeError(f"Plugins 소스 인코딩을 읽을 수 없습니다: {module_path}") from exc
         from agent.safety_checker import DangerLevel, get_safety_checker
         report = get_safety_checker().check_python(
             source,
             trust_level=self._extract_trust_level(source),
         )
         if report.level == DangerLevel.DANGEROUS:
-            raise RuntimeError(f"플러그인 안전 검사 실패: {report.summary}")
+            raise RuntimeError(f"Plugins 안전 검사 실패: {report.summary}")
 
     def _extract_trust_level(self, source: str) -> str:
         try:
@@ -400,7 +400,7 @@ class PluginManager:
                 except Exception as exc:
                     plugin.loaded = False
                     plugin.error = str(exc)
-                    logger.warning("[PluginLoader] 플러그인 로드 실패: %s (%s)", plugin.path, exc)
+                    logger.warning("[PluginLoader] Plugins 로드 실패: %s (%s)", plugin.path, exc)
                     info = plugin
                 loaded_plugins.append(info)
             self._plugins = loaded_plugins
@@ -443,7 +443,7 @@ class PluginManager:
             return self.load_plugin(path)
 
     def reload_batch(self, paths: List[str]) -> List[Optional[PluginInfo]]:
-        """같은 debounce 구간의 플러그인 변경을 한 번의 락 범위에서 처리한다."""
+        """같은 debounce 구간의 Plugins 변경을 한 번의 락 범위에서 처리한다."""
         results: List[Optional[PluginInfo]] = []
         with self._load_lock:
             for path in paths:
@@ -496,12 +496,12 @@ class PluginManager:
                     for pack_name in plugin.registered_character_packs:
                         unregister_character_pack(pack_name)
 
-            # 이 플러그인이 캐릭터 메뉴를 비활성화했다면 복원
+            # 이 Plugins이 Character 메뉴를 비활성화했다면 복원
             if plugin.character_menu_disabled and self._context and self._context.set_character_menu_enabled:
                 try:
                     self._context.set_character_menu_enabled(True)
                 except Exception as exc:
-                    logger.debug("[PluginLoader] 캐릭터 메뉴 복원 실패 (%s): %s", plugin_name, exc)
+                    logger.debug("[PluginLoader] Character 메뉴 복원 실패 (%s): %s", plugin_name, exc)
 
             module = self._modules.pop(plugin_name, None)
             if module is not None:
@@ -518,7 +518,7 @@ class PluginManager:
                     logger.warning("[PluginLoader] 런타임 디렉터리 정리 실패 (%s): %s", plugin.runtime_path, exc)
 
             self._plugins = [item for item in self._plugins if item.name != plugin_name]
-            logger.info("[PluginLoader] 플러그인 언로드: %s", plugin_name)
+            logger.info("[PluginLoader] Plugins 언로드: %s", plugin_name)
             return True
 
     def summary(self) -> List[Dict[str, str]]:
@@ -539,7 +539,7 @@ class PluginManager:
     def _load_single_plugin(self, plugin: PluginInfo, context: PluginContext) -> PluginInfo:
         approved_digest = self._approve_plugin_load(plugin, context)
         if approved_digest is None:
-            raise RuntimeError(_("플러그인 로드가 거부되었습니다."))
+            raise RuntimeError(_("Plugins 로드가 거부되었습니다."))
         module_name = f"ari_user_plugin_{plugin.name}"
         module_path, sys_path_entry = self._resolve_load_target(plugin)
         if plugin.runtime_path:
@@ -551,13 +551,13 @@ class PluginManager:
             self._inspect_python_source(module_path)
         spec = importlib.util.spec_from_file_location(module_name, module_path)
         if spec is None or spec.loader is None:
-            raise RuntimeError("플러그인 모듈 스펙 생성 실패")
+            raise RuntimeError("Plugins 모듈 스펙 생성 실패")
         module = importlib.util.module_from_spec(spec)
         if sys_path_entry and sys_path_entry not in sys.path:
             sys.path.insert(0, sys_path_entry)
             plugin.sys_path_entry = sys_path_entry
         if self._plugin_sha256(plugin.path) != approved_digest:
-            raise RuntimeError(_("플러그인 파일이 승인 후 변경되었습니다."))
+            raise RuntimeError(_("Plugins 파일이 승인 later 변경되었습니다."))
         spec.loader.exec_module(module)
         self._modules[plugin.name] = module
 
@@ -569,7 +569,7 @@ class PluginManager:
         api_ver = str(metadata.get("api_version", "1.0"))
         if api_ver not in _COMPATIBLE_API_VERSIONS:
             raise RuntimeError(
-                f"호환되지 않는 플러그인 API 버전: {api_ver!r} "
+                f"호환되지 않는 Plugins API 버전: {api_ver!r} "
                 f"(지원: {sorted(_COMPATIBLE_API_VERSIONS)})"
             )
         plugin.api_version = api_ver
@@ -603,7 +603,7 @@ class PluginManager:
                     spec_path = os.path.join(base_dir, spec)
                 connector.load_openapi_spec(spec_path, service=plugin.name)
         except Exception as exc:
-            logger.warning("플러그인 API 스펙 로드 실패(%s): %s", plugin.name, exc)
+            logger.warning("Plugins API 스펙 로드 실패(%s): %s", plugin.name, exc)
 
     def _resolve_load_target(self, plugin: PluginInfo) -> Tuple[str, str]:
         if plugin.path.endswith(".py"):

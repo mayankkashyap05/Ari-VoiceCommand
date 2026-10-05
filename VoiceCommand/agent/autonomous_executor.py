@@ -90,7 +90,7 @@ class AutonomousExecutor:
         self._safety = get_safety_checker()
         self._automation = AutomationHelpers()
 
-        # 실행 시 기본적으로 제공할 전역 변수들
+        # 실행 시 Default적으로 제공할 전역 변수들
         # os, subprocess, sys 는 직접 노출하지 않고 래퍼 함수를 통해서만 허용
         self.execution_globals = {
             'threading': threading,
@@ -209,9 +209,9 @@ class AutonomousExecutor:
                         self.tts_wrapper(_("주의! {summary}", summary=report.summary))
                     confirmed = self._ask_confirmation(f"Python 코드 실행\n\n{code[:200]}", report)
                     if not confirmed:
-                        result = ExecutionResult(success=False, error="사용자 취소", code_or_cmd=code)
+                        result = ExecutionResult(success=False, error="사용자 Cancel", code_or_cmd=code)
                         if self.tts_wrapper:
-                            self.tts_wrapper(_("실행을 취소했습니다."))
+                            self.tts_wrapper(_("실행을 Cancel했습니다."))
                         self._attach_state_snapshot(result, state_before)
                         self._record_history(result)
                         return result
@@ -253,9 +253,9 @@ class AutonomousExecutor:
                         self.tts_wrapper(_("주의! {summary}", summary=report.summary))
                     confirmed = self._ask_confirmation(f"Shell 명령 실행\n\n{command}", report)
                     if not confirmed:
-                        result = ExecutionResult(success=False, error="사용자 취소", code_or_cmd=command)
+                        result = ExecutionResult(success=False, error="사용자 Cancel", code_or_cmd=command)
                         if self.tts_wrapper:
-                            self.tts_wrapper(_("실행을 취소했습니다."))
+                            self.tts_wrapper(_("실행을 Cancel했습니다."))
                         self._attach_state_snapshot(result, state_before)
                         self._record_history(result)
                         return result
@@ -477,7 +477,7 @@ class AutonomousExecutor:
             output = (stdout or "").strip()
             error_output = (stderr or "").strip()
             if process.returncode != 0:
-                logging.error("[Executor] Python 오류:\n%s", error_output)
+                logging.error("[Executor] Python Error:\n%s", error_output)
                 if self.tts_wrapper:
                     self.tts_wrapper(_("코드 실행 중 기술적인 문제가 발생했어요."))
                 self._log_audit("python", code, "error", error_output, "")
@@ -504,7 +504,7 @@ class AutonomousExecutor:
             )
         except Exception:
             err = traceback.format_exc()
-            logging.error("[Executor] Python 오류:\n%s", err)
+            logging.error("[Executor] Python Error:\n%s", err)
             if self.tts_wrapper:
                 self.tts_wrapper(_("코드 실행 중 기술적인 문제가 발생했어요."))
             self._log_audit("python", code, "error", err, "")
@@ -564,9 +564,9 @@ class AutonomousExecutor:
                 error=_("실행 시간 초과 ({seconds}초)", seconds=_SUBPROCESS_TIMEOUT_SECONDS),
             )
         except Exception as e:
-            logging.error("[Executor] Shell 오류: %s", e)
+            logging.error("[Executor] Shell Error: %s", e)
             if self.tts_wrapper:
-                self.tts_wrapper(_("시스템 명령 실행 중 오류가 발생했습니다."))
+                self.tts_wrapper(_("시스템 명령 실행 중 Error가 발생했습니다."))
             self._log_audit("shell", command, "error", str(e), "")
             return ExecutionResult(success=False, error=str(e))
         finally:
@@ -574,14 +574,14 @@ class AutonomousExecutor:
                 self._unregister_process(process)
 
     def _ask_confirmation(self, action_desc: str, report) -> bool:
-        """확인 다이얼로그 요청 (Qt 환경에서만 동작, 그 외엔 False 반환)"""
+        """OK 다이얼로그 요청 (Qt 환경에서만 동작, 그 외엔 False 반환)"""
         try:
             from agent.confirmation_manager import get_confirmation_manager
             return get_confirmation_manager().request_confirmation(
                 action_desc, report, self.tts_wrapper
             )
         except Exception as e:
-            logging.error("[Executor] 확인 다이얼로그 오류: %s", e)
+            logging.error("[Executor] OK 다이얼로그 Error: %s", e)
             return False
 
     def _record_history(self, result: ExecutionResult):
@@ -735,7 +735,7 @@ class AutonomousExecutor:
                     f.write(plain)
             return path
         except Exception as exc:
-            raise RuntimeError(_("문서 저장 실패: {error}", error=exc)) from exc
+            raise RuntimeError(_("문서 Save 실패: {error}", error=exc)) from exc
 
     def _backup_file_if_exists(self, path: str) -> None:
         normalized = os.path.abspath(path)
@@ -918,7 +918,7 @@ def _can_write_pdf() -> bool:
         return False
 
 def _get_cjk_font_candidates() -> list:
-    """플랫폼별 CJK 폰트 후보 (name, path) 목록을 반환합니다. 하드코딩 경로 없음."""
+    """플랫폼별 CJK 폰트 later보 (name, path) 목록을 반환합니다. 하드코딩 경로 None."""
     candidates = []
     if sys.platform == "win32":
         win_fonts = os.path.join(os.environ.get("WINDIR", "C:\\Windows"), "Fonts")
@@ -1084,7 +1084,7 @@ execution_globals["get_state_transition_history"] = lambda: []
 execution_globals["get_backup_history"] = lambda: [dict(item) for item in _backup_history]
 execution_globals["restore_last_backup"] = _restore_last_backup
 execution_globals["get_recovery_candidates"] = lambda target_paths=None: [dict(item) for item in _backup_history[-5:]]
-execution_globals["get_recovery_guidance"] = lambda goal="", target_paths=None: "복구 히스토리 확인 가능" if _backup_history else ""
+execution_globals["get_recovery_guidance"] = lambda goal="", target_paths=None: "복구 히스토리 OK 가능" if _backup_history else ""
 execution_globals["get_recent_goal_episodes"] = lambda goal="", limit=3: ""
 execution_globals["get_runtime_state"] = lambda: {{
     "active_window_title": _automation.get_active_window_title(),
@@ -1105,7 +1105,7 @@ execution_globals["get_runtime_state"] = lambda: {{
     "backup_history": [dict(item) for item in _backup_history[-5:]],
     "recovery_candidates": [dict(item) for item in _backup_history[-5:]],
     "recent_goal_episodes": "",
-    "recovery_guidance": "복구 히스토리 확인 가능" if _backup_history else "",
+    "recovery_guidance": "복구 히스토리 OK 가능" if _backup_history else "",
 }}
 globals().update(execution_globals)
 

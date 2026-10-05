@@ -487,11 +487,11 @@ class ApplyEmotionProsodyTests(unittest.TestCase):
         self.assertEqual(apply_emotion_prosody(text, "평온"), text)
 
     def test_serious_emotion_unchanged(self):
-        text = "오류가 발생했습니다."
-        self.assertEqual(apply_emotion_prosody(text, "진지"), text)
+        text = "Error가 발생했습니다."
+        self.assertEqual(apply_emotion_prosody(text, "Serious"), text)
 
     def test_joy_replaces_period_with_exclamation(self):
-        result = apply_emotion_prosody("좋아요. 정말 기쁩니다.", "기쁨")
+        result = apply_emotion_prosody("좋아요. 정말 기쁩니다.", "Joy")
         self.assertEqual(result, "좋아요! 정말 기쁩니다!")
 
     def test_anticipation_replaces_period_with_exclamation(self):
@@ -519,17 +519,17 @@ class ApplyEmotionProsodyTests(unittest.TestCase):
         self.assertEqual(result, "정말요?!")
 
     def test_existing_punctuation_preserved(self):
-        # 이미 구두점이 있는 문장은 영향받지 않아야 함
-        result = apply_emotion_prosody("맞아요! 진짜요?", "기쁨")
+        # 이미 구두점이 있는 문장은 zero향받지 않아야 함
+        result = apply_emotion_prosody("맞아요! 진짜요?", "Joy")
         self.assertEqual(result, "맞아요! 진짜요?")
 
     def test_ellipsis_not_double_transformed(self):
         # 마침표가 연속으로 있는 경우(줄임표 ...) 는 변환하지 않음
-        result = apply_emotion_prosody("글쎄요...", "기쁨")
+        result = apply_emotion_prosody("글쎄요...", "Joy")
         self.assertEqual(result, "글쎄요...")
 
     def test_empty_text_unchanged(self):
-        self.assertEqual(apply_emotion_prosody("", "기쁨"), "")
+        self.assertEqual(apply_emotion_prosody("", "Joy"), "")
 
 
 class InjectBreathCuesTests(unittest.TestCase):

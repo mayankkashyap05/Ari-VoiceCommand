@@ -17,9 +17,9 @@ class FishTTSWebSocket(QObject):
 
     # Fish doesn't document PCM byte order; assume little-endian S16LE.
     _SAMPLE_RATE = 44100
-    # SDK 기본 백엔드(speech-1.5)는 유료 등급이라 명시하지 않으면 과금된다.
+    # SDK Default 백엔드(speech-1.5)는 유료 등급이라 명시하지 않으면 과금된다.
     _DEFAULT_MODEL = "s2.1-pro-free"
-    # __init__을 거치지 않는 경우에도 기본값을 유지한다.
+    # __init__을 거치지 않는 경우에도 Default값을 유지한다.
     model = _DEFAULT_MODEL
 
     def __init__(self, api_key="", reference_id="", model="", tts_volume=1.0):
@@ -142,7 +142,7 @@ class FishTTSWebSocket(QObject):
         emotion: str = DEFAULT_EMOTION,
         stop_event: threading.Event | None = None,
     ) -> bool:
-        """텍스트를 PCM 스트리밍 음성으로 변환하여 재생한다."""
+        """텍스트를 PCM 스트리밍 음성으로 변환하여 play한다."""
         if not text:
             return False
 

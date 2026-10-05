@@ -37,11 +37,11 @@ class VerificationEngine:
         goal: str,
         step_results: List,
     ) -> Tuple[bool, str]:
-        """목표와 단계 결과를 받아 (달성 여부, 한국어 요약) 반환."""
+        """목표와 steps 결과를 받아 (달성 여부, 한국어 요약) 반환."""
         if not step_results:
             return False, _("검증할 실행 결과가 없습니다.")
         if any(not sr.exec_result.success for sr in step_results):
-            return False, "일부 단계 실패"
+            return False, "일부 steps 실패"
         developer_precheck = self._verify_developer_goal_completion(goal, step_results)
         if developer_precheck is not None:
             return developer_precheck
@@ -87,17 +87,17 @@ class VerificationEngine:
         if not has_code_change and not has_validation:
             return (
                 False,
-                "저장소 분석만 수행됐고 실제 코드 변경과 검증이 확인되지 않았습니다.",
+                "Save소 분석만 수행됐고 실제 코드 변경과 검증이 OK되지 않았습니다.",
             )
         if not has_code_change:
             return (
                 False,
-                "저장소 분석은 수행됐지만 실제 코드 변경이 확인되지 않았습니다.",
+                "Save소 분석은 수행됐지만 실제 코드 변경이 OK되지 않았습니다.",
             )
         if not has_validation:
             return (
                 False,
-                "코드 변경은 있었지만 validate_repo.py 또는 관련 테스트 검증이 확인되지 않았습니다.",
+                "코드 변경은 있었지만 validate_repo.py 또는 관련 테스트 검증이 OK되지 않았습니다.",
             )
         return None
 

@@ -53,7 +53,7 @@ class RegressionGuard:
                 drop=drop,
                 alert_message=(
                     f"이번 주 성공률이 {drop:.0%} 하락했어요 "
-                    f"({previous_rate:.0%} → {current_rate:.0%}). 최근 변경 사항을 확인해보세요."
+                    f"({previous_rate:.0%} → {current_rate:.0%}). 최근 변경 사항을 OK해보세요."
                 ),
             )
 

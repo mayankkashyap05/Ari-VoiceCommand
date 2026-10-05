@@ -1,4 +1,4 @@
-"""플러그인 샌드박스 실행기."""
+"""Plugins 샌드박스 실행기."""
 from __future__ import annotations
 
 import logging
@@ -28,7 +28,7 @@ def _sandbox_worker(code: str, queue) -> None:
         runpy.run_path(temp_path, run_name="__main__")
     except Exception as exc:
         import logging as _log
-        _log.getLogger(__name__).debug("[Sandbox] 실행 중 예외 발생: %s", exc)
+        _log.getLogger(__name__).debug("[Sandbox] 실행 중 Exception occurred: %s", exc)
         error_text = traceback.format_exc()
     finally:
         sys.stdout = original_stdout
@@ -62,8 +62,8 @@ def run_sandboxed(code: str, timeout: int = DEFAULT_TIMEOUT) -> dict:
         return {"ok": False, "output": "", "error": f"타임아웃 ({safe_timeout}초) 초과"}
 
     if queue.empty():
-        error_message = f"프로세스 종료 코드: {process.exitcode}"
-        logger.error("[Sandbox] 실행 오류: %s", error_message)
+        error_message = f"프로세스 exit code: {process.exitcode}"
+        logger.error("[Sandbox] 실행 Error: %s", error_message)
         return {"ok": False, "output": "", "error": error_message}
 
     return queue.get()

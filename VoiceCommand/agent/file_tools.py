@@ -41,7 +41,7 @@ def detect_file_set(folder_path: str, extensions: Optional[List[str]] = None) ->
             "sample_files": files[:20],
         }
     except Exception as e:
-        logger.error("detect_file_set 오류: %s", e)
+        logger.error("detect_file_set Error: %s", e)
         return {"error": str(e)}
 
 
@@ -65,7 +65,7 @@ def batch_rename_files(folder_path: str, rename_rule: str, replacement: str = ""
             results.append(result_item)
         return {"renamed_count": len(results), "changes": results}
     except Exception as e:
-        logger.error("batch_rename_files 오류: %s", e)
+        logger.error("batch_rename_files Error: %s", e)
         return {"error": str(e)}
 
 def rename_file(old_path: str, new_name: str) -> str:
@@ -81,15 +81,15 @@ def rename_file(old_path: str, new_name: str) -> str:
         os.rename(old_path, new_path)
         return new_path
     except Exception as e:
-        logger.error("rename_file 오류: %s", e)
-        return _("오류: {error}", error=e)
+        logger.error("rename_file Error: %s", e)
+        return _("Error: {error}", error=e)
 
 def merge_text_files(file_paths: List[str], output_path: str) -> str:
     """여러 텍스트 파일을 하나로 병합.
     
     Args:
         file_paths: 병합할 파일 경로 목록
-        output_path: 저장할 결과 파일 경로
+        output_path: Save할 결과 파일 경로
     """
     try:
         normalized_output = os.path.normcase(os.path.realpath(output_path))
@@ -97,7 +97,7 @@ def merge_text_files(file_paths: List[str], output_path: str) -> str:
             if normalized_output == os.path.normcase(os.path.realpath(fname)) or (
                 os.path.exists(output_path) and os.path.exists(fname) and os.path.samefile(output_path, fname)
             ):
-                raise ValueError(_("출력 파일은 입력 파일과 같을 수 없습니다."))
+                raise ValueError(_("출력 파일은 Input 파일과 같을 수 없습니다."))
         with open(output_path, 'w', encoding='utf-8') as outfile:
             for fname in file_paths:
                 if not os.path.exists(fname):
@@ -113,8 +113,8 @@ def merge_text_files(file_paths: List[str], output_path: str) -> str:
                     outfile.write("\n")
         return output_path
     except Exception as e:
-        logger.error("merge_text_files 오류: %s", e)
-        return _("오류: {error}", error=e)
+        logger.error("merge_text_files Error: %s", e)
+        return _("Error: {error}", error=e)
 
 def organize_folder_by_extension(folder_path: str) -> Dict[str, int]:
     """폴더 내 파일들을 확장자별 서브 폴더로 정리.
@@ -153,7 +153,7 @@ def organize_folder_by_extension(folder_path: str) -> Dict[str, int]:
             
         return stats
     except Exception as e:
-        logger.error("organize_folder 오류: %s", e)
+        logger.error("organize_folder Error: %s", e)
         return {"error": str(e)}
 
 def analyze_data_file(file_path: str) -> Dict[str, Any]:
@@ -212,7 +212,7 @@ def analyze_data_file(file_path: str) -> Dict[str, Any]:
                     }
         return {"error": _("지원하지 않는 형식입니다.")}
     except Exception as e:
-        logger.error("analyze_data_file 오류: %s", e)
+        logger.error("analyze_data_file Error: %s", e)
         return {"error": str(e)}
 
 def generate_markdown_report(content: str, output_path: str, title: str = "분석 보고서") -> str:
@@ -220,7 +220,7 @@ def generate_markdown_report(content: str, output_path: str, title: str = "분�
     
     Args:
         content: 보고서 본문 (마크다운)
-        output_path: 저장 경로
+        output_path: Save 경로
         title: 보고서 제목
     """
     try:
@@ -241,8 +241,8 @@ def generate_markdown_report(content: str, output_path: str, title: str = "분�
             f.write(full_content)
         return output_path
     except Exception as e:
-        logger.error("generate_markdown_report 오류: %s", e)
-        return _("오류: {error}", error=e)
+        logger.error("generate_markdown_report Error: %s", e)
+        return _("Error: {error}", error=e)
 
 
 def _sample_columns(rows: List[Dict[str, Any]], columns: List[str], limit: int = 3) -> Dict[str, List[Any]]:
@@ -321,7 +321,7 @@ def read_file(file_path: str, start_line: int = 1, end_line: Optional[int] = Non
             "content": "".join(lines),
         }
     except Exception as e:
-        logger.error("read_file 오류: %s", e)
+        logger.error("read_file Error: %s", e)
         return {"error": str(e)}
 
 
@@ -342,7 +342,7 @@ def write_file(file_path: str, content: str, mode: str = "overwrite") -> Dict[st
             "bytes": len((content or "").encode("utf-8")),
         }
     except Exception as e:
-        logger.error("write_file 오류: %s", e)
+        logger.error("write_file Error: %s", e)
         return {"error": str(e)}
 
 
@@ -361,7 +361,7 @@ def edit_file(file_path: str, old_string: str, new_string: str) -> Dict[str, Any
                 content = raw_content[3:].decode("utf-8")
             except UnicodeDecodeError:
                 return {
-                    "error": _("파일 인코딩을 확인할 수 없어 편집하지 않았습니다."),
+                    "error": _("파일 인코딩을 OK할 수 없어 편집하지 않았습니다."),
                     "file_path": path,
                 }
             encoding = "utf-8"
@@ -375,7 +375,7 @@ def edit_file(file_path: str, old_string: str, new_string: str) -> Dict[str, Any
                     encoding = "cp949"
                 except UnicodeDecodeError:
                     return {
-                        "error": _("파일 인코딩을 확인할 수 없어 편집하지 않았습니다."),
+                        "error": _("파일 인코딩을 OK할 수 없어 편집하지 않았습니다."),
                         "file_path": path,
                     }
 
@@ -421,7 +421,7 @@ def edit_file(file_path: str, old_string: str, new_string: str) -> Dict[str, Any
             "new_length": len(new_string or ""),
         }
     except Exception as e:
-        logger.error("edit_file 오류: %s", e)
+        logger.error("edit_file Error: %s", e)
         return {"error": str(e)}
 
 
@@ -454,7 +454,7 @@ def list_directory(path: str, pattern: str = "*", recursive: bool = False) -> Di
             "count": len(items),
         }
     except Exception as e:
-        logger.error("list_directory 오류: %s", e)
+        logger.error("list_directory Error: %s", e)
         return {"error": str(e)}
 
 
@@ -489,7 +489,7 @@ def search_in_files(path: str, pattern: str, file_glob: str = "*") -> Dict[str, 
                 continue
         return {"path": base, "pattern": pattern, "matches": matches, "count": len(matches)}
     except Exception as e:
-        logger.error("search_in_files 오류: %s", e)
+        logger.error("search_in_files Error: %s", e)
         return {"error": str(e)}
 
 
@@ -504,7 +504,7 @@ def move_file(src: str, dst: str) -> Dict[str, Any]:
         shutil.move(src_path, dst_path)
         return {"src": src_path, "dst": dst_path, "moved": True}
     except Exception as e:
-        logger.error("move_file 오류: %s", e)
+        logger.error("move_file Error: %s", e)
         return {"error": str(e)}
 
 
@@ -531,5 +531,5 @@ def delete_file(path: str, confirmed: bool = False) -> Dict[str, Any]:
             return {"error": _("대상 경로가 존재하지 않습니다."), "path": target}
         return {"path": target, "deleted": True}
     except Exception as e:
-        logger.error("delete_file 오류: %s", e)
+        logger.error("delete_file Error: %s", e)
         return {"error": str(e)}

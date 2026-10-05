@@ -24,7 +24,7 @@ sys.stdout = sys.stderr  # 텍스트 출력 → stderr
 logging.basicConfig(stream=sys.stderr, level=logging.WARNING)
 
 # SDPA 사용 (eager 대신) — sliding window 경고가 뜨지만 속도는 더 빠름
-# eager 강제 설정을 하지 않음 (기본 SDPA 유지)
+# eager 강제 Settings을 하지 않음 (Default SDPA 유지)
 
 
 def setup_paths(cosyvoice_dir):
@@ -47,7 +47,7 @@ def _patch_torchaudio_load():
         import torch
         import torchaudio
     except ImportError as exc:
-        ctrl(f"INFO:torchaudio.load 패치 생략 ({exc})")
+        ctrl(f"INFO:torchaudio.load patch skipped ({exc})")
         return
 
     def _load(filepath, frame_offset=0, num_frames=-1, normalize=True,
@@ -55,7 +55,7 @@ def _patch_torchaudio_load():
         frames = num_frames if num_frames and num_frames > 0 else -1
         data, sample_rate = sf.read(str(filepath), dtype="float32", always_2d=True,
                                     start=frame_offset, frames=frames)
-        wav = torch.from_numpy(data)  # (프레임, 채널)
+        wav = torch.from_numpy(data)  # (frames, 채널)
         return (wav.T.contiguous() if channels_first else wav), sample_rate
 
     torchaudio.load = _load
@@ -111,7 +111,7 @@ def main():
         import torch
         torch.backends.cuda.matmul.allow_tf32 = True
         torch.backends.cudnn.allow_tf32 = True
-        # cudnn.benchmark는 입력 shape가 바뀔 때마다 커널 자동 튜닝을 다시 돈다.
+        # cudnn.benchmark는 Input shape가 바뀔 때마다 커널 자동 튜닝을 다시 돈다.
         # TTS는 발화마다 길이가 달라 매번 수십 초를 날리므로 끈다.
         # (실측: 첫 소리까지 24.4s → 3.9s)
         torch.backends.cudnn.benchmark = False
@@ -119,29 +119,29 @@ def main():
         try:
             torch.set_float32_matmul_precision("high")
         except Exception as exc:
-            ctrl(f"INFO:matmul precision 설정 생략 ({exc})")
+            ctrl(f"INFO:matmul precision settings skipped ({exc})")
     except Exception as exc:
-        ctrl(f"INFO:torch 최적화 설정 생략 ({exc})")
+        ctrl(f"INFO:torch 최적화 settings skipped ({exc})")
 
     model = ModelClass(args.model_dir, load_trt=False, fp16=True)
 
     # ── 최적화: VRAM 선점 (RTX 3070 8GB 기준 85%)
     try:
         torch.cuda.set_per_process_memory_fraction(0.85)
-        ctrl("INFO:VRAM 선점 설정 완료 (85%)")
+        ctrl("INFO:VRAM 선점 Settings 완료 (85%)")
     except Exception as e:
-        ctrl(f"INFO:VRAM 선점 생략 ({e})")
+        ctrl(f"INFO:VRAM preemption skipped ({e})")
 
     # ── 최적화: torch.compile (추론 20~30% 단축, reduce-overhead = CUDA graph)
     if torch.cuda.is_available():
         try:
             model.model.llm = torch.compile(model.model.llm, mode="reduce-overhead")
             model.model.flow = torch.compile(model.model.flow, mode="reduce-overhead")
-            ctrl("INFO:torch.compile 적용됨 (초회 warmup 추가 시간 발생)")
+            ctrl("INFO:torch.compile Apply됨 (초회 warmup 추가 시간 발생)")
         except Exception as e:
             ctrl(f"INFO:torch.compile 생략 ({e})")
 
-    # ── 최적화 1: Flow ODE steps 동적 조정 (짧은 텍스트 3스텝, 일반 5스텝)
+    # ── 최적화 1: Flow ODE steps 동적 조정 (짧은 텍스트 3스텝, General 5스텝)
     # 짧은 응답("네.", "알겠어요" 등)은 3스텝으로 ~200ms 단축, 긴 문장은 5스텝 유지
     _SHORT_TEXT_THRESHOLD = 15  # 이하면 3스텝
 
@@ -151,9 +151,9 @@ def main():
             kwargs['n_timesteps'] = _current_ode_steps[0]
             return args, kwargs
         model.model.flow.decoder.register_forward_pre_hook(_ode_hook, with_kwargs=True)
-        ctrl("INFO:Flow ODE steps 동적 조정 적용됨 (짧은 텍스트 3스텝, 일반 5스텝)")
+        ctrl("INFO:Flow ODE steps 동적 조정 Apply됨 (짧은 텍스트 3스텝, General 5스텝)")
     except Exception as e:
-        ctrl(f"INFO:Flow ODE patch 생략 ({e})")
+        ctrl(f"INFO:Flow ODE patch skipped ({e})")
 
     _current_ode_steps = [5]  # mutable reference shared with hook
 
@@ -194,10 +194,10 @@ def main():
             'llm_embedding': embedding,
             'flow_embedding': embedding,
         }
-        ctrl("INFO:reference.wav 특징 사전 추출 완료 (이후 호출에서 ONNX 생략)")
+        ctrl("INFO:reference.wav 특징 사전 추출 완료 (이later 호출에서 ONNX 생략)")
     except Exception as e:
         SPK_ID = ""  # 실패 시 기존 방식 fallback
-        ctrl(f"INFO:특징 사전추출 실패, fallback: {e}")
+        ctrl(f"INFO:Feature pre-extraction failed, fallback: {e}")
 
     _inference_lock = threading.Lock()
 
@@ -240,7 +240,7 @@ def main():
                         pass
             ctrl("INFO:백그라운드 GPU warmup 완료")
         except Exception as e:
-            ctrl(f"INFO:백그라운드 warmup 실패 ({e})")
+            ctrl(f"INFO:Background warmup failed ({e})")
 
     threading.Thread(target=_warmup, daemon=True).start()
 

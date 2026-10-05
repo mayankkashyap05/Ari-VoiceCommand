@@ -112,7 +112,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "desktop_contents",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "현재 바탕화면에 무엇이 보이는지 확인해줘",
+                "ko": "현재 바탕화면에 무엇이 보이는지 OK해줘",
                 "en": "Check what is visible on the current desktop",
                 "ja": "今のデスクトップに何が見えているか確認して",
             },
@@ -123,7 +123,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "order_cancel_request",
             "bucket": "high_risk",
             "texts": {
-                "ko": "결제 서비스 API에 주문 취소 요청을 보내줘",
+                "ko": "결제 서비스 API에 주문 Cancel 요청을 보내줘",
                 "en": "Send an order cancellation request to the payment service API",
                 "ja": "決済サービスのAPIに注文キャンセルをリクエストして",
             },
@@ -152,7 +152,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "cancel_by_id",
             "bucket": "normal",
             "texts": {
-                "ko": "예약 작업 ID 42를 취소해줘",
+                "ko": "예약 작업 ID 42를 Cancel해줘",
                 "en": "Cancel scheduled task 42",
                 "ja": "予約タスクID 42をキャンセルして",
             },
@@ -170,7 +170,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "cancel_report_job",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "등록된 작업 중 이메일 보고서 예약을 취소해줘",
+                "ko": "등록된 작업 중 이메일 보고서 예약을 Cancel해줘",
                 "en": "Cancel the scheduled email report among the registered jobs",
                 "ja": "登録済みのタスクからメールレポートの予約をキャンセルして",
             },
@@ -181,7 +181,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "cancel_countdown",
             "bucket": "normal",
             "texts": {
-                "ko": "10분 타이머를 취소해줘",
+                "ko": "10분 타이머를 Cancel해줘",
                 "en": "Cancel the ten-minute timer",
                 "ja": "10分のタイマーをキャンセルして",
             },
@@ -199,7 +199,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "cancel_recent_timer",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "방금 설정한 카운트다운을 지워줘",
+                "ko": "방금 Settings한 카운트다운을 지워줘",
                 "en": "Delete the countdown I just set",
                 "ja": "さっき設定したカウントダウンを消して",
             },
@@ -326,7 +326,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "change_port",
             "bucket": "high_risk",
             "texts": {
-                "ko": "설정 파일의 포트 번호를 8080으로 바꿔줘",
+                "ko": "Settings 파일의 포트 번호를 8080으로 바꿔줘",
                 "en": "Change the port number in the configuration file to 8080",
                 "ja": "設定ファイルのポート番号を8080に変更して",
             },
@@ -344,7 +344,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "fix_source_typo",
             "bucket": "high_risk",
             "texts": {
-                "ko": "코드 파일의 오타를 고쳐서 저장해줘",
+                "ko": "코드 파일의 오타를 고쳐서 Save해줘",
                 "en": "Fix the typo in the code file and save it",
                 "ja": "コードファイルの誤字を直して保存して",
             },
@@ -393,7 +393,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "terminal_service_status",
             "bucket": "high_risk",
             "texts": {
-                "ko": "터미널 명령으로 이 서비스 상태를 확인해줘",
+                "ko": "터미널 명령으로 이 서비스 상태를 OK해줘",
                 "en": "Check this service status with a terminal command",
                 "ja": "ターミナルコマンドでこのサービスの状態を確認して",
             },
@@ -489,7 +489,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "tomorrow_appointment",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "캘린더에서 내일 약속을 확인해줘",
+                "ko": "캘린더에서 내일 약속을 OK해줘",
                 "en": "Check tomorrow's appointment on my calendar",
                 "ja": "カレンダーで明日の予定を確認して",
             },
@@ -518,7 +518,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "inspect_clipboard_text",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "현재 클립보드 텍스트를 확인해줘",
+                "ko": "현재 클립보드 텍스트를 OK해줘",
                 "en": "Inspect the current clipboard text",
                 "ja": "現在のクリップボードのテキストを確認して",
             },
@@ -547,7 +547,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "check_clock",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "시계 확인해서 시간을 알려줘",
+                "ko": "시계 OK해서 시간을 알려줘",
                 "en": "Check the clock and tell me the time",
                 "ja": "時計を確認して時刻を教えて",
             },
@@ -567,7 +567,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "open_apps",
             "bucket": "contextual",
             "texts": {
-                "ko": "열려 있는 앱을 모두 확인해줘",
+                "ko": "열려 있는 앱을 모두 OK해줘",
                 "en": "Check all the apps that are open",
                 "ja": "開いているアプリをすべて確認して",
             },
@@ -587,7 +587,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "taskbar_position",
             "bucket": "normal",
             "texts": {
-                "ko": "작업 표시줄이 화면 어디에 있는지 확인해줘",
+                "ko": "작업 표시줄이 화면 어디에 있는지 OK해줘",
                 "en": "Check where the taskbar is positioned on the screen",
                 "ja": "タスクバーが画面のどこにあるか確認して",
             },
@@ -625,7 +625,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "rain_forecast",
             "bucket": "contextual",
             "texts": {
-                "ko": "내일 아침 비가 올지 확인해줘",
+                "ko": "내일 아침 비가 올지 OK해줘",
                 "en": "Check whether it will rain tomorrow morning",
                 "ja": "明日の朝に雨が降るか確認して",
             },
@@ -692,7 +692,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "recursive_directory",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "현재 디렉터리의 하위 폴더까지 확인해줘",
+                "ko": "현재 디렉터리의 하위 폴더까지 OK해줘",
                 "en": "Inspect the current directory including its subfolders",
                 "ja": "現在のディレクトリをサブフォルダーまで確認して",
             },
@@ -721,7 +721,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "next_run_time",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "스케줄 목록에서 다음 실행 시간을 확인해줘",
+                "ko": "스케줄 목록에서 다음 실행 시간을 OK해줘",
                 "en": "Check the next run time in the schedule list",
                 "ja": "スケジュール一覧で次の実行時刻を確認して",
             },
@@ -761,7 +761,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "old_movie_preference",
             "bucket": "normal",
             "texts": {
-                "ko": "저장된 내 예전 영화 취향을 프로필에서 삭제해줘",
+                "ko": "Save된 내 예전 영화 취향을 프로필에서 삭제해줘",
                 "en": "Remove my former movie preference from the saved profile",
                 "ja": "保存済みプロフィールから以前の映画の好みを削除して",
             },
@@ -770,7 +770,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "former_workplace",
             "bucket": "contextual",
             "texts": {
-                "ko": "저장된 내 이전 직장 정보를 프로필에서 빼줘",
+                "ko": "Save된 내 이전 직장 정보를 프로필에서 빼줘",
                 "en": "Take my previous workplace out of the saved profile",
                 "ja": "保存済みプロフィールから以前の勤務先の情報を消して",
             },
@@ -799,7 +799,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "meeting_time_preference",
             "bucket": "contextual",
             "texts": {
-                "ko": "회의는 오전을 선호하니 이 내용을 다음 제안에 쓰도록 저장해 둬",
+                "ko": "회의는 오전을 선호하니 이 내용을 다음 제안에 쓰도록 Save해 둬",
                 "en": "I prefer morning meetings; save that for future suggestions",
                 "ja": "会議は午前中が希望なので、今後の提案に使えるよう記録しておいて",
             },
@@ -808,7 +808,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "technical_language_preference",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "기술 설명은 한국어가 편하니 이 선호를 저장해 둬",
+                "ko": "기술 설명은 한국어가 편하니 이 선호를 Save해 둬",
                 "en": "Technical notes work best in Korean for me; save that preference for later",
                 "ja": "技術の説明は韓国語が助かるので、この好みを記録に残してください",
             },
@@ -837,7 +837,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "delivery_weekday",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "등록해 둔 배송 요일이 언제인지 확인해줘",
+                "ko": "등록해 둔 배송 요일이 언제인지 OK해줘",
                 "en": "Check which delivery day I selected earlier",
                 "ja": "登録済みの配達曜日を確認して",
             },
@@ -877,7 +877,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "rain_sounds",
             "bucket": "normal",
             "texts": {
-                "ko": "유튜브에서 빗소리 영상을 재생해줘",
+                "ko": "YouTube에서 빗소리 영상을 play해줘",
                 "en": "Play a rain-sounds video on YouTube",
                 "ja": "YouTubeで雨音の動画を再生して",
             },
@@ -886,7 +886,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "artist_song",
             "bucket": "contextual",
             "texts": {
-                "ko": "이 가수의 신곡을 유튜브로 찾아서 틀어줘",
+                "ko": "이 가수의 신곡을 YouTube로 찾아서 틀어줘",
                 "en": "Find this singer's latest song on YouTube and play it",
                 "ja": "この歌手の新曲をYouTubeで探して再生して",
             },
@@ -895,7 +895,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "stretch_video",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "유튜브로 20분짜리 스트레칭 영상을 틀어줘",
+                "ko": "YouTube로 20분짜리 스트레칭 영상을 틀어줘",
                 "en": "Play a twenty-minute stretching video on YouTube",
                 "ja": "YouTubeで20分のストレッチ動画を流して",
             },
@@ -915,7 +915,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "work_mail",
             "bucket": "contextual",
             "texts": {
-                "ko": "오늘 도착한 업무 메일을 확인해줘",
+                "ko": "오늘 도착한 업무 메일을 OK해줘",
                 "en": "Check the work emails that arrived today",
                 "ja": "今日届いた仕事のメールを確認して",
             },
@@ -944,7 +944,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "read_json_config",
             "bucket": "contextual",
             "texts": {
-                "ko": "이 JSON 설정 파일의 내용을 보여줘",
+                "ko": "이 JSON Settings 파일의 내용을 보여줘",
                 "en": "Show me the contents of this JSON configuration file",
                 "ja": "このJSON設定ファイルの内容を見せて",
             },
@@ -1002,7 +1002,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "morning_status",
             "bucket": "contextual",
             "texts": {
-                "ko": "내일 오전 아홉 시에 컴퓨터 상태를 확인하게 해줘",
+                "ko": "내일 오전 아홉 시에 컴퓨터 상태를 OK하게 해줘",
                 "en": "Have the computer status checked tomorrow at nine in the morning",
                 "ja": "明日の午前9時にパソコンの状態を確認するようにして",
             },
@@ -1011,7 +1011,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "after_work_report",
             "bucket": "hard_negative",
             "texts": {
-                "ko": "퇴근 후에 보고서를 저장하도록 작업을 예약해줘",
+                "ko": "퇴근 후에 보고서를 Save하도록 작업을 예약해줘",
                 "en": "Schedule a task to save the report after work",
                 "ja": "退勤後にレポートを保存するようタスクを予約して",
             },
@@ -1069,7 +1069,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "weekend_confirmation",
             "bucket": "high_risk",
             "texts": {
-                "ko": "친구에게 주말 약속을 확인하는 이메일을 작성해서 보내줘",
+                "ko": "친구에게 주말 약속을 OK하는 이메일을 작성해서 보내줘",
                 "en": "Write and send an email to my friend confirming our weekend plan",
                 "ja": "友達に週末の約束を確認するメールを書いて送って",
             },
@@ -1147,7 +1147,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "after_saving",
             "bucket": "high_risk",
             "texts": {
-                "ko": "작업을 저장했으니 PC 전원을 꺼줘",
+                "ko": "작업을 Save했으니 PC 전원을 꺼줘",
                 "en": "I saved my work, so turn off the PC",
                 "ja": "作業を保存したのでPCの電源を切って",
             },
@@ -1176,7 +1176,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "full_monitor",
             "bucket": "contextual",
             "texts": {
-                "ko": "전체 모니터 화면을 저장해줘",
+                "ko": "전체 모니터 화면을 Save해줘",
                 "en": "Save the entire monitor screen",
                 "ja": "モニター全体の画面を保存して",
             },
@@ -1263,7 +1263,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "save_csv_result",
             "bucket": "high_risk",
             "texts": {
-                "ko": "결과를 CSV 파일로 저장해줘",
+                "ko": "결과를 CSV 파일로 Save해줘",
                 "en": "Save the results as a CSV file",
                 "ja": "結果をCSVファイルとして保存して",
             },
@@ -1301,7 +1301,7 @@ GOLD_FAMILIES: dict[str, tuple[dict[str, Any], ...]] = {
             "family": "multi_intent",
             "bucket": "multi_intent",
             "texts": {
-                "ko": "크롬을 켜고 유튜브에서 재즈를 찾아 재생해줘",
+                "ko": "크롬을 켜고 YouTube에서 재즈를 찾아 play해줘",
                 "en": "Open Chrome, find jazz on YouTube, and play it",
                 "ja": "Chromeを開いてYouTubeでジャズを探して再生して",
             },

@@ -1,7 +1,7 @@
 """
 OpenAI TTS 제공자 — tts-1 / tts-1-hd
-response_format="pcm" → 24kHz mono int16 raw PCM (변환 없이 즉시 재생)
-Fish Audio / CosyVoice3와 동일한 인터페이스: speak() / playback_finished / cleanup()
+response_format="pcm" → 24kHz mono int16 raw PCM (변환 없이 즉시 play)
+Fish Audio / CosyVoice3와 Same interface: speak() / playback_finished / cleanup()
 """
 import importlib
 import logging
@@ -50,7 +50,7 @@ class OpenAITTS(QObject):
             )
             logging.info("OpenAI TTS 초기화 완료 (voice=%s, model=%s)", voice, model)
         except Exception as e:
-            logging.error("OpenAI TTS 초기화 실패: %s", redact_secret(str(e), api_key))
+            logging.error("OpenAI TTS initialization failed: %s", redact_secret(str(e), api_key))
             raise RuntimeError("OpenAI TTS client initialization failed") from e
 
     def speak(
@@ -72,7 +72,7 @@ class OpenAITTS(QObject):
             if stop_event.is_set():
                 return False
 
-            # PCM 포맷 요청 → 변환 불필요, 즉시 재생 가능
+            # PCM 포맷 요청 → 변환 불필요, 즉시 play 가능
             options = {
                 "model": self.model,
                 "voice": self.voice,
@@ -114,12 +114,12 @@ class OpenAITTS(QObject):
 
             if not success:
                 return False
-            logging.info("[TTS] OpenAI 전체 완료: %.2fs", time.time() - t0)
+            logging.info("[TTS] OpenAI Total complete: %.2fs", time.time() - t0)
             return True
 
         except Exception as exc:
             logging.error(
-                "OpenAI TTS speak 오류: %s", redact_secret(str(exc), self._api_key)
+                "OpenAI TTS speak error: %s", redact_secret(str(exc), self._api_key)
             )
             return False
         finally:
@@ -136,6 +136,6 @@ class OpenAITTS(QObject):
             stop_event.set()
 
     def cleanup(self):
-        """재생 상태를 정리한다."""
+        """play 상태를 정리한다."""
         # 전역 PyAudio 인스턴스는 AriCore.cleanup()의 GlobalAudio.terminate()에서만 종료한다.
         self.is_playing = False

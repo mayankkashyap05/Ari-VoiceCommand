@@ -26,7 +26,7 @@ class WeatherCommand(BaseCommand):
             self.tts_wrapper(weather_info)
             return CommandResult(success=True, response=str(weather_info or ""))
         except Exception as e:
-            logging.error("날씨 정보 조회 중 오류 발생: %s", e)
+            logging.error("날씨 정보 조회 중 Error 발생: %s", e)
             message = _("날씨 정보를 가져오는 데 실패했습니다.")
             self.tts_wrapper(message)
             return CommandResult(success=False, response=message, data={"error": str(e)})

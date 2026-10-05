@@ -11,7 +11,7 @@ from ui import theme as theme_module
 from i18n.translator import _
 
 
-# 단계 상태별 아이콘
+# steps 상태별 아이콘
 _STEP_ICON = {
     "pending": "⏳", "running": "⚙️",
     "done": "✅", "failed": "❌", "fixed": "🔧",
@@ -71,7 +71,7 @@ class ExecutionDashboardPanel(QFrame):
             self._steps.clear()
             steps     = kwargs.get("steps", [])
             iteration = kwargs.get("iteration", 0)
-            self._title_lbl.setText(_("🤖 계획 {count}단계").format(count=len(steps)))
+            self._title_lbl.setText(_("🤖 계획 {count}steps").format(count=len(steps)))
             self._iter_lbl.setText(_("시도 {count}회").format(count=iteration + 1))
             for s in steps:
                 # 오케스트레이터는 ActionStep을 asdict()로 넘긴다.
@@ -133,7 +133,7 @@ class ExecutionDashboardPanel(QFrame):
             lbl = QLabel(f"{icon} {info['desc'][:60]}")
             lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL))
             lbl.setStyleSheet(f"color: {color};")
-            # 긴 단계 설명이 채팅창의 최소 폭을 넓히지 않게 줄바꿈한다.
+            # 긴 steps 설명이 채팅창의 최소 폭을 넓히지 않게 줄바꿈한다.
             lbl.setWordWrap(True)
             lbl.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
             self._steps_lay.addWidget(lbl)

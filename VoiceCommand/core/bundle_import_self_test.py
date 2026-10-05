@@ -209,7 +209,7 @@ def _check_mcp_server():
     app = AriMCPServer(token="bundle-import-self-test").create_app()
     if not isinstance(app, fastapi.FastAPI):
         raise RuntimeError("MCP server did not create a FastAPI application")
-    # 서버가 시작할 때 불러오는 프로토콜 모듈까지 설치본에 들어 있는지 확인한다.
+    # 서버가 시작할 때 불러오는 프로토콜 모듈까지 설치본에 들어 있는지 OK한다.
     uvicorn.Config(app, **UVICORN_OPTIONS).load()
     return {
         "fastapi": fastapi.__version__,

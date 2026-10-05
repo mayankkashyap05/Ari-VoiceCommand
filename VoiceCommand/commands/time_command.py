@@ -29,7 +29,7 @@ class TimeCommand(BaseCommand):
             am_pm = _("오전")
             hour = now.hour
         else:
-            am_pm = _("오후")
+            am_pm = _("오later")
             hour = now.hour - 12 if now.hour > 12 else 12
         return _("{am_pm} {hour}시 {minute}분").format(
             am_pm=am_pm, hour=hour, minute=now.minute

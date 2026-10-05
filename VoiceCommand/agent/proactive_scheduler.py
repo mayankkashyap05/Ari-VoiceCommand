@@ -16,8 +16,8 @@ from typing import Callable, Dict, List, Optional, Any
 from core.atomic_io import backup_corrupt_file, write_json_atomic
 from i18n.translator import _
 
-_SCHEDULE_FILE: str = ""  # _init_schedule_file() 에서 설정
-_SCHEDULE_RUN_LOG_FILE: str = ""  # _init_schedule_log_file() 에서 설정
+_SCHEDULE_FILE: str = ""  # _init_schedule_file() 에서 Settings
+_SCHEDULE_RUN_LOG_FILE: str = ""  # _init_schedule_log_file() 에서 Settings
 _TICK_INTERVAL = 30
 _MAX_TASKS = 50
 _INTERNAL_TASK_TYPES = frozenset({"maintenance", "weekly_report"})
@@ -453,8 +453,8 @@ class ProactiveScheduler:
         elif 22 <= hour <= 23:
             suggestions.append({
                 "type": "routine",
-                "text": _("오늘 하루 수고 많으셨어요. 내일 날씨를 미리 확인해 드릴까요?"),
-                "goal": "내일 날씨와 기온 확인"
+                "text": _("오늘 하루 수고 많으셨어요. 내일 날씨를 미리 OK해 드릴까요?"),
+                "goal": "내일 날씨와 기온 OK"
             })
 
         deduped = []
@@ -503,7 +503,7 @@ class ProactiveScheduler:
         error = ""
         summary = ""
         if task.task_type == "alarm":
-            message = _("(기쁨) 알람 시간이에요! 요청하신 '{goal}' 시각입니다.", goal=task.goal)
+            message = _("(Joy) 알람 시간이에요! 요청하신 '{goal}' 시각입니다.", goal=task.goal)
             if task.alarm_sound:
                 message += _(" 알림 사운드: {alarm_sound}", alarm_sound=task.alarm_sound)
             summary = message
@@ -554,7 +554,7 @@ class ProactiveScheduler:
 
         logging.info("[Scheduler] 작업 실행: %s", task.task_id)
         if self.tts:
-            self.tts(_("(진지) 예약된 작업을 시작할게요: {goal}", goal=task.goal))
+            self.tts(_("(Serious) 예약된 작업을 시작할게요: {goal}", goal=task.goal))
         
         if not self._orchestrator_func:
             error = _("오케스트레이터가 연결되지 않았습니다.")
@@ -605,7 +605,7 @@ class ProactiveScheduler:
             try:
                 self._tasks = {it["task_id"]: self._normalize_task(it) for it in data}
             except Exception as e:
-                # 항목 하나라도 읽지 못하면 빈 상태로 시작하므로, 다음 저장 전에 원본을 남긴다.
+                # 항목 하나라도 읽지 못하면 빈 상태로 시작하므로, 다음 Save 전에 원본을 남긴다.
                 self._tasks = {}
                 self._backup_corrupt_schedule(schedule_file, e)
 
@@ -616,7 +616,7 @@ class ProactiveScheduler:
         except OSError as backup_error:
             logging.error("[Scheduler] 예약 파일 손상, 백업 실패: %s (%s)", error, backup_error)
         else:
-            logging.error("[Scheduler] 예약 파일 손상, 백업 저장: %s (%s)", backup_path, error)
+            logging.error("[Scheduler] 예약 파일 손상, 백업 Save: %s (%s)", backup_path, error)
 
     def _save(self):
         try:
@@ -624,7 +624,7 @@ class ProactiveScheduler:
             data = [asdict(t) for t in self._tasks.values()]
             write_json_atomic(schedule_file, data, ensure_ascii=False, indent=2)
         except Exception as e:
-            logging.error("[Scheduler] 저장 실패: %s", e)
+            logging.error("[Scheduler] Save 실패: %s", e)
 
     def _calc_next_run(self, expr: str) -> datetime:
         """자연어 스케줄 표현 → 다음 실행 datetime 계산 (AriScheduler 호환)."""
@@ -661,7 +661,7 @@ class ProactiveScheduler:
         m = re.search(r"(\d+)\s*시간마다", expr)
         if m:
             return now + timedelta(hours=int(m.group(1)))
-        logging.warning("[Scheduler] 스케줄 파싱 실패 (%r), 24시간 후 실행", expr)
+        logging.warning("[Scheduler] 스케줄 파싱 실패 (%r), 24시간 later 실행", expr)
         return now + timedelta(days=1)
 
     def _normalize_task(self, raw: Dict[str, Any]) -> ScheduledTask:
@@ -776,7 +776,7 @@ class ProactiveScheduler:
         next_run_after: str,
     ) -> None:
         finished_at = datetime.now().isoformat()
-        status_text = summary if summary else (error or _("실행 결과 없음"))
+        status_text = summary if summary else (error or _("실행 결과 None"))
         with self._lock:
             current = self._tasks.get(task.task_id)
             if current is not None:
@@ -810,7 +810,7 @@ class ProactiveScheduler:
                 with open(run_log_file, "a", encoding="utf-8") as handle:
                     handle.write(json.dumps(asdict(record), ensure_ascii=False) + "\n")
         except OSError as exc:
-            logging.error("[Scheduler] 실행 로그 저장 실패: %s", exc)
+            logging.error("[Scheduler] 실행 로그 Save 실패: %s", exc)
 
     def _record_learning_artifacts(
         self,

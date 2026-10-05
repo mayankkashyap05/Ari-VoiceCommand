@@ -1,6 +1,6 @@
 """
 ElevenLabs TTS 제공자.
-Fish Audio / CosyVoice3와 동일한 인터페이스: speak() / playback_finished / cleanup()
+Fish Audio / CosyVoice3와 Same interface: speak() / playback_finished / cleanup()
 """
 import logging
 import threading
@@ -176,7 +176,7 @@ class ElevenLabsTTS(QObject):
         try:
             import requests
         except ImportError:
-            logging.error("requests 패키지가 필요합니다: pip install requests")
+            logging.error("requests package required: pip install requests")
             return None
         self._session = requests.Session()
         return self._session
@@ -279,7 +279,7 @@ class ElevenLabsTTS(QObject):
             pcm_chunks(),
             stop_event,
             _SAMPLE_RATE,
-            on_start=lambda: logging.info("[TTS] ElevenLabs 재생 시작"),
+            on_start=lambda: logging.info("[TTS] ElevenLabs playback started"),
             on_complete=on_complete,
             volume=self.tts_volume,
         )
@@ -332,7 +332,7 @@ class ElevenLabsTTS(QObject):
             return self._play_response(response, stop_event, started_at)
         except Exception as exc:
             detail = _redact_secret(str(exc), self.api_key)
-            logging.error("ElevenLabs TTS speak 오류: %s", detail)
+            logging.error("ElevenLabs TTS speak error: %s", detail)
             return False
         finally:
             try:
@@ -357,11 +357,11 @@ class ElevenLabsTTS(QObject):
                 self._session.close()
                 self._session = None
         except Exception as exc:
-            logging.debug("ElevenLabs 세션 정리 중 무시된 오류: %s", exc)
+            logging.debug("ElevenLabs Ignored error during session cleanup: %s", exc)
         # 전역 PyAudio 인스턴스는 AriCore.cleanup()의 GlobalAudio.terminate()에서만 종료한다.
 
     def __del__(self):
         try:
             self.cleanup()
         except Exception as exc:
-            logging.debug("ElevenLabs TTS 소멸자 정리 실패: %s", exc)
+            logging.debug("ElevenLabs TTS Destructor cleanup failed: %s", exc)

@@ -1,5 +1,5 @@
 """
-간단한 음성 트리거 (계정 불필요)
+Simple voice trigger (no account required)
 """
 import logging
 import math
@@ -66,7 +66,7 @@ def _is_japanese_prefix_boundary(text, boundary, wake_word):
 
 
 def should_transcribe_wake_audio(audio_data, energy_threshold):
-    """웨이크 대기 오디오의 길이와 에너지 분포를 확인한다."""
+    """웨이크 대기 오디오의 길이와 에너지 분포를 OK한다."""
     sample_rate = audio_data.sample_rate
     if sample_rate <= 0:
         return False
@@ -95,7 +95,7 @@ def should_transcribe_wake_audio(audio_data, energy_threshold):
     ]
     if not active_indexes:
         return False
-    # 녹음에는 말 끝의 무음이 붙으므로 첫·마지막 소리 프레임 사이를 발화 길이로 본다.
+    # 녹음에는 말 끝의 무음이 붙으므로 첫·마지막 소리 frames 사이를 발화 길이로 본다.
     span_frames = active_indexes[-1] - active_indexes[0] + 1
     speech_seconds = span_frames * frame_size / sample_rate
     if not _WAKE_MIN_AUDIO_SECONDS <= speech_seconds <= _WAKE_MAX_AUDIO_SECONDS:
@@ -116,7 +116,7 @@ def should_transcribe_wake_audio(audio_data, energy_threshold):
 
 class SimpleWakeWord:
     def __init__(self, wake_words=None, stt_provider=None, provider_signature=None):
-        self.wake_words = list(wake_words or ["아리야", "시작"])
+        self.wake_words = list(wake_words or ["Ari", "Hey Ari"])
         self.detected_command = None
         self.recognizer = sr.Recognizer()
         self.should_stop = False
@@ -130,7 +130,7 @@ class SimpleWakeWord:
 
     def refresh_settings(self, initialize_provider=True):
         settings = ConfigManager.load_settings()
-        self.wake_words = list(settings.get("wake_words", self.wake_words) or ["아리야", "시작"])
+        self.wake_words = list(settings.get("wake_words", self.wake_words) or ["Ari", "Hey Ari"])
         energy_threshold = int(settings.get("stt_energy_threshold", 300))
         dynamic_energy = bool(settings.get("stt_dynamic_energy", False))
         if energy_threshold != self._configured_energy_threshold or not dynamic_energy:
@@ -242,18 +242,18 @@ class SimpleWakeWord:
         return best_match
 
     def recalibrate(self, source):
-        """TTS 이후 환경 변화 시 임계값 재조정"""
+        """TTS 이later 환경 변화 시 임계값 재조정"""
         self.refresh_settings(initialize_provider=False)
         if not self.recognizer.dynamic_energy_threshold:
             return
         try:
             self.recognizer.adjust_for_ambient_noise(source, duration=0.5)
-            logging.debug(f"재캘리브레이션 완료 (energy_threshold={self.recognizer.energy_threshold:.1f})")
+            logging.debug(f"Recalibration complete (energy_threshold={self.recognizer.energy_threshold:.1f})")
         except Exception as e:
-            logging.debug(f"재캘리브레이션 실패: {e}")
+            logging.debug(f"Recalibration failed: {e}")
 
     def listen_for_wake_word(self, source, detection_allowed=None, interrupt_event=None):
-        """웨이크워드 대기 — 첫 호출 시 캘리브레이션, 이후 즉시 청취"""
+        """Wait for wake word — calibrate on first call, then listen immediately"""
         self.detected_command = None
         if self.should_stop:
             return False
@@ -280,7 +280,7 @@ class SimpleWakeWord:
                     source.stream = original_stream
             if interrupt_event is not None and interrupt_event.is_set():
                 return False
-            # 자동 임계값이 높아져도 수동 설정값보다 강한 게이트가 되지 않게 한다.
+            # 자동 임계값이 높아져도 수동 Settings값보다 강한 게이트가 되지 않게 한다.
             gate_energy_threshold = min(
                 gate_energy_threshold,
                 self.recognizer.energy_threshold,
@@ -292,13 +292,13 @@ class SimpleWakeWord:
             text = self._transcribe(audio)
             if not text:
                 return False
-            logging.debug("들은 내용 (%d자)", len(text))
+            logging.debug("Heard content (%d자)", len(text))
 
             for wake_word in self.wake_words:
                 command = self._command_after_wake_word(text, wake_word)
                 if command is not None or self._matches_wake_word(text, wake_word):
                     if detection_allowed is not None and not detection_allowed():
-                        logging.debug("[WakeWord] TTS 재생/보호 구간 중 감지 후보 무시")
+                        logging.debug("[WakeWord] Ignoring detection candidate during TTS playback/protection")
                         return False
                     self.detected_command = command
                     return True
@@ -309,7 +309,7 @@ class SimpleWakeWord:
         except sr.UnknownValueError:
             return False
         except Exception as e:
-            logging.debug(f"음성 감지 오류: {e}")
+            logging.debug(f"Voice detection error: {e}")
             return False
 
     @property
@@ -339,8 +339,8 @@ class _WakeListenStream:
 
     def read(self, size):
         if self._interrupt_event.is_set():
-            raise sr.WaitTimeoutError("웨이크워드 듣기가 취소되었습니다.")
+            raise sr.WaitTimeoutError("Wake word listening was cancelled.")
         audio = self._stream.read(size)
         if self._interrupt_event.is_set():
-            raise sr.WaitTimeoutError("웨이크워드 듣기가 취소되었습니다.")
+            raise sr.WaitTimeoutError("Wake word listening was cancelled.")
         return audio

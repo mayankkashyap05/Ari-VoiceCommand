@@ -100,7 +100,7 @@ class GroqAssistant:
 
     def clear_history(self):
         self._provider.clear_history()
-        logging.info("대화 기록 초기화됨")
+        logging.info("Conversation history 초기화됨")
 
     def process_query(self, query):
         response = self.chat(query, include_context=True)

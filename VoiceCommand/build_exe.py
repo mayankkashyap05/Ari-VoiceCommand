@@ -1,14 +1,14 @@
 """
 Nuitka EXE 빌드 스크립트 (최적화 버전)
-실행: py -3.11 build_exe.py           # 증분 빌드 (캐시 재사용, 빠름)
-실행: py -3.11 build_exe.py --clean   # 클린 빌드 (캐시 삭제)
-실행: py -3.11 build_exe.py --onefile # 단일 파일 빌드 (배포용, 느림)
+실행: py -3.11 build_exe.py           # Incremental build (캐시 재사용, 빠름)
+실행: py -3.11 build_exe.py --clean   # Clean build (캐시 삭제)
+실행: py -3.11 build_exe.py --onefile # Single file 빌드 (배포용, 느림)
 권장: py -3.11 validate_repo.py       # 빌드 전 검증
 
 Nuitka import 제외 정책:
   --nofollow-import-to로 제외한 모듈은 배포 폴더에 들어가지 않는다. 대체 경로가 있는
   무거운 선택 기능(torch, sentence_transformers, easyocr 등)과 앱이 쓰지 않는
-  mistralai 클라이언트만 제외한다. 기본 기능이 쓰는 패키지(openai/anthropic,
+  mistralai 클라이언트만 제외한다. Default 기능이 쓰는 패키지(openai/anthropic,
   httpx/pydantic, Whisper, 웹 검색, 화면 분석)와 그 의존성은 제외하지 않는다.
   numpy와 scipy는 로컬 판단 엔진과 Whisper 워커가 필요로 한다.
 
@@ -17,7 +17,7 @@ Nuitka import 제외 정책:
 포함 모듈 (2026-05-26 최신):
   agent/mcp_server.py     — 로컬 MCP HTTP 서버
   ui/agent_dashboard.py   — 에이전트 진행 대시보드
-  ui/settings_agent_page.py — 에이전트 타임아웃/감사 로그/MCP 설정
+  ui/settings_agent_page.py — 에이전트 타임아웃/감사 로그/MCP Settings
   agent/file_tools.py     — LLM 직접 파일 도구(read/write/edit/list/search/move/delete)
   agent/llm_provider.py   — stream_chat(), analyze_image(), 토큰 예산 기반 컨텍스트
   agent/api_connector.py  — OpenAPI 기반 외부 API 호출
@@ -26,35 +26,35 @@ Nuitka import 제외 정책:
 포함 모듈 (2026-04-29):
   agent/response_cache.py — from_config() 팩토리 + _coerce_positive_int() 보조 함수 추가
   agent/task_queue.py     — AgentTaskQueue PriorityQueue + 워커 스레드 기반 비동기 큐 (신규)
-  agent/llm_router.py     — 영어·일본어 키워드 추가 (CODE/PLAN/LONG 다국어 라우팅)
+  agent/llm_router.py     — zero어·일본어 키워드 추가 (CODE/PLAN/LONG 다국어 라우팅)
   agent/safety_checker.py — curl/wget DANGEROUS → CAUTION 재분류
   commands/weather_command.py — 다국어 키워드 + CommandResult 반환
-  assistant/ai_assistant.py   — _responses() 지연 번역 적용
+  assistant/ai_assistant.py   — _responses() 지연 번역 Apply
   commands/ai_command.py      — 툴 핸들러 직접 서비스 호출, i18n 완성
   commands/command_registry.py — CommandResult 반환 표준화 + f-string 로깅 수정
   i18n/locales/*.po           — ko/en/ja 24개 ai_command/SimpleAIAssistant 번역 키 추가
 
 포함 모듈 (2026-04-22 최신):
-  agent/confirmation_manager.py — 모든 UI 문자열 i18n 적용 + Codacy W1202 f-string 로깅 수정
+  agent/confirmation_manager.py — 모든 UI 문자열 i18n Apply + Codacy W1202 f-string 로깅 수정
   agent/safety_checker.py      — 스레드 안전 캐시(_cache_lock) + _translate_matches() i18n
   agent/autonomous_executor.py — _SENSITIVE_ENV_SUBSTRINGS 민감 환경변수 부분 문자열 필터링
   core/VoiceCommand.py         — LearningModeState TypedDict + _EMOTION_ALIASES ko/en/ja
   core/constants.py            — WAKE_RESPONSES 제거 → get_wake_responses() 함수로 i18n 지원
-  core/stt_provider.py         — 내부 로그 메시지 영문화
+  core/stt_provider.py         — 내부 로그 메시지 zero문화
   memory/conversation_history.py — _compress_oldest() 백그라운드 스레드 처리 + flush() 대기
-  services/timer_manager.py    — 타이머 전체 i18n + 한/영/일 시간 단위 파싱(_iter_duration_matches)
-  i18n/locales/*.po            — ko/en/ja 54개 번역 키 추가 (타이머·확인 다이얼로그·안전 점검기)
+  services/timer_manager.py    — 타이머 전체 i18n + 한/zero/일 시간 단위 파싱(_iter_duration_matches)
+  i18n/locales/*.po            — ko/en/ja 54개 번역 키 추가 (타이머·OK 다이얼로그·안전 점검기)
 
 포함 모듈 (2026-04-14 최신):
   agent/agent_orchestrator.py — 공유 컨텍스트 캐시, 동적 계획 반복, 반복 실패 조기 종료
-  agent/execution_engine.py   — 반복 동일 오류 중단, 회복 전략 다변화, 단계 타임아웃 힌트
+  agent/execution_engine.py   — 반복 동일 Error 중단, 회복 전략 다변화, steps 타임아웃 힌트
   agent/agent_planner.py      — StrategyMemory lift 게이팅 + 선택적 step 필드 전달
   agent/agent_math.py         — cosine_similarity 공통 유틸
   agent/tag_keywords.py       — 공통 TAG_KEYWORDS 사전
-  agent/learning_engine.py    — 백그라운드 성찰 스레드 + 학습 항목 업데이트 보조 함수
+  agent/learning_engine.py    — 백그라운드 성찰 스레드 + 학습 항목 Update 보조 함수
   agent/reflection_engine.py  — 대체 메시지 i18n 실행 시 번역 + 추정 토큰 계측
   agent/skill_library.py      — 목표 임베딩 기반 스킬 매칭 + compile_failed 추적
-  agent/episode_memory.py     — embedder 우선 저장/검색 + 임베딩 누락 항목의 백그라운드 보충
+  agent/episode_memory.py     — embedder 우선 Save/검색 + 임베딩 누락 항목의 백그라운드 보충
   agent/learning_metrics.py   — 일별 학습 통계/카운터/추정 토큰 요약 집계 + lift 게이팅
   agent/weekly_report.py      — 자기개선 루프 활동/신규 스킬/Python 컴파일/토큰 리포트 표시
   i18n/locales/*.po           — ko/en/ja 자기개선 루프 문자열 동기화
@@ -62,10 +62,10 @@ Nuitka import 제외 정책:
 포함 모듈 (2026-04-06 최신):
   audio/simple_wake.py     — 정규화 전체 문구 비교로 문장 내부 부분 일치 오탐 차단
   core/VoiceCommand.py     — extend_tts_resume_guard() 추가: 세그먼트별 보호 구간 연장
-  core/threads.py          — VoiceRecognitionThread 감지 후 재확인, TTSThread._collect_batch() 추가
+  core/threads.py          — VoiceRecognitionThread 감지 later 재OK, TTSThread._collect_batch() 추가
   tts/cosyvoice_utils.py   — split_tts_segments() 추가: 자연 단위 세그먼트 분할
   tts/cosyvoice_tts.py     — _speak_segment() + split_tts_segments() 기반 멀티세그먼트 내부 처리
-  ui/text_interface.py     — 스트리밍 TTS 짧은 앞문장 배치 재생 (_queue_stream_tts_sentence)
+  ui/text_interface.py     — 스트리밍 TTS 짧은 앞문장 배치 play (_queue_stream_tts_sentence)
   agent/assistant_text_utils.py — LLM/AICommand 공통 목표 해석·도구 응답 정리 유틸리티 분리
   agent/planner_json_utils.py   — 잘린 JSON 응답 복구/파싱 책임 분리
   agent/llm_retry.py            — 플래너·검증기가 함께 쓰는 LLM 재시도 판단
@@ -74,7 +74,7 @@ Nuitka import 제외 정책:
   agent/automation_helpers.py   — 복원력 강화/적응형 계획 조립 중복 제거
 
 포함 모듈 (2026-04-04 최신):
-  agent/execution_engine.py   — AgentOrchestrator에서 분리한 단계 실행 엔진 (ExecutionEngine)
+  agent/execution_engine.py   — AgentOrchestrator에서 분리한 steps 실행 엔진 (ExecutionEngine)
   agent/verification_engine.py — 검증 전담 모듈 (VerificationEngine)
   agent/learning_engine.py    — 학습/기록 전담 모듈 (LearningEngine)
   agent/autonomous_executor.py — 자식 프로세스 환경변수 격리 (_build_child_env), 좀비 방지
@@ -83,33 +83,33 @@ Nuitka import 제외 정책:
   agent/safety_checker.py     — api_key 민감 키워드 추가
   core/plugin_loader.py       — 유니코드 ZIP entry 경로 검증, except 범위 축소
   core/plugin_sandbox.py      — finally 블록으로 stdout 복구 보장
-  memory/memory_manager.py    — 이중 확인 잠금 싱글톤, 정규식 캐싱
+  memory/memory_manager.py    — 이중 OK 잠금 싱글톤, 정규식 캐싱
   memory/trust_engine.py      — update_source_weight 스레드 락 추가
   ui/settings_llm_page.py    — SettingsDialog LLM 탭 분리 (settings_dialog.py 1190→388줄)
   ui/settings_tts_page.py    — SettingsDialog TTS 탭 분리
-  ui/settings_plugin_page.py — SettingsDialog 플러그인 탭 분리
+  ui/settings_plugin_page.py — SettingsDialog Plugins 탭 분리
 
 포함 모듈 (2026-04-03 최신):
   agent/goal_predictor.py   — 반복 실패 위험 예측 + orchestrator 선제 경고
   agent/learning_metrics.py — 학습 컴포넌트 lift 계측
   agent/regression_guard.py — 주간 성공률 회귀 경고
-  ui/text_interface.py      — 스트리밍 청크 반영 + 문장 경계 TTS 즉시 시작
+  ui/text_interface.py      — 스트리밍 청크 반zero + 문장 경계 TTS 즉시 시작
   core/resource_manager.py  — 개발 모드 `.ari_runtime` 분리 + 레거시 상태 마이그레이션
                               빌드된 exe 실행 시 런타임 루트는 `%AppData%/Ari`
   validate_repo.py          — 깨끗한 실행 환경 / marketplace SHA-256 계약 스모크 테스트 추가
   market/web/src/*          — Codacy 대응용 비동기 핸들러/nullable 정리 (웹 배포 산출물과 동작 일치)
   market/supabase/functions — upload-plugin / notify-developer 검증 로직 보강 (배포 시 functions를 별도로 배포해야 함)
   agent/agent_planner.py    — 작업 공간 감사 템플릿 강화 (창 분류/탭 추정/백업 보고)
-  core/plugin_sandbox.py    — multiprocessing 기반 격리 실행 + 시간 초과 상한 적용
+  core/plugin_sandbox.py    — multiprocessing 기반 격리 실행 + 시간 초과 상한 Apply
   services/web_tools.py     — ddgs 우선 검색 클라이언트 + 기존 대체 경로
-  requirements.txt          — certifi / requests(>=2.33.0) / Pillow 보안 업데이트, ddgs 기본 채택
+  requirements.txt          — certifi / requests(>=2.33.0) / Pillow 보안 Update, ddgs Default 채택
 
 포함 모듈 (2026-03-30):
-  ui/character_widget.py     — 벽/천장 타기 도중 드래그 시 중력 미적용 버그 수정
+  ui/character_widget.py     — 벽/천장 타기 도중 드래그 시 중력 미Apply 버그 수정
   ui/theme_editor.py         — ThemeEditorDialog 추가 (팔레트 편집 별도 창)
   ui/settings_dialog.py      — 인라인 팔레트 에디터 → ThemeEditorDialog 분리
   core/plugin_loader.py      — PluginContext 등록 훅(메뉴/명령/도구/샌드박스) + API 버전 협상 + ZIP 패키지 로드
-  core/plugin_sandbox.py     — 플러그인 샌드박스 실행기 (현재는 multiprocessing 격리 방식으로 유지)
+  core/plugin_sandbox.py     — Plugins 샌드박스 실행기 (현재는 multiprocessing 격리 방식으로 유지)
   commands/command_registry.py — register_command() 런타임 동적 등록
   commands/ai_command.py     — register_plugin_tool_handler() LLM 도구 동적 디스패치
   agent/llm_provider.py      — register_plugin_tool() 동적 스키마 확장
@@ -120,20 +120,20 @@ Nuitka import 제외 정책:
   agent/ocr_helper.py        — easyocr/pytesseract 화면 텍스트 추출 (선택 의존성)
   agent/dag_builder.py       — 리소스 충돌 기반 의존성 DAG + 병렬 그룹 계산
   agent/embedder.py          — 백그라운드 ONNX 임베딩
-  agent/real_verifier.py     — 4단계 검증 파이프라인 (휴리스틱→OCR→코드→LLM)
+  agent/real_verifier.py     — 4steps 검증 파이프라인 (휴리스틱→OCR→코드→LLM)
   agent/agent_planner.py     — ActionStep DAG 필드 추가, decompose() DAG 주석
   agent/agent_orchestrator.py — 병렬 그룹 실행 + DOM 재계획 플래그 처리
-  agent/strategy_memory.py   — embedding 필드 + 3단계 검색 파이프라인
+  agent/strategy_memory.py   — embedding 필드 + 3steps 검색 파이프라인
   services/dom_analyser.py   — Selenium DOM 분석 + 다음 액션 제안
   services/web_tools.py      — login_and_run DOM 재계획, get_state DOM 분석 포함
-  memory/trust_engine.py     — FACT 신뢰도 업데이트 엔진 (출처 가중치/충돌/감쇠)
+  memory/trust_engine.py     — FACT 신뢰도 Update 엔진 (출처 가중치/충돌/감쇠)
   memory/user_context.py     — record_fact와 trust_engine 연동, optimize_memory 감쇠 로직 교체
   ui/theme_editor.py         — 팔레트 색상 피커 + JSON 편집 위젯
   ui/settings_dialog.py      — ThemeEditorWidget 통합, 팔레트 편집 토글
   agent/llm_provider.py      — 역할별 독립 LLM 제공자(플래너/실행) + API 키 검증 UI
   core/config_manager.py     — llm_planner_provider, llm_execution_provider, cosyvoice_dir
   tts/cosyvoice_worker.py    — cudnn.benchmark + 동적 ODE steps
-  Main.py                    — 로그 자동 순환 (최대 10개 보관)
+  Main.py                    — 로그 자동 순환 (max 10개 보관)
 
 포함 모듈 (2026-03-25):
   agent/agent_orchestrator  — 병렬 실행 및 자율 반성(성찰) 지원
@@ -146,9 +146,9 @@ Nuitka import 제외 정책:
   agent/strategy_memory.py    — 워크플로 힌트 축적 및 재사용
   agent/autonomous_executor.py — 적응형/복원력 강화 워크플로 + 계획 스냅샷 노출
   agent/episode_memory.py     — 목표 에피소드 기억 + 복구 지침 재주입
-  core/plugin_loader.py      — 사용자 플러그인 로더 및 확장 진입점 (.py / .zip)
-  ui/theme.py, ui/common.py — `%AppData%/Ari/theme/*.json` 기반 UI 테마 시스템
-  tts/cosyvoice_tts.py      — 로컬 TTS 워커 재사용 + 안정화된 스트리밍 출력
+  core/plugin_loader.py      — 사용자 Plugins 로더 및 확장 진입점 (.py / .zip)
+  ui/theme.py, ui/common.py — `%AppData%/Ari/theme/*.json` 기반 UI Theme 시스템
+  tts/cosyvoice_tts.py      — Local TTS 워커 재사용 + 안정화된 스트리밍 출력
   ui/memory_panel.py        — 메모리 패널 통계 탭 레이아웃 보정
 """
 import os
@@ -166,7 +166,7 @@ from core.settings_schema import SENSITIVE_SETTINGS_KEYS, SETTINGS_TEMPLATE_FILE
 _raw_package_imports = _release_packaging.raw_package_imports
 _raw_packages = _release_packaging.raw_packages
 
-# 표준 출력 인코딩 설정 (Windows/GitHub Actions 환경 대응)
+# 표준 출력 인코딩 Settings (Windows/GitHub Actions 환경 대응)
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8')
@@ -180,12 +180,12 @@ _cpu = multiprocessing.cpu_count()
 jobs = _cpu
 
 print("=" * 60)
-print("   Ari EXE 최적화 빌드 시스템 (Nuitka)")
+print("   Ari EXE Optimized Build System (Nuitka)")
 print("=" * 60)
-print(f"• 빌드 모드: {'단일 파일' if one_file else '폴더 독립형'}")
-print(f"• 작업 유형: {'클린 빌드' if clean_build else '증분 빌드'}")
-print(f"• 병렬 작업: {jobs} 코어 사용\n")
-print("• 권장 사전 검증: python validate_repo.py\n")
+print(f"• Build mode: {'Single file' if one_file else 'Folder standalone'}")
+print(f"• Build type: {'Clean build' if clean_build else 'Incremental build'}")
+print(f"• 병렬 작업: {jobs} cores in use\n")
+print("• Recommended pre-validation: python validate_repo.py\n")
 
 
 def _ensure_safe_settings_template() -> None:
@@ -196,7 +196,7 @@ def _ensure_safe_settings_template() -> None:
     leaked = [key for key in SENSITIVE_SETTINGS_KEYS if str(payload.get(key, "") or "").strip()]
     if leaked:
         raise SystemExit(
-            f"설정 템플릿에 민감값이 포함되어 있습니다: {', '.join(leaked)}"
+            f"Settings 템플릿에 contains sensitive values: {', '.join(leaked)}"
         )
 
 
@@ -225,17 +225,17 @@ def _optional_include_packages(*module_names: str) -> list[str]:
         if _module_exists(module_name):
             args.append(f"--include-package={module_name}")
         else:
-            print(f"• 선택 패키지 생략: {module_name}")
+            print(f"• Optional package skipped: {module_name}")
     return args
 
 
-# 클린 빌드 처리
+# Clean build 처리
 if clean_build and os.path.exists(os.path.join(HERE, "dist")):
-    print("기존 빌드 캐시 및 출력물 삭제 중...")
+    print("Deleting existing build cache and output...")
     shutil.rmtree(os.path.join(HERE, "dist"))
 
 if os.path.exists(PLUGIN_RUNTIME_DIR):
-    print("플러그인 런타임 캐시 정리 중...")
+    print("Plugins Cleaning runtime cache...")
     shutil.rmtree(PLUGIN_RUNTIME_DIR, ignore_errors=True)
 
 nuitka_args = [
@@ -245,7 +245,7 @@ nuitka_args = [
     "--output-filename=Ari",
     "--output-dir=dist",
     "--show-progress",
-    "--remove-output", # 빌드 완료 후 중간 파일 삭제
+    "--remove-output", # 빌드 완료 later 중간 파일 삭제
     "--assume-yes-for-downloads", # 자동 다운로드 승인 (비대화형 환경 대응)
 
     # PySide6 최적화
@@ -270,7 +270,7 @@ nuitka_args = [
     "--include-data-files=tts/cosyvoice_worker.py=cosyvoice_worker.py",
     "--include-data-files=install_cosyvoice.py=install_cosyvoice.py",
 
-    # 아이콘 설정
+    # 아이콘 Settings
     *( ["--windows-icon-from-ico=icon.ico"] if os.path.exists("icon.ico") else [] ),
 
     # 필수 모듈 명시 (--include-package 로 자동 포함되지 않는 경우 대비)
@@ -384,7 +384,7 @@ nuitka_args = [
 
     # ── 가져오기 제외 대상: 대체 경로가 있는 무거운 선택 기능 ───────────────────
     # 제외한 모듈은 배포 폴더에 들어가지 않으므로 import하면 실패한다.
-    # 기본 기능이 쓰는 패키지와 그 의존성은 여기에 넣지 않는다.
+    # Default 기능이 쓰는 패키지와 그 의존성은 여기에 넣지 않는다.
 
     # ML / 수치 연산 (numpy는 로컬 판단 엔진이 쓰므로 포함한다)
     "--nofollow-import-to=torch",
@@ -425,7 +425,7 @@ if _windows_version:
     ])
 
 start_time = datetime.now().strftime("%H:%M:%S")
-print(f"빌드 시작 시간: {start_time}")
+print(f"Build start time: {start_time}")
 
 try:
     original_argv = sys.argv[:]
@@ -440,7 +440,7 @@ except SystemExit as exc:
     exit_code = 0 if exc.code is None else exc.code if isinstance(exc.code, int) else 1
     build_success = exit_code == 0
 except Exception as exc:
-    print(f"\n❌ 빌드 중 예외 발생: {exc}")
+    print(f"\n❌ Exception during build: {exc}")
     build_success = False
     exit_code = 1
 
@@ -451,14 +451,14 @@ if build_success:
         if os.path.exists(DIST_DIR):
             shutil.rmtree(DIST_DIR)
         os.rename(NUITKA_OUT, DIST_DIR)
-        print(f"\n✓ 출력 완료: {DIST_DIR}")
+        print(f"\n✓ Output complete: {DIST_DIR}")
     
     print("\n" + "=" * 60)
-    print("   빌드 성공! 배포 준비가 완료되었습니다.")
+    print("   Build successful! Distribution is ready.")
     print("=" * 60)
 else:
     if 'exit_code' in locals():
-        print(f"\n❌ 빌드 중 오류 발생 (코드: {exit_code})")
+        print(f"\n❌ Error during build (코드: {exit_code})")
     else:
-        print("\n❌ 빌드 중 오류 발생")
+        print("\n❌ Error during build")
     sys.exit(exit_code or 1)

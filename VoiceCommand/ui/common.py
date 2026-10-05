@@ -4,11 +4,11 @@ UI 공용 유틸리티 (UI Common Utilities)
 
 주요 제공 요소:
   - clear_layout()       레이아웃 내 위젯 일괄 제거
-  - apply_shadow()       QGraphicsDropShadowEffect 적용
+  - apply_shadow()       QGraphicsDropShadowEffect Apply
   - create_input_field() 스타일 통일된 QLineEdit
   - create_icon_button() 아이콘 버튼 팩토리
   - show_temp_status()   타이머 기반 일시 상태 메시지
-  - FloatingPanel        프레임리스 플로팅 창 기반 클래스
+  - FloatingPanel        frames리스 플로팅 창 기반 클래스
 """
 from typing import Callable, Optional
 
@@ -42,7 +42,7 @@ def apply_shadow(
     blur_radius: int = theme_module.SHADOW_BLUR,
     offset_y: int = theme_module.SHADOW_OFFSET,
 ) -> None:
-    """위젯에 드롭 섀도우 효과를 적용한다."""
+    """위젯에 드롭 섀도우 효과를 Apply한다."""
     shadow = QGraphicsDropShadowEffect(widget)
     shadow.setBlurRadius(blur_radius)
     shadow.setColor(Qt.black)
@@ -57,7 +57,7 @@ def create_input_field(
     font_size: int = theme_module.FONT_SIZE_NORMAL,
     height: int = 32,
 ) -> QLineEdit:
-    """테마 스타일이 적용된 QLineEdit를 생성한다."""
+    """Theme 스타일이 Apply된 QLineEdit를 생성한다."""
     w = QLineEdit()
     w.setPlaceholderText(placeholder)
     w.setFont(QFont(theme_module.FONT_KO, font_size))
@@ -107,7 +107,7 @@ def show_temp_status(
     msg: str,
     duration_ms: int = theme_module.TEMP_STATUS_DURATION,
 ) -> None:
-    """레이블에 메시지를 표시하고 duration_ms 후 자동으로 지운다."""
+    """레이블에 메시지를 표시하고 duration_ms later 자동으로 지운다."""
     label.setText(msg)
     QTimer.singleShot(duration_ms, label, lambda: label.setText(""))
 
@@ -115,7 +115,7 @@ def show_temp_status(
 # ── 공통 타이틀 바 ────────────────────────────────────────────────────────────
 
 class PanelTitleBar(QFrame):
-    """드래그 이동 + 닫기 버튼이 포함된 공통 타이틀 바.
+    """드래그 이동 + Close 버튼이 포함된 공통 타이틀 바.
 
     FloatingPanel 기반 클래스에서 자동으로 사용된다.
     추가 버튼이 필요하면 subclass에서 add_button()을 호출한다.
@@ -134,7 +134,7 @@ class PanelTitleBar(QFrame):
         self._lay.addWidget(self._title_lbl)
         self._lay.addStretch()
 
-        # 닫기 버튼은 항상 맨 오른쪽
+        # Close 버튼은 항상 맨 오른쪽
         self._close_btn = QPushButton("✕")
         self._close_btn.setFixedSize(30, 30)
         self._close_btn.setCursor(Qt.PointingHandCursor)
@@ -149,7 +149,7 @@ class PanelTitleBar(QFrame):
         callback: Callable,
         size: int = theme_module.BUTTON_LG,
     ) -> QPushButton:
-        """닫기 버튼 앞에 아이콘 버튼을 추가한다."""
+        """Close 버튼 앞에 아이콘 버튼을 추가한다."""
         btn = QPushButton(icon)
         btn.setFixedSize(size, size)
         btn.setToolTip(tooltip)
@@ -160,7 +160,7 @@ class PanelTitleBar(QFrame):
             QPushButton:hover { background: rgba(255,255,255,35); }
         """)
         btn.clicked.connect(callback)
-        # 닫기 버튼(index=-1) 직전에 삽입
+        # Close 버튼(index=-1) 직전에 삽입
         count = self._lay.count()
         self._lay.insertWidget(count - 1, btn)
         return btn
@@ -188,10 +188,10 @@ class PanelTitleBar(QFrame):
         self._drag_pos = None
 
 
-# ── 프레임리스 플로팅 패널 기반 클래스 ───────────────────────────────────────
+# ── frames리스 플로팅 패널 기반 클래스 ───────────────────────────────────────
 
 class FloatingPanel(QMainWindow):
-    """프레임리스·반투명 배경의 플로팅 패널 기반 클래스.
+    """frames리스·반투명 배경의 플로팅 패널 기반 클래스.
 
     상속해서 사용할 때:
       1. super().__init__(title, width, height, parent)

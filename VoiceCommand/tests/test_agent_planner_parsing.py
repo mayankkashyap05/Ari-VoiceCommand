@@ -123,7 +123,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
   {
     "step_type": "python",
     "content": "print('ok')",
-    "description_kr": "첫 단계"
+    "description_kr": "첫 steps"
   },
   {
     "step_type": "python",
@@ -134,7 +134,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
 
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["step_type"], "python")
-        self.assertEqual(items[0]["description_kr"], "첫 단계")
+        self.assertEqual(items[0]["description_kr"], "첫 steps")
 
     def test_parse_object_recovers_truncated_object_when_complete_brace_exists(self):
         planner = AgentPlanner(DummyLLMProvider())
@@ -142,14 +142,14 @@ class AgentPlannerParsingTests(unittest.TestCase):
 {
   "step_type": "python",
   "content": "print('ok')",
-  "description_kr": "단계 설명"
+  "description_kr": "steps 설명"
 }
 ```"""
 
         data = planner._parse_object(raw)
 
         self.assertEqual(data["step_type"], "python")
-        self.assertEqual(data["description_kr"], "단계 설명")
+        self.assertEqual(data["description_kr"], "steps 설명")
 
     def test_repository_goal_skips_template_and_does_not_infer_documents_folder(self):
         planner = AgentPlanner(DummyLLMProvider())
@@ -157,7 +157,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
             "이 저장소를 먼저 전체 파악한 뒤 VoiceCommand/agent, VoiceCommand/core, VoiceCommand/ui, "
             "VoiceCommand/plugins, VoiceCommand/tests, docs 범위에서 사용자 체감이 크고 회귀 위험이 낮은 "
             "개선 과제 1개를 스스로 선정해 실제 코드 변경까지 진행하고, 필요하면 테스트와 문서도 함께 수정한 뒤, "
-            "py -3.11 VoiceCommand/validate_repo.py 또는 --compile-only와 영향받는 테스트를 직접 실행하고, "
+            "py -3.11 VoiceCommand/validate_repo.py 또는 --compile-only와 zero향받는 테스트를 직접 실행하고, "
             "실패하면 원인을 분석해 한 번 더 고친 다음, 마지막에 수정한 파일·실행한 검증 명령·실제 결과·남은 리스크만 간결하게 보고해줘."
         )
 
@@ -177,7 +177,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
 
     def test_short_voicecommand_repository_goal_is_treated_as_developer_work(self):
         planner = AgentPlanner(DummyLLMProvider())
-        goal = "VoiceCommand 저장소 전체 파악 후, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료"
+        goal = "VoiceCommand 저장소 전체 파악 later, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료"
 
         self.assertTrue(planner.is_developer_goal(goal))
         self.assertEqual(planner._build_template_plan(goal), [])
@@ -216,9 +216,9 @@ class AgentPlannerParsingTests(unittest.TestCase):
         provider.planner_provider = "openai"
         planner = AgentPlanner(provider)
         goal = (
-            "요청하신 6단계(탐색-선정-수정-검증-재수정-보고)를 자율적으로 수행합니다. 저장소 구조를 먼저 파악하고, "
+            "요청하신 6steps(탐색-선정-수정-검증-재수정-보고)를 자율적으로 수행합니다. 저장소 구조를 먼저 파악하고, "
             "VoiceCommand/{agent,core,ui,plugins,tests}와 docs 범위에서 회귀 위험 낮으면서 사용자 체감 큰 1개 과제를 골라 "
-            "실제 코드 수정부터 테스트·문서까지 일괄 처리한 뒤 validate_repo.py와 영향 테스트를 실행합니다."
+            "실제 코드 수정부터 테스트·문서까지 일괄 처리한 뒤 validate_repo.py와 zero향 테스트를 실행합니다."
         )
         context = {
             "step_0_output": '{"agent":{"file_count":2,"samples":["agent_planner.py","llm_provider.py"]},"ui":{"file_count":1,"samples":["settings_dialog.py"]}}',
@@ -236,7 +236,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
   {
     "step_type": "python",
     "content": "from pathlib import Path\\nPath('VoiceCommand/agent/agent_planner.py').write_text('patched', encoding='utf-8')",
-    "description_kr": "후보 파일 수정",
+    "description_kr": "later보 파일 수정",
     "expected_output": "changed file",
     "condition": "",
     "on_failure": "abort"
@@ -255,7 +255,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
             steps = planner.decompose(goal, context)
 
         self.assertEqual(len(steps), 2)
-        self.assertEqual(steps[0].description_kr, "후보 파일 수정")
+        self.assertEqual(steps[0].description_kr, "later보 파일 수정")
         self.assertEqual(steps[1].step_type, "shell")
 
     def test_decompose_repository_goal_does_not_fallback_to_synthetic_edit_after_retry_failure(self):
@@ -264,7 +264,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
         provider.planner_client = None
         provider.planner_provider = "openai"
         planner = AgentPlanner(provider)
-        goal = "VoiceCommand 저장소 전체 파악 후 코드 변경 및 검증까지 완료"
+        goal = "VoiceCommand 저장소 전체 파악 later 코드 변경 및 검증까지 완료"
         context = {
             "step_0_output": '{"agent":{"file_count":2}}',
             "step_1_output": "--compile-only",
@@ -287,7 +287,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
         provider.planner_client = _FakePlannerCompletionClient([
             Exception("429 RESOURCE_EXHAUSTED: retry in 1s"),
             ('[{"step_type":"python","content":"print(1)"', "length"),
-            (',"description_kr":"단계 1"}]', "stop"),
+            (',"description_kr":"steps 1"}]', "stop"),
         ])
         provider.client = provider.planner_client
         planner = AgentPlanner(provider)
@@ -295,7 +295,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
         with patch("agent.planner.agent_planner.time.sleep", return_value=None):
             raw = planner._call_llm("JSON only")
 
-        self.assertIn('"description_kr":"단계 1"', raw)
+        self.assertIn('"description_kr":"steps 1"', raw)
         self.assertEqual(len(provider.planner_client.calls), 3)
         self.assertEqual(
             provider.planner_client.calls[1].get("response_format"),
@@ -371,7 +371,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
         provider.planner_client = None
         provider.planner_provider = "openai"
         planner = AgentPlanner(provider)
-        goal = "VoiceCommand 저장소 전체 파악 후 코드 변경 및 검증까지 완료"
+        goal = "VoiceCommand 저장소 전체 파악 later 코드 변경 및 검증까지 완료"
         raw = """[
   {
     "step_type": "python",
@@ -413,7 +413,7 @@ class AgentPlannerParsingTests(unittest.TestCase):
         planner = AgentPlanner(provider)
         goal = (
             "VoiceCommand/agent, VoiceCommand/core, VoiceCommand/ui, VoiceCommand/plugins, "
-            "VoiceCommand/tests, docs 범위를 분석한 뒤 validate_repo.py와 영향받는 테스트를 직접 실행해 검증까지 완료"
+            "VoiceCommand/tests, docs 범위를 분석한 뒤 validate_repo.py와 zero향받는 테스트를 직접 실행해 검증까지 완료"
         )
         context = {
             "step_0_output": '{"agent":{"file_count":2,"samples":["agent_planner.py","llm_provider.py"]},"docs":{"file_count":1,"samples":["README.md"]}}',

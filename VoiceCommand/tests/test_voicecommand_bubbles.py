@@ -169,17 +169,17 @@ class VoiceCommandBubbleTests(unittest.TestCase):
         emotion_en, pure_en = voicecommand.parse_emotion_text("[happy] hello")
         emotion_ja, pure_ja = voicecommand.parse_emotion_text("(心配) 大丈夫?")
 
-        self.assertEqual(emotion_en, "기쁨")
+        self.assertEqual(emotion_en, "Joy")
         self.assertEqual(pure_en, "hello")
         self.assertEqual(emotion_ja, "걱정")
         self.assertEqual(pure_ja, "大丈夫?")
 
     def test_parse_emotion_text_uses_the_first_tag(self):
         emotion, pure_text = voicecommand.parse_emotion_text(
-            "(기쁨) 먼저요. (걱정) 나중 태그"
+            "(Joy) 먼저요. (걱정) 나중 태그"
         )
 
-        self.assertEqual(emotion, "기쁨")
+        self.assertEqual(emotion, "Joy")
         self.assertEqual(pure_text, "먼저요. 나중 태그")
 
 

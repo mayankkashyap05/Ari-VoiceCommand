@@ -16,10 +16,10 @@ class TimerCommand(BaseCommand):
         return _("타이머") in text or _("알람") in text
 
     def execute(self, text: str) -> None:
-        if any(keyword in text for keyword in (_("취소"), _("끄기"), _("중지"))):
+        if any(keyword in text for keyword in (_("Cancel"), _("Off"), _("중지"))):
             name = self._extract_timer_name(text)
             self.timer_manager.cancel_timer(name=name)
-        elif any(keyword in text for keyword in (_("남은"), _("얼마"), _("확인"))):
+        elif any(keyword in text for keyword in (_("남은"), _("얼마"), _("OK"))):
             timers = self.timer_manager.list_timers()
             if not timers:
                 self.tts_wrapper(_("현재 실행 중인 타이머가 없습니다."))
@@ -57,5 +57,5 @@ class TimerCommand(BaseCommand):
             return ""
         candidate = named_match.group(1).strip()
         # 제외 키워드들도 번역된 값으로 체크
-        exclude = (_("취소"), _("남은"), _("얼마"), _("확인"))
+        exclude = (_("Cancel"), _("남은"), _("얼마"), _("OK"))
         return "" if any(token in candidate for token in exclude) else candidate

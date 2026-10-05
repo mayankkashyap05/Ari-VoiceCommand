@@ -113,7 +113,7 @@ def parse_json_array(text: str) -> list:
             logging.warning("[Planner] JSON 배열 파싱 실패: %s", candidate[:200])
     recovered = recover_partial_array(cleaned)
     if recovered:
-        logging.info("[Planner] 부분 JSON 배열 복구 적용")
+        logging.info("[Planner] 부분 JSON 배열 복구 Apply")
         return recovered
     return []
 
@@ -128,6 +128,6 @@ def parse_json_object(text: str) -> dict:
             logging.warning("[Planner] JSON 객체 파싱 실패: %s", candidate[:200])
     recovered = recover_partial_object(cleaned)
     if recovered:
-        logging.info("[Planner] 부분 JSON 객체 복구 적용")
+        logging.info("[Planner] 부분 JSON 객체 복구 Apply")
         return recovered
     return {}

@@ -91,7 +91,7 @@ _SKILL_FRONTMATTER_OVERRIDES: Dict[str, dict] = {
     },
     "korean-stock-search": {
         "skill_type": "search",
-        "description_ko": "한국 상장 종목 검색과 기본 정보, 일별 시세를 조회한다.",
+        "description_ko": "한국 상장 종목 검색과 Default 정보, 일별 시세를 조회한다.",
         "description_en": "Search Korean listed stocks and retrieve basic info and daily prices.",
         "description_ja": "韓国上場銘柄を検索し、基本情報と日次価格を取得する。",
         "triggers_ko": ["주가", "종목", "한국 주식"],
@@ -142,7 +142,7 @@ _SKILL_FRONTMATTER_OVERRIDES: Dict[str, dict] = {
         "triggers_ja": ["漢江水位", "水位", "流量"],
     },
     "hipass-receipt": {
-        "triggers_ko": ["하이패스", "영수증", "통행료"],
+        "triggers_ko": ["하이패스", "zero수증", "통행료"],
         "triggers_en": ["hipass", "toll receipt", "toll history"],
         "triggers_ja": ["ハイパス", "領収書", "通行料"],
     },
@@ -162,7 +162,7 @@ _SKILL_FRONTMATTER_OVERRIDES: Dict[str, dict] = {
         "triggers_ja": ["朝鮮王朝実録", "実録", "史料"],
     },
     "k-skill-setup": {
-        "triggers_ko": ["k-skill", "스킬 설정", "설치 확인"],
+        "triggers_ko": ["k-skill", "스킬 Settings", "설치 OK"],
         "triggers_en": ["k-skill setup", "skill setup", "bundle setup"],
         "triggers_ja": ["k-skill セットアップ", "スキル設定", "インストール確認"],
     },
@@ -197,7 +197,7 @@ _SKILL_FRONTMATTER_OVERRIDES: Dict[str, dict] = {
         "triggers_ja": ["KTX", "列車予約", "コレール"],
     },
     "olive-young-search": {
-        "triggers_ko": ["올리브영", "올영", "재고 확인"],
+        "triggers_ko": ["올리브zero", "올zero", "재고 OK"],
         "triggers_en": ["olive young", "oliveyoung", "store stock"],
         "triggers_ja": ["オリーブヤング", "在庫確認", "商品検索"],
     },
@@ -276,7 +276,7 @@ class SkillManager:
         self._lock = threading.RLock()
         self.skills_dir = _get_skills_dir()
         os.makedirs(self.skills_dir, exist_ok=True)
-        # 시작할 때 한 번만 한다. 실행 중에는 진행 중인 업데이트의 백업을 건드리면 안 된다.
+        # 시작할 때 한 번만 한다. 실행 중에는 진행 중인 Update의 백업을 건드리면 안 된다.
         self._recover_interrupted_update()
         self.load_all()
 
@@ -312,7 +312,7 @@ class SkillManager:
                 raise ValueError("Invalid update journal")
             for backup_name, original_name in entries.items():
                 if original_name is None:
-                    # 업데이트가 새로 만든 폴더다. 설치가 끝났는지 알 수 없으므로 지운다.
+                    # Update가 새로 만든 폴더다. 설치가 끝났는지 알 수 없으므로 지운다.
                     if (
                         not isinstance(backup_name, str)
                         or os.path.basename(backup_name) != backup_name
@@ -343,7 +343,7 @@ class SkillManager:
                 os.replace(backup, original)
             os.unlink(journal_path)
         except Exception as exc:
-            logger.warning("[SkillManager] 미완료 스킬 업데이트 복구 실패: %s", exc)
+            logger.warning("[SkillManager] 미완료 스킬 Update 복구 실패: %s", exc)
 
     def list_skills(self) -> List[SkillInfo]:
         with self._lock:
@@ -524,8 +524,8 @@ class SkillManager:
 
             lang = get_language()
         except Exception as exc:
-            logger.debug("[SkillManager] 언어 설정 조회 실패, ko 기본값 사용: %s", exc)
-            lang = "ko"
+            logger.debug("[SkillManager] language setting lookup failed, using en default: %s", exc)
+            lang = "en"
         for key in (f"description_{lang}", "description"):
             description = str(meta.get(key, "") or "").strip()
             if description:
@@ -543,8 +543,8 @@ class SkillManager:
 
             lang = get_language()
         except Exception as exc:
-            logger.debug("[SkillManager] 언어 설정 조회 실패, ko 기본값 사용: %s", exc)
-            lang = "ko"
+            logger.debug("[SkillManager] language setting lookup failed, using en default: %s", exc)
+            lang = "en"
         collected: List[str] = []
         for key in (f"triggers_{lang}", "triggers", "keywords", "trigger_keywords"):
             value = meta.get(key)
@@ -719,4 +719,4 @@ try:
 
     on_language_changed(reset_skill_manager)
 except Exception as exc:
-    logger.debug("[SkillManager] 언어 변경 콜백 등록 생략: %s", exc)
+    logger.debug("[SkillManager] Language 변경 콜백 등록 생략: %s", exc)

@@ -1,4 +1,4 @@
-"""설정 기반으로 TTS 제공자를 생성하고 서명을 계산하는 팩토리."""
+"""Factory that creates TTS providers based on settings and computes signatures."""
 
 import logging
 import os
@@ -37,7 +37,7 @@ _TTS_SIGNATURE_KEYS = (
 
 
 def build_tts_signature(settings=None):
-    """현재 TTS 설정의 비교용 시그니처."""
+    """Compute a comparison signature of the current TTS settings."""
     settings = settings or ConfigManager.load_settings()
     return tuple(settings.get(key) for key in _TTS_SIGNATURE_KEYS)
 
@@ -47,7 +47,7 @@ def _create_local(settings, wait_ready=True):
     try:
         from tts.cosyvoice_tts import CosyVoiceTTS
         from tts.voice_reference import get_reference_text, get_reference_wav
-        # 설정 화면에서 아직 저장하지 않은 경로로 시험 재생할 때도 그 경로를 쓴다.
+        # Uses the configured path even for trial playback from the settings screen.
         configured_dir = settings.get("cosyvoice_dir", "")
         provider = CosyVoiceTTS(
             reference_wav=get_reference_wav(settings),
@@ -60,7 +60,7 @@ def _create_local(settings, wait_ready=True):
                 getattr(provider, "_worker_error", None)
                 or "CosyVoice3 worker did not become ready"
             )
-        logging.info("CosyVoice3 로컬 TTS 초기화 완료")
+        logging.info("CosyVoice3 local TTS initialization complete")
         return provider, "local"
     except Exception as e:
         if provider is not None:
@@ -73,8 +73,8 @@ def _create_local(settings, wait_ready=True):
                 TypeError,
                 ValueError,
             ) as cleanup_error:
-                logging.debug("실패한 CosyVoice3 워커 정리 실패: %s", cleanup_error)
-        logging.error("CosyVoice3 워커 초기화 실패: %s", e)
+                logging.debug("Failed to clean up failed CosyVoice3 worker: %s", cleanup_error)
+        logging.error("CosyVoice3 worker initialization failed: %s", e)
         raise RuntimeError("CosyVoice3 worker initialization failed") from e
 
 
@@ -97,10 +97,10 @@ def _create_openai_compat_tts(settings):
             language=get_language(),
             tts_volume=settings.get("tts_volume", 1.0),
         )
-        logging.info("OpenAI 호환 TTS 초기화 완료")
+        logging.info("OpenAI-compatible TTS initialization complete")
         return provider, "openai_compat_tts"
     except Exception as e:
-        logging.error("OpenAI 호환 TTS 초기화 실패, Edge TTS로 fallback: %s", e)
+        logging.error("OpenAI-compatible TTS init failed, falling back to Edge TTS: %s", e)
         return None
 
 
@@ -115,10 +115,10 @@ def _create_openai_tts(settings):
             custom_voice_id=settings.get("openai_tts_custom_voice_id", ""),
             tts_volume=settings.get("tts_volume", 1.0),
         )
-        logging.info("OpenAI TTS 초기화 완료")
+        logging.info("OpenAI TTS initialization complete")
         return provider, "openai_tts"
     except Exception as e:
-        logging.error(f"OpenAI TTS 초기화 실패, Edge TTS로 fallback: {e}")
+        logging.error(f"OpenAI TTS init failed, falling back to Edge TTS: {e}")
         return None
 
 
@@ -132,10 +132,10 @@ def _create_elevenlabs(settings):
             emotion_enabled=settings.get("tts_emotion_enabled", True),
             tts_volume=settings.get("tts_volume", 1.0),
         )
-        logging.info("ElevenLabs TTS 초기화 완료")
+        logging.info("ElevenLabs TTS initialization complete")
         return provider, "elevenlabs"
     except Exception as e:
-        logging.error(f"ElevenLabs TTS 초기화 실패, Edge TTS로 fallback: {e}")
+        logging.error(f"ElevenLabs TTS init failed, falling back to Edge TTS: {e}")
         return None
 
 
@@ -150,32 +150,32 @@ def _create_fish(settings):
                 model=settings.get("fish_model", "s2.1-pro-free"),
                 tts_volume=settings.get("tts_volume", 1.0),
             )
-            logging.info("Fish Audio TTS 초기화 완료")
+            logging.info("Fish Audio TTS initialization complete")
             return provider, "fish"
         except Exception as e:
-            logging.error(f"Fish Audio TTS 초기화 실패, Edge TTS로 fallback: {e}")
+            logging.error(f"Fish Audio TTS init failed, falling back to Edge TTS: {e}")
             return None
     else:
-        logging.warning("Fish API key가 없어 Edge TTS로 자동 전환합니다.")
+        logging.warning("No Fish API key configured, switching to Edge TTS.")
         return None
 
 
 def _create_edge(settings):
-    # 기본 및 Fallback: Edge TTS (무료 & 고품질)
+    # Default & Fallback: Edge TTS (free & high quality)
     try:
         from tts.tts_edge import EdgeTTS
         provider = EdgeTTS(
-            voice=settings.get("edge_tts_voice", "ko-KR-SunHiNeural"),
+            voice=settings.get("edge_tts_voice", "en-US-JennyNeural"),
             rate=settings.get("edge_tts_rate", "+0%"),
             emotion_enabled=settings.get("tts_emotion_enabled", True),
             synthesis_timeout_seconds=settings.get("tts_sentence_timeout_seconds", 10),
             cache_max_bytes=settings.get("tts_cache_max_bytes", 50 * 1024 * 1024),
             tts_volume=settings.get("tts_volume", 1.0),
         )
-        logging.info("Edge TTS 초기화 완료")
+        logging.info("Edge TTS initialization complete")
         return provider, "edge"
     except Exception as e:
-        logging.error(f"Edge TTS 초기화 실패: {e}")
+        logging.error(f"Edge TTS initialization failed: {e}")
         raise
 
 
@@ -190,9 +190,9 @@ _TTS_PROVIDER_CREATORS = {
 
 
 def create_tts_provider(settings=None, wait_ready=True):
-    """tts_mode 설정에 따라 적절한 TTS 제공자 인스턴스를 생성.
+    """Create a TTS provider instance based on tts_mode setting.
 
-    wait_ready=False이면 로컬 엔진의 READY 대기를 호출자에게 맡긴다.
+    If wait_ready=False, the caller handles waiting for the local engine's READY signal.
     """
     settings = settings or ConfigManager.load_settings()
     tts_mode = settings.get("tts_mode", "edge")

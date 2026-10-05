@@ -1,4 +1,4 @@
-"""PCM 오디오를 취소 가능한 짧은 조각으로 재생한다."""
+"""PCM 오디오를 Cancel 가능한 짧은 조각으로 play한다."""
 
 import math
 import threading
@@ -17,7 +17,7 @@ def write_pcm_chunks(
     on_write: Callable[[], None] | None = None,
     volume: float = 1.0,
 ) -> bool:
-    """모노 16비트 PCM을 최대 100ms 조각으로 쓴다."""
+    """모노 16비트 PCM을 max 100ms 조각으로 쓴다."""
     try:
         volume = float(volume)
     except (TypeError, ValueError):

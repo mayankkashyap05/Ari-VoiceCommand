@@ -1,4 +1,4 @@
-﻿import json
+import json
 
 from agent.api_connector import ApiConnector
 

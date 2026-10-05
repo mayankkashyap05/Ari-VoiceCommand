@@ -29,13 +29,13 @@ def _venv_python_path(venv_dir: Path) -> Path:
 def _ensure_venv(venv_dir: Path) -> Path:
     python_exe = _venv_python_path(venv_dir)
     if python_exe.exists():
-        print(f"기존 가상환경을 사용합니다: {venv_dir}")
+        print(f"기존 Using existing virtual environment: {venv_dir}")
         return python_exe
 
-    print(f"가상환경을 생성합니다: {venv_dir}")
+    print(f"Creating virtual environment: {venv_dir}")
     venv.EnvBuilder(with_pip=True).create(str(venv_dir))
     if not python_exe.exists():
-        raise RuntimeError(f"가상환경 Python을 찾을 수 없습니다: {python_exe}")
+        raise RuntimeError(f"Cannot find virtual environment Python: {python_exe}")
     return python_exe
 
 
@@ -48,14 +48,14 @@ def _run_pip(python_exe: Path, *arguments: str) -> None:
 
 
 def _install_main_dependencies(python_exe: Path) -> None:
-    print("메인 의존성을 설치합니다...")
+    print("Installing main dependencies...")
     _run_pip(python_exe, "install", "--upgrade", "pip")
     _run_pip(python_exe, "install", "-r", str(REQUIREMENTS))
 
 
 def _install_tts_dependencies() -> None:
     tts_python = _ensure_venv(TTS_VENV)
-    print("CosyVoice3 전용 의존성을 설치합니다...")
+    print("CosyVoice3 Installing dedicated dependencies...")
     _run_pip(tts_python, "install", "--upgrade", "pip")
     _run_pip(tts_python, "install", "--upgrade", *TTS_PACKAGES)
 
@@ -72,7 +72,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--skip-validate",
         action="store_true",
-        help="설치 후 저장소 검증을 실행하지 않습니다.",
+        help="설치 later Save소 검증을 실행하지 않습니다.",
     )
     parser.add_argument(
         "--no-venv",
@@ -85,13 +85,13 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if not REQUIREMENTS.exists():
-        print(f"requirements.txt를 찾을 수 없습니다: {REQUIREMENTS}")
+        print(f"requirements.txtnot found: {REQUIREMENTS}")
         return 1
 
     try:
         if args.no_venv:
             main_python = Path(sys.executable).resolve()
-            print(f"현재 Python을 사용합니다: {main_python}")
+            print(f"Using current Python: {main_python}")
         else:
             main_python = _ensure_venv(MAIN_VENV)
 
@@ -99,22 +99,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.with_tts:
             _install_tts_dependencies()
 
-        print("모든 패키지가 성공적으로 설치되었습니다.")
+        print("All packages installed successfully.")
         if not args.skip_validate:
             if not VALIDATOR.exists():
-                raise RuntimeError(f"검증 스크립트를 찾을 수 없습니다: {VALIDATOR}")
-            print("기본 검증을 실행합니다...")
+                raise RuntimeError(f"검증 스크립트not found: {VALIDATOR}")
+            print("Default 검증을 실행합니다...")
             subprocess.run(
                 [str(main_python), str(VALIDATOR)],
                 check=True,
                 cwd=str(HERE),
             )  # nosec B603
-            print("검증까지 완료되었습니다.")
+            print("Validation complete.")
     except subprocess.CalledProcessError as exc:
-        print(f"명령 실행 중 오류가 발생했습니다 (종료 코드 {exc.returncode}).")
+        print(f"명령 실행 중 Error가 발생했습니다 (exit code {exc.returncode}).")
         return exc.returncode or 1
     except (OSError, RuntimeError) as exc:
-        print(f"설치 중 오류가 발생했습니다: {exc}")
+        print(f"설치 중 Error가 발생했습니다: {exc}")
         return 1
 
     return 0

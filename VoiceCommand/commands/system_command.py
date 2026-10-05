@@ -10,7 +10,7 @@ from commands.base_command import BaseCommand
 from i18n.translator import _
 
 
-# Windows shutdown /s /t 최대값
+# Windows shutdown /s /t max값
 _WIN_MAX_SHUTDOWN_DELAY = 315360000
 
 # 명령에 붙어도 뜻을 바꾸지 않는 말. 이것까지 지운 뒤에도 남는 말이 있으면 명령으로 보지 않는다.
@@ -21,7 +21,7 @@ _FILLERS = (
 
 
 class SystemCommand(BaseCommand):
-    """컴퓨터 종료 및 재시작 명령"""
+    """computer shutdown 및 재시작 명령"""
     priority = 10
 
     def __init__(self, tts_func):
@@ -29,19 +29,19 @@ class SystemCommand(BaseCommand):
 
     def matches(self, text: str) -> bool:
         normalized = re.sub(r"[\s.,!?~]+", " ", text or "").strip().lower()
-        # 트리거 키워드 (번역 적용)
+        # 트리거 키워드 (번역 Apply)
         direct_keywords = [keyword.lower() for keyword in (
             _("컴퓨터 꺼줘"),
             _("컴퓨터 꺼 줘"),
-            _("컴퓨터 종료"),
-            _("컴퓨터 종료해줘"),
+            _("computer shutdown"),
+            _("computer shutdown해줘"),
             _("시스템 종료"),
             _("전원 꺼"),
             "shutdown",
             _("컴퓨터 재시작"),
             _("재부팅"),
             "restart",
-            _("종료 취소"),
+            _("종료 Cancel"),
             _("종료 안 해"),
         )]
         targets = [token.lower() for token in (_("컴퓨터"), "pc", _("시스템"), _("전원"))]
@@ -51,9 +51,9 @@ class SystemCommand(BaseCommand):
         if not has_generic and not any(keyword in normalized for keyword in direct_keywords):
             return False
 
-        # "재부팅하지 마", "컴퓨터 종료 방법 알려줘", "모니터 전원 꺼줘"처럼 명령 외의 말이 남으면
+        # "재부팅하지 마", "computer shutdown 방법 알려줘", "모니터 전원 꺼줘"처럼 명령 외의 말이 남으면
         # 실제 종료로 이어지지 않도록 대화 처리로 넘긴다.
-        cancels = [token.lower() for token in (_("취소"), "cancel", _("안 해"))]
+        cancels = [token.lower() for token in (_("Cancel"), "cancel", _("안 해"))]
         remainder = self._strip_schedule(normalized)
         for token in sorted({*direct_keywords, *targets, *actions, *requests, *cancels, *_FILLERS}, key=len, reverse=True):
             remainder = remainder.replace(token, " ")
@@ -61,13 +61,13 @@ class SystemCommand(BaseCommand):
 
     @staticmethod
     def _strip_schedule(text: str) -> str:
-        """예약 시간 표현("10분 뒤에", "오후 11시에")을 지운다."""
+        """예약 시간 표현("10분 뒤에", "오later 11시에")을 지운다."""
         def alt(*words):
             return "(?:" + "|".join(re.escape(_(word).lower()) for word in words) + ")"
 
-        text = re.sub(r"\d+\s*" + alt("시간", "분", "초") + r"\s*" + alt("후", "뒤") + r"(?:\s*" + alt("에") + ")?", " ", text)
+        text = re.sub(r"\d+\s*" + alt("시간", "분", "초") + r"\s*" + alt("later", "뒤") + r"(?:\s*" + alt("에") + ")?", " ", text)
         return re.sub(
-            alt("오전", "오후") + r"?\s*\d{1,2}\s*" + alt("시") + r"(?:\s*\d{1,2}\s*" + alt("분") + r")?(?:\s*" + alt("에") + ")?",
+            alt("오전", "오later") + r"?\s*\d{1,2}\s*" + alt("시") + r"(?:\s*\d{1,2}\s*" + alt("분") + r")?(?:\s*" + alt("에") + ")?",
             " ",
             text,
         )
@@ -79,11 +79,11 @@ class SystemCommand(BaseCommand):
         now = datetime.now()
         normalized = re.sub(r"\s+", " ", text or "").strip()
 
-        # 상대 시간 (번역 적용)
+        # 상대 시간 (번역 Apply)
         relative_patterns = [
-            (r'(\d+)\s*' + _("시간") + r'\s*(?:' + _("후") + r'|' + _("뒤") + r')', 3600),
-            (r'(\d+)\s*' + _("분") + r'\s*(?:' + _("후") + r'|' + _("뒤") + r')', 60),
-            (r'(\d+)\s*' + _("초") + r'\s*(?:' + _("후") + r'|' + _("뒤") + r')', 1),
+            (r'(\d+)\s*' + _("시간") + r'\s*(?:' + _("later") + r'|' + _("뒤") + r')', 3600),
+            (r'(\d+)\s*' + _("분") + r'\s*(?:' + _("later") + r'|' + _("뒤") + r')', 60),
+            (r'(\d+)\s*' + _("초") + r'\s*(?:' + _("later") + r'|' + _("뒤") + r')', 1),
         ]
         total_delay = 0
         for pattern, sec_per_unit in relative_patterns:
@@ -95,13 +95,13 @@ class SystemCommand(BaseCommand):
             return total_delay, _format_time(target)
 
         # 절대 시간
-        m = re.search(r'(' + _("오전") + r'|' + _("오후") + r')?\s*(\d{1,2})' + _("시") + r'(?:\s*(\d{1,2})' + _("분") + r')?\s*' + _("에") + r'?', normalized)
+        m = re.search(r'(' + _("오전") + r'|' + _("오later") + r')?\s*(\d{1,2})' + _("시") + r'(?:\s*(\d{1,2})' + _("분") + r')?\s*' + _("에") + r'?', normalized)
         if m:
             ampm = m.group(1)
             hour = int(m.group(2))
             minute = int(m.group(3) or 0)
 
-            if ampm == _("오후") and hour != 12:
+            if ampm == _("오later") and hour != 12:
                 hour += 12
             elif ampm == _("오전") and hour == 12:
                 hour = 0
@@ -118,8 +118,8 @@ class SystemCommand(BaseCommand):
     def execute(self, text: str) -> None:
         normalized = (text or "").lower()
 
-        # 매칭에서 명령 외의 말이 없음을 확인했으므로, 취소어가 있으면 종료와 재시작 예약을 함께 취소한다.
-        if any(k.lower() in normalized for k in (_("취소"), "cancel", _("안 해"))):
+        # 매칭에서 명령 외의 말이 None을 OK했으므로, Cancel어가 있으면 종료와 재시작 예약을 함께 Cancel한다.
+        if any(k.lower() in normalized for k in (_("Cancel"), "cancel", _("안 해"))):
             self._cancel_shutdown()
             return
 
@@ -138,7 +138,7 @@ class SystemCommand(BaseCommand):
             self._shutdown_immediate()
 
     def _schedule_shutdown(self, delay_seconds: int, time_str: str) -> None:
-        logging.info("시스템 종료 예약: %s초 후 (%s)", delay_seconds, time_str)
+        logging.info("System shutdown scheduled: %s초 later (%s)", delay_seconds, time_str)
         self.tts_wrapper(_("{time}에 컴퓨터를 종료할게요.").format(time=time_str))
         try:
             if sys.platform == "win32":
@@ -148,54 +148,54 @@ class SystemCommand(BaseCommand):
                 minutes = max(1, delay_seconds // 60)
                 subprocess.run(["shutdown", f"+{minutes}"], check=False)
         except Exception as e:
-            logging.error("시스템 종료 예약 실패: %s", e)
-            self.tts_wrapper(_("시스템 종료 예약에 실패했습니다."))
+            logging.error("System shutdown scheduled 실패: %s", e)
+            self.tts_wrapper(_("System shutdown scheduled에 실패했습니다."))
 
     def _shutdown_immediate(self) -> None:
         self.tts_wrapper(_("컴퓨터를 종료합니다. 잠시만 기다려 주세요."))
-        logging.info("시스템 종료 명령 실행")
+        logging.info("System shutdown command executed")
         try:
             if sys.platform == "win32":
                 subprocess.run(["shutdown", "/s", "/t", "10"], check=False)
             else:
                 subprocess.run(["shutdown", "-h", "now"], check=False)
         except Exception as e:
-            logging.error("시스템 종료 명령 실패: %s", e)
-            self.tts_wrapper(_("시스템 종료 명령 실행에 실패했습니다."))
+            logging.error("System shutdown command failed: %s", e)
+            self.tts_wrapper(_("System shutdown command executed에 실패했습니다."))
 
     def _cancel_shutdown(self) -> None:
-        logging.info("시스템 종료 취소 명령 실행")
+        logging.info("System shutdown cancel command executed")
         try:
             if sys.platform == "win32":
                 result = subprocess.run(["shutdown", "/a"], check=False, capture_output=True)
                 if result.returncode != 0:
-                    self.tts_wrapper(_("현재 예약된 종료가 없거나 취소에 실패했습니다."))
+                    self.tts_wrapper(_("현재 예약된 종료가 없거나 Cancel에 실패했습니다."))
                     return
             else:
                 result = subprocess.run(["shutdown", "-c"], check=False, capture_output=True)
                 if result.returncode != 0:
-                    self.tts_wrapper(_("현재 예약된 종료가 없거나 취소에 실패했습니다."))
+                    self.tts_wrapper(_("현재 예약된 종료가 없거나 Cancel에 실패했습니다."))
                     return
         except Exception as e:
-            logging.error("종료 취소 실패: %s", e)
-            self.tts_wrapper(_("종료 취소 명령 실행에 실패했습니다."))
+            logging.error("Shutdown cancel failed: %s", e)
+            self.tts_wrapper(_("종료 Cancel 명령 실행에 실패했습니다."))
             return
-        self.tts_wrapper(_("종료 예약을 취소했습니다."))
+        self.tts_wrapper(_("종료 예약을 Cancel했습니다."))
 
     def _restart_immediate(self) -> None:
         self.tts_wrapper(_("컴퓨터를 재시작합니다. 잠시만 기다려 주세요."))
-        logging.info("시스템 재시작 명령 실행")
+        logging.info("System restart command executed")
         try:
             if sys.platform == "win32":
                 subprocess.run(["shutdown", "/r", "/t", "10"], check=False)
             else:
                 subprocess.run(["reboot"], check=False)
         except Exception as e:
-            logging.error("시스템 재시작 명령 실패: %s", e)
-            self.tts_wrapper(_("시스템 재시작 명령 실행에 실패했습니다."))
+            logging.error("System restart command failed: %s", e)
+            self.tts_wrapper(_("System restart command executed에 실패했습니다."))
 
     def _schedule_restart(self, delay_seconds: int, time_str: str) -> None:
-        logging.info("시스템 재시작 예약: %s초 후 (%s)", delay_seconds, time_str)
+        logging.info("System restart scheduled: %s초 later (%s)", delay_seconds, time_str)
         self.tts_wrapper(_("{time}에 컴퓨터를 재시작할게요.").format(time=time_str))
         try:
             if sys.platform == "win32":
@@ -205,12 +205,12 @@ class SystemCommand(BaseCommand):
                 minutes = max(1, delay_seconds // 60)
                 subprocess.run(["shutdown", "-r", f"+{minutes}"], check=False)
         except Exception as e:
-            logging.error("시스템 재시작 예약 실패: %s", e)
-            self.tts_wrapper(_("시스템 재시작 예약에 실패했습니다."))
+            logging.error("System restart scheduled 실패: %s", e)
+            self.tts_wrapper(_("System restart scheduled에 실패했습니다."))
 
 
 def _format_time(dt: datetime) -> str:
-    ampm = _("오전") if dt.hour < 12 else _("오후")
+    ampm = _("오전") if dt.hour < 12 else _("오later")
     hour = dt.hour if dt.hour <= 12 else dt.hour - 12
     if hour == 0:
         hour = 12

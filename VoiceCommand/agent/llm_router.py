@@ -1,4 +1,4 @@
-"""작업 유형별 LLM 라우팅."""
+"""Build type별 LLM 라우팅."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,7 +24,7 @@ class LLMRouter:
         "コード", "バグ", "リファクタ",
     )
     PLAN_KEYWORDS = (
-        "계획", "단계", "자동화", "정리", "분석", "보고서", "설계",
+        "계획", "steps", "자동화", "정리", "분석", "보고서", "설계",
         "plan", "step", "automate", "organize", "analyze", "report", "design",
         "計画", "自動化", "分析", "レポート",
     )

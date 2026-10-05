@@ -48,14 +48,14 @@ EVENT_PHRASES = {
         "down": ("밤이 꽤 깊었어요. 무리하지 말고 쉬어요.||오늘은 일찍 마무리해도 괜찮아요.",),
     },
     "agent_done": {
-        "good": ("작업이 끝났어요. 결과를 확인해 주세요: {summary}||요청하신 일을 마쳤어요: {summary}",),
+        "good": ("작업이 끝났어요. 결과를 OK해 주세요: {summary}||요청하신 일을 마쳤어요: {summary}",),
         "calm": ("작업을 마쳤어요. 결과는 이렇습니다: {summary}||완료된 내용이에요: {summary}",),
-        "down": ("작업 결과가 나왔어요. 확인해 주세요: {summary}||요청하신 작업을 끝냈어요: {summary}",),
+        "down": ("작업 결과가 나왔어요. OK해 주세요: {summary}||요청하신 작업을 끝냈어요: {summary}",),
     },
     "weekly_report": {
         "good": ("이번 주 학습 리포트를 정리했어요.||이번 주에 배운 내용을 모아뒀어요.",),
-        "calm": ("이번 주 학습 리포트를 준비했어요.||주간 리포트를 확인할 수 있어요.",),
-        "down": ("이번 주 학습 결과를 정리해 뒀어요.||주간 리포트를 준비했어요. 편할 때 확인해 주세요.",),
+        "calm": ("이번 주 학습 리포트를 준비했어요.||주간 리포트를 OK할 수 있어요.",),
+        "down": ("이번 주 학습 결과를 정리해 뒀어요.||주간 리포트를 준비했어요. 편할 때 OK해 주세요.",),
     },
     "praise_streak": {
         "good": ("계속 칭찬해 주셔서 기분이 좋아요.||칭찬을 들으니 더 힘이 나요.",),
@@ -93,7 +93,7 @@ def choose_phrase(
     values: dict[str, Any] | None = None,
     avoid_phrase: str = "",
 ) -> str:
-    """기분 구간과 언어에 맞는 문구를 고른다."""
+    """기분 구간과 Language에 맞는 문구를 고른다."""
     bucket = mood_bucket(mood_state)
     candidates = phrases.get(bucket) or phrases.get("calm") or ()
     if isinstance(candidates, str):
@@ -161,7 +161,7 @@ class EventSpeechScheduler:
                     "speech_scheduler.json"
                 )
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                logging.warning("발화 상태 저장 경로를 사용할 수 없습니다: %s", exc)
+                logging.warning("발화 상태 Save 경로를 사용할 수 없습니다: %s", exc)
         self._load()
 
     @staticmethod
@@ -189,7 +189,7 @@ class EventSpeechScheduler:
         return True
 
     def tick(self) -> bool:
-        """상황 사건을 확인하고 발화 하나를 전달한다."""
+        """상황 사건을 OK하고 발화 하나를 전달한다."""
         now = self._clock()
         self._check_context_events(now)
         self._update_ignored_streak(now)
@@ -306,7 +306,7 @@ class EventSpeechScheduler:
             TypeError,
             ValueError,
         ) as exc:
-            logging.debug("무시된 발화의 기분 반영을 건너뜁니다: %s", exc)
+            logging.debug("무시된 발화의 기분 반zero을 건너뜁니다: %s", exc)
 
     def _daily_limit(self) -> int:
         return max(1, _MAX_SPEECHES_PER_DAY - min(self._ignored_streak, 2))
@@ -336,7 +336,7 @@ class EventSpeechScheduler:
             try:
                 guards = self._guard_state()
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                logging.debug("발화 가드를 확인하지 못했습니다: %s", exc)
+                logging.debug("발화 가드를 OK하지 못했습니다: %s", exc)
                 return False
             if not isinstance(guards, dict) or any(
                 guards.get(name, False)
@@ -433,7 +433,7 @@ class EventSpeechScheduler:
             with open(self._state_path, "r", encoding="utf-8") as handle:
                 data = json.load(handle)
             if not isinstance(data, dict):
-                raise ValueError("발화 상태 형식이 올바르지 않습니다.")
+                raise ValueError("발화 상태 형식is invalid.")
             delivered = data.get("last_delivered", {})
             if isinstance(delivered, dict):
                 self._last_delivered = {
@@ -485,7 +485,7 @@ class EventSpeechScheduler:
                 indent=2,
             )
         except (OSError, TypeError, ValueError) as exc:
-            logging.warning("발화 상태 저장 실패: %s", exc)
+            logging.warning("발화 상태 Save 실패: %s", exc)
 
 
 _speech_scheduler: EventSpeechScheduler | None = None
@@ -493,12 +493,12 @@ _speech_scheduler_lock = threading.Lock()
 
 
 def set_speech_scheduler(scheduler: EventSpeechScheduler | None) -> None:
-    """앱에서 공유하는 발화 스케줄러를 설정한다."""
+    """앱에서 공유하는 Speech scheduler를 Settings한다."""
     global _speech_scheduler
     with _speech_scheduler_lock:
         _speech_scheduler = scheduler
 
 
 def get_speech_scheduler() -> EventSpeechScheduler | None:
-    """초기화된 발화 스케줄러를 반환한다."""
+    """초기화된 Speech scheduler를 반환한다."""
     return _speech_scheduler

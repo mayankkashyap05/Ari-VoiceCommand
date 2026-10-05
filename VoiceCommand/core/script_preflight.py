@@ -124,7 +124,7 @@ def find_unavailable_imports(source: str, search_paths: Iterable[str] = ()) -> l
                 if os.path.isfile(path) and entry.endswith(".py"):
                     local_roots.add(entry[:-3])
                 elif os.path.isdir(path):
-                    local_roots.add(entry)  # 일반 패키지와 네임스페이스 패키지 모두 로컬 모듈로 본다.
+                    local_roots.add(entry)  # General 패키지와 네임스페이스 패키지 모두 로컬 모듈로 본다.
         except OSError:
             continue
 
@@ -144,7 +144,7 @@ def find_unavailable_imports(source: str, search_paths: Iterable[str] = ()) -> l
 def unavailable_packages_message(module_names: Iterable[str]) -> str:
     packages = ", ".join(_MODULE_TO_PACKAGE.get(name, name) for name in sorted(set(module_names)))
     return _(
-        "설치된 아리에서 사용할 수 없는 파이썬 패키지가 필요합니다: {packages}. "
+        "설치된 아리에서 사용할 수 없는 파이썬 package required: {packages}. "
         "사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요.",
         packages=packages,
     )

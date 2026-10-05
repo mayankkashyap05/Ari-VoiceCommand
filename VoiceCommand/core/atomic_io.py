@@ -1,4 +1,4 @@
-"""JSON 파일 저장과 손상 파일 보존 유틸리티."""
+"""JSON 파일 Save과 손상 파일 보존 유틸리티."""
 
 import json
 import os

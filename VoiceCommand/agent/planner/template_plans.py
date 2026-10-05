@@ -23,7 +23,7 @@ _SPECIAL_FOLDER_ALIASES = {
     "사진": "Pictures",
     "pictures": "Pictures",
     "이미지": "Pictures",
-    "동영상": "Videos",
+    "동zero상": "Videos",
     "videos": "Videos",
     "음악": "Music",
     "music": "Music",
@@ -34,7 +34,7 @@ class TemplatePlansMixin:
     """GoalProfile 기반 템플릿 플랜 생성 메서드 모음."""
 
     def _build_template_plan(self, goal: str) -> List[ActionStep]:
-        """LLM이 자주 실패하는 검색-요약-저장 계열 작업은 안정적인 템플릿으로 우선 처리."""
+        """LLM이 자주 실패하는 검색-요약-Save 계열 작업은 안정적인 템플릿으로 우선 처리."""
         if self.is_developer_goal(goal):
             return []
 
@@ -129,9 +129,9 @@ class TemplatePlansMixin:
                     url = mapped_url
                     break
         windows_path_pattern = r'([A-Za-z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+(?:\.[A-Za-z0-9]+)?)'
-        dir_path_pattern = r'([A-Za-z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+)(?=\s*(?:폴더|디렉토리|목록|리스트|저장|보여|나열|$))'
+        dir_path_pattern = r'([A-Za-z]:\\(?:[^\\/:*?"<>|\r\n]+\\)*[^\\/:*?"<>|\r\n]+)(?=\s*(?:폴더|디렉토리|목록|리스트|Save|보여|나열|$))'
         path_match = re.search(windows_path_pattern, goal) or re.search(dir_path_pattern, goal)
-        path_tail_pattern = r'\s+(?:로|에|를|으로|후|하고|목록|리스트|저장|보여줘|나열|파일|폴더|디렉토리|요약|정리|복사|이동|분석|리포트|보고|csv|json|txt|md|pdf|log|CSV|JSON|TXT|MD|PDF|LOG|rename|to)\b'
+        path_tail_pattern = r'\s+(?:로|에|를|으로|later|하고|목록|리스트|Save|보여줘|나열|파일|폴더|디렉토리|요약|정리|복사|이동|분석|리포트|보고|csv|json|txt|md|pdf|log|CSV|JSON|TXT|MD|PDF|LOG|rename|to)\b'
         if path_match:
             source_path = re.split(path_tail_pattern, path_match.group(1), maxsplit=1)[0].strip()
             source_path = re.sub(r'\s*(폴더|디렉토리)$', '', source_path).strip()
@@ -198,7 +198,7 @@ class TemplatePlansMixin:
 
         return GoalProfile(
             normalized_goal=normalized,
-            wants_save=any(token in normalized for token in ("저장", "파일", "문서", "내보내기")),
+            wants_save=any(token in normalized for token in ("Save", "파일", "문서", "내보내기")),
             wants_summary=any(token in normalized for token in ("요약", "정리", "보고", "리포트")),
             wants_search=any(token in normalized for token in ("검색", "찾아", "조사", "뉴스", "웹", "인터넷")),
             wants_news="뉴스" in normalized,
@@ -209,7 +209,7 @@ class TemplatePlansMixin:
                 token in normalized
                 for token in (
                     "시스템 정보", "pc 정보", "컴퓨터 정보", "사양", "process", "프로세스",
-                    "시스템 상태", "상태 확인", "상태 점검", "시스템 점검", "헬스 체크", "건강 점검",
+                    "시스템 상태", "상태 OK", "상태 점검", "시스템 점검", "헬스 체크", "건강 점검",
                 )
             ),
             wants_copy=any(token in normalized for token in ("복사", "copy")),
@@ -219,18 +219,18 @@ class TemplatePlansMixin:
             wants_open=any(token in normalized for token in ("열어", "열고", "실행", "켜", "오픈", "launch", "open", "들어가")),
             wants_login=any(token in normalized for token in ("로그인", "sign in", "login", "log in", "signin")),
             wants_browser=bool(url) or any(token in normalized for token in ("브라우저", "사이트", "웹", "크롬", "엣지")),
-            wants_download=any(token in normalized for token in ("다운로드", "download", "내려받", "저장")),
+            wants_download=any(token in normalized for token in ("다운로드", "download", "내려받", "Save")),
             wants_link_collection=any(token in normalized for token in ("링크", "url 목록", "주소 목록", "링크 수집", "링크 목록", "collect links", "collect link", "gather links", "link list", "links")),
             wants_rename=any(token in normalized for token in ("이름 변경", "이름바꿔", "이름 바꿔", "이름을", "파일명", "rename")),
             wants_merge=any(token in normalized for token in ("병합", "합쳐", "merge")),
             wants_organize=any(token in normalized for token in ("정리", "분류", "확장자별")),
-            wants_analyze=any(token in normalized for token in ("분석", "통계", "구조 확인")),
+            wants_analyze=any(token in normalized for token in ("분석", "통계", "구조 OK")),
             wants_log_report="로그" in normalized and any(token in normalized for token in ("리포트", "보고", "분석", "요약")),
             wants_security_audit=any(
                 token in normalized
                 for token in ("보안 점검", "자체 보안 점검", "보안 검사", "보안 진단", "security check", "security audit")
             ),
-            wants_type_text=any(token in normalized for token in ("입력", "적어", "써", "작성", "type")),
+            wants_type_text=any(token in normalized for token in ("Input", "적어", "써", "작성", "type")),
             wants_window_summary=any(token in normalized for token in ("열린 창", "창 제목", "윈도우 제목", "window title", "window titles")),
             wants_batch_rename=any(token in normalized for token in ("일괄 변경", "일괄변경", "한꺼번에 이름", "규칙 기반 이름", "batch rename")),
             wants_file_set_scan=any(token in normalized for token in ("파일 세트", "대량 파일", "묶음 파일", "확장자 통계")),
@@ -255,7 +255,7 @@ class TemplatePlansMixin:
         if not match:
             return ""
         target = re.sub(r"[을를]$", "", match.group(1).strip()).strip().strip("\"'")
-        if re.search(r"그리고|하고|열고|한 뒤|다음|저장|입력|\band\b", target, re.IGNORECASE):
+        if re.search(r"그리고|하고|열고|한 뒤|다음|Save|Input|\band\b", target, re.IGNORECASE):
             return ""
         return target
 
@@ -318,7 +318,7 @@ class TemplatePlansMixin:
             cleaned = candidate.strip()
             if cleaned and cleaned not in excluded:
                 return cleaned
-        typed_match = re.search(r'(?:입력|적어|써|작성)\s*(?:해줘|해)\s*[:：]?\s*([^\n]+)$', goal)
+        typed_match = re.search(r'(?:Input|적어|써|작성)\s*(?:해줘|해)\s*[:：]?\s*([^\n]+)$', goal)
         if typed_match:
             candidate = typed_match.group(1).strip()
             if candidate:
@@ -415,7 +415,7 @@ class TemplatePlansMixin:
                 step_id=2,
                 step_type="think",
                 content="",
-                description_kr="열린 브라우저 상태를 확인하고 필요한 다운로드 액션을 결정",
+                description_kr="열린 브라우저 상태를 OK하고 필요한 다운로드 액션을 결정",
                 expected_output="",
                 condition="len(step_outputs.get('step_1_output', '')) > 0",
                 on_failure="continue",
@@ -447,7 +447,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_browser_link_collection_save_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """브라우저 페이지의 링크를 수집해 파일로 저장하는 플랜 생성."""
+        """브라우저 페이지의 링크를 수집해 파일로 Save하는 플랜 생성."""
         folder_name = profile.target_name if profile.target_name not in {"result", "summary"} else "browser_links"
         title = "브라우저 링크 수집 결과"
         return [
@@ -460,7 +460,7 @@ class TemplatePlansMixin:
                     "os.makedirs(folder_path, exist_ok=True)\n"
                     "print(folder_path)"
                 ),
-                description_kr="브라우저 링크 저장 폴더 준비",
+                description_kr="브라우저 링크 Save 폴더 준비",
                 expected_output="folder path",
                 on_failure="abort",
             ),
@@ -493,7 +493,7 @@ class TemplatePlansMixin:
                     f"saved_path = save_document(folder_path, 'browser_links', content, preferred_format={json.dumps(profile.preferred_format)}, title={json.dumps(title, ensure_ascii=False)})\n"
                     "print(saved_path)"
                 ),
-                description_kr="브라우저 링크 수집 결과 저장",
+                description_kr="브라우저 링크 수집 결과 Save",
                 expected_output="saved browser link path",
                 condition="len(step_outputs.get('step_1_output', '')) > 0",
                 on_failure="abort",
@@ -550,16 +550,16 @@ class TemplatePlansMixin:
                     "result = run_resilient_browser_workflow(url, goal_hint=goal_hint, fallback_actions=fallback_actions)\n"
                     "print(result)"
                 ),
-                description_kr="브라우저 로그인 후 링크 수집 준비",
+                description_kr="브라우저 로그인 later 링크 수집 준비",
                 expected_output="browser login+links result",
                 on_failure="abort",
             ),
         ]
 
     def _build_browser_input_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """브라우저 열기 → 텍스트 입력 → 제출하는 플랜 생성."""
+        """브라우저 열기 → 텍스트 Input → 제출하는 플랜 생성."""
         search_like = any(token in profile.normalized_goal for token in ("검색", "찾아", "query", "검색창"))
-        submit_text = "검색" if search_like else "확인"
+        submit_text = "검색" if search_like else "OK"
         submit_text_en = "search" if search_like else "submit"
         return [
             ActionStep(
@@ -581,16 +581,16 @@ class TemplatePlansMixin:
                     "result = run_resilient_browser_workflow(url, goal_hint=goal_hint, fallback_actions=fallback_actions)\n"
                     "print(result)"
                 ),
-                description_kr="브라우저 입력 및 후속 상태 확인",
+                description_kr="브라우저 Input 및 later속 상태 OK",
                 expected_output="browser input workflow result",
                 on_failure="abort",
             ),
         ]
 
     def _build_browser_input_save_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """브라우저에 텍스트를 입력하고 결과 페이지를 파일로 저장하는 플랜 생성."""
+        """브라우저에 텍스트를 Input하고 결과 페이지를 파일로 Save하는 플랜 생성."""
         folder_name = profile.target_name if profile.target_name not in {"result", "summary"} else "browser_result"
-        title = "브라우저 입력 결과"
+        title = "브라우저 Input 결과"
         input_steps = self._build_browser_input_plan(profile)
         browser_step = input_steps[0]
         return [
@@ -603,7 +603,7 @@ class TemplatePlansMixin:
                     "os.makedirs(folder_path, exist_ok=True)\n"
                     "print(folder_path)"
                 ),
-                description_kr="브라우저 결과 저장 폴더 준비",
+                description_kr="브라우저 결과 Save 폴더 준비",
                 expected_output="folder path",
                 on_failure="abort",
             ),
@@ -625,7 +625,7 @@ class TemplatePlansMixin:
                     f"saved_path = save_document(folder_path, 'browser_result', content, preferred_format={json.dumps(profile.preferred_format)}, title={json.dumps(title, ensure_ascii=False)})\n"
                     "print(saved_path)"
                 ),
-                description_kr="브라우저 입력 결과 저장",
+                description_kr="브라우저 Input 결과 Save",
                 expected_output="saved browser result path",
                 condition="len(step_outputs.get('step_1_output', '')) > 0",
                 on_failure="abort",
@@ -633,7 +633,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_rename_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """단일 파일/폴더 이름을 변경하는 플랜 생성."""
+        """Single file/폴더 이름을 변경하는 플랜 생성."""
         source = profile.source_path.replace("\\", "\\\\")
         new_name = profile.rename_target.replace("\\", "\\\\")
         return [
@@ -691,7 +691,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_desktop_app_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """메모장·탐색기·크롬 등 바탕화면 앱을 실행하고 준비 상태를 확인하는 플랜 생성."""
+        """메모장·탐색기·크롬 등 바탕화면 앱을 실행하고 준비 상태를 OK하는 플랜 생성."""
         app_target = profile.target_name if profile.target_name not in {"result", "summary"} else profile.normalized_goal
         window_target = {
             "notepad": "메모장",
@@ -739,7 +739,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_merge_files_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """여러 파일을 하나로 병합해 저장하는 플랜 생성."""
+        """여러 파일을 하나로 병합해 Save하는 플랜 생성."""
         file_paths = profile.all_paths[:]
         output_name = "merged_result.txt"
         if profile.destination_path and profile.destination_path not in file_paths:
@@ -791,7 +791,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_data_analysis_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """파일 데이터를 통계·구조 분석하고 보고서로 저장하는 플랜 생성."""
+        """파일 데이터를 통계·구조 분석하고 보고서로 Save하는 플랜 생성."""
         source = profile.source_path.replace("\\", "\\\\")
         title = f"{os.path.basename(profile.source_path)} 분석 보고서"
         return [
@@ -821,7 +821,7 @@ class TemplatePlansMixin:
                     f"saved_path = generate_report(report_body, output_path, title={json.dumps(title, ensure_ascii=False)})\n"
                     "print(saved_path)"
                 ),
-                description_kr="분석 보고서 저장",
+                description_kr="분석 보고서 Save",
                 expected_output="saved analysis report path",
                 condition="len(step_outputs.get('step_0_output', '')) > 0",
                 on_failure="abort",
@@ -829,7 +829,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_log_report_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """로그 파일을 분석해 요약 리포트를 생성·저장하는 플랜 생성."""
+        """로그 파일을 분석해 요약 리포트를 생성·Save하는 플랜 생성."""
         source = profile.source_path.replace("\\", "\\\\")
         title = f"{os.path.basename(profile.source_path)} 로그 리포트"
         return [
@@ -870,7 +870,7 @@ class TemplatePlansMixin:
                     f"saved_path = generate_report(report_body, output_path, title={json.dumps(title, ensure_ascii=False)})\n"
                     "print(saved_path)"
                 ),
-                description_kr="로그 리포트 저장",
+                description_kr="로그 리포트 Save",
                 expected_output="saved log report path",
                 condition="len(step_outputs.get('step_0_output', '')) > 0",
                 on_failure="abort",
@@ -897,7 +897,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_window_summary_save_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """현재 열린 창 목록을 요약해 파일로 저장하는 플랜 생성."""
+        """현재 열린 창 목록을 요약해 파일로 Save하는 플랜 생성."""
         folder_name = profile.target_name or "window_summary"
         report_title = f"{folder_name} 창 제목 요약 보고서"
         return [
@@ -947,8 +947,8 @@ class TemplatePlansMixin:
                     "app_aliases = {\n"
                     "    '파일 탐색기': '파일 관리',\n"
                     "    'explorer': '파일 관리',\n"
-                    "    '설정': '시스템',\n"
-                    "    'windows 입력 환경': '시스템',\n"
+                    "    'Settings': '시스템',\n"
+                    "    'windows Input 환경': '시스템',\n"
                     "    '카카오톡': '메신저',\n"
                     "    'discord': '메신저',\n"
                     "    'code': '개발 도구',\n"
@@ -1078,7 +1078,7 @@ class TemplatePlansMixin:
                     "    lines.append('- 감지된 브라우저 창이 없습니다.')\n"
                     "lines.extend([\n"
                     "    '',\n"
-                    "    '## 일반 앱 창 (앱 종류 기준)',\n"
+                    "    '## General 앱 창 (앱 types 기준)',\n"
                     "])\n"
                     "if app_groups:\n"
                     "    for app_type, titles in sorted(app_groups.items(), key=lambda item: (-len(item[1]), item[0])):\n"
@@ -1086,7 +1086,7 @@ class TemplatePlansMixin:
                     "        lines.extend(f'- {title}' for title in titles)\n"
                     "        lines.append('')\n"
                     "else:\n"
-                    "    lines.append('- 감지된 일반 앱 창이 없습니다.')\n"
+                    "    lines.append('- 감지된 General 앱 창이 없습니다.')\n"
                     "lines.extend([\n"
                     "    '',\n"
                     "    '## 브라우저 탭 추정',\n"
@@ -1109,18 +1109,18 @@ class TemplatePlansMixin:
                     "lines.extend([\n"
                     "    '',\n"
                     "    '## 선택한 전략',\n"
-                    "    '- `list_open_windows()`로 열린 창 제목을 수집한 뒤 브라우저/일반 앱으로 분류했습니다.',\n"
+                    "    '- `list_open_windows()`로 열린 창 제목을 수집한 뒤 브라우저/General 앱으로 분류했습니다.',\n"
                     "    '- 브라우저 창은 제목의 서비스 키워드로 그룹핑하고, 탭 수는 제목/프로세스 단서를 함께 사용해 추정했습니다.',\n"
-                    "    '- 요청한 폴더를 먼저 준비한 뒤 그 안에 markdown 보고서를 저장했습니다.',\n"
+                    "    '- 요청한 폴더를 먼저 준비한 뒤 그 안에 markdown 보고서를 Save했습니다.',\n"
                     "    '- 기존 `summary.md`가 있으면 `save_document()`의 자동 백업을 사용하도록 했습니다.',\n"
                     "    '',\n"
                     "    '## 검증한 내용',\n"
-                    "    f'- 폴더 존재 확인: {folder_path}',\n"
-                    "    f'- 활성 창 제목 확인: {active_title or \"없음\"}',\n"
+                    "    f'- 폴더 존재 OK: {folder_path}',\n"
+                    "    f'- 활성 창 제목 OK: {active_title or \"None\"}',\n"
                     "    f'- 감지된 창 개수: {len(window_titles)}',\n"
                     "    f'- 브라우저 그룹 수: {len(browser_groups)}',\n"
-                    "    f'- 일반 앱 그룹 수: {len(app_groups)}',\n"
-                    "    f'- 최종 추정 탭 수: {estimated_tabs_total if estimated_tabs_total > 0 else \"확인 불가\"}',\n"
+                    "    f'- General 앱 그룹 수: {len(app_groups)}',\n"
+                    "    f'- 최종 추정 탭 수: {estimated_tabs_total if estimated_tabs_total > 0 else \"OK 불가\"}',\n"
                     "])\n"
                     "provisional = '\\n'.join(lines).strip() + '\\n'\n"
                     f"saved_path = save_document(folder_path, 'summary', provisional, preferred_format={json.dumps(profile.preferred_format)}, title={json.dumps(report_title, ensure_ascii=False)})\n"
@@ -1130,7 +1130,7 @@ class TemplatePlansMixin:
                     "    '',\n"
                     "    '## 백업 및 덮어쓰기',\n"
                     "    f'- 기존 파일 존재: {\"예\" if target_existed else \"아니오\"}',\n"
-                    "    f'- 자동 백업 생성: {\"예\" if backup_created else (\"불필요\" if not target_existed else \"확인 실패\")}',\n"
+                    "    f'- 자동 백업 생성: {\"예\" if backup_created else (\"불필요\" if not target_existed else \"OK 실패\")}',\n"
                     "])\n"
                     "final_content = '\\n'.join(lines).strip() + '\\n'\n"
                     "with open(saved_path, 'w', encoding='utf-8') as handle:\n"
@@ -1147,7 +1147,7 @@ class TemplatePlansMixin:
                     "    'active_title': active_title,\n"
                     "}, ensure_ascii=False))"
                 ),
-                description_kr="창 제목 요약 보고서 저장",
+                description_kr="창 제목 요약 보고서 Save",
                 expected_output="window summary report json",
                 condition="len(step_outputs.get('step_0_output', '')) > 0",
                 on_failure="abort",
@@ -1182,10 +1182,10 @@ class TemplatePlansMixin:
         ]
 
     def _build_system_info_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """시스템 정보 또는 보안 점검 결과를 수집하고 보고서로 저장하는 플랜 생성."""
+        """시스템 정보 또는 보안 점검 결과를 수집하고 보고서로 Save하는 플랜 생성."""
         folder_name = profile.target_name if profile.target_name not in {"result", "summary"} else "system_report"
-        title = "기본 보안 점검 보고서" if profile.wants_security_audit else "시스템 정보 보고서"
-        heading = "# 기본 보안 점검 보고서" if profile.wants_security_audit else "# 시스템 정보 보고서"
+        title = "Default 보안 점검 보고서" if profile.wants_security_audit else "시스템 정보 보고서"
+        heading = "# Default 보안 점검 보고서" if profile.wants_security_audit else "# 시스템 정보 보고서"
         steps: List[ActionStep] = []
 
         if profile.wants_save:
@@ -1225,14 +1225,14 @@ class TemplatePlansMixin:
             gather_lines.extend([
                 "import ctypes",
                 "import subprocess",
-                "lines.append('## 기본 보안 점검')",
+                "lines.append('## Default 보안 점검')",
                 "try:",
                 "    is_admin = bool(ctypes.windll.shell32.IsUserAnAdmin())",
                 "except Exception:",
                 "    is_admin = False",
                 "lines.append(f'- 관리자 권한 실행 여부: {is_admin}')",
                 "defender_running = any((proc.info.get('name') or '').lower() == 'msmpeng.exe' for proc in psutil.process_iter(['name']))",
-                "defender_status = '실행 중' if defender_running else '확인되지 않음'",
+                "defender_status = '실행 중' if defender_running else 'OK되지 않음'",
                 "lines.append(f'- Windows Defender 프로세스: {defender_status}')",
                 "if os.name == 'nt':",
                 "    try:",
@@ -1241,9 +1241,9 @@ class TemplatePlansMixin:
                 "        if firewall_lines:",
                 "            lines.append('- 방화벽 상태: ' + '; '.join(firewall_lines[:3]))",
                 "        else:",
-                "            lines.append('- 방화벽 상태: 출력 없음')",
+                "            lines.append('- 방화벽 상태: 출력 None')",
                 "    except Exception as exc:",
-                "        lines.append(f'- 방화벽 상태 확인 실패: {exc}')",
+                "        lines.append(f'- 방화벽 상태 OK 실패: {exc}')",
                 "else:",
                 "    lines.append('- 방화벽 상태: Windows 전용 점검 항목')",
                 "lines.append('')",
@@ -1261,7 +1261,7 @@ class TemplatePlansMixin:
                 step_id=gather_step_id,
                 step_type="python",
                 content="\n".join(gather_lines),
-                description_kr="기본 보안 점검 수행" if profile.wants_security_audit else "시스템 상태 점검",
+                description_kr="Default 보안 점검 수행" if profile.wants_security_audit else "시스템 상태 점검",
                 expected_output="system info markdown",
                 condition=gather_condition,
                 on_failure="abort",
@@ -1279,7 +1279,7 @@ class TemplatePlansMixin:
                         f"saved_path = save_document(folder_path, 'system_report', report, preferred_format={json.dumps(profile.preferred_format)}, title={json.dumps(title, ensure_ascii=False)})\n"
                         "print(saved_path)"
                     ),
-                    description_kr="시스템 정보 저장",
+                    description_kr="시스템 정보 Save",
                     expected_output="saved report path",
                     condition=f"len(step_outputs.get('step_{gather_step_id}_output', '')) > 0",
                     on_failure="abort",
@@ -1289,7 +1289,7 @@ class TemplatePlansMixin:
         return steps
 
     def _build_directory_listing_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """디렉터리 목록을 수집해 파일로 저장하는 플랜 생성."""
+        """디렉터리 목록을 수집해 파일로 Save하는 플랜 생성."""
         source = profile.source_path.replace("\\", "\\\\") if profile.source_path else ""
         title = "디렉터리 목록"
         target_line = f"target_path = r'{source}'\n" if source else "target_path = desktop_path\n"
@@ -1322,7 +1322,7 @@ class TemplatePlansMixin:
                     f"saved_path = save_document(folder_path, 'directory_listing', content, preferred_format={json.dumps(profile.preferred_format)}, title={json.dumps(title, ensure_ascii=False)})\n"
                     "print(saved_path)"
                 ),
-                description_kr="디렉터리 목록 저장",
+                description_kr="디렉터리 목록 Save",
                 expected_output="saved listing path",
                 condition="len(step_outputs.get('step_0_output', '')) > 0",
                 on_failure="abort",
@@ -1330,7 +1330,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_file_summary_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """파일 내용을 읽어 요약하고 결과를 저장하는 플랜 생성."""
+        """파일 내용을 읽어 요약하고 결과를 Save하는 플랜 생성."""
         source_path = profile.source_path.replace("\\", "\\\\")
         output_folder = profile.target_name if profile.target_name else "summary"
         return [
@@ -1391,7 +1391,7 @@ class TemplatePlansMixin:
                     "saved_path = save_document(folder_path, 'file_summary', summary, preferred_format='auto', title='문서 요약')\n"
                     "print(saved_path)"
                 ),
-                description_kr="요약 저장",
+                description_kr="요약 Save",
                 expected_output="saved summary path",
                 condition="len(step_outputs.get('step_2_output', '')) > 0",
                 on_failure="abort",
@@ -1399,7 +1399,7 @@ class TemplatePlansMixin:
         ]
 
     def _build_search_save_plan(self, profile: GoalProfile) -> List[ActionStep]:
-        """웹 검색 결과를 요약해 파일로 저장하는 플랜 생성."""
+        """Web search results를 요약해 파일로 Save하는 플랜 생성."""
         folder_name = profile.target_name if profile.target_name else "result"
         query = "오늘 한국 주요 뉴스" if profile.wants_news else profile.normalized_goal
         summary_title = "오늘 뉴스 요약" if profile.wants_news else "검색 결과 요약"
@@ -1443,13 +1443,13 @@ class TemplatePlansMixin:
                 content=(
                     "folder_path = step_outputs.get('step_0_output', '').strip()\n"
                     "results_text = step_outputs.get('step_1_output', '')\n"
-                    "if not folder_path or not results_text or '검색 오류' in results_text or '웹 검색 불가' in results_text or '검색 결과가 없습니다.' in results_text:\n"
-                    "    raise RuntimeError('검색 결과를 저장할 수 없습니다.')\n"
+                    "if not folder_path or not results_text or '검색 Error' in results_text or '웹 검색 불가' in results_text or '검색 결과가 없습니다.' in results_text:\n"
+                    "    raise RuntimeError('검색 결과를 Save할 수 없습니다.')\n"
                     f"raw_content = '# {raw_title}\\n\\n' + results_text\n"
                     f"raw_path = save_document(folder_path, '{raw_file}', raw_content, preferred_format='md', title={json.dumps(raw_title, ensure_ascii=False)})\n"
                     "print(raw_path)"
                 ),
-                description_kr="검색 결과 저장",
+                description_kr="검색 결과 Save",
                 expected_output="raw search file path",
                 condition="len(step_outputs.get('step_1_output', '')) > 0",
                 on_failure="abort",
@@ -1481,11 +1481,11 @@ class TemplatePlansMixin:
                     "    if url:\n"
                     "        fetched = web_fetch(url, max_chars=2400)\n"
                     "    fetched = fetched.replace('\\r', ' ').replace('\\n', ' ').strip()\n"
-                    "    if fetched.startswith('페이지 로드 오류:'):\n"
+                    "    if fetched.startswith('페이지 로드 Error:'):\n"
                     "        fetched = ''\n"
                     "    body = item.get('snippet', '')\n"
                     "    detail = fetched[:700] if fetched else body[:260]\n"
-                    "    articles.append({'title': item.get('title', '제목 없음'), 'url': url, 'summary': detail})\n"
+                    "    articles.append({'title': item.get('title', '제목 None'), 'url': url, 'summary': detail})\n"
                     f"summary_lines = ['# {summary_title}', '']\n"
                     "for idx, article in enumerate(articles, 1):\n"
                     "    summary_lines.append(f'## {idx}. {article[\"title\"]}')\n"
@@ -1500,7 +1500,7 @@ class TemplatePlansMixin:
                 ),
                 description_kr=summary_step_name,
                 expected_output="markdown summary text",
-                condition="len(step_outputs.get('step_1_output', '')) > 0 and '검색 오류' not in step_outputs.get('step_1_output', '') and '검색 결과가 없습니다.' not in step_outputs.get('step_1_output', '')",
+                condition="len(step_outputs.get('step_1_output', '')) > 0 and '검색 Error' not in step_outputs.get('step_1_output', '') and '검색 결과가 없습니다.' not in step_outputs.get('step_1_output', '')",
                 on_failure="abort",
             ),
             ActionStep(
@@ -1510,13 +1510,13 @@ class TemplatePlansMixin:
                     "folder_path = step_outputs.get('step_0_output', '').strip()\n"
                     "summary = step_outputs.get('step_3_output', '')\n"
                     "if not folder_path or not summary:\n"
-                    "    raise RuntimeError('요약 저장에 필요한 데이터가 없습니다.')\n"
+                    "    raise RuntimeError('요약 Save에 필요한 데이터가 없습니다.')\n"
                     f"summary_path = save_document(folder_path, '{summary_file}', summary, preferred_format={json.dumps(profile.preferred_format)}, title={json.dumps(summary_title, ensure_ascii=False)})\n"
                     "plain_summary = '\\n'.join(line[2:] if line.startswith('- ') else line for line in summary.splitlines() if not line.startswith('#'))\n"
                     "text_path = save_document(folder_path, 'summary_plain', plain_summary.strip(), preferred_format='txt', title='요약 평문')\n"
                     "print(summary_path + '\\n' + text_path)"
                 ),
-                description_kr="요약 저장",
+                description_kr="요약 Save",
                 expected_output="summary file path(s)",
                 condition="len(step_outputs.get('step_3_output', '')) > 0",
                 on_failure="abort",

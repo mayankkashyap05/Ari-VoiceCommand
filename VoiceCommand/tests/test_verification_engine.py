@@ -7,7 +7,7 @@ from agent.execution_engine import ExecutionEngine
 from agent.verification_engine import VerificationEngine
 
 
-def _step_result(content="", description="단계", success=True, output="", error=""):
+def _step_result(content="", description="steps", success=True, output="", error=""):
     return SimpleNamespace(
         step=SimpleNamespace(content=content, description_kr=description),
         exec_result=SimpleNamespace(success=success, output=output, error=error),
@@ -78,7 +78,7 @@ class VerificationEngineTests(unittest.TestCase):
         engine = VerificationEngine(_PlannerStub())
 
         verified, summary = engine.verify(
-            "VoiceCommand 저장소 전체 파악 후 코드 변경 및 검증까지 완료",
+            "VoiceCommand 저장소 전체 파악 later 코드 변경 및 검증까지 완료",
             [_step_result(content="print('scan')", description="저장소 구조 스캔", output="scan done")],
         )
 
@@ -89,7 +89,7 @@ class VerificationEngineTests(unittest.TestCase):
         engine = VerificationEngine(_PlannerStub(allowed=False))
 
         verified, summary = engine.verify(
-            "VoiceCommand 저장소 전체 파악 후 코드 변경 및 검증까지 완료",
+            "VoiceCommand 저장소 전체 파악 later 코드 변경 및 검증까지 완료",
             [
                 _step_result(
                     content="Path('market/ari_integration/ui/settings_dialog_patch.py').write_text('x')",
@@ -139,7 +139,7 @@ class VerificationEngineTests(unittest.TestCase):
             )
 
         self.assertFalse(verified)
-        self.assertEqual(summary, "일부 단계 실패")
+        self.assertEqual(summary, "일부 steps 실패")
         planner.verify.assert_not_called()
 
     def test_scope_violation_matches_execution_engine(self):

@@ -38,7 +38,7 @@ _RE_FACT_EXTRACTION_TRIGGER = re.compile(
 )
 _BIO_FIELDS = {"name", "location", "interests", "memos"}
 
-# FACT로 저장하면 안 되는 일시적/task-specific 키워드
+# FACT로 Save하면 안 되는 일시적/task-specific 키워드
 _EPHEMERAL_FACT_KEYS = {
     "ko": {
         "오늘", "현재", "지금", "요청", "작업", "귀가", "출근", "퇴근",
@@ -61,7 +61,7 @@ _TOPIC_BLOCKLIST = {
 
 
 class MemoryManager:
-    """단기(대화 기록) 및 장기(사용자 패턴/사실) 기억 통합 관리"""
+    """단기(Conversation history) 및 장기(사용자 패턴/사실) 기억 통합 관리"""
 
     def __init__(self):
         self.context_manager = get_context_manager()
@@ -87,7 +87,7 @@ class MemoryManager:
                 user_msg, ai_response
             )
         except Exception as e:
-            logging.warning("대화 기록 조회 실패: %s", e)
+            logging.warning("Conversation history 조회 실패: %s", e)
         entry = None
         try:
             entry = add_conversation(
@@ -98,7 +98,7 @@ class MemoryManager:
                 lang=lang,
             )
         except Exception as e:
-            logging.warning("대화 저장 실패: %s", e)
+            logging.warning("대화 Save 실패: %s", e)
         try:
             if index_conversation and entry is not None:
                 timestamp = str(entry.get("timestamp", timestamp) or timestamp)
@@ -127,7 +127,7 @@ class MemoryManager:
                 last_command = last_commands[-1].get("command", "")
             get_user_profile_engine().update(user_msg, command_type=last_command, success=True)
         except Exception as e:
-            logging.warning("프로파일 업데이트 실패: %s", e)
+            logging.warning("프로파일 Update 실패: %s", e)
         try:
             self.context_manager.record_interaction(user_msg)
         except (AttributeError, OSError, TypeError, ValueError) as e:
@@ -158,7 +158,7 @@ class MemoryManager:
             if not ConfigManager.get("fact_extraction_suggestions_enabled", True):
                 return
         except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            logging.warning("기억 제안 설정을 읽지 못했습니다: %s", exc)
+            logging.warning("기억 제안 Settings을 읽지 못했습니다: %s", exc)
             return
 
         worker = threading.Thread(
@@ -211,7 +211,7 @@ class MemoryManager:
             try:
                 get_fact_suggestion_store().add_suggestions(suggestions)
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                logging.warning("기억 제안을 저장하지 못했습니다: %s", exc)
+                logging.warning("기억 제안을 Save하지 못했습니다: %s", exc)
 
     @staticmethod
     def _valid_evidence(item: object, user_message: str) -> str:
@@ -304,7 +304,7 @@ class MemoryManager:
         suggestion_id: str,
         context_manager=None,
     ) -> bool:
-        """승인된 기억 제안을 기존 저장소와 검색 색인에 반영한다."""
+        """승인된 기억 제안을 기존 Save소와 검색 색인에 반zero한다."""
         store = get_fact_suggestion_store()
         suggestion = store.get_suggestion(suggestion_id)
         if not suggestion:
@@ -339,7 +339,7 @@ class MemoryManager:
         return store.resolve(suggestion_id, approved=True) is not None
 
     def _is_persistent_fact(self, key: str) -> bool:
-        """지속성 있는 사실인지 확인. 일시적 상태나 task 요청 관련 키는 False."""
+        """지속성 있는 사실인지 OK. 일시적 상태나 task 요청 관련 키는 False."""
         normalized = unicodedata.normalize("NFKC", key).strip().casefold()
         normalized = _RE_WHITESPACE.sub(" ", normalized)
         return not any(normalized in keys for keys in _EPHEMERAL_FACT_KEYS.values())
@@ -350,12 +350,12 @@ class MemoryManager:
         user_message: str = "",
         contains_tool_result: bool = False,
     ) -> None:
-        """AI 응답에서 [FACT: ...], [BIO: ...], [PREF: ...] 태그 추출 및 저장"""
+        """AI 응답에서 [FACT: ...], [BIO: ...], [PREF: ...] 태그 추출 및 Save"""
         if contains_tool_result:
             logging.info("도구 결과가 포함된 응답의 기억 태그를 건너뜁니다.")
             return
         try:
-            # 사실 추출: [FACT: key=value] — 지속성 있는 사실만 저장
+            # 사실 추출: [FACT: key=value] — 지속성 있는 사실만 Save
             for key, value in _RE_FACT.findall(response):
                 k = key.strip()
                 if self._is_persistent_fact(k):
@@ -364,9 +364,9 @@ class MemoryManager:
                         k, value.strip(), source="assistant_tag", confidence=0.75
                     )
                 else:
-                    logging.info("[MemoryManager] 일시적 FACT 무시 (비저장): %s=%s", k, value.strip())
+                    logging.info("[MemoryManager] 일시적 FACT 무시 (비Save): %s=%s", k, value.strip())
 
-            # 기본 정보 추출: [BIO: field=value]
+            # Default 정보 추출: [BIO: field=value]
             for field, value in _RE_BIO.findall(response):
                 self.context_manager.request_bio_update(
                     field.strip(), value.strip(), user_message=user_message
@@ -374,7 +374,7 @@ class MemoryManager:
 
             # 선호도 추출: [PREF: category=value]
             for cat, val in _RE_PREF.findall(response):
-                logging.info("선호도 저장: %s = %s", cat.strip(), val.strip())
+                logging.info("선호도 Save: %s = %s", cat.strip(), val.strip())
                 self.context_manager.record_preference(cat.strip(), val.strip())
         except Exception as e:
             logging.warning("응답 태그 파싱 실패: %s", e)

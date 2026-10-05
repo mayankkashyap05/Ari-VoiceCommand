@@ -244,7 +244,7 @@ class Embedder:
                 )
                 vector = np.asarray(response.data[0].embedding, dtype=np.float32)
                 if vector.shape != (self.dim,) or not np.isfinite(vector).all():
-                    raise ValueError("임베딩 벡터 형식이 올바르지 않습니다.")
+                    raise ValueError("임베딩 벡터 형식is invalid.")
                 return vector
             except self._remote_error_types + (
                 AttributeError,

@@ -64,7 +64,7 @@ def _context_locked(method):
 
 _KOREAN_STOPWORDS = {
     "그리고", "하지만", "그러나", "오늘", "지금", "이번", "저번", "관련", "대한",
-    "해주세요", "해줘", "정리", "요약", "저장", "실행", "작업", "요청", "결과",
+    "해주세요", "해줘", "정리", "요약", "Save", "실행", "작업", "요청", "결과",
     "사용자", "아리", "파일", "폴더", "문서", "정보", "내용",
 }
 
@@ -93,7 +93,7 @@ class UserContextManager:
                     backup_corrupt_file(self.context_file)
                 except OSError as backup_error:
                     logger.error("손상된 컨텍스트 백업 실패: %s", backup_error)
-                logger.warning("컨텍스트 JSON 로드 실패: %s", exc)
+                logger.warning("컨텍스트 JSON load failed: %s", exc)
             except (OSError, TypeError, ValueError, AttributeError) as exc:
                 logger.warning("컨텍스트 로드 실패: %s", exc)
 
@@ -268,7 +268,7 @@ class UserContextManager:
                     now=current.timestamp(),
                 )
             except (OSError, RuntimeError, TypeError, ValueError) as exc:
-                logger.debug("기분 상태 갱신 생략: %s", exc)
+                logger.debug("Mood state update skipped: %s", exc)
 
     @_context_locked
     def get_situation_metrics(self, now: Optional[datetime] = None) -> Dict[str, Any]:
@@ -332,7 +332,7 @@ class UserContextManager:
             write_text_atomic(self.context_file, payload)
             return True
         except (OSError, TypeError, ValueError) as exc:
-            logger.error("컨텍스트 저장 실패: %s", exc)
+            logger.error("컨텍스트 Save 실패: %s", exc)
             return False
 
     # ── 지능형 사실 관리 (Phase 3.1) ──────────────────────────────────────────
@@ -454,7 +454,7 @@ class UserContextManager:
                     float(current_fact.get("confidence", 0.7)),
                 )
         except Exception as exc:
-            logger.warning("사실 색인 갱신 실패: %s", exc)
+            logger.warning("사실 색인 Update failed: %s", exc)
         return True
 
     @_context_locked
@@ -519,7 +519,7 @@ class UserContextManager:
 
                 get_conversation_history().delete_containing(value)
             except Exception as exc:
-                logger.warning("대화 기록 삭제 실패: %s", exc)
+                logger.warning("Conversation history 삭제 실패: %s", exc)
                 return False
             try:
                 from memory.memory_index import get_memory_index
@@ -587,7 +587,7 @@ class UserContextManager:
 
     @_context_locked
     def update_bio(self, field, value):
-        """기본 정보 업데이트 (이름, 관심사 등)"""
+        """Default 정보 Update (이름, 관심사 등)"""
         if field in self.context["user_bio"]:
             self.context["pending_bio"] = [
                 item for item in self.context.get("pending_bio", [])
@@ -648,7 +648,7 @@ class UserContextManager:
 
             index = get_memory_index()
         except Exception as exc:
-            logger.warning("선호 색인 갱신 실패: %s", exc)
+            logger.warning("선호 색인 Update failed: %s", exc)
             return False
         try:
             index.delete_fact(f"선호: {category}")
@@ -666,7 +666,7 @@ class UserContextManager:
                     1.0,
                 )
             except Exception as exc:
-                logger.warning("선호 색인 갱신 실패: %s", exc)
+                logger.warning("선호 색인 Update failed: %s", exc)
                 failed = True
         return not failed
 
@@ -701,7 +701,7 @@ class UserContextManager:
 
                 get_conversation_history().delete_containing(value)
             except Exception as exc:
-                logger.warning("선호 대화 기록 삭제 실패: %s", exc)
+                logger.warning("선호 Conversation history 삭제 실패: %s", exc)
                 return False
             try:
                 from memory.memory_index import get_memory_index
@@ -727,7 +727,7 @@ class UserContextManager:
                     1.0,
                 )
             except Exception as exc:
-                logger.warning("남은 선호 색인 갱신 실패: %s", exc)
+                logger.warning("남은 선호 색인 Update failed: %s", exc)
                 return False
 
         bucket.pop(value)
@@ -790,7 +790,7 @@ class UserContextManager:
         self.save_context()
 
     def extract_topics(self, user_msg: str, ai_response: str = "") -> List[str]:
-        """대화 텍스트에서 간단한 주제 후보를 추출."""
+        """대화 텍스트에서 간단한 주제 later보를 추출."""
         text = f"{user_msg or ''} {ai_response or ''}".lower()
         tokens = re.findall(r"[가-힣a-zA-Z0-9]{2,}", text)
         seen = []
@@ -806,7 +806,7 @@ class UserContextManager:
         return seen
 
     def get_predicted_next_commands(self) -> List[str]:
-        """이전 명령 흐름과 빈도를 바탕으로 다음 명령 후보를 반환."""
+        """이전 명령 흐름과 빈도를 바탕으로 다음 명령 later보를 반환."""
         predictions = []
         last_commands = self.context.get("last_commands", [])
         sequences = self.context.get("command_sequences", {})
@@ -826,7 +826,7 @@ class UserContextManager:
         return predictions[:5]
 
     def get_time_based_suggestions(self, hour: Optional[int] = None, limit: int = 3) -> List[str]:
-        """현재 시간대에 자주 사용된 명령 후보를 반환."""
+        """현재 시간대에 자주 사용된 명령 later보를 반환."""
         target_hour = datetime.now().hour if hour is None else int(hour)
         slot = f"{target_hour:02d}:00"
         commands = self.context.get("time_patterns", {}).get(slot, [])
@@ -860,7 +860,7 @@ class UserContextManager:
 
     @_context_locked
     def optimize_memory(self):
-        """주기적 메모리 최적화 및 감쇄(Decay) 적용."""
+        """주기적 메모리 최적화 및 감쇄(Decay) Apply."""
         logger.info("[UserContext] 메모리 최적화 수행 중...")
         now = datetime.now()
         

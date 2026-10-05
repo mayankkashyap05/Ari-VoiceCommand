@@ -90,12 +90,12 @@ def suggest_next_actions(state: DomState | dict, goal_hint: str = "") -> list[di
     goal_lower = (goal_hint or "").lower()
 
     if state.login_detected:
-        suggestions.append({"type": "read", "selector": "form", "description": "로그인 폼 구조 확인", "priority": 1.0})
+        suggestions.append({"type": "read", "selector": "form", "description": "로그인 폼 구조 OK", "priority": 1.0})
     if state.logged_in and state.data_tables:
         suggestions.append({"type": "read", "selector": "table", "description": "표 데이터 읽기", "priority": 0.9})
     for alert in state.alerts:
-        if any(token in alert.lower() for token in ("error", "실패", "오류", "invalid")):
-            suggestions.append({"type": "read", "selector": ".alert, .error, .toast, [role='alert']", "description": "오류 메시지 읽기", "priority": 0.8})
+        if any(token in alert.lower() for token in ("error", "실패", "Error", "invalid")):
+            suggestions.append({"type": "read", "selector": ".alert, .error, .toast, [role='alert']", "description": "Error 메시지 읽기", "priority": 0.8})
             break
     if state.logged_in:
         for item in state.nav_links[:5]:
@@ -107,7 +107,7 @@ def suggest_next_actions(state: DomState | dict, goal_hint: str = "") -> list[di
             continue
         priority = 0.85 if any(token and token in text.lower() for token in goal_lower.split()) else 0.5
         suggestions.append({"type": "click_text", "text": text, "description": f"버튼 클릭: {text}", "priority": priority})
-    if state.forms and any(token in goal_lower for token in ("submit", "전송", "등록")):
+    if state.forms and any(token in goal_lower for token in ("submit", "Send", "등록")):
         suggestions.append({"type": "click", "selectors": ["button[type='submit']", "input[type='submit']"], "description": "폼 제출", "priority": 0.75})
     suggestions.sort(key=lambda item: float(item.get("priority", 0.0)), reverse=True)
     return suggestions[:10]

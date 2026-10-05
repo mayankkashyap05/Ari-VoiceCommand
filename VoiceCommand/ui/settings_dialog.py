@@ -1,5 +1,5 @@
 """
-설정 창 GUI — 탭 기반 구성 (RP, LLM, TTS, 장치, 확장)
+Settings 창 GUI — 탭 기반 구성 (RP, LLM, TTS, 장치, 확장)
 각 탭의 세부 구현은 settings_llm_page / settings_tts_page / settings_plugin_page 에 위임한다.
 """
 import logging
@@ -36,10 +36,10 @@ from ui.audio_diagnostic_panel import AudioDiagnosticPanel
 
 
 def should_apply_microphone(dialog, character_widget) -> bool:
-    """저장 후 마이크 설정을 음성 스레드에 다시 적용할지 판단한다.
+    """Save later Microphone Settings을 음성 스레드에 다시 Apply할지 판단한다.
 
-    마이크가 없어 음성 인식이 멈춘 상태라면, 선택값이 그대로여도(예: 새로 연결한 기본 장치)
-    설정 저장을 사용자의 재시도로 보고 다시 적용한다.
+    Microphone가 없어 speech recognition이 멈춘 상태라면, 선택값이 그대로여도(예: 새로 연결한 Default 장치)
+    Settings Save을 사용자의 재시도로 보고 다시 Apply한다.
     """
     if dialog.microphone_settings_changed():
         return True
@@ -48,7 +48,7 @@ def should_apply_microphone(dialog, character_widget) -> bool:
 
 
 def reinitialize_tts_async() -> None:
-    """TTS 설정 변경 후 GUI를 막지 않도록 백그라운드에서 TTS를 다시 초기화한다."""
+    """TTS Settings 변경 later GUI를 막지 않도록 백그라운드에서 TTS를 다시 초기화한다."""
     import threading
     from VoiceCommand import initialize_tts, _tts_init_event
     _tts_init_event.clear()
@@ -57,13 +57,13 @@ def reinitialize_tts_async() -> None:
         try:
             initialize_tts()
         except Exception as e:
-            logging.error(f"TTS 재초기화 실패: {e}")
+            logging.error(f"TTS Reinitialization failed: {e}")
         finally:
-            # 실패해도 이후 발화 요청이 초기화 완료를 기다리며 멈추지 않게 한다.
+            # 실패해도 이later 발화 요청이 초기화 완료를 기다리며 멈추지 않게 한다.
             _tts_init_event.set()
 
     threading.Thread(target=_reinit, daemon=True, name="TTS-Reinit").start()
-    logging.info("TTS 관련 설정이 변경되어 TTS 재초기화를 시작했습니다.")
+    logging.info("TTS 관련 Settings이 changed, starting TTS reinitialization.")
 
 
 class SettingsDialog(QDialog):
@@ -100,7 +100,7 @@ class SettingsDialog(QDialog):
 
     def __init__(self, parent=None, update_checker=None):
         super().__init__(parent)
-        self.setWindowTitle(_("아리 설정"))
+        self.setWindowTitle(_("아리 Settings"))
         self.setMinimumWidth(600)
         self.setMinimumHeight(550)
         self.settings = ConfigManager.load_settings()
@@ -121,19 +121,19 @@ class SettingsDialog(QDialog):
         self.tabs.setStyleSheet(TAB_STYLE)
         layout.addWidget(self.tabs)
 
-        # 1. RP 설정 탭
-        self.tabs.addTab(self._create_rp_tab(), _("RP 설정"))
+        # 1. RP Settings 탭
+        self.tabs.addTab(self._create_rp_tab(), _("RP Settings"))
 
-        # 2. LLM 설정 탭
+        # 2. LLM Settings 탭
         self._llm_page = _LLMSettingsPage(self.settings, self)
-        self.tabs.addTab(self._llm_page, _("AI 설정"))
+        self.tabs.addTab(self._llm_page, _("AI Settings"))
 
-        # 3. TTS 설정 탭
+        # 3. TTS Settings 탭
         self._tts_page = _TTSSettingsPage(self.settings, self)
-        self.tabs.addTab(self._tts_page, _("TTS 설정"))
+        self.tabs.addTab(self._tts_page, _("TTS Settings"))
 
-        # 4. 장치 설정 탭
-        self.tabs.addTab(self._create_device_tab(), _("장치 설정"))
+        # 4. 장치 Settings 탭
+        self.tabs.addTab(self._create_device_tab(), _("장치 Settings"))
 
         # 5. 활동 반응 탭
         self.tabs.addTab(self._create_scroll_area(self._create_activity_tab()), _("활동 반응"))
@@ -147,7 +147,7 @@ class SettingsDialog(QDialog):
 
             self._learning_page = _LearningSettingsPage(self)
         except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            logging.warning("[SettingsDialog] 학습 페이지 로드 실패: %s", exc)
+            logging.warning("[SettingsDialog] Learning page load failed: %s", exc)
         else:
             self.tabs.addTab(self._create_scroll_area(self._learning_page), _("학습"))
 
@@ -156,7 +156,7 @@ class SettingsDialog(QDialog):
         self.tabs.addTab(self._create_scroll_area(self._plugin_page), _("확장"))
 
         self._update_page = self._create_update_tab()
-        self.tabs.addTab(self._create_scroll_area(self._update_page), _("정보·업데이트"))
+        self.tabs.addTab(self._create_scroll_area(self._update_page), _("정보·Update"))
 
         build_info = get_build_info()
         commit = build_info["commit"][:7] or "—"
@@ -170,7 +170,7 @@ class SettingsDialog(QDialog):
 
         # 하단 버튼
         btn_layout = QHBoxLayout()
-        save_btn = QPushButton(_("저장"))
+        save_btn = QPushButton(_("Save"))
         save_btn.setMinimumHeight(45)
         save_btn.setMinimumWidth(120)
         save_btn.setStyleSheet(f"""
@@ -191,7 +191,7 @@ class SettingsDialog(QDialog):
         """)
         save_btn.clicked.connect(self._save)
 
-        cancel_btn = QPushButton(_("취소"))
+        cancel_btn = QPushButton(_("Cancel"))
         cancel_btn.setMinimumHeight(45)
         cancel_btn.setMinimumWidth(100)
         cancel_btn.setStyleSheet("""
@@ -230,13 +230,13 @@ class SettingsDialog(QDialog):
         vbox.setContentsMargins(8, 8, 8, 8)
         vbox.setSpacing(10)
 
-        group = QGroupBox(_("캐릭터 페르소나 설정"))
+        group = QGroupBox(_("Character 페르소나 Settings"))
         gvbox = QVBoxLayout(group)
         gvbox.setSpacing(8)
 
         rp_fields = [
             ("personality_input",  _("성격:"),           "personality",         _("예) 상냥하고 귀여운 AI 비서")),
-            ("examples_en_input",  _("영어 예시 대사:"), "personality_examples_en", ""),
+            ("examples_en_input",  _("zero어 예시 대사:"), "personality_examples_en", ""),
             ("examples_ja_input",  _("일본어 예시 대사:"), "personality_examples_ja", ""),
             ("scenario_input",     _("시나리오:"),        "scenario",            _("예) 주인님을 보좌하는 역할극")),
             ("system_input",       _("시스템 프롬프트:"), "system_prompt",       _("AI에게 직접 전달할 시스템 지시문")),
@@ -289,7 +289,7 @@ class SettingsDialog(QDialog):
         threshold_layout.addStretch()
         group_layout.addLayout(threshold_layout)
 
-        self.activity_lock_checkbox = QCheckBox(_("화면 잠금 시 캐릭터 숨기기"))
+        self.activity_lock_checkbox = QCheckBox(_("화면 잠금 시 Character 숨기기"))
         self.activity_lock_checkbox.setChecked(
             bool(self.settings.get("activity_session_lock_reaction_enabled", True))
         )
@@ -309,14 +309,14 @@ class SettingsDialog(QDialog):
         )
         group_layout.addWidget(self.activity_quiet_bubble_checkbox)
 
-        self.activity_app_checkbox = QCheckBox(_("앱 카테고리 반응 (기본 꺼짐)"))
+        self.activity_app_checkbox = QCheckBox(_("앱 카테고리 반응 (Default 꺼짐)"))
         self.activity_app_checkbox.setChecked(
             bool(self.settings.get("activity_app_category_reaction_enabled", False))
         )
         group_layout.addWidget(self.activity_app_checkbox)
 
         self.activity_auto_game_mode_checkbox = QCheckBox(
-            _("게임·영상 앱에서 게임 모드 자동 적용")
+            _("게임·zero상 앱에서 게임 모드 자동 Apply")
         )
         self.activity_auto_game_mode_checkbox.setChecked(
             bool(self.settings.get("activity_auto_game_mode_enabled", False))
@@ -332,7 +332,7 @@ class SettingsDialog(QDialog):
         group_layout.addWidget(self.activity_ide_long_use_checkbox)
 
         privacy_note = QLabel(_(
-            "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 전송하지 않습니다."
+            "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 Send하지 않습니다."
         ))
         privacy_note.setWordWrap(True)
         group_layout.addWidget(privacy_note)
@@ -345,26 +345,26 @@ class SettingsDialog(QDialog):
         widget = QWidget()
         vbox = QVBoxLayout(widget)
 
-        group = QGroupBox(_("오디오 장치 설정"))
+        group = QGroupBox(_("오디오 장치 Settings"))
         gvbox = QVBoxLayout(group)
 
-        gvbox.addWidget(QLabel(_("마이크 입력 장치 선택:")))
+        gvbox.addWidget(QLabel(_("Microphone Input 장치 선택:")))
         self.mic_combo = QComboBox()
-        self.mic_combo.addItem(_("시스템 기본 마이크"), "")
+        self.mic_combo.addItem(_("시스템 Default Microphone"), "")
         try:
             from VoiceCommand import list_microphone_names
             mics = list_microphone_names()
             for mic in mics:
                 self.mic_combo.addItem(mic, mic)
         except Exception as e:
-            logging.error(f"마이크 목록 로드 오류: {e}")
+            logging.error(f"Microphone 목록 로드 Error: {e}")
         self._set_combo(self.mic_combo, self.settings.get("microphone", ""))
         gvbox.addWidget(self.mic_combo)
 
         gvbox.addSpacing(15)
         gvbox.addWidget(QLabel(_("스피커 출력 장치 선택:")))
         self.speaker_combo = QComboBox()
-        self.speaker_combo.addItem(_("시스템 기본 스피커"), "")
+        self.speaker_combo.addItem(_("시스템 Default 스피커"), "")
         try:
             from audio.audio_manager import list_output_devices
             out_devices = list_output_devices()
@@ -375,14 +375,14 @@ class SettingsDialog(QDialog):
                     self.speaker_combo.addItem(name, name)
                     seen_names.add(name)
         except Exception as e:
-            logging.error(f"출력 장치 목록 로드 오류: {e}")
+            logging.error(f"출력 장치 목록 로드 Error: {e}")
         self._set_combo(self.speaker_combo, self.settings.get("audio_output_device", ""))
         gvbox.addWidget(self.speaker_combo)
 
-        stt_group = QGroupBox(_("음성 인식"))
+        stt_group = QGroupBox(_("speech recognition"))
         stt_vbox = QVBoxLayout(stt_group)
-        stt_vbox.addWidget(create_muted_label(_("STT 엔진, Whisper 설정, 마이크 감도, 웨이크워드를 설정합니다.")))
-        stt_btn = QPushButton(_("음성 인식 설정..."))
+        stt_vbox.addWidget(create_muted_label(_("STT 엔진, Whisper Settings, Microphone 감도, Wake word를 Settings합니다.")))
+        stt_btn = QPushButton(_("speech recognition Settings..."))
         stt_btn.clicked.connect(self._open_stt_settings)
         stt_vbox.addWidget(stt_btn)
 
@@ -398,10 +398,10 @@ class SettingsDialog(QDialog):
 
         vbox.addWidget(self._create_character_group())
 
-        theme_group = QGroupBox(_("UI 테마 설정"))
+        theme_group = QGroupBox(_("UI Theme Settings"))
         tvbox = QVBoxLayout(theme_group)
 
-        tvbox.addWidget(QLabel(_("테마 프리셋:")))
+        tvbox.addWidget(QLabel(_("Theme 프리셋:")))
         self.theme_preset_combo = QComboBox()
         for preset_key, preset_name in available_theme_presets():
             self.theme_preset_combo.addItem(preset_name, preset_key)
@@ -415,21 +415,21 @@ class SettingsDialog(QDialog):
 
         tvbox.addWidget(QLabel(_("글꼴 패밀리 재정의 (선택):")))
         self.theme_font_input = QLineEdit(self.settings.get("ui_font_family", ""))
-        self.theme_font_input.setPlaceholderText(_("비워두면 테마 기본 글꼴 사용"))
+        self.theme_font_input.setPlaceholderText(_("비워두면 Theme Default 글꼴 사용"))
         tvbox.addWidget(self.theme_font_input)
 
         self.theme_preview_frame = QFrame()
         self.theme_preview_frame.setFrameShape(QFrame.Shape.StyledPanel)
         preview_layout = QVBoxLayout(self.theme_preview_frame)
         preview_layout.setContentsMargins(10, 10, 10, 10)
-        self.theme_preview_title = QLabel(_("테마 미리보기"))
+        self.theme_preview_title = QLabel(_("Theme 미리보기"))
         self.theme_preview_colors = QLabel("")
         self.theme_preview_colors.setWordWrap(True)
         preview_layout.addWidget(self.theme_preview_title)
         preview_layout.addWidget(self.theme_preview_colors)
         tvbox.addWidget(self.theme_preview_frame)
 
-        preview_btn = QPushButton(_("테마 폴더 안내"))
+        preview_btn = QPushButton(_("Theme 폴더 안내"))
         preview_btn.setStyleSheet(secondary_btn_style())
         preview_btn.clicked.connect(self._show_theme_hint)
         tvbox.addWidget(preview_btn)
@@ -443,9 +443,9 @@ class SettingsDialog(QDialog):
 
         vbox.addWidget(theme_group)
 
-        lang_group = QGroupBox(_("언어 설정"))
+        lang_group = QGroupBox(_("Language Settings"))
         lvbox = QVBoxLayout(lang_group)
-        lvbox.addWidget(QLabel(_("인터페이스 언어:")))
+        lvbox.addWidget(QLabel(_("인터페이스 Language:")))
         self.lang_combo = QComboBox()
         self.lang_combo.addItem("한국어", "ko")
         self.lang_combo.addItem("English", "en")
@@ -470,7 +470,7 @@ class SettingsDialog(QDialog):
     def _create_update_tab(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        self.update_check_enabled = QCheckBox(_("새 버전을 자동으로 확인합니다"))
+        self.update_check_enabled = QCheckBox(_("새 버전을 자동으로 OK합니다"))
         update_enabled = self.settings.get("update_check_enabled", True)
         self.update_check_enabled.setChecked(
             update_enabled if isinstance(update_enabled, bool) else True
@@ -478,7 +478,7 @@ class SettingsDialog(QDialog):
         self.update_check_enabled.setEnabled(self.update_checker is not None)
         layout.addWidget(self.update_check_enabled)
         network_notice = QLabel(
-            _("자동 확인은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다.")
+            _("자동 OK은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다.")
         )
         network_notice.setWordWrap(True)
         layout.addWidget(network_notice)
@@ -491,7 +491,7 @@ class SettingsDialog(QDialog):
         layout.addWidget(self.update_notes_link)
 
         buttons = QHBoxLayout()
-        self.check_updates_button = QPushButton(_("지금 확인"))
+        self.check_updates_button = QPushButton(_("지금 OK"))
         self.check_updates_button.setEnabled(self.update_checker is not None)
         self.check_updates_button.clicked.connect(self._check_updates_now)
         buttons.addWidget(self.check_updates_button)
@@ -520,14 +520,14 @@ class SettingsDialog(QDialog):
             ):
                 message = _("Ari {version}은 직접 설치해야 합니다.")
             else:
-                message = _("Ari {version} 업데이트를 사용할 수 있습니다.")
+                message = _("Ari {version} Update를 사용할 수 있습니다.")
             self.update_status_label.setText(message.format(version=pending_version))
         elif status.get("skipped_version"):
             self.update_status_label.setText(_("이 버전을 건너뛰었습니다."))
         elif status.get("last_checked_at"):
-            self.update_status_label.setText(_("새 업데이트가 없습니다."))
+            self.update_status_label.setText(_("새 Update가 없습니다."))
         else:
-            self.update_status_label.setText(_("아직 업데이트 확인 기록이 없습니다."))
+            self.update_status_label.setText(_("아직 Update OK 기록이 없습니다."))
         self.skip_update_button.setEnabled(
             self.update_checker is not None
             and isinstance(pending_version, str)
@@ -561,7 +561,7 @@ class SettingsDialog(QDialog):
 
     def _check_updates_now(self):
         if self.update_checker is not None:
-            self.update_status_label.setText(_("새 버전을 확인하고 있습니다."))
+            self.update_status_label.setText(_("새 버전을 OK하고 있습니다."))
             self.update_checker.check_now()
 
     def _skip_update_version(self):
@@ -569,14 +569,14 @@ class SettingsDialog(QDialog):
             self.update_checker.skip_pending_version()
             self._refresh_update_status()
 
-    # ── 캐릭터 표시 설정 ──────────────────────────────────────────────────────
+    # ── Character 표시 Settings ──────────────────────────────────────────────────────
 
     def _create_character_group(self) -> QGroupBox:
-        """캐릭터 크기와 바닥 위치를 슬라이더로 조절한다. 움직이는 즉시 미리보기가 반영된다."""
-        group = QGroupBox(_("캐릭터 표시 설정"))
+        """Character 크기와 바닥 위치를 슬라이더로 조절한다. 움직이는 즉시 미리보기가 반zero된다."""
+        group = QGroupBox(_("Character 표시 Settings"))
         layout = QVBoxLayout(group)
         layout.addWidget(create_muted_label(
-            _("슬라이더를 움직이면 화면의 아리에게 바로 반영됩니다. 취소하면 원래대로 돌아갑니다.")
+            _("슬라이더를 움직이면 화면의 아리에게 바로 반zero됩니다. Cancel하면 원래대로 돌아갑니다.")
         ))
 
         self._original_char_scale = float(self.settings.get("character_scale", 1.0))
@@ -595,7 +595,7 @@ class SettingsDialog(QDialog):
         self.char_scale_value.setMinimumWidth(56)
         size_row.addWidget(self.char_scale_value)
         layout.addLayout(size_row)
-        layout.addWidget(create_muted_label(_("작게 30% ↔ 크게 300% (기본 100%)")))
+        layout.addWidget(create_muted_label(_("작게 30% ↔ 크게 300% (Default 100%)")))
 
         # 바닥 위치 — 부호의 의미를 라벨로 드러낸다.
         offset_row = QHBoxLayout()
@@ -614,7 +614,7 @@ class SettingsDialog(QDialog):
             _("왼쪽은 위로, 오른쪽은 아래로 내려갑니다. 직접 만든 이미지의 발이 바닥에서 뜨거나 파묻힐 때 맞추세요.")
         ))
 
-        reset_btn = QPushButton(_("기본값으로 되돌리기"))
+        reset_btn = QPushButton(_("Default값으로 되돌리기"))
         reset_btn.setStyleSheet(secondary_btn_style())
         reset_btn.clicked.connect(self._reset_character_display)
         layout.addWidget(reset_btn)
@@ -643,17 +643,17 @@ class SettingsDialog(QDialog):
 
     @staticmethod
     def _apply_character_display(scale: float, ground_offset: int):
-        """실행 중인 캐릭터 위젯에 표시 설정을 반영한다. 위젯이 없으면 조용히 넘어간다."""
+        """실행 중인 Character 위젯에 표시 Settings을 반zero한다. 위젯이 없으면 조용히 넘어간다."""
         try:
             from core.VoiceCommand import _state
             widget = getattr(_state, "character_widget", None)
             if widget is not None and hasattr(widget, "apply_display_settings"):
                 widget.apply_display_settings(scale=scale, ground_offset=ground_offset)
         except Exception as exc:
-            logging.debug(f"캐릭터 표시 설정 반영 생략: {exc}")
+            logging.debug(f"Character Display settings reflection skipped: {exc}")
 
     def _restore_character_display(self):
-        """저장하지 않고 창을 닫으면 미리보기를 되돌린다."""
+        """Save하지 않고 창을 닫으면 미리보기를 되돌린다."""
         if hasattr(self, "_original_char_scale"):
             self._apply_character_display(self._original_char_scale, self._original_char_offset)
 
@@ -705,12 +705,12 @@ class SettingsDialog(QDialog):
             ))
             return
         except OSError as exc:
-            logging.warning("이전 버전 데이터 가져오기 실패: %s", exc)
+            logging.warning("Previous version data import failed: %s", exc)
             QMessageBox.warning(self, title, _("데이터를 가져오지 못했습니다: {error}", error=exc))
             return
         QMessageBox.information(self, title, _(
             "파일 {count}개를 가져왔습니다. 이미 있던 파일은 그대로 두었습니다.\n"
-            "가져온 데이터를 적용하려면 아리를 다시 시작하세요.",
+            "가져온 데이터를 Apply하려면 아리를 다시 시작하세요.",
             count=copied,
         ))
 
@@ -729,8 +729,8 @@ class SettingsDialog(QDialog):
     def _show_theme_hint(self):
         QMessageBox.information(
             self,
-            _("테마 폴더"),
-            _("테마 JSON 파일은 아래 폴더에서 직접 수정할 수 있습니다.\n\n{path}\n\n저장 후 설정창에서 다시 적용하면 열린 UI에 즉시 반영됩니다.").format(path=theme_dir()),
+            _("Theme 폴더"),
+            _("Theme JSON 파일은 아래 폴더에서 직접 수정할 수 있습니다.\n\n{path}\n\nSave later Settings창에서 다시 Apply하면 열린 UI에 즉시 반zero됩니다.").format(path=theme_dir()),
         )
 
     def _refresh_theme_preview(self):
@@ -780,7 +780,7 @@ class SettingsDialog(QDialog):
         try:
             apply_live_theme(character_widget=self.parent())
         except Exception as exc:
-            logging.debug(f"실시간 테마 적용 실패: {exc}")
+            logging.debug(f"Real-time theme apply failed: {exc}")
         self._refresh_theme_preview()
 
     def _on_theme_preset_changed(self, index: int):
@@ -790,7 +790,7 @@ class SettingsDialog(QDialog):
         if self._editor_dialog is not None:
             self._editor_dialog.load_preset(palette.colors)
 
-    # ── 저장 로직 ─────────────────────────────────────────────────────────────
+    # ── Save 로직 ─────────────────────────────────────────────────────────────
 
     def _save(self):
         new_settings = {
@@ -834,8 +834,8 @@ class SettingsDialog(QDialog):
             key for key, value in new_settings.items()
             if self.original_settings.get(key) != value
         }
-        # 이 창에서 바꾼 값만 지금의 설정에 얹는다. 창을 연 뒤 다른 경로가 저장했거나
-        # 뒤늦게 읽힌 설정을, 창을 열 때의 값으로 덮어쓰지 않는다.
+        # 이 창에서 바꾼 값만 지금의 Settings에 얹는다. 창을 연 뒤 다른 경로가 Save했거나
+        # 뒤늦게 읽힌 Settings을, 창을 열 때의 값으로 덮어쓰지 않는다.
         merged_settings = {
             **ConfigManager.load_settings(),
             **{key: new_settings[key] for key in self.changed_keys},
@@ -847,7 +847,7 @@ class SettingsDialog(QDialog):
         try:
             refresh_activity_monitor()
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            logging.debug("활동 설정 적용을 건너뜁니다: %s", exc)
+            logging.debug("Activity settings apply skipped: %s", exc)
 
         if "update_check_enabled" in self.changed_keys and self.update_checker:
             self.update_checker.settings_changed()
@@ -857,7 +857,7 @@ class SettingsDialog(QDialog):
                 from agent.embedder import reset_embedder
                 reset_embedder()
             except (ImportError, RuntimeError):
-                logging.debug("임베더 설정 적용 생략")
+                logging.debug("Embedder settings apply skipped")
 
         if self.character_settings_changed():
             self._apply_character_display(
@@ -873,7 +873,7 @@ class SettingsDialog(QDialog):
                     from agent.llm_provider import reload_llm_provider
                     reload_llm_provider()
                 except Exception as exc:
-                    logging.warning("LLM 제공자 재구성 실패: %s", exc)
+                    logging.warning("LLM Provider reconfiguration failed: %s", exc)
 
             try:
                 threading.Thread(
@@ -882,13 +882,13 @@ class SettingsDialog(QDialog):
                     name="LLM-Reload",
                 ).start()
             except Exception as exc:
-                logging.warning("LLM 제공자 재구성 실패: %s", exc)
+                logging.warning("LLM Provider reconfiguration failed: %s", exc)
 
         if self.theme_settings_changed():
             QMessageBox.information(
                 self,
-                _("테마 저장"),
-                _("테마 설정이 저장되었습니다.\n열려 있는 UI에는 즉시 반영되며, TTS나 워커는 다시 시작하지 않습니다."),
+                _("Theme Save"),
+                _("Theme Settings이 Save되었습니다.\n열려 있는 UI에는 즉시 반zero되며, TTS나 워커는 다시 시작하지 않습니다."),
             )
 
         selected_lang = self.lang_combo.currentData()
@@ -915,7 +915,7 @@ class SettingsDialog(QDialog):
     # ── 생명주기 ──────────────────────────────────────────────────────────────
 
     def done(self, result):
-        # 저장·취소·닫기 버튼이 모두 done()을 거치므로 여기서 스레드를 정리한다.
+        # Save·Cancel·Close 버튼이 모두 done()을 거치므로 여기서 스레드를 정리한다.
         self._llm_page.cleanup_threads()
         self._agent_page.cleanup_threads()
         self._tts_page.cleanup_threads()

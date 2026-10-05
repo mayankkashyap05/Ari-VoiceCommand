@@ -96,7 +96,7 @@ def fit_linear(
 
 
 def training_rows(rows: list[dict], augment: bool) -> list[dict]:
-    """모델 설정의 ``training_sha256``에 해시가 기록되는 행."""
+    """모델 Settings의 ``training_sha256``에 해시가 기록되는 행."""
     return [
         row for row in rows
         if row["split"] == "train" and (augment or not row.get("augmentation", False))

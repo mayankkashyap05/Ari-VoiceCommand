@@ -58,7 +58,7 @@ _DESKTOP_STATE_TOKENS = (
     "클릭",
     "키보드",
     "마우스",
-    "입력",
+    "Input",
 )
 
 
@@ -67,7 +67,7 @@ def _norm_file(path: str) -> str:
 
 
 def _norm_relative_file(path: str) -> str | None:
-    """cwd를 기준으로 실제 경로를 확인하지 않고 상대 경로를 정규화한다."""
+    """cwd를 기준으로 실제 경로를 OK하지 않고 상대 경로를 정규화한다."""
     if not path or ntpath.isabs(path) or ntpath.splitdrive(path)[0]:
         return None
     # 이 표식은 실제 경로가 아니라 표현식/템플릿임을 나타낸다.
@@ -234,7 +234,7 @@ def _python_file_resources(text: str) -> tuple[set[str], set[str]]:
                 if keyword.arg == "mode":
                     mode = keyword.value
             if mode is None and not has_dynamic_keywords:
-                reads.update(resources)  # open()의 기본 모드는 읽기 모드다.
+                reads.update(resources)  # open()의 Default 모드는 읽기 모드다.
             elif isinstance(mode, ast.Constant) and isinstance(mode.value, str):
                 value = mode.value.lower()
                 if "r" in value or "+" in value:

@@ -14,12 +14,12 @@ from tts.tts_openai import OpenAITTS
 class EmotionCatalogTests(unittest.TestCase):
     def test_provider_instructions_follow_ui_language(self):
         self.assertEqual(
-            get_emotion_instruction("기쁨", "ko"),
+            get_emotion_instruction("Joy", "ko"),
             "기쁘고 밝은 목소리로 말하세요.",
         )
         self.assertEqual(
-            get_emotion_instruction("기쁨", "ja"),
-            EMOTION_CATALOG["기쁨"]["openai"],
+            get_emotion_instruction("Joy", "ja"),
+            EMOTION_CATALOG["Joy"]["openai"],
         )
 
     def test_new_provider_emotion_fields_exist_without_changing_cosyvoice_mapping(self):
@@ -51,13 +51,13 @@ class EdgeEmotionProsodyTests(unittest.TestCase):
         fast = EdgeTTS(rate="+98%")
         slow = EdgeTTS(rate="-49%")
 
-        self.assertEqual(fast._prosody("기쁨"), ("+100%", "+3Hz"))
+        self.assertEqual(fast._prosody("Joy"), ("+100%", "+3Hz"))
         self.assertEqual(slow._prosody("슬픔"), ("-50%", "-2Hz"))
 
     def test_disabled_offsets_keep_user_rate_and_zero_pitch(self):
         provider = EdgeTTS(rate="-45%", emotion_enabled=False)
 
-        self.assertEqual(provider._prosody("기쁨"), ("-45%", "+0Hz"))
+        self.assertEqual(provider._prosody("Joy"), ("-45%", "+0Hz"))
 
     def test_synthesis_passes_emotion_rate_and_pitch_to_edge(self):
         calls = []
@@ -71,7 +71,7 @@ class EdgeEmotionProsodyTests(unittest.TestCase):
 
         provider = EdgeTTS(rate="+98%")
         with patch.dict("sys.modules", {"edge_tts": SimpleNamespace(Communicate=FakeCommunicate)}):
-            audio = asyncio.run(provider._synthesize("hello", "기쁨"))
+            audio = asyncio.run(provider._synthesize("hello", "Joy"))
 
         self.assertEqual(audio, b"audio")
         self.assertEqual(calls[0][2]["rate"], "+100%")
@@ -101,13 +101,13 @@ class OpenAIEmotionProsodyTests(unittest.TestCase):
         return client.audio.speech.create.call_args.kwargs
 
     def test_supported_model_gets_instructions_and_legacy_model_ignores_them(self):
-        supported = self._speak("gpt-4o-mini-tts", "기쁨")
-        legacy = self._speak("tts-1", "기쁨")
-        disabled = self._speak("gpt-4o-mini-tts", "기쁨", emotion_enabled=False)
+        supported = self._speak("gpt-4o-mini-tts", "Joy")
+        legacy = self._speak("tts-1", "Joy")
+        disabled = self._speak("gpt-4o-mini-tts", "Joy", emotion_enabled=False)
 
         self.assertEqual(
             supported["instructions"],
-            EMOTION_CATALOG["기쁨"]["openai"],
+            EMOTION_CATALOG["Joy"]["openai"],
         )
         self.assertNotIn("instructions", legacy)
         self.assertNotIn("instructions", disabled)
@@ -120,10 +120,10 @@ class ElevenLabsEmotionProsodyTests(unittest.TestCase):
             api_key="test-key", stability=0.98, emotion_enabled=False
         )
 
-        self.assertAlmostEqual(enabled._voice_settings("기쁨")["stability"], 0.93)
-        self.assertAlmostEqual(enabled._voice_settings("기쁨")["style"], 0.08)
-        self.assertAlmostEqual(disabled._voice_settings("기쁨")["stability"], 0.98)
-        self.assertAlmostEqual(disabled._voice_settings("기쁨")["style"], 0.0)
+        self.assertAlmostEqual(enabled._voice_settings("Joy")["stability"], 0.93)
+        self.assertAlmostEqual(enabled._voice_settings("Joy")["style"], 0.08)
+        self.assertAlmostEqual(disabled._voice_settings("Joy")["stability"], 0.98)
+        self.assertAlmostEqual(disabled._voice_settings("Joy")["style"], 0.0)
         self.assertAlmostEqual(enabled._voice_settings("걱정")["stability"], 1.0)
 
 

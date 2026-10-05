@@ -26,7 +26,7 @@ UNKNOWN = "unknown_or_complex"
 
 
 def candidate_names() -> tuple[str, ...]:
-    """후보 이름을 등록 순서대로 반환하고 판단 보류 라벨은 맨 뒤에 둔다."""
+    """later보 이름을 등록 순서대로 반환하고 판단 보류 라벨은 맨 뒤에 둔다."""
     return registry_candidate_names()
 
 
@@ -70,7 +70,7 @@ class DecisionResult:
 
 @dataclass(frozen=True)
 class FastPathResult:
-    """검증을 마친 단일 실행 요청과 판정 근거만 담는다."""
+    """검증을 마친 단일 실행 요청과 판정 Evidence만 담는다."""
 
     tool_name: str
     arguments: dict[str, object]
@@ -116,7 +116,7 @@ class LinearScorer:
             raise ValueError("Invalid weights")
 
     def predict(self, text: str) -> DecisionResult:
-        """전체 후보의 확률, 최고 확률과 차이를 반환한다."""
+        """전체 later보의 확률, 최고 확률과 차이를 반환한다."""
         started = time.perf_counter()
         if not isinstance(text, str) or not text.strip() or len(text) > 4096:
             raise ValueError("Unsupported input")
@@ -200,7 +200,7 @@ class LocalDecisionEngine:
             return dict(self._counters)
 
     def health(self) -> dict[str, str]:
-        """적재 상태, 마지막 오류 코드, 직접 실행이 꺼진 이유를 반환한다."""
+        """적재 상태, 마지막 Error 코드, 직접 실행이 꺼진 이유를 반환한다."""
         with self._lock:
             scorer = self._scorer
             attempted = self._load_attempted
@@ -272,7 +272,7 @@ class LocalDecisionEngine:
                 self._last_volume = None
 
     def choice(self, state: str) -> DecisionResult | None:
-        """전용 복합 요청 검사를 먼저 적용하고 최대 한 번 추론한다."""
+        """전용 복합 요청 검사를 먼저 Apply하고 max 한 번 추론한다."""
         try:
             if not isinstance(state, str) or not state.strip():
                 return None
@@ -319,7 +319,7 @@ class LocalDecisionEngine:
             self._note_possible_correction(text, decision)
             if mode == "shadow":
                 return self._fallback()
-            # 모드와 별개로 직접 실행 설정이 명시적으로 켜져 있어야 한다.
+            # 모드와 별개로 직접 실행 Settings이 명시적으로 켜져 있어야 한다.
             if ConfigManager.get("local_decision_direct_execution", True) is not True:
                 return self._fallback()
             direct_allowed = is_direct_allowed(decision.choice, mode)

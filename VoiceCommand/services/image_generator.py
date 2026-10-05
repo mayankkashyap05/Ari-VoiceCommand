@@ -1,4 +1,4 @@
-﻿"""이미지 생성 서비스."""
+"""이미지 생성 서비스."""
 from __future__ import annotations
 
 import base64
@@ -34,11 +34,11 @@ class ImageGenerator:
         if provider != "openai":
             return {"enabled": True, "provider": provider, "message": "현재 OpenAI 이미지 생성만 지원합니다."}
         if not api_key:
-            return {"enabled": True, "provider": provider, "message": "설정에 OpenAI API 키가 등록되어 있지 않습니다."}
+            return {"enabled": True, "provider": provider, "message": "Settings에 OpenAI API 키가 등록되어 있지 않습니다."}
         from openai import OpenAI
-        # 설정 창에 저장된 키를 명시적으로 전달한다. 인자 없이 OpenAI()를
-        # 호출하면 OS 환경변수 OPENAI_API_KEY만 보고 앱 설정은 무시되어,
-        # 설정 창에서 키를 등록해도 이미지 생성이 항상 실패했다.
+        # Settings 창에 Save된 키를 명시적으로 전달한다. 인자 없이 OpenAI()를
+        # 호출하면 OS 환경변수 OPENAI_API_KEY만 보고 앱 Settings은 무시되어,
+        # Settings 창에서 키를 등록해도 이미지 생성이 항상 실패했다.
         client = OpenAI(api_key=api_key)
         response = client.images.generate(model="dall-e-3", prompt=prompt, size=size, n=1)
         image = response.data[0]

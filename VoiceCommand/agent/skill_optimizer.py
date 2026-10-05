@@ -4,8 +4,8 @@ Direction 1 — Step 레벨 재작성:
     스킬 실패 시 LLM이 JSON 스텝 시퀀스를 수정·단순화.
 
 Direction 2 — Python 코드 컴파일:
-    충분히 검증된 스킬을 단일 Python 함수로 컴파일, 저장,
-    이후 실행 시 LLM 계획 없이 직접 호출. 실패 시 LLM이 코드 수정.
+    충분히 검증된 스킬을 단일 Python 함수로 컴파일, Save,
+    이later 실행 시 LLM 계획 없이 직접 호출. 실패 시 LLM이 코드 수정.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
-# 컴파일된 스킬 저장 디렉터리
+# 컴파일된 스킬 Save 디렉터리
 _COMPILED_DIR: str = ""
 _COMPILED_DIR_LOCK = threading.Lock()
 
@@ -41,7 +41,7 @@ def _validate_skill_id(skill_id: str) -> None:
 
 def _invoke_run_skill(run_skill, goal: str) -> str:
     if not callable(run_skill):
-        raise TypeError("run_skill 함수 없음")
+        raise TypeError("run_skill 함수 None")
     return str(run_skill(goal))
 
 
@@ -134,7 +134,7 @@ class SkillOptimizer:
         return None
 
     def repair_python(self, skill, code: str, error: str) -> Optional[str]:
-        """실패한 컴파일 스킬 코드를 LLM으로 수정."""
+        """실패한 Compiled skill 코드를 LLM으로 수정."""
         prompt = (
             f"Python 스킬 함수가 실패했습니다.\n"
             f"에러: {error[:300]}\n\n"
@@ -150,7 +150,7 @@ class SkillOptimizer:
         return None
 
     def save_compiled(self, skill_id: str, code: str) -> str:
-        """컴파일된 코드를 파일로 저장하고 경로 반환."""
+        """컴파일된 코드를 파일로 Save하고 경로 반환."""
         _validate_skill_id(skill_id)
         path = os.path.join(_get_compiled_dir(), f"{skill_id}.py")
         with open(path, "w", encoding="utf-8") as f:
@@ -158,7 +158,7 @@ class SkillOptimizer:
         return path
 
     def load_compiled(self, skill_id: str) -> Optional[str]:
-        """저장된 컴파일 코드 로드."""
+        """Save된 컴파일 코드 로드."""
         _validate_skill_id(skill_id)
         path = os.path.join(_get_compiled_dir(), f"{skill_id}.py")
         if not os.path.exists(path):
@@ -175,13 +175,13 @@ class SkillOptimizer:
 
     def run_compiled(self, skill_id: str, goal: str) -> tuple[bool, str]:
         """
-        저장된 Python 스킬 실행.
+        Save된 Python 스킬 실행.
         반환: (success, result_or_error)
         """
         _validate_skill_id(skill_id)
         code = self.load_compiled(skill_id)
         if not code:
-            return False, "컴파일된 스킬 없음"
+            return False, "컴파일된 스킬 None"
         try:
             from agent.safety_checker import DangerLevel, get_safety_checker
             report = get_safety_checker().check_python(code)
@@ -262,7 +262,7 @@ class SkillOptimizer:
                 return False
             return True
         except SyntaxError as exc:
-            logger.debug("[SkillOptimizer] 문법 오류: %s", exc)
+            logger.debug("[SkillOptimizer] 문법 Error: %s", exc)
             return False
 
     def _is_safe_module(self, tree: ast.Module) -> bool:

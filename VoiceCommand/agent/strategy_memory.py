@@ -34,8 +34,8 @@ _MEMORY_FILE = _get_memory_file()
 _MAX_RECORDS = 500
 
 _TOKEN_STOPWORDS = {
-    "해줘", "해주세요", "하고", "다음", "이후", "정리", "저장", "실행", "요청", "작업",
-    "그리고", "해서", "한뒤", "후에", "대한", "관련", "위한", "the", "and", "for"
+    "해줘", "해주세요", "하고", "다음", "이later", "정리", "Save", "실행", "요청", "작업",
+    "그리고", "해서", "한뒤", "later에", "대한", "관련", "위한", "the", "and", "for"
 }
 
 _NGRAM_SIZE = 3
@@ -138,7 +138,7 @@ class StrategyMemory:
         self._schedule_save()
         if not self._embedding_valid:
             self._backfill_missing_embeddings()
-        logging.info("[StrategyMemory] 저장됨: %s", '성공' if success else '실패')
+        logging.info("[StrategyMemory] Save됨: %s", '성공' if success else '실패')
 
     def get_relevant_context(self, goal: str) -> str:
         """현재 목표와 유사한 과거 사례를 분석하여 교훈과 함께 가이드 제공."""
@@ -208,13 +208,13 @@ class StrategyMemory:
         if records and not embedding_valid:
             self._backfill_missing_embeddings()
 
-        goal_tags = set(self._extract_tags(goal)) - {"일반"}
+        goal_tags = set(self._extract_tags(goal)) - {"General"}
         goal_tokens = self._extract_tokens(goal)
         goal_ngrams = self._extract_ngrams(goal)
         goal_embedding = embedder.embed(goal) if embedding_valid else None
         manual_scores = []
         for index, rec in enumerate(records):
-            tag_overlap = len(goal_tags & (set(rec.tags) - {"일반"}))
+            tag_overlap = len(goal_tags & (set(rec.tags) - {"General"}))
             token_score = self._token_similarity(goal_tokens, set(rec.goal_tokens))
             ngram_score = self._ngram_similarity(goal_ngrams, self._extract_ngrams(rec.goal_summary))
             manual_score = tag_overlap * 12 + token_score * 40 + ngram_score * 25
@@ -361,7 +361,7 @@ class StrategyMemory:
         window_start = window_end - timedelta(days=safe_days)
         records = [
             rec for rec in self._records
-            # 상한을 <=로 포함한다. record() 직후 곧바로 get_stats()를 호출하면
+            # 상한을 <=로 포함한다. record() 직later 곧바로 get_stats()를 호출하면
             # 두 datetime.now() 호출이 (특히 해상도가 낮은 환경에서) 완전히
             # 같은 값을 반환할 수 있는데, 예전의 엄격한 < 비교는 그 경계에
             # 정확히 걸친 기록을 조용히 누락시켰다.
@@ -409,7 +409,7 @@ class StrategyMemory:
 
     def _extract_tags(self, text: str) -> List[str]:
         tags = [tag for tag, words in _TAG_KEYWORDS.items() if any(w in text for w in words)]
-        return tags or ["일반"]
+        return tags or ["General"]
 
     def _extract_tokens(self, text: str) -> set[str]:
         tokens = set()
@@ -504,7 +504,7 @@ class StrategyMemory:
             if not isinstance(raw_records, list) or any(
                 not isinstance(record, dict) for record in raw_records
             ):
-                raise ValueError("전략 기억 레코드 형식이 올바르지 않습니다.")
+                raise ValueError("전략 기억 레코드 형식is invalid.")
             self._records = [self._normalize_record(record) for record in raw_records]
             record_ids = [record.record_id for record in self._records]
             valid = (
@@ -556,7 +556,7 @@ class StrategyMemory:
             if legacy:
                 self._schedule_save()
         except (AttributeError, OSError, TypeError, ValueError, EOFError, OverflowError) as exc:
-            logging.warning("[StrategyMemory] 로드 오류: %s", exc)
+            logging.warning("[StrategyMemory] 로드 Error: %s", exc)
 
     def _save(self):
         with self._save_lock:
@@ -599,7 +599,7 @@ class StrategyMemory:
                     separators=(",", ":"),
                 )
             except (OSError, TypeError, ValueError) as exc:
-                logging.warning("[StrategyMemory] 저장 오류: %s", exc)
+                logging.warning("[StrategyMemory] Save Error: %s", exc)
 
     def _normalize_record(self, raw: dict) -> StrategyRecord:
         goal_summary = str(raw.get("goal_summary", ""))
@@ -609,7 +609,7 @@ class StrategyMemory:
             
         return StrategyRecord(
             goal_summary=goal_summary,
-            tags=list(raw.get("tags", ["일반"])),
+            tags=list(raw.get("tags", ["General"])),
             goal_tokens=goal_tokens,
             steps_desc=list(raw.get("steps_desc", [])),
             success=bool(raw.get("success", False)),

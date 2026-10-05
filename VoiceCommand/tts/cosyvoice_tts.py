@@ -1,8 +1,8 @@
 """
 CosyVoice3 Local TTS — 서브프로세스 격리 + 이진 스트리밍
 - cosyvoice_worker.py를 별도 프로세스로 실행 (DLL 충돌 방지)
-- stdout 이진 스트림으로 첫 청크 즉시 재생 (저레이턴시)
-- Fish Audio와 동일한 인터페이스: speak() / playback_finished / cleanup()
+- stdout 이진 스트림으로 첫 청크 즉시 play (저레이턴시)
+- Fish Audio와 Same interface: speak() / playback_finished / cleanup()
 """
 import sys
 import os
@@ -58,23 +58,23 @@ def _get_python_exe() -> str:
         python = shutil.which('python') or shutil.which('python3')
         if not python:
             raise RuntimeError(
-                "Python 인터프리터를 찾을 수 없습니다.\n"
-                "Python을 설치하고 PATH에 추가한 후 다시 시도하세요."
+                "Python 인터프리터not found.\n"
+                "Python을 설치하고 PATH에 추가한 later 다시 시도하세요."
             )
         return python
     return sys.executable
 
 def _get_cosyvoice_dir() -> str:
-    """CosyVoice 설치 경로: 설정값 → 자동 탐색 순으로 결정."""
+    """CosyVoice Install path: Settings값 → 자동 탐색 순으로 결정."""
     try:
         from core.config_manager import ConfigManager
         configured = ConfigManager.load_settings().get("cosyvoice_dir", "")
         if configured and os.path.isdir(configured):
             return configured
     except Exception as exc:
-        logging.debug("cosyvoice_dir 설정 조회 실패, 자동 탐색으로 폴백: %s", exc)
+        logging.debug("cosyvoice_dir Settings 조회 실패, 자동 탐색으로 폴백: %s", exc)
         pass
-    # 자동 탐색: 프로젝트 루트 인근 경로 후보
+    # 자동 탐색: 프로젝트 루트 인근 경로 later보
     candidates = [
         os.path.join(os.path.dirname(_HERE), "..", "CosyVoice"),
         os.path.join(os.path.dirname(_HERE), "..", "..", "CosyVoice"),
@@ -84,7 +84,7 @@ def _get_cosyvoice_dir() -> str:
             return os.path.abspath(c)
     return ""
 
-# 첫 사용 시 1회만 확인 — 경로 문자열 자체를 캐시
+# 첫 사용 시 1회만 OK — 경로 문자열 자체를 캐시
 _cached_cosyvoice_dir: Optional[str] = None
 
 def _get_cosyvoice_dir_cached() -> str:
@@ -113,7 +113,7 @@ def _get_worker_script() -> str:
 
 
 def _load_tts_volume() -> float:
-    """설정된 재생 볼륨 배율(0.0~2.0). 읽기 실패하면 원본 그대로."""
+    """Settings된 play 볼륨 배율(0.0~2.0). 읽기 실패하면 원본 그대로."""
     try:
         from core.config_manager import ConfigManager
         value = float(ConfigManager.get("tts_volume", 1.0))
@@ -194,7 +194,7 @@ class CosyVoiceTTS(QObject):
             "--speed", str(self.speed),
         ]
         # 부모는 stdin/stderr를 UTF-8로 주고받는데 한글 Windows의 자식
-        # Python은 기본이 cp949라, 지정하지 않으면 한글이 깨져 워커가
+        # Python은 Default이 cp949라, 지정하지 않으면 한글이 깨져 워커가
         # 엉뚱한 텍스트를 합성한다. Inductor/Triton 캐시도 한글 경로를
         # 못 읽으므로 ASCII 경로로 보낸다.
         worker_env = dict(os.environ)
@@ -227,7 +227,7 @@ class CosyVoiceTTS(QObject):
         logging.info("CosyVoice3 워커 시작 중 (모델 로드 중, 약 30~60초)...")
 
     def _stderr_reader(self, proc):
-        """워커 stderr(제어 채널)을 읽어 이벤트 설정"""
+        """워커 stderr(제어 채널)을 읽어 이벤트 Settings"""
         try:
             while not self._stopping and self._proc is proc and proc.poll() is None:
                 line_raw = proc.stderr.readline()
@@ -247,7 +247,7 @@ class CosyVoiceTTS(QObject):
                     if "백그라운드 GPU warmup 완료" in line:
                         self._warmup_ready.set()
                         self._warmup_done.set()
-                    elif "백그라운드 warmup 실패" in line:
+                    elif "Background warmup failed" in line:
                         self._warmup_error = line[5:]
                         self._warmup_done.set()
                 elif line.startswith("DONE:") or line.startswith("ERROR:"):
@@ -258,7 +258,7 @@ class CosyVoiceTTS(QObject):
                     logging.debug("[worker] %s", line)
         except Exception as e:
             if not self._stopping and self._proc is proc:
-                logging.error("stderr 읽기 오류: %s", e)
+                logging.error("stderr 읽기 Error: %s", e)
                 self._worker_error = str(e)
         finally:
             if not self._stopping and self._proc is proc:
@@ -375,10 +375,10 @@ class CosyVoiceTTS(QObject):
             if proc.poll() is None:
                 proc.kill()
         except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            logging.debug("오류 난 CosyVoice 워커 종료 실패: %s", exc)
+            logging.debug("Error 난 CosyVoice 워커 종료 실패: %s", exc)
 
     def _start_drain(self, request_id, proc, reader_t, reader_state) -> None:
-        """취소된 요청의 남은 출력을 백그라운드에서 버린다(워커는 유지)."""
+        """Cancel된 요청의 남은 출력을 백그라운드에서 버린다(워커는 유지)."""
         drain_event = threading.Event()
         cancelled_at = time.monotonic()
         with self._state_lock:
@@ -458,7 +458,7 @@ class CosyVoiceTTS(QObject):
         return not stop_event.is_set()
 
     def _apply_volume(self, data: bytes) -> bytes:
-        """float32 PCM에 tts_volume 배율을 적용한다.
+        """float32 PCM에 tts_volume 배율을 Apply한다.
 
         CosyVoice는 API TTS와 달리 출력 레벨을 일정하게 맞춰주지 않아
         참조 음성 레벨을 그대로 따라간다. 제공자를 오갈 때 체감 볼륨이
@@ -482,15 +482,15 @@ class CosyVoiceTTS(QObject):
         )
 
     def _ensure_stream(self):
-        """설정된 출력 장치로 열고, 실패하면 시스템 기본값까지 내려간다.
+        """Settings된 출력 장치로 열고, 실패하면 시스템 Default값까지 내려간다.
 
-        장치를 지정하지 않으면 Fish TTS(설정 장치)와 서로 다른 장치로
-        재생되어 체감 볼륨이 크게 달라진다. Voicemeeter처럼 가상 장치가
-        기본으로 잡혀 있으면 게인 스테이징까지 달라진다.
+        장치를 지정하지 않으면 Fish TTS(Settings 장치)와 서로 다른 장치로
+        play되어 체감 볼륨이 크게 달라진다. Voicemeeter처럼 가상 장치가
+        Default으로 잡혀 있으면 게인 스테이징까지 달라진다.
 
         같은 스피커가 host API별로 중복 노출되는데 WASAPI는 24kHz를
         거부하고(-9997) WDM-KS는 독점 점유로 열리지 않으므로(-9999)
-        audio_manager가 정렬해 준 후보를 순서대로 시도한다.
+        audio_manager가 정렬해 준 later보를 순서대로 시도한다.
         """
         with self._stream_lock:
             self._close_stream_unlocked()
@@ -501,7 +501,7 @@ class CosyVoiceTTS(QObject):
 
             device_name = get_configured_output_device_name()
             candidates = find_output_device_candidates(device_name)
-            candidates.append(None)  # 마지막 수단: 시스템 기본 장치
+            candidates.append(None)  # 마지막 수단: 시스템 Default 장치
 
             errors = []
             for device_index in candidates:
@@ -512,7 +512,7 @@ class CosyVoiceTTS(QObject):
                     continue
                 if device_index is None and device_name:
                     logging.warning(
-                        "[TTS] '%s' 출력 실패로 시스템 기본 장치 사용 (%s)",
+                        "[TTS] '%s' 출력 실패로 시스템 Default 장치 사용 (%s)",
                         device_name, "; ".join(errors),
                     )
                 self._stream_rate = self.sample_rate
@@ -535,7 +535,7 @@ class CosyVoiceTTS(QObject):
         self._stream = None
         self._stream_rate = None
 
-    # ── 합성 + 스트리밍 재생 ────────────────────────────────────────────────────
+    # ── 합성 + 스트리밍 play ────────────────────────────────────────────────────
 
     def speak(
         self,
@@ -601,7 +601,7 @@ class CosyVoiceTTS(QObject):
                 def pipe_reader():
                     first = True
                     try:
-                        # 취소돼도 종료 표시(0)까지 읽어 파이프를 비운다(재생은 안 함).
+                        # Cancel돼도 종료 표시(0)까지 읽어 파이프를 비운다(play은 안 함).
                         while True:
                             hdr = self._read_exact(4, proc)
                             if not hdr:
@@ -619,7 +619,7 @@ class CosyVoiceTTS(QObject):
                                 continue
                             if first:
                                 logging.info(
-                                    "[TTS] 첫 청크 수신 → 재생 시작: %.2fs",
+                                    "[TTS] 첫 청크 수신 → playback started: %.2fs",
                                     time.monotonic() - started_at,
                                 )
                                 first = False
@@ -639,7 +639,7 @@ class CosyVoiceTTS(QObject):
                                 time.sleep(0.01)
                     except Exception as e:
                         if self._request_is_active(request_id, proc, stop_event):
-                            logging.debug("pipe_reader 오류: %s", e)
+                            logging.debug("pipe_reader Error: %s", e)
                     finally:
                         if self._request_is_active(request_id, proc, stop_event):
                             self._pcm_done.set()
@@ -683,19 +683,19 @@ class CosyVoiceTTS(QObject):
                     return False
 
                 logging.info(
-                    "[TTS] 전체 완료: %.2fs", time.monotonic() - started_at
+                    "[TTS] Total complete: %.2fs", time.monotonic() - started_at
                 )
                 ctrl = self._wait_ctrl(
                     timeout=60, proc=proc, stop_event=stop_event
                 )
                 worker_complete = ctrl != "ERROR:timeout" and ctrl != "ERROR:cancelled"
                 if ctrl.startswith("ERROR:"):
-                    logging.error("워커 오류: %s", ctrl[6:])
+                    logging.error("워커 Error: %s", ctrl[6:])
                 return not ctrl.startswith("ERROR:") and not stop_event.is_set()
 
             except Exception as e:
                 if not stop_event.is_set() and not self._stopping:
-                    logging.error("CosyVoice TTS speak 오류: %s", e)
+                    logging.error("CosyVoice TTS speak error: %s", e)
                 return False
             finally:
                 request_finished.set()
@@ -783,10 +783,10 @@ class CosyVoiceTTS(QObject):
             self._warmup_done.set()
             self.stop()
         except Exception as exc:
-            logging.debug("CosyVoice 재생 중지 실패: %s", exc)
+            logging.debug("CosyVoice play 중지 실패: %s", exc)
 
         # 워커를 먼저 끝낸다. 오디오 장치 잠금을 기다리느라 워커 종료가 미뤄지면 안 된다.
-        logging.info("CosyVoice3 리소스 정리 중...")
+        logging.info("CosyVoice3 Cleaning up resources...")
         if proc and proc.poll() is None:
             killed = False
             try:
@@ -798,27 +798,27 @@ class CosyVoiceTTS(QObject):
                     proc.terminate()
                     proc.wait(timeout=2)
                 except Exception as exc:
-                    logging.debug("CosyVoice terminate 실패, kill 시도: %s", exc)
+                    logging.debug("CosyVoice terminate failed, trying kill: %s", exc)
                     try:
                         proc.kill()
                         killed = True
                     except Exception as kill_exc:
-                        logging.debug("CosyVoice kill 실패: %s", kill_exc)
+                        logging.debug("CosyVoice kill failed: %s", kill_exc)
             except Exception as exc:
-                logging.debug("CosyVoice 종료 명령 실패, kill 시도: %s", exc)
+                logging.debug("CosyVoice shutdown command failed, trying kill: %s", exc)
                 try:
                     proc.kill()
                     killed = True
                 except Exception as kill_exc:
-                    logging.debug("CosyVoice kill 실패: %s", kill_exc)
+                    logging.debug("CosyVoice kill failed: %s", kill_exc)
             if killed or proc.poll() is None:
                 try:
                     proc.wait(timeout=2)
                 except Exception as exc:
-                    logging.warning("CosyVoice 워커 프로세스 종료 확인 실패: %s", exc)
+                    logging.warning("CosyVoice Worker process termination OK failed: %s", exc)
                 else:
                     if proc.poll() is None:
-                        logging.warning("CosyVoice 워커 프로세스가 종료되지 않았습니다")
+                        logging.warning("CosyVoice Worker process has not terminated")
 
         try:
             if self._stream_lock.acquire(timeout=2):
@@ -827,15 +827,15 @@ class CosyVoiceTTS(QObject):
                 finally:
                     self._stream_lock.release()
             else:
-                logging.warning("CosyVoice 오디오 스트림 잠금 대기 시간이 지났습니다")
+                logging.warning("CosyVoice Audio stream lock wait timed out")
             self._clear_pcm_state()
         except Exception as exc:
-            logging.debug("CosyVoice 오디오 정리 실패: %s", exc)
+            logging.debug("CosyVoice Audio cleanup failed: %s", exc)
 
         # PyAudio 정리는 AriCore.cleanup()에서 GlobalAudio.terminate() 호출로 통합 관리
     def __del__(self):
         try:
             self.cleanup()
         except Exception as exc:
-            logging.debug("CosyVoice 소멸자 cleanup 실패: %s", exc)
+            logging.debug("CosyVoice Destructor cleanup failed: %s", exc)
             pass

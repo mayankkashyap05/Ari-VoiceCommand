@@ -56,7 +56,7 @@ def describe_browser_plan_reason(plan: dict, browser_state: dict, requested_url:
     elif plan_type == "learned_only":
         reasons.append("과거 성공 전략 우선")
     elif plan_type == "fallback_only":
-        reasons.append("기본 fallback 전략")
+        reasons.append("Default fallback 전략")
 
     current_url = str((browser_state or {}).get("current_url", "") or "")
     if current_url and requested_url:
@@ -96,7 +96,7 @@ def describe_desktop_plan_reason(plan: dict) -> str:
     elif plan_type == "learned_only":
         reasons.append("과거 성공 데스크톱 워크플로우 우선")
     elif plan_type == "fallback_only":
-        reasons.append("기본 fallback 워크플로우")
+        reasons.append("Default fallback 워크플로우")
     if plan.get("expected_window"):
         reasons.append("대상 창 대기/포커스 가능")
     return " | ".join(reasons[:3])
@@ -106,7 +106,7 @@ def workflow_succeeded(summary: str) -> bool:
     normalized = (summary or "").strip().lower()
     if not normalized:
         return False
-    if "실패:" in normalized or "오류:" in normalized or "error" in normalized:
+    if "실패:" in normalized or "Error:" in normalized or "error" in normalized:
         return False
     return "성공:" in normalized or "downloaded:" in normalized or "download complete:" in normalized
 
@@ -115,7 +115,7 @@ def should_remember_desktop_workflow(action_results: List[str]) -> bool:
     return (
         bool(action_results)
         and any(item.startswith("성공:") for item in action_results)
-        and not any(item.startswith(("실패:", "오류:")) for item in action_results)
+        and not any(item.startswith(("실패:", "Error:")) for item in action_results)
     )
 
 
@@ -126,7 +126,7 @@ def normalize_goal_hint(goal_hint: str) -> str:
 
 def normalize_similarity_token(token: str) -> str:
     normalized = (token or "").strip().lower()
-    for suffix in ("에서", "에게", "으로", "로", "까지", "부터", "하고", "후", "전", "에", "을", "를", "은", "는", "이", "가", "와", "과", "도", "만"):
+    for suffix in ("에서", "에게", "으로", "로", "까지", "부터", "하고", "later", "전", "에", "을", "를", "은", "는", "이", "가", "와", "과", "도", "만"):
         if normalized.endswith(suffix) and len(normalized) > len(suffix) + 1:
             return normalized[: -len(suffix)]
     return normalized

@@ -1,4 +1,4 @@
-﻿"""애플리케이션 전역 상태와 음성/TTS 오케스트레이션 헬퍼."""
+"""애플리케이션 전역 상태와 음성/TTS 오케스트레이션 헬퍼."""
 
 import _ctypes
 import logging
@@ -17,7 +17,7 @@ from core.resource_manager import is_bundled
 from agent.assistant_text_utils import strip_trailing_symbol_tokens
 from core.emotions import parse_emotion_text
 
-# SSL 인증서 경로 설정 (PyInstaller/Nuitka 배포 환경)
+# SSL 인증서 경로 Settings (PyInstaller/Nuitka 배포 환경)
 if is_bundled():
     import certifi
     os.environ['SSL_CERT_FILE'] = certifi.where()
@@ -70,9 +70,9 @@ class AppState:
         self.activity_quiet = False
 
 _state = AppState()
-# 시작 시 초기화와 설정 저장의 재초기화가 겹쳐 프로바이더가 둘 생기지 않게 한다.
+# 시작 시 초기화와 Settings Save의 재초기화가 겹쳐 프로바이더가 둘 생기지 않게 한다.
 _TTS_INIT_LOCK = threading.Lock()
-# 정리 중인 로컬 TTS 워커가 끝나면 켜진다. 게임 모드 해제가 새 워커를 만들기 전에 기다린다.
+# 정리 중인 Local TTS 워커가 끝나면 켜진다. 게임 모드 해제가 새 워커를 만들기 전에 기다린다.
 _LOCAL_TTS_CLEANUP_DONE = threading.Event()
 _LOCAL_TTS_CLEANUP_DONE.set()
 _LOCAL_TTS_CLEANUP_WAIT_SECONDS = 30
@@ -88,9 +88,9 @@ def _tts_wake_guard_seconds() -> float:
 
 
 class SharedMicrophone(sr.Microphone):
-    """전역 PyAudio 인스턴스를 공유하는 마이크 클래스.
+    """전역 PyAudio 인스턴스를 공유하는 Microphone 클래스.
 
-    sr.Microphone은 생성·열기·닫기마다 PyAudio()를 새로 만들고 terminate()한다.
+    sr.Microphone은 생성·열기·Close마다 PyAudio()를 새로 만들고 terminate()한다.
     PortAudio 초기화·종료는 스레드 안전하지 않아 다른 스레드의 오디오 사용과
     겹치면 네이티브 크래시가 나므로, 전역 인스턴스만 쓰고 종료는 앱 정리 때 한 번만 한다.
     """
@@ -111,7 +111,7 @@ class SharedMicrophone(sr.Microphone):
         if device_index is not None and not 0 <= device_index < count:
             raise OSError(f"Device index out of range ({count} devices available)")
         if sample_rate is None:
-            # 기본 입력 장치가 없으면 PyAudio가 OSError를 낸다.
+            # Default Input 장치가 없으면 PyAudio가 OSError를 낸다.
             device_info = (
                 audio.get_device_info_by_index(device_index)
                 if device_index is not None
@@ -143,7 +143,7 @@ class SharedMicrophone(sr.Microphone):
             )
         except (OSError, ValueError) as exc:
             # stream을 None으로 남겨 호출자가 OSError로 처리하게 한다.
-            logging.debug("마이크 스트림 열기 실패: %s", exc)
+            logging.debug("Failed to open microphone stream: %s", exc)
             self.stream = None
         return self
 
@@ -166,7 +166,7 @@ def list_microphone_names() -> list:
     ]
 
 
-# ── 초기화 및 설정 ───────────────────────────────────────────────────────────
+# ── 초기화 및 Settings ───────────────────────────────────────────────────────────
 
 def set_tts_thread(thread: object) -> None:
     _state.tts_thread = thread
@@ -217,7 +217,7 @@ def start_tts_background():
                     _state.tts_init_event.set()
                     tts_wrapper(_("로딩이 완료되었습니다. 이제 대화할 수 있어요!"))
                 except Exception as e:
-                    logging.error("TTS 초기화 실패: %s", e)
+                    logging.error("TTS initialization failed: %s", e)
                     _state.tts_init_event.set()
 
             threading.Thread(target=_run, daemon=True).start()
@@ -225,7 +225,7 @@ def start_tts_background():
             try:
                 initialize_tts()
             except Exception as e:
-                logging.error("TTS 초기화 실패 (동기): %s", e)
+                logging.error("TTS initialization failed (동기): %s", e)
             finally:
                 _state.tts_init_event.set()
     except Exception as e:
@@ -238,7 +238,7 @@ def _cleanup_tts_provider(provider, done=None) -> None:
         try:
             provider.cleanup()
         except Exception as exc:
-            logging.debug("TTS 프로바이더 정리 중 무시된 오류: %s", exc)
+            logging.debug("TTS 프로바이더 정리 중 무시된 Error: %s", exc)
     if done is not None:
         done.set()
 
@@ -282,12 +282,12 @@ def initialize_tts():
     old_provider = None
     old_provider_was_local = False
     cleanup_done = None
-    # 로컬 엔진끼리는 GPU 자원을 공유하므로 이전 워커 종료 후 새 워커를 만든다.
+    # 로컬 엔진끼리는 GPU 자원을 공유하므로 이전 워커 종료 later 새 워커를 만든다.
     with _TTS_INIT_LOCK:
         settings = _effective_tts_settings(ConfigManager.load_settings())
         next_signature = build_tts_signature(settings)
         if _state.fish_tts is not None and _state.tts_signature == next_signature:
-            logging.info("TTS 설정 변경 없음 - 기존 프로바이더 재사용")
+            logging.info("TTS Settings 변경 None - 기존 프로바이더 재사용")
         else:
             current_provider = _state.fish_tts
             old_provider_was_local = bool(
@@ -315,7 +315,7 @@ def initialize_tts():
                 if provider_mode == "local" and hasattr(provider, "wait_until_warmup_done"):
                     warming_provider = provider
             except (ImportError, OSError, RuntimeError, ValueError) as exc:
-                logging.error("[TTS] 기본 프로바이더 초기화 실패: %s", exc)
+                logging.error("[TTS] Default 프로바이더 initialization failed: %s", exc)
                 if _state.game_mode:
                     raise
                 _state.fish_tts = _create_fallback_tts(settings)
@@ -340,7 +340,7 @@ def initialize_tts():
             or getattr(warming_provider, "_worker_error", None)
             or "CosyVoice3 warmup did not complete"
         )
-        logging.error("[TTS] 기본 프로바이더 초기화 실패: %s", reason)
+        logging.error("[TTS] Default 프로바이더 initialization failed: %s", reason)
         old_provider = None
         with _TTS_INIT_LOCK:
             if (
@@ -390,14 +390,14 @@ def _finish_tts_setup(settings: dict) -> None:
 
 
 def reconnect_tts_signals():
-    """현재 TTS 프로바이더와 캐릭터 위젯 시그널을 다시 연결."""
+    """현재 TTS 프로바이더와 Character 위젯 시그널을 다시 연결."""
     if not _state.fish_tts or not _state.character_widget or not hasattr(_state.fish_tts, 'playback_finished'):
         return
     try:
         try:
             _state.fish_tts.playback_finished.disconnect(_handle_tts_playback_finished)
         except (AttributeError, RuntimeError, TypeError) as exc:
-            logging.debug("기존 재생 완료 시그널 해제 생략: %s", exc)
+            logging.debug("기존 play 완료 시그널 해제 생략: %s", exc)
         _state.fish_tts.playback_finished.connect(_handle_tts_playback_finished)
     except (AttributeError, RuntimeError, TypeError) as e:
         logging.debug("TTS 시그널 재연결 실패: %s", e)
@@ -424,7 +424,7 @@ def _show_listening_bubble() -> None:
 
 
 def set_listening_indicator(active: bool, text: str | None = None) -> None:
-    """음성 인식 대기 상태 말풍선을 제어한다."""
+    """speech recognition 대기 상태 말풍선을 제어한다."""
     if text:
         _state.listening_indicator_text = text
     _state.listening_indicator_active = active
@@ -439,7 +439,7 @@ def set_listening_indicator(active: bool, text: str | None = None) -> None:
 
 
 def _estimate_tts_duration(text: str) -> float:
-    """오디오 길이를 알 수 없는 TTS 제공자를 위한 보수적 재생 시간 추정."""
+    """오디오 길이를 알 수 없는 TTS Provider를 위한 보수적 play 시간 추정."""
     normalized = re.sub(r"\s+", " ", text or "").strip()
     if not normalized:
         return _tts_wake_guard_seconds()
@@ -455,16 +455,16 @@ def _estimate_tts_duration(text: str) -> float:
 
 
 def emit_plugin_event(event_name: str, payload: dict | None = None) -> None:
-    """플러그인 이벤트 버스가 준비된 경우 이벤트를 발행한다."""
+    """Plugins 이벤트 버스가 준비된 경우 이벤트를 발행한다."""
     try:
         from core.plugin_loader import get_plugin_manager
         get_plugin_manager().emit_event(event_name, payload or {})
     except Exception as exc:
-        logging.debug("플러그인 이벤트 발행 생략 (%s): %s", event_name, exc)
+        logging.debug("Plugins Event publishing skipped (%s): %s", event_name, exc)
 
 
 def extend_tts_resume_guard(duration: float | None = None) -> None:
-    """TTS 재생 예상 시간(초)과 버퍼를 반영해 웨이크워드 보호 구간을 연장한다."""
+    """TTS play 예상 시간(초)과 버퍼를 반zero해 Wake word 보호 구간을 연장한다."""
     if duration is None:
         duration = _tts_wake_guard_seconds()
     guard_duration = max(0.0, duration) + TTS_WAKE_GUARD_BUFFER_SECONDS
@@ -475,7 +475,7 @@ def extend_tts_resume_guard(duration: float | None = None) -> None:
 
 
 def _handle_tts_playback_finished() -> None:
-    """TTS 종료 후 현재 상태에 맞게 말풍선을 정리한다."""
+    """TTS 종료 later 현재 상태에 맞게 말풍선을 정리한다."""
     if is_tts_playing():
         return
     _state.tts_playback_finished_event.set()
@@ -494,7 +494,7 @@ def _handle_tts_playback_finished() -> None:
 
 
 def set_active_conversation_response(text: str) -> None:
-    """현재 재생 중인 대화 응답을 기록한다."""
+    """현재 play 중인 대화 응답을 기록한다."""
     with _state.active_response_lock:
         _state.active_conversation_response = str(text or "")
 
@@ -511,7 +511,7 @@ def _stop_active_llm_stream() -> bool:
 
 
 def stop_speaking() -> bool:
-    """재생·생성 중인 응답과 대기열을 중단한다."""
+    """play·생성 중인 응답과 대기열을 중단한다."""
     was_playing = is_tts_playing()
     turn_cancelled = False
     registry = _state.command_registry
@@ -543,7 +543,7 @@ def stop_speaking() -> bool:
                     interrupted_response,
                 )
             except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-                logging.debug("중단된 대화 기록 갱신 생략: %s", exc)
+                logging.debug("중단된 Conversation history 갱신 생략: %s", exc)
 
             assistant = _state.ai_assistant
             if hasattr(assistant, "mark_last_response_interrupted"):
@@ -553,14 +553,14 @@ def stop_speaking() -> bool:
                         interrupted_response,
                     )
                 except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
-                    logging.debug("LLM 대화 기록 갱신 생략: %s", exc)
+                    logging.debug("LLM Conversation history 갱신 생략: %s", exc)
 
     provider = _state.fish_tts
     if hasattr(provider, "stop"):
         try:
             provider.stop()
         except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            logging.debug("TTS 재생 중단 생략: %s", exc)
+            logging.debug("TTS play 중단 생략: %s", exc)
     else:
         stop_event = getattr(provider, "stop_event", None)
         if callable(getattr(stop_event, "set", None)):
@@ -662,7 +662,7 @@ def text_to_speech(
             _handle_tts_playback_finished()
         return ok
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as e:
-        logging.error("TTS 오류: %s", e)
+        logging.error("TTS Error: %s", e)
         if show_bubble and _state.character_widget:
             _handle_tts_playback_finished()
         return False
@@ -672,7 +672,7 @@ def play_cached_tts(
     text: str,
     request_cancel_event: threading.Event | None = None,
 ) -> bool:
-    """이미 합성된 Edge TTS 문구만 재생한다."""
+    """이미 합성된 Edge TTS 문구만 play한다."""
     provider = _state.fish_tts
     if not hasattr(provider, "speak_cached"):
         return False
@@ -687,12 +687,12 @@ def play_cached_tts(
             )
         )
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
-        logging.debug("TTS 캐시 문구 재생을 건너뜁니다: %s", exc)
+        logging.debug("TTS 캐시 문구 play을 건너뜁니다: %s", exc)
         return False
 
 
 def tts_wrapper(text: str, show_bubble: bool = True) -> None:
-    """TTS 재생 + 말풍선 표시 (감정 이모지 및 동기화 최적화)"""
+    """TTS play + 말풍선 표시 (감정 이모지 및 동기화 최적화)"""
     if _quiet_bubble_only_enabled():
         if show_bubble and _state.character_widget:
             _show_tts_bubble(text)
@@ -709,7 +709,7 @@ def tts_wrapper(text: str, show_bubble: bool = True) -> None:
 
 
 def is_tts_playing() -> bool:
-    """현재 TTS가 큐 대기 중, 처리 중, 또는 재생 중인지 확인"""
+    """현재 TTS가 큐 대기 중, 처리 중, 또는 play 중인지 OK"""
     if _state.tts_thread:
         if not _state.tts_thread.queue.empty():
             return True
@@ -728,7 +728,7 @@ def is_session_lock_blocked() -> bool:
 
 
 def should_pause_wake_detection(now: float | None = None) -> bool:
-    """잠금·TTS 재생 중이거나 직후 보호 구간이면 웨이크 감지를 멈춘다."""
+    """잠금·TTS play 중이거나 직later 보호 구간이면 웨이크 감지를 멈춘다."""
     if is_session_lock_blocked():
         return True
     if is_tts_playing():
@@ -832,7 +832,7 @@ def recognize_speech_helper(
         if continue_check is not None and not continue_check():
             return None
         if not text:
-            logging.warning("음성 인식 불가")
+            logging.warning("speech recognition 불가")
             return
         text = text.strip()
         if len(text) < 2:
@@ -850,13 +850,13 @@ def recognize_speech_helper(
         logging.info("인식된 텍스트 수신 (%d자)", len(text))
         signal.emit(text)
     except sr.WaitTimeoutError:
-        logging.debug("음성 입력 시간이 초과되었습니다.")
+        logging.debug("음성 Input 시간이 초과되었습니다.")
     except sr.UnknownValueError:
-        logging.warning("음성 인식 불가")
+        logging.warning("speech recognition 불가")
     except (sr.RequestError, OSError, RuntimeError, ValueError) as e:
         if audio_capture_active:
             raise
-        logging.error("음성 인식 오류: %s", e)
+        logging.error("speech recognition Error: %s", e)
     return None
 
 
@@ -1009,7 +1009,7 @@ def disable_game_mode():
     def _reinit():
         try:
             if not _LOCAL_TTS_CLEANUP_DONE.wait(timeout=_LOCAL_TTS_CLEANUP_WAIT_SECONDS):
-                logging.warning("로컬 TTS 정리 대기 시간이 지나 복원을 계속합니다")
+                logging.warning("Local TTS 정리 대기 시간이 지나 복원을 계속합니다")
             initialize_tts()
         except Exception as e:
             logging.error("TTS 복원 실패: %s", e)
@@ -1027,7 +1027,7 @@ def is_game_mode() -> bool:
 
 
 # ── 하위 호환 모듈 수준 별칭 ──────────────────────────────────────────────────
-# 이전에 모듈 전역으로 노출됐던 이름들. 같은 객체를 가리키므로 변경이 양쪽에 반영됨.
-learning_mode = _state.learning_mode          # dict, 재할당 없음 → 안전한 별칭
-_tts_init_event = _state.tts_init_event       # threading.Event, 재할당 없음 → 안전한 별칭
+# 이전에 모듈 전역으로 노출됐던 이름들. 같은 객체를 가리키므로 변경이 양쪽에 반zero됨.
+learning_mode = _state.learning_mode          # dict, 재할당 None → 안전한 별칭
+_tts_init_event = _state.tts_init_event       # threading.Event, 재할당 None → 안전한 별칭
 

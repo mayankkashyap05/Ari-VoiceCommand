@@ -551,12 +551,12 @@ class WebToolsTests(unittest.TestCase):
             browser = _TempBrowser(selector_path=selector_path, download_dir=tmp)
             browser.remember_action_plan(
                 "example.com",
-                "로그인 후 다운로드",
+                "로그인 later 다운로드",
                 [{"type": "click", "selectors": ["#download"]}],
             )
 
             reloaded = _TempBrowser(selector_path=selector_path, download_dir=tmp)
-            remembered = reloaded.get_action_plan("example.com", "로그인 후 다운로드")
+            remembered = reloaded.get_action_plan("example.com", "로그인 later 다운로드")
 
             self.assertEqual(len(remembered), 1)
             self.assertEqual(remembered[0]["type"], "click")
@@ -567,7 +567,7 @@ class WebToolsTests(unittest.TestCase):
             browser = _TempBrowser(selector_path=selector_path, download_dir=tmp)
             browser.remember_action_plan(
                 "example.com",
-                "로그인 후 다운로드",
+                "로그인 later 다운로드",
                 [{"type": "click", "selectors": ["#download"]}],
             )
 
@@ -582,17 +582,17 @@ class WebToolsTests(unittest.TestCase):
             browser = _TempBrowser(selector_path=selector_path, download_dir=tmp)
             browser.remember_action_plan(
                 "example.com",
-                "로그인 후 다운로드",
+                "로그인 later 다운로드",
                 [{"type": "click", "selectors": ["#page-download"]}],
                 page_key="example.com|downloads",
             )
             browser.remember_action_plan(
                 "example.com",
-                "로그인 후 다운로드",
+                "로그인 later 다운로드",
                 [{"type": "click", "selectors": ["#generic-download"]}],
             )
 
-            remembered = browser.get_action_plan("example.com", "로그인 후 다운로드", page_key="example.com|downloads")
+            remembered = browser.get_action_plan("example.com", "로그인 later 다운로드", page_key="example.com|downloads")
 
             self.assertEqual(remembered[0]["selectors"][0], "#page-download")
 
@@ -602,7 +602,7 @@ class WebToolsTests(unittest.TestCase):
             browser = _TempBrowser(selector_path=selector_path, download_dir=tmp)
             self.assertFalse(browser._should_remember_action_plan(["성공: click", "실패: type"]))
 
-            remembered = browser.get_action_plan("example.com", "로그인 후 다운로드")
+            remembered = browser.get_action_plan("example.com", "로그인 later 다운로드")
             self.assertEqual(remembered, [])
 
     def test_wait_for_url_contains_matches_driver_state(self):
@@ -714,7 +714,7 @@ class WebToolsTests(unittest.TestCase):
                 "https://example.com/start",
                 [{"type": "click", "selectors": ["#go"]}],
             )
-            self.assertIn("오류: click", result)
+            self.assertIn("Error: click", result)
             self.assertEqual(browser.driver.visited, ["https://example.com/start", "about:blank"])
 
     def test_execute_browser_action_supports_wait_selector(self):

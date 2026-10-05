@@ -36,7 +36,7 @@ class OllamaModelOption:
 
 
 COMMON_OLLAMA_MODELS: tuple[OllamaModelOption, ...] = (
-    OllamaModelOption("llama3.2:3b", "Llama 3.2 3B", "가벼운 기본 채팅용"),
+    OllamaModelOption("llama3.2:3b", "Llama 3.2 3B", "가벼운 Default 채팅용"),
     OllamaModelOption("qwen3:4b", "Qwen 3 4B", "한국어 포함 다국어 균형형"),
     OllamaModelOption("gemma3:4b", "Gemma 3 4B", "단일 GPU/로컬 환경용 균형형"),
     OllamaModelOption("deepseek-r1:8b", "DeepSeek-R1 8B", "추론 성능 중심"),
@@ -69,13 +69,13 @@ def normalize_models(models: Iterable[str]) -> list[str]:
 
 
 def _configured_ollama_executable() -> str | None:
-    """설정에서 사용자가 지정한 ollama.exe 경로를 읽는다. 파일이 없거나 이름이 다르면 None."""
+    """Settings에서 사용자가 지정한 ollama.exe 경로를 읽는다. 파일이 없거나 이름이 다르면 None."""
     try:
         from core.config_manager import ConfigManager
 
         configured = str(ConfigManager.get(OLLAMA_EXECUTABLE_SETTING, "") or "").strip()
     except Exception as exc:
-        logger.debug("Ollama 실행 파일 설정 조회 실패: %s", exc)
+        logger.debug("Ollama 실행 파일 Settings 조회 실패: %s", exc)
         return None
     if not configured or not os.path.isfile(configured):
         return None
@@ -173,14 +173,14 @@ def _set_models_env(models_dir: str, log: Callable[[str], None]) -> None:
     current = os.environ.get("OLLAMA_MODELS", "").strip()
     if os.path.normcase(current) == os.path.normcase(models_dir):
         return
-    log(_("모델 저장 경로 설정: {models_dir}", models_dir=models_dir))
+    log(_("모델 Save 경로 Settings: {models_dir}", models_dir=models_dir))
     try:
         import winreg
 
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment", 0, winreg.KEY_SET_VALUE) as key:
             winreg.SetValueEx(key, "OLLAMA_MODELS", 0, winreg.REG_EXPAND_SZ, models_dir)
     except Exception as exc:
-        logger.debug("OLLAMA_MODELS 레지스트리 설정 생략: %s", exc)
+        logger.debug("OLLAMA_MODELS 레지스트리 settings skipped: %s", exc)
     os.environ["OLLAMA_MODELS"] = models_dir
 
 
@@ -193,7 +193,7 @@ def _server_ready(base_url: str) -> bool:
 
 
 def list_installed_models(base_url: str = DEFAULT_OLLAMA_BASE_URL) -> list[str] | None:
-    """로컬 Ollama 서버에 설치된 모델 이름을 반환한다. 서버가 응답하지 않으면 None."""
+    """로컬 Ollama 서버에 Installed models 이름을 반환한다. 서버가 응답하지 않으면 None."""
     try:
         with _safe_open_url(f"{base_url}/api/tags", timeout=2.0) as response:
             raw = response.read().decode("utf-8", errors="replace").strip()
@@ -268,11 +268,11 @@ def install_ollama(
         _download_installer(installer_path, logger)
         _run_installer(installer_path, target_install_dir, logger)
     else:
-        logger(_("Ollama가 이미 설치되어 있어 설치 단계는 건너뜁니다."))
+        logger(_("Ollama가 이미 설치되어 있어 설치 steps는 건너뜁니다."))
 
     ollama_exe = find_ollama_executable()
     if not ollama_exe:
-        raise RuntimeError(_("설치 후에도 ollama.exe를 찾지 못했습니다."))
+        raise RuntimeError(_("설치 later에도 ollama.exe를 찾지 못했습니다."))
 
     ensure_ollama_server(ollama_exe, DEFAULT_OLLAMA_BASE_URL, logger)
     installed_models = pull_models(

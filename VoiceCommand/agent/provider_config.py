@@ -1,4 +1,4 @@
-# 서비스가 끝난 모델 이름. 설정에 저장돼 있으면 뒤의 모델로 바꿔 쓴다.
+# 서비스가 끝난 모델 이름. Settings에 Save돼 있으면 뒤의 모델로 바꿔 쓴다.
 _RETIRED_MODELS = {
     "nvidia/nemotron-3-super-120b-a12b": "nvidia/nemotron-3-ultra-550b-a55b",
 }
@@ -15,7 +15,7 @@ _PROVIDER_CONFIG = {
         "default_model": "openai/gpt-oss-120b",
     },
     "openai": {
-        "base_url": None,  # openai SDK 기본값 사용
+        "base_url": None,  # openai SDK Default값 사용
         "label": "OpenAI",
         "default_model": "gpt-4o",
     },
@@ -61,7 +61,7 @@ _KEY_MAP = {
 
 
 def get_provider_configs(settings):
-    """기본 제공자와 검증된 사용자 제공자 설정을 반환한다."""
+    """Default 제공자와 검증된 사용자 제공자 Settings을 반환한다."""
     from core.custom_llm_providers import get_custom_providers
 
     configs = {provider: dict(config) for provider, config in _PROVIDER_CONFIG.items()}
