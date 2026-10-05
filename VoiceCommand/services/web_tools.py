@@ -1,0 +1,858 @@
+"""
+웹 도구 모음 (Web Tools) — Phase 2.1 고도화
+인터넷 검색, 페이지 조회 및 Selenium 기반의 스마트 브라우저 워크플로우를 제공한다.
+"""
+import html
+import atexit
+import logging
+import os
+import json
+import re
+import shutil
+import tempfile
+import time
+import threading
+import urllib.parse
+import urllib.request
+from typing import Optional, List, Dict, Any
+
+from i18n.translator import _
+from core.safe_network import UnsafeUrlError, is_public_http_url, read_limited, safe_urlopen, validate_browser_session, validate_browser_url, validate_public_http_url
+
+from agent.automation_plan_utils import (
+    find_similar_goal_key,
+    normalize_goal_hint,
+    normalize_similarity_token,
+    tokenize_goal_hint,
+    token_overlap_score,
+)
+from services.dom_analyser import analyse_dom, suggest_next_actions
+
+_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    )
+}
+def _runtime_fallback_path(filename: str) -> str:
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    runtime_root = os.path.join(project_root, ".ari_runtime")
+    os.makedirs(runtime_root, exist_ok=True)
+    return os.path.join(runtime_root, filename)
+
+
+def _is_safe_http_url(url: str) -> bool:
+    return is_public_http_url(url)
+
+
+def _create_search_client():
+    """검색 클라이언트를 최신 패키지명 우선으로 로드한다."""
+    import_errors = []
+    try:
+        from ddgs import DDGS
+
+        return DDGS()
+    except Exception as exc:
+        import_errors.append(f"ddgs: {exc}")
+    try:
+        from duckduckgo_search import DDGS
+
+        return DDGS()
+    except Exception as exc:
+        import_errors.append(f"duckduckgo_search: {exc}")
+    raise ImportError("; ".join(import_errors) or "DDGS client unavailable")
+
+# ── DuckDuckGo 검색 및 단순 Fetch ─────────────────────────────────────────────
+
+def web_search(query: str, max_results: int = 5) -> str:
+    """인터넷 검색 후 결과를 텍스트로 반환한다."""
+    try:
+        with _create_search_client() as ddgs:
+            results = list(ddgs.text(query, max_results=max_results))
+        if not results:
+            return _("검색 결과가 없습니다.")
+        
+        lines = []
+        for i, r in enumerate(results, 1):
+            lines.append(f"[{i}] {r.get('title', _('제목 없음'))}")
+            lines.append(f"    {r.get('body', '')[:200]}")
+            lines.append(f"    URL: {r.get('href', '')}")
+        return "\n".join(lines)
+    except Exception as e:
+        logging.error("[WebTools] 검색 오류: %s", e)
+        return _("검색 중 오류 발생: {error}", error=e)
+
+def web_fetch(url: str, max_chars: int = 3000) -> str:
+    """URL의 본문 텍스트를 추출한다."""
+    try:
+        validate_public_http_url(url)
+        req = urllib.request.Request(url, headers=_HEADERS)
+        with safe_urlopen(req, timeout=10) as resp:
+            content_type = resp.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+            if content_type and not (
+                content_type.startswith("text/")
+                or content_type in {"application/xhtml+xml", "application/json", "application/xml"}
+                or content_type.endswith(("+json", "+xml"))
+            ):
+                return _("텍스트가 아닌 응답입니다: {content_type}", content_type=content_type)
+            raw = read_limited(resp, 2 * 1024 * 1024).decode("utf-8", errors="replace")
+        
+        # 스크립트, 스타일, 태그 제거
+        text = re.sub(r'<(script|style)[^>]*>.*?</\1>', '', raw, flags=re.DOTALL | re.I)
+        text = re.sub(r'<[^>]+>', ' ', text)
+        text = html.unescape(text)
+        return re.sub(r'\s+', ' ', text).strip()[:max_chars]
+    except Exception as e:
+        if isinstance(e, UnsafeUrlError):
+            return _("허용되지 않은 URL입니다: {reason}", reason=e)
+        return _("페이지 로드 실패: {error}", error=e)
+
+# ── Selenium 스마트 브라우저 (Phase 2.1) ───────────────────────────────────────
+
+_PARTIAL_DOWNLOAD_SUFFIXES = (".crdownload", ".part", ".tmp")
+_DOWNLOAD_FOLDER_PREFIX = ".ari-browser-"
+
+
+class SmartBrowser:
+    """상태 인식 및 셀렉터 전략을 지원하는 지능형 브라우저 제어기."""
+    
+    def __init__(self, headless: bool = False, download_dir: Optional[str] = None):
+        self.driver = None
+        self.headless = headless
+        self.download_dir = download_dir or os.path.join(os.path.expanduser("~"), "Downloads")
+        self._browser_download_dir = self.download_dir
+        self._download_isolated = False
+        self._download_lock = threading.Lock()
+        # 전용 폴더에서 옮겨 둔 파일. wait_for_download가 순서대로 돌려준다.
+        self._pending_downloads: List[str] = []
+        atexit.register(self._collect_downloads)
+        self._selector_history: Dict[str, Dict[str, str]] = self._load_selector_history()
+        self._action_plan_history: Dict[str, Dict[str, List[Dict[str, Any]]]] = self._load_action_plan_history()
+        self._last_action_summary = ""
+        self._browser_start_url = ""
+        self._download_baseline: Optional[Dict[str, tuple[int, int]]] = None
+
+    def _ensure_driver(self):
+        if self.driver:
+            return
+        try:
+            from selenium import webdriver
+            from selenium.webdriver.chrome.options import Options
+            from selenium.webdriver.chrome.service import Service
+            from webdriver_manager.chrome import ChromeDriverManager
+            
+            try:
+                os.makedirs(self.download_dir, exist_ok=True)
+                self._recover_stale_downloads()
+                self._browser_download_dir = tempfile.mkdtemp(
+                    prefix=_DOWNLOAD_FOLDER_PREFIX, dir=self.download_dir
+                )
+                self._download_isolated = True
+            except OSError as exc:
+                logging.warning("[SmartBrowser] 전용 다운로드 폴더 생성 실패, 기본 폴더 사용: %s", exc)
+                self._browser_download_dir = self.download_dir
+                self._download_isolated = False
+
+            opts = Options()
+            if self.headless:
+                opts.add_argument("--headless=new")
+            opts.add_experimental_option("prefs", {"download.default_directory": self._browser_download_dir})
+            
+            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
+            self._download_baseline = self._snapshot_downloads()
+            if self._download_isolated:
+                threading.Thread(
+                    target=self._collect_loop,
+                    args=(self._browser_download_dir,),
+                    name="BrowserDownloadCollector",
+                    daemon=True,
+                ).start()
+        except Exception as e:
+            logging.error("[SmartBrowser] 드라이버 초기화 실패: %s", e)
+            # 브라우저가 뜨지 않았으면 방금 만든 빈 전용 폴더를 남기지 않는다.
+            self._flush_browser_downloads()
+            raise
+
+    def _validate_current_page(self):
+        driver = getattr(self, "driver", None)
+        if driver:
+            start_url = getattr(self, "_browser_start_url", "") or str(getattr(driver, "current_url", "") or "")
+            validate_browser_session(driver, start_url)
+
+    def navigate_and_action(self, url: str, actions: List[Dict[str, Any]], goal_hint: str = "") -> str:
+        """지정된 URL로 이동하여 일련의 작업을 수행한다.
+        actions 예: [{"type": "click", "selectors": ["#login", ".btn-submit"]}, {"type": "type", "text": "...", "selectors": ["input[name='q']"]}]
+        """
+        validate_browser_url(url)
+        self._ensure_driver()
+        # 명시적으로 지정한 이동은 그 주소가 새 기준이 된다.
+        self._browser_start_url = url
+        self._begin_download_scope()
+        self.driver.get(url)
+        self._validate_current_page()
+
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+
+        results = []
+        wait = WebDriverWait(self.driver, 15)
+
+        current_domain = urllib.parse.urlparse(url).netloc or "global"
+        page_key = self._page_key(url)
+        plan_key = self._normalize_plan_key(goal_hint)
+        if not actions and plan_key:
+            remembered_actions = self.get_action_plan(current_domain, plan_key, page_key=page_key)
+            if remembered_actions:
+                actions = remembered_actions
+
+        for action in actions:
+            try:
+                results.append(self._execute_browser_action(action, current_domain, wait, By, EC))
+            except UnsafeUrlError as e:
+                results.append(f"오류: {action.get('type')} ({str(e)[:50]})")
+                break
+            except Exception as e:
+                act_type = action.get("type")
+                results.append(f"오류: {act_type} ({str(e)[:50]})")
+
+        self._last_action_summary = " | ".join(results)
+        if plan_key and actions and self._should_remember_action_plan(results):
+            self.remember_action_plan(current_domain, plan_key, actions, page_key=page_key)
+        return self._last_action_summary
+
+    def _execute_browser_action(self, action: Dict[str, Any], current_domain: str, wait, by_module, ec_module) -> str:
+        self._validate_current_page()
+        try:
+            result = self._execute_browser_action_unchecked(action, current_domain, wait, by_module, ec_module)
+        finally:
+            self._validate_current_page()
+        return result
+
+    def _execute_browser_action_unchecked(self, action: Dict[str, Any], current_domain: str, wait, by_module, ec_module) -> str:
+        act_type = action.get("type")
+        action_key = action.get("key") or action.get("name") or act_type or "action"
+
+        if act_type == "download_wait":
+            downloaded = self.wait_for_download(timeout=float(action.get("timeout", 30.0)))
+            return f"다운로드 완료: {downloaded}"
+        if act_type == "wait_url":
+            fragment = str(action.get("contains", "")).strip()
+            matched = self._wait_for_url_contains(fragment, timeout=float(action.get("timeout", 15.0)))
+            return f"성공: wait_url({matched})" if matched else f"실패: wait_url({fragment})"
+        if act_type == "wait_title":
+            fragment = str(action.get("contains", "")).strip()
+            matched = self._wait_for_title_contains(fragment, timeout=float(action.get("timeout", 15.0)))
+            return f"성공: wait_title({matched})" if matched else f"실패: wait_title({fragment})"
+        if act_type == "read_title":
+            return f"제목: {getattr(self.driver, 'title', '')[:120]}"
+        if act_type == "read_url":
+            return f"URL: {getattr(self.driver, 'current_url', '')[:200]}"
+        if act_type == "read_links":
+            selector = action.get("selector", "a")
+            links = self.driver.find_elements(by_module.CSS_SELECTOR, selector)
+            self._validate_current_page()
+            hrefs = [link.get_attribute("href") for link in links[: int(action.get("limit", 5))]]
+            return "링크: " + ", ".join([href for href in hrefs if href])
+        if act_type == "wait_selector":
+            _, matched_selector = self._find_element_for_action(action, current_domain, action_key, wait, by_module, ec_module)
+            return f"성공: wait_selector({matched_selector})" if matched_selector else "실패: wait_selector"
+
+        found_el, matched_selector = self._find_element_for_action(action, current_domain, action_key, wait, by_module, ec_module)
+        if not found_el:
+            return f"실패: {act_type} (셀렉터를 찾을 수 없음)"
+
+        if act_type == "click":
+            wait.until(ec_module.element_to_be_clickable((by_module.CSS_SELECTOR, matched_selector))).click()
+            self._validate_current_page()
+            return "성공: click"
+        if act_type == "click_text":
+            found_el.click()
+            self._validate_current_page()
+            return "성공: click_text"
+        if act_type == "type":
+            found_el.clear()
+            self._validate_current_page()
+            found_el.send_keys(action.get("text", ""))
+            self._validate_current_page()
+            return "성공: type"
+        if act_type == "wait":
+            wait.until(ec_module.presence_of_element_located((by_module.CSS_SELECTOR, matched_selector)))
+            self._validate_current_page()
+            return "성공: wait"
+        if act_type == "read":
+            return f"읽기: {found_el.text[:120]}"
+        return f"건너뜀: {act_type or 'unknown'}"
+
+    def _find_element_for_action(self, action: Dict[str, Any], current_domain: str, action_key: str, wait, by_module, ec_module):
+        self._validate_current_page()
+        selectors = self._ordered_selectors(current_domain, action_key, action.get("selectors", []))
+        found_el = None
+        matched_selector = ""
+        for sel in selectors:
+            try:
+                found_el = wait.until(ec_module.presence_of_element_located((by_module.CSS_SELECTOR, sel)))
+                self._validate_current_page()
+                if found_el:
+                    matched_selector = sel
+                    self._remember_selector(current_domain, action_key, sel)
+                    break
+            except UnsafeUrlError:
+                raise
+            except Exception as exc:
+                logging.debug("[SmartBrowser] 셀렉터 실패: %s (%s)", sel, exc)
+        if found_el:
+            return found_el, matched_selector
+
+        text_query = str(action.get("text_contains") or action.get("text") or "").strip()
+        if text_query:
+            text_element = self._find_element_by_text(text_query)
+            if text_element is not None:
+                return text_element, f"text:{text_query}"
+        return found_el, matched_selector
+
+    def _find_element_by_text(self, text_query: str):
+        self._validate_current_page()
+        if not self.driver or not text_query:
+            return None
+        try:
+            from selenium.webdriver.common.by import By
+        except Exception as exc:
+            logging.debug("[SmartBrowser] selenium By 임포트 실패: %s", exc)
+            return None
+        variants = [text_query]
+        lowered = text_query.lower()
+        if lowered == "다운로드":
+            variants.extend(["download", "다운받기"])
+        elif lowered == "로그인":
+            variants.extend(["login", "sign in", "log in"])
+
+        for variant in variants:
+            escaped = variant.replace("'", "\\'")
+            xpath = (
+                "//*[self::a or self::button or self::span or self::div]"
+                f"[contains(translate(normalize-space(.), "
+                "'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), "
+                f"'{escaped.lower()}')]"
+            )
+            try:
+                elements = self.driver.find_elements(By.XPATH, xpath)
+                self._validate_current_page()
+            except UnsafeUrlError:
+                raise
+            except Exception as exc:
+                logging.debug("[SmartBrowser] 텍스트 요소 검색 실패: %s (%s)", variant, exc)
+                continue
+            for element in elements:
+                try:
+                    self._validate_current_page()
+                    if element.is_displayed():
+                        self._validate_current_page()
+                        return element
+                except Exception as exc:
+                    logging.debug("[SmartBrowser] 요소 표시 상태 확인 실패: %s", exc)
+                    continue
+        return None
+
+    def _wait_for_url_contains(self, fragment: str, timeout: float = 15.0) -> str:
+        target = (fragment or "").strip().lower()
+        if not self.driver or not target:
+            return ""
+        end = time.time() + timeout
+        while time.time() < end:
+            self._validate_current_page()
+            current_url = str(getattr(self.driver, "current_url", "") or "")
+            if target in current_url.lower():
+                return current_url
+            time.sleep(0.3)
+        return ""
+
+    def _wait_for_title_contains(self, fragment: str, timeout: float = 15.0) -> str:
+        target = (fragment or "").strip().lower()
+        if not self.driver or not target:
+            return ""
+        end = time.time() + timeout
+        while time.time() < end:
+            self._validate_current_page()
+            title = str(getattr(self.driver, "title", "") or "")
+            if target in title.lower():
+                return title
+            time.sleep(0.3)
+        return ""
+
+    def login_and_run(
+        self,
+        url: str,
+        login_action: Dict[str, Any],
+        followup_actions: Optional[List[Dict[str, Any]]] = None,
+        goal_hint: str = "",
+        replan_callback=None,
+        max_replan_rounds: int = 2,
+    ) -> Dict[str, Any]:
+        """로그인 후 DOM 상태를 분석하고 후속 액션을 동적으로 실행한다."""
+        validate_browser_url(url)
+        self._ensure_driver()
+        # 명시적으로 지정한 이동은 그 주소가 새 기준이 된다.
+        self._browser_start_url = url
+        self._begin_download_scope()
+        self.driver.get(url)
+        self._validate_current_page()
+        action_results: List[Dict[str, Any]] = []
+        suggested_followups: List[Dict[str, Any]] = []
+        replan_count = 0
+
+        current_domain = urllib.parse.urlparse(url).netloc or "global"
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        wait = WebDriverWait(self.driver, 15)
+
+        login_result = self._execute_browser_action(login_action, current_domain, wait, By, EC)
+        action_results.append({"action": login_action, "result": login_result})
+
+        self._validate_current_page()
+        dom_state = analyse_dom(self.driver)
+        if not dom_state.logged_in and not dom_state.login_detected:
+            logging.warning("[SmartBrowser] 로그인 상태 확인이 불확실합니다.")
+        elif not dom_state.logged_in and dom_state.login_detected:
+            return {
+                "success": False,
+                "dom_state": dom_state.__dict__,
+                "action_results": action_results,
+                "suggested_followups": [],
+                "replan_count": replan_count,
+                "error": _("로그인 완료를 감지하지 못했습니다."),
+            }
+
+        suggested_followups = suggest_next_actions(dom_state, goal_hint)
+        actions = list(followup_actions or []) or list(suggested_followups)
+
+        for action in actions:
+            result = self._execute_browser_action(action, current_domain, wait, By, EC)
+            action_results.append({"action": action, "result": result})
+            self._validate_current_page()
+            dom_state = analyse_dom(self.driver)
+            if dom_state.alerts and any(token in " ".join(dom_state.alerts).lower() for token in ("error", "오류", "실패")):
+                if replan_callback is None or replan_count >= max_replan_rounds:
+                    return {
+                        "success": False,
+                        "dom_state": dom_state.__dict__,
+                        "action_results": action_results,
+                        "suggested_followups": suggested_followups,
+                        "replan_count": replan_count,
+                        "error": _("DOM 에러 상태 감지"),
+                    }
+                replanned = replan_callback(dom_state, goal_hint) or []
+                replan_count += 1
+                for extra_action in replanned:
+                    extra_result = self._execute_browser_action(extra_action, current_domain, wait, By, EC)
+                    action_results.append({"action": extra_action, "result": extra_result})
+                    self._validate_current_page()
+                    dom_state = analyse_dom(self.driver)
+
+        self._last_action_summary = " | ".join(item["result"] for item in action_results if item.get("result"))
+        return {
+            "success": True,
+            "dom_state": dom_state.__dict__,
+            "action_results": action_results,
+            "suggested_followups": suggested_followups,
+            "replan_count": replan_count,
+        }
+
+    def get_state(self, include_dom_analysis: bool = False) -> Dict[str, Any]:
+        """현재 브라우저 상태를 요약한다."""
+        if not self.driver:
+            state = {
+                "ready": False,
+                "current_url": "",
+                "title": "",
+                "download_dir": self.download_dir,
+                "page_fingerprint": "",
+                "selector_strategies": self._selector_history,
+                "action_plan_strategies": self._action_plan_history,
+                "last_action_summary": self._last_action_summary,
+            }
+            if include_dom_analysis:
+                state["dom_analysis"] = {}
+                state["dom_suggestions"] = []
+            return state
+
+        self._validate_current_page()
+        current_url = getattr(self.driver, "current_url", "")
+        state = {
+            "ready": True,
+            "current_url": current_url,
+            "title": getattr(self.driver, "title", ""),
+            "download_dir": self.download_dir,
+            "page_fingerprint": self._page_key(current_url),
+            "selector_strategies": self._selector_history,
+            "action_plan_strategies": self._action_plan_history,
+            "last_action_summary": self._last_action_summary,
+        }
+        if include_dom_analysis:
+            try:
+                self._validate_current_page()
+                dom_state = analyse_dom(self.driver)
+                state["dom_analysis"] = dom_state.__dict__
+                state["dom_suggestions"] = suggest_next_actions(dom_state)
+            except Exception as exc:
+                logging.debug("[SmartBrowser] DOM 분석 생략: %s", exc)
+        return state
+
+    def _snapshot_downloads(self) -> Dict[str, tuple[int, int]]:
+        """다운로드 폴더의 파일별 (크기, 수정 시각)을 기록한다."""
+        snapshot: Dict[str, tuple[int, int]] = {}
+        try:
+            names = os.listdir(self.download_dir)
+        except OSError:
+            return snapshot
+        for name in names:
+            path = os.path.join(self.download_dir, name)
+            try:
+                if os.path.isfile(path):
+                    stat = os.stat(path)
+                    snapshot[path] = (stat.st_size, stat.st_mtime_ns)
+            except OSError:
+                continue
+        return snapshot
+
+    def wait_for_download(self, timeout: float = 30.0, stable_seconds: float = 1.5) -> str:
+        """다운로드 완료 파일을 감지해 경로를 반환한다."""
+        end = time.time() + timeout
+        if getattr(self, "_download_isolated", False):
+            # 전용 폴더에는 이 브라우저가 받은 파일만 있어, 다른 앱이 받은 파일을 결과로 돌려주지 않는다.
+            while time.time() < end:
+                self._validate_current_page()
+                self._collect_downloads()
+                with self._download_lock:
+                    if self._pending_downloads:
+                        return self._pending_downloads.pop(0)
+                time.sleep(0.5)
+            raise TimeoutError(_("다운로드 완료 파일을 찾지 못했습니다."))
+
+        # 전용 폴더를 만들지 못했을 때의 방식이다. 기준은 페이지를 열기 직전의 폴더 상태다.
+        # 동작마다 다시 찍으면 앞 동작이 받은 파일을 놓치고, 대기를 시작할 때 찍으면 이미 끝난 빠른 다운로드를 놓친다.
+        initial_files = getattr(self, "_download_baseline", None)
+        if initial_files is None:
+            initial_files = self._snapshot_downloads()
+        last_seen: Dict[str, tuple[tuple[int, int], float]] = {}
+        while time.time() < end:
+            self._validate_current_page()
+            try:
+                entries = [
+                    os.path.join(self.download_dir, name)
+                    for name in os.listdir(self.download_dir)
+                ]
+            except FileNotFoundError:
+                entries = []
+
+            for path in entries:
+                if not os.path.isfile(path):
+                    continue
+                if os.path.basename(path).lower().endswith(_PARTIAL_DOWNLOAD_SUFFIXES):
+                    continue
+                try:
+                    stat = os.stat(path)
+                except OSError:
+                    continue
+                state = (stat.st_size, stat.st_mtime_ns)
+                if initial_files.get(path) == state:
+                    continue
+                # 이번 실행 전에 받기 시작한 파일은 결과로 돌려주지 않는다.
+                if stat.st_ctime < getattr(self, "_download_scope_started", 0.0):
+                    continue
+                prev = last_seen.get(path)
+                now = time.time()
+                if prev and prev[0] == state:
+                    if now - prev[1] >= stable_seconds:
+                        # 돌려준 파일만 기준에 넣어, 같은 동작의 다른 파일은 다음 대기에서 반환된다.
+                        self._download_baseline = {**initial_files, path: state}
+                        return path
+                else:
+                    last_seen[path] = (state, now)
+            time.sleep(0.5)
+        raise TimeoutError(_("다운로드 완료 파일을 찾지 못했습니다."))
+
+    def _ordered_selectors(self, domain: str, action_key: str, selectors: List[str]) -> List[str]:
+        remembered = self._selector_history.get(domain, {}).get(action_key)
+        if remembered:
+            return [remembered, *[sel for sel in selectors if sel != remembered]]
+        return selectors
+
+    def _remember_selector(self, domain: str, action_key: str, selector: str) -> None:
+        self._selector_history.setdefault(domain, {})[action_key] = selector
+        self._save_selector_history()
+
+    def _selector_history_path(self) -> str:
+        try:
+            from core.resource_manager import ResourceManager
+            return ResourceManager.get_writable_path("browser_selector_history.json")
+        except Exception as exc:
+            logging.debug("[SmartBrowser] selector history 경로 조회 실패, 런타임 폴백 사용: %s", exc)
+            return _runtime_fallback_path("browser_selector_history.json")
+
+    def _action_plan_history_path(self) -> str:
+        try:
+            from core.resource_manager import ResourceManager
+            return ResourceManager.get_writable_path("browser_action_plans.json")
+        except Exception as exc:
+            logging.debug("[SmartBrowser] action plan 경로 조회 실패, 런타임 폴백 사용: %s", exc)
+            return _runtime_fallback_path("browser_action_plans.json")
+
+    def _load_selector_history(self) -> Dict[str, Dict[str, str]]:
+        path = self._selector_history_path()
+        if not os.path.exists(path):
+            return {}
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
+            if isinstance(data, dict):
+                return {
+                    str(domain): {str(k): str(v) for k, v in (mapping or {}).items()}
+                    for domain, mapping in data.items()
+                }
+        except Exception as e:
+            logging.warning("[SmartBrowser] 셀렉터 히스토리 로드 실패: %s", e)
+        return {}
+
+    def _save_selector_history(self) -> None:
+        path = self._selector_history_path()
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(self._selector_history, handle, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logging.warning("[SmartBrowser] 셀렉터 히스토리 저장 실패: %s", e)
+
+    def _load_action_plan_history(self) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
+        path = self._action_plan_history_path()
+        if not os.path.exists(path):
+            return {}
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                data = json.load(handle)
+            if isinstance(data, dict):
+                normalized: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+                for domain, mapping in data.items():
+                    if not isinstance(mapping, dict):
+                        continue
+                    normalized[str(domain)] = {}
+                    for key, actions in mapping.items():
+                        if isinstance(actions, list):
+                            normalized[str(domain)][str(key)] = [action for action in actions if isinstance(action, dict)]
+                return normalized
+        except Exception as e:
+            logging.warning("[SmartBrowser] 액션 플랜 로드 실패: %s", e)
+        return {}
+
+    def _save_action_plan_history(self) -> None:
+        path = self._action_plan_history_path()
+        try:
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as handle:
+                json.dump(self._action_plan_history, handle, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logging.warning("[SmartBrowser] 액션 플랜 저장 실패: %s", e)
+
+    def _normalize_plan_key(self, goal_hint: str) -> str:
+        return normalize_goal_hint(goal_hint)
+
+    def _should_remember_action_plan(self, results: List[str]) -> bool:
+        return (
+            bool(results)
+            and any(item.startswith("성공:") or item.startswith("다운로드 완료:") for item in results)
+            and not any(item.startswith(("실패:", "오류:")) for item in results)
+        )
+
+    def _tokenize_plan_key(self, key: str) -> set[str]:
+        return tokenize_goal_hint(key)
+
+    def _normalize_similarity_token(self, token: str) -> str:
+        return normalize_similarity_token(token)
+
+    def _token_overlap_score(self, left: set[str], right: set[str]) -> float:
+        return token_overlap_score(left, right)
+
+    def _find_similar_plan_key(self, domain: str, goal_hint: str) -> str:
+        plan_key = self._normalize_plan_key(goal_hint)
+        if not domain or not plan_key:
+            return ""
+        domain_plans = self._action_plan_history.get(domain, {})
+        return find_similar_goal_key(plan_key, domain_plans)
+
+    def remember_action_plan(self, domain: str, goal_hint: str, actions: List[Dict[str, Any]], page_key: str = "") -> None:
+        plan_key = self._normalize_plan_key(goal_hint)
+        if not domain or not plan_key or not actions:
+            return
+        cleaned_actions = [{str(k): v for k, v in action.items()} for action in actions if isinstance(action, dict)]
+        if not cleaned_actions:
+            return
+        domain_bucket = self._action_plan_history.setdefault(domain, {})
+        domain_bucket[plan_key] = cleaned_actions
+        if page_key:
+            domain_bucket[f"{page_key}::{plan_key}"] = cleaned_actions
+        self._save_action_plan_history()
+
+    def get_action_plan(self, domain: str, goal_hint: str, page_key: str = "") -> List[Dict[str, Any]]:
+        plan_key = self._normalize_plan_key(goal_hint)
+        if not domain or not plan_key:
+            return []
+        domain_plans = self._action_plan_history.get(domain, {})
+        if page_key:
+            page_plan_key = f"{page_key}::{plan_key}"
+            remembered = domain_plans.get(page_plan_key)
+            if remembered:
+                return list(remembered)
+        remembered = domain_plans.get(plan_key)
+        if remembered:
+            return list(remembered)
+        similar_key = self._find_similar_plan_key(domain, goal_hint)
+        if similar_key:
+            return list(domain_plans.get(similar_key, []))
+        return []
+
+    def _page_key(self, url: str) -> str:
+        parsed = urllib.parse.urlparse(url or "")
+        domain = parsed.netloc.lower()
+        path = parsed.path.strip("/").lower()
+        if not domain:
+            return ""
+        if not path:
+            return domain
+        head = path.split("/", 1)[0]
+        return f"{domain}|{head}"
+
+    def _move_download_to_parent(self, path: str) -> str:
+        parent = self.download_dir
+        name = os.path.basename(path)
+        stem, extension = os.path.splitext(name)
+        index = 1
+        try:
+            while True:
+                candidate = name if index == 1 else f"{stem} ({index - 1}){extension}"
+                destination = os.path.join(parent, candidate)
+                try:
+                    target = open(destination, "xb")
+                except FileExistsError:
+                    index += 1
+                    continue
+                try:
+                    with open(path, "rb") as source, target:
+                        shutil.copyfileobj(source, target)
+                    shutil.copystat(path, destination)
+                    os.remove(path)
+                    return destination
+                except OSError:
+                    target.close()
+                    try:
+                        os.remove(destination)
+                    except OSError:
+                        pass
+                    raise
+        except OSError as exc:
+            # 방금 받은 파일은 잠시 잠겨 있을 수 있다. 다음 수집 때 다시 옮긴다.
+            logging.debug("[SmartBrowser] 다운로드 파일 이동 실패: %s", exc)
+            return path
+
+    def _move_completed_downloads(self, folder: str) -> List[str]:
+        """다 받은 파일을 다운로드 폴더로 옮기고, 이번 실행에서 받기 시작한 것만 돌려준다."""
+        scope_started = getattr(self, "_download_scope_started", 0.0)
+        moved = []
+        try:
+            names = os.listdir(folder)
+        except OSError:
+            return moved
+        for name in names:
+            path = os.path.join(folder, name)
+            # 크롬은 받는 동안 임시 이름을 쓰고 끝나면 이름을 바꾼다. 임시 이름이 아니면 다 받은 파일이다.
+            if not os.path.isfile(path) or name.lower().endswith(_PARTIAL_DOWNLOAD_SUFFIXES):
+                continue
+            # 크롬은 받는 동안 쓰던 임시 파일의 이름만 바꾸므로 Windows에서는 생성 시각이 받기 시작한 시각이다.
+            # 이번 실행 전에 받기 시작한 파일은 옮기기만 하고 결과로 돌려주지 않는다.
+            try:
+                from_earlier_run = os.path.getctime(path) < scope_started
+            except OSError:
+                from_earlier_run = False
+            destination = self._move_download_to_parent(path)
+            if destination != path and not from_earlier_run:
+                moved.append(destination)
+        return moved
+
+    def _collect_downloads(self) -> None:
+        """전용 폴더에 다 받아진 파일을 다운로드 폴더로 옮기고 대기 목록에 넣는다."""
+        if not getattr(self, "_download_isolated", False):
+            return
+        with self._download_lock:
+            # 잠금을 기다리는 사이 브라우저가 닫혔으면 폴더가 일반 다운로드 폴더로 바뀌어 있다.
+            # 그 폴더의 파일을 옮기면 안 되므로 잠금 안에서 다시 확인한다.
+            if self._download_isolated:
+                self._pending_downloads.extend(self._move_completed_downloads(self._browser_download_dir))
+
+    def _collect_loop(self, folder: str) -> None:
+        # 다운로드 완료를 기다리지 않는 작업에서도 받은 파일이 다운로드 폴더에 나타나게 한다.
+        while self.driver is not None and self._browser_download_dir == folder:
+            time.sleep(2)
+            self._collect_downloads()
+
+    def _begin_download_scope(self) -> None:
+        # 앞선 실행이 받아 둔 파일은 이번 실행의 결과가 아니다.
+        self._download_baseline = self._snapshot_downloads()
+        if getattr(self, "_download_isolated", False):
+            self._collect_downloads()
+            with self._download_lock:
+                self._pending_downloads.clear()
+                self._download_scope_started = time.time()
+        else:
+            self._download_scope_started = time.time()
+
+    def _recover_stale_downloads(self) -> None:
+        """이전 실행이 남긴 전용 폴더의 파일을 다운로드 폴더로 옮긴다."""
+        try:
+            names = os.listdir(self.download_dir)
+        except OSError:
+            return
+        for name in names:
+            folder = os.path.join(self.download_dir, name)
+            if name.startswith(_DOWNLOAD_FOLDER_PREFIX) and os.path.isdir(folder):
+                self._move_completed_downloads(folder)
+                try:
+                    os.rmdir(folder)
+                except OSError:
+                    pass  # 받는 중인 파일이 남았으면 폴더를 둔다.
+
+    def _flush_browser_downloads(self):
+        if not getattr(self, "_download_isolated", False):
+            return
+        with self._download_lock:
+            if not self._download_isolated:
+                return
+            folder = self._browser_download_dir
+            self._pending_downloads.extend(self._move_completed_downloads(folder))
+            self._download_isolated = False
+            self._browser_download_dir = self.download_dir
+        try:
+            os.rmdir(folder)
+        except OSError as exc:
+            logging.debug("[SmartBrowser] 전용 다운로드 폴더를 남겨 둡니다: %s", exc)
+
+    def close(self):
+        try:
+            if self.driver:
+                self.driver.quit()
+        finally:
+            self.driver = None
+            self._browser_start_url = ""
+            self._flush_browser_downloads()
+
+# 싱글톤 브라우저 (필요 시 사용)
+_browser_instance: Optional[SmartBrowser] = None
+_browser_instance_lock = threading.Lock()
+
+def get_smart_browser(headless=False) -> SmartBrowser:
+    global _browser_instance
+    if _browser_instance is None:
+        with _browser_instance_lock:
+            if _browser_instance is None:
+                _browser_instance = SmartBrowser(headless=headless)
+    return _browser_instance

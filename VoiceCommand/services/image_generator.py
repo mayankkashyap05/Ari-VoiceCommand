@@ -1,0 +1,75 @@
+﻿"""이미지 생성 서비스."""
+from __future__ import annotations
+
+import base64
+import json
+import os
+import urllib.parse
+from datetime import datetime
+from typing import Any
+
+from core.safe_network import read_limited, safe_urlopen
+from core.resource_manager import ResourceManager
+
+
+class ImageGenerator:
+    def __init__(self, provider: str = "openai"):
+        self.provider = provider
+
+    def generate_image(self, prompt: str, size: str = "1024x1024", output_dir: str | None = None) -> dict[str, Any]:
+        prompt = str(prompt or "").strip()
+        if not prompt:
+            raise ValueError("이미지 프롬프트가 필요합니다.")
+        try:
+            from core.config_manager import ConfigManager
+            enabled = bool(ConfigManager.get("image_generation_enabled", False))
+            provider = str(ConfigManager.get("image_gen_provider", self.provider) or self.provider)
+            api_key = str(ConfigManager.get("openai_api_key", "") or "")
+        except Exception:
+            enabled = False
+            provider = self.provider
+            api_key = ""
+        if not enabled:
+            return {"enabled": False, "message": "이미지 생성 기능이 비활성화되어 있습니다."}
+        if provider != "openai":
+            return {"enabled": True, "provider": provider, "message": "현재 OpenAI 이미지 생성만 지원합니다."}
+        if not api_key:
+            return {"enabled": True, "provider": provider, "message": "설정에 OpenAI API 키가 등록되어 있지 않습니다."}
+        from openai import OpenAI
+        # 설정 창에 저장된 키를 명시적으로 전달한다. 인자 없이 OpenAI()를
+        # 호출하면 OS 환경변수 OPENAI_API_KEY만 보고 앱 설정은 무시되어,
+        # 설정 창에서 키를 등록해도 이미지 생성이 항상 실패했다.
+        client = OpenAI(api_key=api_key)
+        response = client.images.generate(model="dall-e-3", prompt=prompt, size=size, n=1)
+        image = response.data[0]
+        out_dir = output_dir or ResourceManager.get_runtime_path("generated_images")
+        os.makedirs(out_dir, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = os.path.join(out_dir, f"generated_{stamp}.png")
+        if getattr(image, "b64_json", None):
+            with open(path, "wb") as handle:
+                handle.write(base64.b64decode(image.b64_json))
+        elif getattr(image, "url", None):
+            self._download_image_url(str(image.url), path)
+        else:
+            meta_path = path + ".json"
+            with open(meta_path, "w", encoding="utf-8") as handle:
+                json.dump({"prompt": prompt}, handle, ensure_ascii=False, indent=2)
+            path = meta_path
+        return {"enabled": True, "provider": provider, "path": path, "size": size}
+
+    def _download_image_url(self, image_url: str, path: str) -> None:
+        parsed = urllib.parse.urlparse(str(image_url or ""))
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("이미지 다운로드 URL은 https만 허용합니다.")
+
+        with safe_urlopen(image_url, timeout=30, allowed_schemes=("https",)) as response:
+            content = read_limited(response, 30 * 1024 * 1024)
+            if getattr(response, "_safe_network_truncated", False):
+                raise ValueError("이미지 응답이 30MB 제한을 초과했습니다.")
+        with open(path, "wb") as handle:
+            handle.write(content)
+
+
+def get_image_generator() -> ImageGenerator:
+    return ImageGenerator()

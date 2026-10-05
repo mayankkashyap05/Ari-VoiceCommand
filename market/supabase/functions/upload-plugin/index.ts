@@ -1,0 +1,246 @@
+import * as zip from "https://deno.land/x/zipjs/index.js";
+import {
+  corsOptions,
+  createAdminClient,
+  getOrCreateDeveloper,
+  json,
+  requireUser,
+} from "../_shared.ts";
+
+const REQUIRED_FIELDS = ["name", "version", "api_version", "description", "entry"] as const;
+const SUPPORTED_API_VERSIONS = new Set(["1.0"]);
+const MAX_PLUGIN_ZIP_BYTES = 5 * 1024 * 1024;
+const MAX_PLUGIN_ENTRY_COUNT = 128;
+const MAX_PLUGIN_UNCOMPRESSED_BYTES = 20 * 1024 * 1024;
+
+type PluginMeta = {
+  name: string;
+  version: string;
+  api_version: string;
+  description: string;
+  entry: string;
+  commands?: string[];
+  permissions?: string[];
+};
+
+async function computeSha256Hex(buffer: ArrayBuffer): Promise<string> {
+  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return corsOptions();
+  if (req.method !== "POST") {
+    return json({ error: "Method not allowed" }, 405);
+  }
+
+  try {
+    const supabase = createAdminClient();
+    const user = await requireUser(supabase, req);
+    const developer = await getOrCreateDeveloper(supabase, user);
+
+    const formData = await req.formData();
+    const file = formData.get("plugin");
+    if (!(file instanceof File)) {
+      return json({ error: "plugin file is required" }, 400);
+    }
+    if (!file.name.toLowerCase().endsWith(".zip")) {
+      return json({ error: "plugin must be a zip file" }, 400);
+    }
+    if (file.size > MAX_PLUGIN_ZIP_BYTES) {
+      return json({ error: "plugin zip must be 5MB or smaller" }, 400);
+    }
+
+    const meta = await extractPluginJson(file);
+    const validationError = validateMeta(meta);
+    if (validationError) {
+      return json({ error: validationError }, 400);
+    }
+
+    const fileBuffer = await file.arrayBuffer();
+    const sha256 = await computeSha256Hex(fileBuffer);
+    const submissionId = crypto.randomUUID();
+
+    const filePath = `${user.id}/${submissionId}/${meta.name}-${meta.version}.zip`;
+    const uploadRes = await supabase.storage.from("plugin-uploads").upload(
+      filePath,
+      fileBuffer,
+      {
+        contentType: "application/zip",
+        upsert: false,
+      },
+    );
+    if (uploadRes.error) {
+      return json({ error: uploadRes.error.message }, 500);
+    }
+
+    const { data: plugin, error } = await supabase
+      .from("plugins")
+      .upsert(
+        {
+          developer_id: developer.id,
+          name: meta.name,
+          version: meta.version,
+          api_version: meta.api_version,
+          description: meta.description,
+          commands: meta.commands ?? [],
+          permissions: meta.permissions ?? [],
+          entry: meta.entry,
+          zip_url: uploadRes.data.path,
+          sha256,
+          submission_id: submissionId,
+          status: "pending",
+          release_url: null,
+          review_report: {},
+          reviewed_at: null,
+        },
+        { onConflict: "developer_id,name,version" },
+      )
+      .select("*")
+      .single();
+
+    if (error || !plugin) {
+      return json({ error: error?.message ?? "plugin insert failed" }, 500);
+    }
+
+    const dispatchError = await triggerValidation(plugin.id, user.id, {
+      submissionId,
+      version: meta.version,
+      sha256,
+    });
+    if (dispatchError) {
+      const updateError = await markValidationBootstrapFailure(supabase, plugin.id, submissionId);
+      throw new Error(updateError ? `${dispatchError}; ${updateError}` : dispatchError);
+    }
+    return json({ plugin_id: plugin.id, status: plugin.status });
+  } catch (error) {
+    if (error instanceof Response) {
+      return error;
+    }
+    return json({ error: error instanceof Error ? error.message : "Unexpected error" }, 500);
+  }
+});
+
+async function extractPluginJson(file: File): Promise<PluginMeta> {
+  const reader = new zip.ZipReader(new zip.BlobReader(file));
+  const entries = await reader.getEntries();
+  if (entries.length > MAX_PLUGIN_ENTRY_COUNT) {
+    await reader.close();
+    throw new Error("zip contains too many files");
+  }
+  const totalUncompressedBytes = entries.reduce(
+    (sum: number, entry: { uncompressedSize?: number }) => sum + Number(entry.uncompressedSize ?? 0),
+    0,
+  );
+  if (totalUncompressedBytes > MAX_PLUGIN_UNCOMPRESSED_BYTES) {
+    await reader.close();
+    throw new Error("zip expands beyond the allowed size");
+  }
+  const metaEntry = entries.find((entry: { filename: string }) => entry.filename === "plugin.json");
+  if (!metaEntry || !metaEntry.getData) {
+    await reader.close();
+    throw new Error("plugin.json not found in zip root");
+  }
+  const text = await metaEntry.getData(new zip.TextWriter());
+  const meta = JSON.parse(text) as PluginMeta;
+  const entryFile = entries.find((entry: { filename: string }) => entry.filename === meta.entry);
+  await reader.close();
+  if (!entryFile) {
+    throw new Error(`entry file not found in zip root: ${meta.entry}`);
+  }
+  return meta;
+}
+
+function validateMeta(meta: PluginMeta): string | null {
+  const requiredValues: Array<[typeof REQUIRED_FIELDS[number], string]> = [
+    ["name", meta.name],
+    ["version", meta.version],
+    ["api_version", meta.api_version],
+    ["description", meta.description],
+    ["entry", meta.entry],
+  ];
+  for (const [field, value] of requiredValues) {
+    if (value.trim() === "") {
+      return `Missing required field: ${field}`;
+    }
+  }
+  if (!SUPPORTED_API_VERSIONS.has(meta.api_version)) {
+    return `Unsupported api_version: ${meta.api_version}`;
+  }
+  if (meta.entry.includes("/") || meta.entry.includes("\\")) {
+    return "entry must be a root-level file";
+  }
+  if (!meta.entry.endsWith(".py")) {
+    return "entry must point to a Python file";
+  }
+  if (!/^[A-Za-z0-9_.-]+$/.test(meta.name)) {
+    return "name contains invalid characters";
+  }
+  return null;
+}
+
+async function triggerValidation(
+  pluginId: string,
+  developerId: string,
+  submission: { submissionId: string; version: string; sha256: string },
+): Promise<string | null> {
+  const repo = Deno.env.get("GH_REPO");
+  const pat = Deno.env.get("GH_PAT");
+  if (!repo || !pat) {
+    return "Validation pipeline is not configured";
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${repo}/actions/workflows/validate-plugin.yml/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${pat}`,
+          "Content-Type": "application/json",
+          Accept: "application/vnd.github+json",
+        },
+        body: JSON.stringify({
+          ref: "main",
+          inputs: {
+            plugin_id: pluginId,
+            developer_id: developerId,
+            submission_id: submission.submissionId,
+            plugin_version: submission.version,
+            plugin_sha256: submission.sha256,
+          },
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      return `Failed to trigger validation (HTTP ${response.status})`;
+    }
+    return null;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "unknown network error";
+    return `Failed to trigger validation: ${detail}`;
+  }
+}
+
+async function markValidationBootstrapFailure(
+  supabase: ReturnType<typeof createAdminClient>,
+  pluginId: string,
+  submissionId: string,
+): Promise<string | null> {
+  const { error } = await supabase
+    .from("plugins")
+    .update({
+      status: "rejected",
+      reviewed_at: new Date().toISOString(),
+      review_report: {
+        status: "rejected",
+        summary: "자동 검증 파이프라인 시작에 실패했습니다. 잠시 후 다시 업로드해 주세요.",
+      },
+    })
+    .eq("id", pluginId)
+    .eq("submission_id", submissionId);
+  return error ? `Failed to record validation bootstrap failure: ${error.message}` : null;
+}

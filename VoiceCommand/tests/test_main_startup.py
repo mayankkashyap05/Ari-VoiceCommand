@@ -1,0 +1,376 @@
+import ast
+import json
+import os
+import tempfile
+import time
+import types
+import unittest
+from datetime import datetime
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
+
+from core.config_manager import ConfigManager
+
+
+MAIN_PATH = Path(__file__).resolve().parents[1] / "Main.py"
+MAIN_HELPERS = {
+    "_setup_application",
+    "_setup_scheduler_activity",
+    "_write_smoke_report",
+}
+
+
+def _load_main_function(function_name, namespace):
+    tree = ast.parse(MAIN_PATH.read_text(encoding="utf-8"))
+    functions = [
+        node for node in tree.body
+        if isinstance(node, ast.FunctionDef)
+        and (
+            node.name == function_name
+            or (function_name == "main" and node.name in MAIN_HELPERS)
+        )
+    ]
+    # Main.py는 가져오기만 해도 앱 초기화가 일어나므로 대상과 시작 헬퍼만 격리 컴파일한다.
+    module = ast.Module(body=functions, type_ignores=[])
+    module_code = compile(module, str(MAIN_PATH), "exec")
+    isolated_namespace = dict(namespace)
+    for const in module_code.co_consts:
+        if isinstance(const, types.CodeType):
+            isolated_namespace[const.co_name] = types.FunctionType(
+                const, isolated_namespace, const.co_name
+            )
+    return isolated_namespace[function_name]
+
+
+class _Signal:
+    def __init__(self):
+        self.callback = None
+
+    def connect(self, callback):
+        self.callback = callback
+
+    def emit(self):
+        self.callback()
+
+
+class MainStartupTests(unittest.TestCase):
+    def test_optional_startup_failures_do_not_prevent_event_loop(self):
+        instances = {}
+
+        class FakeApp:
+            def __init__(self, _argv):
+                instances["app"] = self
+                self.exec_count = 0
+
+            def setWindowIcon(self, _icon):
+                pass
+
+            def exec(self):
+                self.exec_count += 1
+                instances["voice_thread"].microphone_available = False
+                instances["voice_thread"].microphone_unavailable.emit()
+                for timer in instances.get("timers", []):
+                    timer.timeout.emit()
+                instances["single_shot"][1]()
+                return 0
+
+            def quit(self):
+                instances["quit_called"] = True
+
+        class FakeTimer:
+            def __init__(self, *_args):
+                self.timeout = _Signal()
+                self.interval = None
+                instances.setdefault("timers", []).append(self)
+
+            def start(self, interval):
+                self.interval = interval
+
+            def stop(self):
+                pass
+
+            @staticmethod
+            def singleShot(interval, callback):
+                instances["single_shot"] = (interval, callback)
+
+        class FakeCharacter:
+            def __init__(self, activity_monitor=None):
+                self.messages = []
+                self.show_count = 0
+                self.raise_count = 0
+                instances["character"] = self
+
+            def say(self, text):
+                self.messages.append(text)
+
+            def show(self):
+                self.show_count += 1
+
+            def raise_(self):
+                self.raise_count += 1
+
+            def cleanup(self):
+                pass
+
+            def close(self):
+                pass
+
+        class FakeVoiceThread:
+            def __init__(self):
+                self.microphone_available = None
+                self.microphone_unavailable = _Signal()
+                self.notification_claimed = False
+                instances["voice_thread"] = self
+
+            def claim_microphone_unavailable_notification(self):
+                if self.notification_claimed:
+                    return False
+                self.notification_claimed = True
+                return True
+
+        class FakeAriCore:
+            def __init__(self):
+                self.voice_thread = FakeVoiceThread()
+
+            def cleanup(self):
+                pass
+
+        logger = Mock()
+        ensure_single_instance = Mock(return_value=True)
+        start_single_instance_server = Mock()
+        namespace = {
+            "sys": SimpleNamespace(argv=[], platform="linux"),
+            "os": os,
+            "logging": logger,
+            "datetime": datetime,
+            "json": json,
+            "time": time,
+            "ensure_single_instance": ensure_single_instance,
+            "start_single_instance_server": start_single_instance_server,
+            "QApplication": FakeApp,
+            "QTimer": FakeTimer,
+            "ConfigManager": ConfigManager,
+            "ActivityMonitor": Mock(side_effect=RuntimeError("activity hooks unavailable")),
+            "QSystemTrayIcon": SimpleNamespace(isSystemTrayAvailable=lambda: False),
+            "QIcon": Mock(),
+            "get_ai_assistant": Mock(return_value=object()),
+            "set_ai_assistant": Mock(),
+            "start_performance_warmups": Mock(),
+            "check_cosyvoice_first_run": Mock(side_effect=PermissionError("config is read-only")),
+            "_resolve_icon_path": Mock(return_value=None),
+            "AriCore": FakeAriCore,
+            "start_tts_background": Mock(side_effect=TypeError("provider init failed")),
+            "tts_wrapper": Mock(),
+            "get_scheduler": Mock(side_effect=PermissionError("scheduler storage unavailable")),
+            "register_background_learning_tasks": Mock(),
+            "CharacterWidget": FakeCharacter,
+            "set_character_widget": Mock(),
+            "create_text_interface": Mock(side_effect=RuntimeError("text UI init failed")),
+            "on_language_changed": Mock(),
+            "record_last_run_version": Mock(return_value=True),
+            "is_release_build": Mock(return_value=False),
+            "_state": SimpleNamespace(command_registry=None),
+            "AICommand": type("AICommand", (), {}),
+            "get_plugin_manager": Mock(side_effect=PermissionError("plugin folder is read-only")),
+            "PluginContext": object,
+            "flush_runtime_state": Mock(),
+            "setup_logging": Mock(),
+            "install_exception_hooks": Mock(),
+            "log_exception": Mock(),
+            "get_error_count": Mock(return_value=0),
+            "icon_path": None,
+            "ai_assistant": None,
+            "tray_icon": None,
+            "plugin_watcher": None,
+            "plugin_flush_timer": None,
+            "telegram_bridge": None,
+            "mcp_server_thread": None,
+            "_": lambda text: text,
+        }
+        main = _load_main_function("main", namespace)
+
+        with tempfile.TemporaryDirectory() as report_dir:
+            report_path = os.path.join(report_dir, "smoke.json")
+            with (
+                patch.dict(
+                    os.environ,
+                    {
+                        "ARI_SMOKE_SECONDS": "1",
+                        "ARI_SMOKE_REPORT": report_path,
+                    },
+                ),
+                patch("audio.audio_manager.initialize_global_audio", return_value=False),
+                patch("core.config_manager.ConfigManager.get", return_value=False),
+                patch(
+                    "core.mood_state.initialize_mood_state",
+                    side_effect=RuntimeError("mood storage unavailable"),
+                ),
+            ):
+                result = main()
+            report = json.loads(Path(report_path).read_text(encoding="utf-8"))
+
+        self.assertEqual(result, 0)
+        self.assertIsInstance(report["pid"], int)
+        self.assertTrue(report["gui_ready"])
+        self.assertEqual(report["heartbeat_count"], 1)
+        self.assertGreaterEqual(report["observed_seconds"], 0)
+        self.assertTrue(report["clean_exit"])
+        self.assertEqual(report["error_count"], 0)
+        self.assertTrue(instances["quit_called"])
+        self.assertEqual(instances["single_shot"][0], 1000)
+        self.assertEqual(instances["timers"][0].interval, 1000)
+        self.assertIn("app", instances)
+        ensure_single_instance.assert_called_once()
+        start_single_instance_server.assert_called_once()
+        self.assertEqual(instances["app"].exec_count, 1)
+        namespace["record_last_run_version"].assert_called_once_with()
+        self.assertEqual(
+            instances["character"].messages,
+            ["마이크를 찾을 수 없어 음성 인식을 사용할 수 없습니다. 설정에서 마이크를 지정해 주세요."],
+        )
+        self.assertIs(instances["character"].voice_thread, instances["voice_thread"])
+        self.assertTrue(instances["voice_thread"].notification_claimed)
+        start_single_instance_server.call_args.args[0]()
+        self.assertEqual(instances["character"].show_count, 1)
+        self.assertEqual(instances["character"].raise_count, 1)
+
+    def test_duplicate_instance_returns_before_creating_qt_app(self):
+        ensure_single_instance = Mock(return_value=False)
+        setup_logging = Mock()
+        flush_runtime_state = Mock()
+        main = _load_main_function(
+            "main",
+            {
+                "sys": SimpleNamespace(argv=["Main.py"]),
+                "ensure_single_instance": ensure_single_instance,
+                "setup_logging": setup_logging,
+                "flush_runtime_state": flush_runtime_state,
+                "logging": Mock(),
+            },
+        )
+
+        main()
+
+        ensure_single_instance.assert_called_once()
+        setup_logging.assert_not_called()
+        flush_runtime_state.assert_not_called()
+
+    def test_startup_failure_returns_nonzero_when_cleanup_also_fails(self):
+        log_exception = Mock()
+        flush_runtime_state = Mock(side_effect=RuntimeError("flush failed"))
+        main = _load_main_function(
+            "main",
+            {
+                "sys": SimpleNamespace(argv=["Main.py"]),
+                "os": os,
+                "logging": Mock(),
+                "ensure_single_instance": Mock(return_value=True),
+                "setup_logging": Mock(),
+                "install_exception_hooks": Mock(),
+                "record_last_run_version": Mock(
+                    side_effect=RuntimeError("startup failed")
+                ),
+                "flush_runtime_state": flush_runtime_state,
+                "log_exception": log_exception,
+            },
+        )
+
+        self.assertEqual(main(), 1)
+        flush_runtime_state.assert_called_once_with()
+        self.assertEqual(log_exception.call_count, 2)
+
+    def test_version_dispatch_is_before_gui_imports(self):
+        tree = ast.parse(MAIN_PATH.read_text(encoding="utf-8"))
+        dispatch_line = next(
+            node.lineno
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "dispatch_version_command"
+        )
+        gui_import_line = next(
+            node.lineno
+            for node in tree.body
+            if isinstance(node, ast.ImportFrom)
+            and node.module == "PySide6.QtWidgets"
+        )
+        self.assertLess(dispatch_line, gui_import_line)
+
+    def test_native_preload_is_before_qt_imports(self):
+        tree = ast.parse(MAIN_PATH.read_text(encoding="utf-8"))
+        preload_line = next(
+            node.lineno
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and getattr(node.func, "attr", None) == "import_module"
+            and node.args
+            and getattr(node.args[0], "value", None) == "onnxruntime"
+        )
+        qt_import_lines = [
+            node.lineno
+            for node in tree.body
+            if isinstance(node, ast.ImportFrom)
+            and (node.module or "").startswith(("PySide6", "core.single_instance"))
+        ]
+        self.assertTrue(qt_import_lines)
+        self.assertLess(preload_line, min(qt_import_lines))
+
+    def test_logging_permission_failure_keeps_console_free_startup(self):
+        handlers = []
+        logger_levels = []
+
+        class FakeHubLogger:
+            def setLevel(self, level):
+                logger_levels.append(level)
+
+        class FakeRoot:
+            def __init__(self):
+                self.handlers = []
+
+            def removeHandler(self, handler):
+                self.handlers.remove(handler)
+
+        class FakeLogging:
+            INFO = 20
+            ERROR = 40
+            root = FakeRoot()
+
+            def basicConfig(self, **kwargs):
+                handlers.extend(kwargs["handlers"])
+
+            def NullHandler(self):
+                return object()
+
+            def getLogger(self, name):
+                self.logger_name = name
+                return FakeHubLogger()
+
+            def warning(self, *_args):
+                pass
+
+        fake_logging = FakeLogging()
+        setup_logging = _load_main_function(
+            "setup_logging",
+            {
+                "logging": fake_logging,
+                "sys": SimpleNamespace(stdout=None),
+                "os": os,
+                "datetime": datetime,
+                "_cleanup_old_logs": Mock(),
+            },
+        )
+
+        with patch(
+            "core.resource_manager.ResourceManager.get_writable_path",
+            side_effect=PermissionError("logs directory is read-only"),
+        ):
+            setup_logging()
+
+        self.assertEqual(len(handlers), 1)
+        self.assertEqual(fake_logging.logger_name, "huggingface_hub")
+        self.assertEqual(logger_levels, [FakeLogging.ERROR])
+
+
+if __name__ == "__main__":
+    unittest.main()

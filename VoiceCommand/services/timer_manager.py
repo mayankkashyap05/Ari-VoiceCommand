@@ -1,0 +1,177 @@
+"""타이머 관리 모듈."""
+from __future__ import annotations
+
+import logging
+import re
+import threading
+import time
+from dataclasses import dataclass, field
+from typing import Callable
+
+from i18n.translator import _
+
+
+@dataclass
+class TimerEntry:
+    name: str
+    minutes: float
+    callback: Callable[[], None]
+    auto_named: bool = False
+    created_at: float = field(default_factory=time.time)
+    order: int = 0
+
+    def __post_init__(self):
+        delay_seconds = max(0.0, self.minutes * 60)
+        self.deadline = self.created_at + delay_seconds
+        self._timer = threading.Timer(delay_seconds, self.callback)
+        self._timer.daemon = True
+        self._timer.start()
+
+    def cancel(self):
+        self._timer.cancel()
+
+    def remaining_seconds(self) -> float:
+        return max(0.0, self.deadline - time.time())
+
+
+class TimerManager:
+    """복수 타이머 관리 클래스."""
+
+    _MAX_TIMERS = 10
+
+    def __init__(self, tts_callback=None):
+        self._timers: dict[str, TimerEntry] = {}
+        self._lock = threading.Lock()
+        self.tts_callback = tts_callback or (lambda x: logging.info(x))
+        self._order_counter = 0
+
+    def set_timer(self, minutes: float, name: str = "", *, announce: bool = True) -> str:
+        with self._lock:
+            auto_named = not (name or "").strip()
+            normalized_name = (name or "").strip() or self._auto_name()
+            replacing = normalized_name in self._timers
+            if not replacing and len(self._timers) >= self._MAX_TIMERS:
+                raise ValueError(_("타이머는 최대 {max}개까지 설정할 수 있습니다.", max=self._MAX_TIMERS))
+            if replacing:
+                self._timers[normalized_name].cancel()
+
+            label = self.format_duration_label(minutes)
+            self._order_counter += 1
+            entry = TimerEntry(
+                name=normalized_name,
+                minutes=minutes,
+                callback=lambda timer_name=normalized_name, timer_label=label, is_auto_named=auto_named, timer_id=self._order_counter: self._on_alarm(
+                    timer_name,
+                    timer_label,
+                    is_auto_named,
+                    timer_id,
+                ),
+                auto_named=auto_named,
+                order=self._order_counter,
+            )
+            self._timers[normalized_name] = entry
+
+        if announce:
+            if auto_named:
+                self.tts_callback(_("{label} 타이머를 설정했습니다.", label=label))
+            else:
+                message = _("'{name}' 타이머를 설정했습니다. ({label})").format(
+                    name=normalized_name,
+                    label=label,
+                )
+                self.tts_callback(message)
+        logging.info("타이머 설정: %s (%s)", normalized_name, label)
+        return normalized_name
+
+    def cancel(self):
+        self.cancel_timer()
+
+    def cancel_timer(self, name: str = "", *, announce: bool = True) -> bool:
+        with self._lock:
+            target_name = (name or "").strip()
+            if not target_name:
+                if not self._timers:
+                    if announce:
+                        self.tts_callback(_("현재 실행 중인 타이머가 없습니다."))
+                    return False
+                target_name = max(self._timers, key=lambda key: self._timers[key].order)
+            entry = self._timers.pop(target_name, None)
+            if entry is None:
+                if announce:
+                    self.tts_callback(_("'{name}' 타이머를 찾지 못했습니다.", name=target_name))
+                return False
+            entry.cancel()
+
+        if announce:
+            if entry.auto_named:
+                self.tts_callback(_("타이머가 취소되었습니다."))
+            else:
+                self.tts_callback(_("'{name}' 타이머를 취소했습니다.", name=target_name))
+        return True
+
+    def list_timers(self) -> list[dict]:
+        with self._lock:
+            return [
+                {"name": name, "remaining_seconds": entry.remaining_seconds(), "auto_named": entry.auto_named}
+                for name, entry in sorted(self._timers.items(), key=lambda item: item[1].order)
+            ]
+
+    def parse_timer_command(self, command):
+        normalized = re.sub(r"\s+", " ", command or "").strip()
+        total_minutes = 0.0
+        found = False
+
+        for value, unit_type in self._iter_duration_matches(normalized):
+            if unit_type == "hours":
+                total_minutes += value * 60
+            elif unit_type == "minutes":
+                total_minutes += value
+            else:
+                total_minutes += value / 60
+            found = True
+
+        return total_minutes if found else None
+
+    @staticmethod
+    def format_duration_label(total_minutes: float) -> str:
+        mins = int(total_minutes)
+        secs = round((total_minutes - mins) * 60)
+        if secs == 60:
+            mins += 1
+            secs = 0
+        if mins > 0 and secs > 0:
+            return _("{mins}분 {secs}초", mins=mins, secs=secs)
+        if mins > 0:
+            return _("{mins}분", mins=mins)
+        return _("{secs}초", secs=secs)
+
+    def _on_alarm(self, name: str, label: str, auto_named: bool, timer_id: int):
+        with self._lock:
+            entry = self._timers.get(name)
+            if entry is None or entry.order != timer_id:
+                return
+            self._timers.pop(name, None)
+        if auto_named:
+            message = _("{label} 타이머가 완료되었습니다.", label=label)
+        else:
+            message = _("'{name}' 타이머가 완료되었습니다.", name=name)
+        self.tts_callback(message)
+        logging.info("타이머 완료: %s", name)
+
+    def _auto_name(self) -> str:
+        existing = set(self._timers.keys())
+        index = 1
+        while _("타이머 {index}", index=index) in existing:
+            index += 1
+        return _("타이머 {index}", index=index)
+
+    @staticmethod
+    def _iter_duration_matches(normalized: str):
+        patterns = (
+            ("hours", r"(\d+)\s*(?:시간|hours?|hrs?|hr|時間|じかん)"),
+            ("minutes", r"(\d+)\s*(?:분|minutes?|mins?|min|分|ふん)"),
+            ("seconds", r"(\d+)\s*(?:초|seconds?|secs?|sec|秒|びょう)"),
+        )
+        for unit_type, pattern in patterns:
+            for match in re.finditer(pattern, normalized, re.IGNORECASE):
+                yield int(match.group(1)), unit_type

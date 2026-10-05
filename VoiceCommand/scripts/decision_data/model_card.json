@@ -1,0 +1,133 @@
+{
+  "model_name": "local_command_classifier",
+  "model_version": 1,
+  "model_sha256": "8541d1f29b172f538558e053ba495efc90a81b5f5e8ea89426a83cb7d17b77ba",
+  "task": "classify short Korean, English, and Japanese command requests",
+  "supported_languages": [
+    "en",
+    "ja",
+    "ko"
+  ],
+  "architecture": "hashed character n-gram linear classifier",
+  "intended_use": "development evaluation and conservative local command selection",
+  "direct_eligible_tools": [
+    "adjust_volume",
+    "get_current_time",
+    "get_running_apps",
+    "take_screenshot"
+  ],
+  "runtime_policy_default": {
+    "mode": "fast",
+    "direct_execution": true
+  },
+  "training": {
+    "dataset_version": "decision-dataset-v2",
+    "training_sha256": "7307e8271fc775aa405736adf1e0b4bf3067e718ac36016216e0c3a16395e92f",
+    "augmentation_enabled": true
+  },
+  "evaluation": {
+    "partition": "held_out_test",
+    "row_count": 7407,
+    "top1_accuracy": 0.8111246118536519,
+    "parser_confirmed_selected_count": 367,
+    "parser_confirmed_precision": 1.0,
+    "parser_confirmed_precision_wilson95_lower": 0.989641236897001,
+    "false_direct_count": 0,
+    "by_language": {
+      "ko": {
+        "selected_count": 126,
+        "selective_accuracy": 1.0,
+        "selective_accuracy_wilson95_lower": 0.9704142355178014,
+        "false_direct_count": 0
+      },
+      "en": {
+        "selected_count": 110,
+        "selective_accuracy": 1.0,
+        "selective_accuracy_wilson95_lower": 0.9662560647018357,
+        "false_direct_count": 0
+      },
+      "ja": {
+        "selected_count": 131,
+        "selective_accuracy": 1.0,
+        "selective_accuracy_wilson95_lower": 0.9715112929340054,
+        "false_direct_count": 0
+      }
+    },
+    "precision_evidence": {
+      "sample_floors": {
+        "development": {
+          "overall": 50,
+          "per_language": 10
+        },
+        "strict_release": {
+          "overall": 100,
+          "per_language": 30
+        }
+      },
+      "observed_parser_confirmed_selection_counts": {
+        "overall": 367,
+        "by_language": {
+          "ko": 126,
+          "en": 110,
+          "ja": 131
+        }
+      },
+      "wilson95_lower_bounds": {
+        "overall": 0.989641236897001,
+        "by_language": {
+          "ko": 0.9704142355178014,
+          "en": 0.9662560647018357,
+          "ja": 0.9715112929340054
+        }
+      },
+      "interpretation": "Sample floors guard against vacuous regression results; they do not establish 99% precision. With zero errors, at least 381 samples are needed for a two-sided 95% Wilson lower bound of 0.99."
+    },
+    "commands_dispatched": 0
+  },
+  "resource_usage": {
+    "model_resource_bytes": 1322113,
+    "additional_steady_rss_bytes": 14303232,
+    "warm_p95_ms": 0.1462100000026112,
+    "gpu_used": false
+  },
+  "review": {
+    "legacy_gold_rows": 396,
+    "legacy_gold_status": [
+      "pending_human_review"
+    ],
+    "release_gold_rows": 825,
+    "release_pending": 0,
+    "release_rejected": 6,
+    "safety_gold_rows": 300,
+    "safety_pending": 0,
+    "safety_rejected": 0,
+    "release_approval": "human_review_complete"
+  },
+  "limitations": [
+    "The evaluation set is generated and does not represent microphone acceptance.",
+    "The held-out measurements do not establish release readiness.",
+    "The evaluator checks parser confirmation but does not dispatch commands."
+  ],
+  "provenance": {
+    "model_sha256": "8541d1f29b172f538558e053ba495efc90a81b5f5e8ea89426a83cb7d17b77ba",
+    "model_config_sha256": "85fd86430fc1f6ef80a78a8fcef930f2fa4b4909000fdbf31ccb7d0e458afb88",
+    "candidate_snapshot_sha256": "a2bc0b80a2052cdb9fe727f5c1ed0763b83c077255747f221f938b71edcd9ed2",
+    "candidate_policy_sha256": "f54ada5fc53db8de73313e377db637da9672f2f3e9bffdd52553647d4bbbca20",
+    "parser_sha256": "23a5432b4d89ad17ab32590cb5f05a7ff79818cb30a7cb2a08e02ca6664f0da2",
+    "engine_sha256": "030273498b1802a7dc6483311cf652e6a0fbacf4096f941e6488f21961d7fd04",
+    "router_sha256": "282d93753f36c0fd45774960b229c4fb6d1e83064290fa76ce892d742d255054",
+    "runtime_settings_sha256": "6387f9f5fadbed77d0cea89686e3fc9252915d74e811c53d8757413734b4b9cd",
+    "settings_schema_sha256": "78eba1434b280f817fab3491f1a5e80536293d6928c892d73b89fdcb9742c319",
+    "split_manifest_sha256": "b92011b21fa1c967e5068784364c814800eb16861acc23f80bf5ca9f35c64c58",
+    "split_baseline_manifest_sha256": "439bbad2281994370b92ab94f7153857c0726e7de37d56d1f2b00f291615fc39",
+    "split_baseline_commit": "ac2d4f9140a981035c46865b51dccf385d470092",
+    "gold_dataset_version": "decision-gold-v1",
+    "gold_dataset_sha256": "9f49712b2613aa99eb74457125cf4e23c2b1ecec30344728d77d503d67ddfe42"
+  },
+  "split_baseline": {
+    "ref": "origin/137-release-quality-gate",
+    "commit": "ac2d4f9140a981035c46865b51dccf385d470092",
+    "manifest_sha256": "439bbad2281994370b92ab94f7153857c0726e7de37d56d1f2b00f291615fc39",
+    "snapshot_sha256": "439bbad2281994370b92ab94f7153857c0726e7de37d56d1f2b00f291615fc39"
+  }
+}

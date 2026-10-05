@@ -1,0 +1,882 @@
+"""
+능동적 스케줄러 (Proactive Scheduler) — Phase 3.4 고도화
+지정 시각 알람, 주제 기반 선제 제안, 예약 작업 관리를 담당한다.
+AriScheduler(구 scheduler.py) 기능을 통합 — SchedulerPanel UI와 호환.
+"""
+import json
+import logging
+import os
+import re
+import threading
+import uuid
+from dataclasses import dataclass, asdict, field
+from datetime import datetime, timedelta
+from typing import Callable, Dict, List, Optional, Any
+
+from core.atomic_io import backup_corrupt_file, write_json_atomic
+from i18n.translator import _
+
+_SCHEDULE_FILE: str = ""  # _init_schedule_file() 에서 설정
+_SCHEDULE_RUN_LOG_FILE: str = ""  # _init_schedule_log_file() 에서 설정
+_TICK_INTERVAL = 30
+_MAX_TASKS = 50
+_INTERNAL_TASK_TYPES = frozenset({"maintenance", "weekly_report"})
+
+
+def _runtime_fallback_path(filename: str) -> str:
+    project_root = os.path.dirname(os.path.dirname(__file__))
+    runtime_root = os.path.join(project_root, ".ari_runtime")
+    os.makedirs(runtime_root, exist_ok=True)
+    return os.path.join(runtime_root, filename)
+
+
+def _init_schedule_file() -> str:
+    try:
+        from core.resource_manager import ResourceManager
+        return ResourceManager.get_writable_path("scheduled_tasks.json")
+    except Exception as exc:
+        logging.debug("[Scheduler] scheduled_tasks 경로 조회 실패, 런타임 폴백 사용: %s", exc)
+        return _runtime_fallback_path("scheduled_tasks.json")
+
+
+def _init_schedule_log_file() -> str:
+    try:
+        from core.resource_manager import ResourceManager
+        return ResourceManager.get_writable_path("scheduled_task_runs.jsonl")
+    except Exception as exc:
+        logging.debug("[Scheduler] scheduled_task_runs 경로 조회 실패, 런타임 폴백 사용: %s", exc)
+        return _runtime_fallback_path("scheduled_task_runs.jsonl")
+
+
+def _parse_task_run_line(text: str) -> Dict[str, Any] | None:
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        return None
+
+@dataclass
+class ScheduledTask:
+    task_id: str
+    goal: str
+    schedule_expr: str        # 자연어 스케줄 표현 (구: schedule_desc)
+    next_run: str             # ISO 형식
+    name: str = ""            # 작업 이름 (선택, SchedulerPanel UI용)
+    task_type: str = "agent"  # "agent" | "alarm" | "suggestion"
+    repeat: bool = False
+    repeat_seconds: int = 0
+    repeat_rule: str = ""
+    except_dates: List[str] = field(default_factory=list)
+    alarm_sound: str = ""
+    enabled: bool = True
+    last_run: str = ""
+    last_result: str = ""
+    completed: bool = False   # 일회성 예약이 예정 시각에 실행돼 끝났는지
+
+
+@dataclass
+class ScheduledTaskRun:
+    task_id: str
+    goal: str
+    task_type: str
+    started_at: str
+    finished_at: str
+    success: bool
+    error: str = ""
+    summary: str = ""
+    next_run_before: str = ""
+    next_run_after: str = ""
+
+class ProactiveScheduler:
+    """사용자의 컨텍스트를 학습하여 선제적으로 제안하고 지정 시각에 작업을 수행한다."""
+
+    _WEEKDAY_KO = {"월": 0, "화": 1, "수": 2, "목": 3, "금": 4, "토": 5, "일": 6}
+
+    def __init__(self, tts_func: Optional[Callable] = None):
+        self.tts = tts_func
+        self._schedule_file = _init_schedule_file()
+        self._schedule_run_log_file = _init_schedule_log_file()
+        self._tasks: Dict[str, ScheduledTask] = {}
+        self._lock = threading.Lock()
+        self._activity_state_lock = threading.Lock()
+        self._activity_locked = False
+        self._activity_away = False
+        self._activity_quiet = False
+        self._run_log_lock = threading.Lock()
+        self._stop_event = threading.Event()
+        self._orchestrator_func: Optional[Callable] = None
+        self._load()
+        self._start_ticker()
+
+    def set_orchestrator_func(self, func: Callable):
+        self._orchestrator_func = func
+
+    def set_activity_state(
+        self,
+        *,
+        locked: Optional[bool] = None,
+        away: Optional[bool] = None,
+        quiet: Optional[bool] = None,
+    ) -> None:
+        with self._activity_state_lock:
+            if locked is not None:
+                self._activity_locked = bool(locked)
+            if away is not None:
+                self._activity_away = bool(away)
+            if quiet is not None:
+                self._activity_quiet = bool(quiet)
+
+    def activity_return_summary(self, away_seconds: int) -> str:
+        """30분 이상 자리를 비운 뒤 대기 작업과 다음 일정을 한 줄로 반환한다."""
+        if away_seconds < 30 * 60:
+            return ""
+        now = datetime.now()
+        away_started = now - timedelta(seconds=away_seconds)
+        completed_runs = [
+            run
+            for run in self.get_task_runs(limit=0, since=away_started, until=now)
+            if run.get("task_id") != "activity_ide_long_use"
+        ]
+        completed_count = len(completed_runs)
+        due_count = 0
+        upcoming = []
+        with self._lock:
+            tasks = list(self._tasks.values())
+        for task in tasks:
+            if not task.enabled or not task.next_run:
+                continue
+            try:
+                due_at = datetime.fromisoformat(task.next_run)
+            except ValueError:
+                continue
+            if due_at.tzinfo is not None:
+                due_at = due_at.astimezone().replace(tzinfo=None)
+            if self._is_except_date(task, due_at.date().isoformat()):
+                continue
+            if due_at <= now:
+                due_count += 1
+            else:
+                upcoming.append((due_at, task))
+
+        next_task = min(upcoming, key=lambda item: item[0])[1] if upcoming else None
+        if not completed_count and not due_count and next_task is None:
+            return _("돌아오셨네요! 부재 중 완료된 작업은 없어요.")
+        summary = _(
+            "돌아오셨네요! 부재 중 완료 {completed}건, 대기 {waiting}건이에요.",
+            completed=completed_count,
+            waiting=due_count,
+        )
+        if next_task is not None:
+            summary += " " + _(
+                "다음 일정은 {next_task}예요.",
+                next_task=next_task.name or next_task.schedule_expr,
+            )
+        return summary
+
+    def activity_ide_long_use_message(self, duration_seconds: int) -> str:
+        """IDE를 오래 사용했을 때 하루 한 번 알림 문구를 반환한다."""
+        if duration_seconds < 3 * 60 * 60:
+            return ""
+        with self._activity_state_lock:
+            if self._activity_locked or self._activity_away or self._activity_quiet:
+                return ""
+        now = datetime.now()
+        day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        if self.get_task_runs(
+            task_id="activity_ide_long_use",
+            limit=1,
+            since=day_start,
+            until=now,
+        ):
+            return ""
+        timestamp = now.isoformat()
+        self._append_task_run(ScheduledTaskRun(
+            task_id="activity_ide_long_use",
+            goal="IDE 연속 사용 알림",
+            task_type="activity",
+            started_at=timestamp,
+            finished_at=timestamp,
+            success=True,
+        ))
+        return _("장시간 계속 일하셨네요. 잠시 쉬어 가는 게 어때요?")
+
+    def _get_schedule_file(self) -> str:
+        path = getattr(self, "_schedule_file", "") or _SCHEDULE_FILE
+        if path:
+            return path
+        path = _init_schedule_file()
+        self._schedule_file = path
+        return path
+
+    def _get_schedule_run_log_file(self) -> str:
+        path = getattr(self, "_schedule_run_log_file", "") or _SCHEDULE_RUN_LOG_FILE
+        if path:
+            return path
+        path = _init_schedule_log_file()
+        self._schedule_run_log_file = path
+        return path
+
+    # ── 스케줄 관리 ────────────────────────────────────────────────────────────
+
+    def schedule(self, goal: str, next_run_dt: datetime, desc: str,
+                 task_type: str = "agent", repeat: bool = False, repeat_sec: int = 0,
+                 repeat_rule: str = "", except_dates: Optional[List[str]] = None,
+                 alarm_sound: str = "", name: str = "", enabled: bool = True) -> str:
+        task_id = str(uuid.uuid4())[:8]
+        task = ScheduledTask(
+            task_id=task_id, goal=goal, schedule_expr=desc,
+            next_run=next_run_dt.isoformat(), name=name, task_type=task_type,
+            repeat=repeat, repeat_seconds=repeat_sec,
+            repeat_rule=repeat_rule,
+            except_dates=list(except_dates or []),
+            alarm_sound=alarm_sound,
+            enabled=enabled,
+        )
+        with self._lock:
+            if task_type not in _INTERNAL_TASK_TYPES:
+                user_task_count = sum(
+                    current.task_type not in _INTERNAL_TASK_TYPES
+                    for current in self._tasks.values()
+                )
+                if user_task_count >= _MAX_TASKS:
+                    # 일시중지한 예약은 남기고, 예정대로 실행을 마친 일회성 예약만 정리한다.
+                    finished_ids = [
+                        task_id for task_id, current in self._tasks.items()
+                        if current.completed and not current.enabled
+                        and current.task_type not in _INTERNAL_TASK_TYPES
+                    ]
+                    for finished_id in finished_ids:
+                        del self._tasks[finished_id]
+                        user_task_count -= 1
+                        if user_task_count < _MAX_TASKS:
+                            break
+                if user_task_count >= _MAX_TASKS:
+                    raise ValueError(_("예약 작업이 가득 찼습니다. 사용하지 않는 예약을 정리한 뒤 다시 시도해주세요."))
+            self._tasks[task_id] = task
+            self._save()
+        logging.info("[Scheduler] 새 작업 등록: %s (%s)", task_id, desc)
+        return task_id
+
+    def add_task(self, name: str, goal: str, schedule_expr: str) -> ScheduledTask:
+        """SchedulerPanel UI 호환 인터페이스. 자연어 스케줄 표현으로 작업 추가."""
+        next_run = self._calc_next_run(schedule_expr)
+        repeat = bool(re.search(r"매일|매주|평일|\d+분마다|\d+시간마다", schedule_expr))
+        repeat_rule = ""
+        repeat_sec = 0
+        if re.search(r"평일", schedule_expr):
+            repeat_rule = "weekdays"
+            repeat_sec = 86400
+        elif re.search(r"매일", schedule_expr):
+            repeat_rule = "daily"
+            repeat_sec = 86400
+        elif re.search(r"매주", schedule_expr):
+            repeat_rule = "weekly"
+            repeat_sec = 86400 * 7
+        elif m := re.search(r"(\d+)분마다", schedule_expr):
+            repeat_sec = int(m.group(1)) * 60
+        elif m := re.search(r"(\d+)시간마다", schedule_expr):
+            repeat_sec = int(m.group(1)) * 3600
+        task_id = self.schedule(
+            goal=goal, next_run_dt=next_run, desc=schedule_expr,
+            repeat=repeat, repeat_sec=repeat_sec, repeat_rule=repeat_rule, name=name,
+        )
+        with self._lock:
+            return self._tasks[task_id]
+
+    def ensure_task(self, name: str, goal: str, schedule_expr: str, *,
+                    task_type: str = "agent", repeat: bool = False,
+                    repeat_sec: int = 0, repeat_rule: str = "",
+                    except_dates: Optional[List[str]] = None,
+                    alarm_sound: str = "", enabled: bool = True) -> str:
+        next_run = self._calc_next_run(schedule_expr)
+        should_create = False
+        with self._lock:
+            existing = next((task for task in self._tasks.values() if task.name == name), None)
+            if existing is None:
+                should_create = True
+            else:
+                existing.goal = goal
+                existing.schedule_expr = schedule_expr
+                existing.task_type = task_type
+                existing.repeat = repeat
+                existing.repeat_seconds = repeat_sec
+                existing.repeat_rule = repeat_rule
+                existing.except_dates = list(except_dates or [])
+                existing.alarm_sound = alarm_sound
+                existing.enabled = enabled
+                if not existing.next_run:
+                    existing.next_run = next_run.isoformat()
+                self._save()
+                return existing.task_id
+        if should_create:
+            return self.schedule(
+                goal=goal,
+                next_run_dt=next_run,
+                desc=schedule_expr,
+                task_type=task_type,
+                repeat=repeat,
+                repeat_sec=repeat_sec,
+                repeat_rule=repeat_rule,
+                except_dates=except_dates,
+                alarm_sound=alarm_sound,
+                name=name,
+                enabled=enabled,
+            )
+        return ""
+
+    def cancel(self, task_id: str) -> bool:
+        with self._lock:
+            if task_id in self._tasks:
+                del self._tasks[task_id]
+                self._save()
+                return True
+        return False
+
+    def cancel_task(self, task_id: str) -> bool:
+        return self.cancel(task_id)
+
+    def remove_task(self, task_id: str) -> bool:
+        """cancel 의 SchedulerPanel 호환 alias."""
+        return self.cancel(task_id)
+
+    def toggle_task(self, task_id: str) -> bool:
+        """작업 활성화/비활성화 전환."""
+        with self._lock:
+            if task_id not in self._tasks:
+                return False
+            self._tasks[task_id].enabled = not self._tasks[task_id].enabled
+            self._tasks[task_id].completed = False
+            self._save()
+        return True
+
+    def run_task_now(self, task_id: str) -> bool:
+        """작업 즉시 실행 (SchedulerPanel 수동 실행 버튼용)."""
+        with self._lock:
+            task = self._tasks.get(task_id)
+        if task:
+            threading.Thread(target=self._execute_task, args=(task,), daemon=True).start()
+            return True
+        return False
+
+    def list_tasks(self) -> List[ScheduledTask]:
+        with self._lock:
+            return list(self._tasks.values())
+
+    def get_task_runs(
+        self,
+        task_id: str = "",
+        limit: int = 20,
+        since: datetime | None = None,
+        until: datetime | None = None,
+    ) -> List[Dict[str, Any]]:
+        run_log_file = self._get_schedule_run_log_file()
+        if not run_log_file or not os.path.exists(run_log_file):
+            return []
+        rows: List[Dict[str, Any]] = []
+        since = since.astimezone().replace(tzinfo=None) if since and since.tzinfo else since
+        until = until.astimezone().replace(tzinfo=None) if until and until.tzinfo else until
+        try:
+            with open(run_log_file, "r", encoding="utf-8") as handle:
+                for raw in handle:
+                    text = raw.strip()
+                    if not text:
+                        continue
+                    item = _parse_task_run_line(text)
+                    if item is None:
+                        continue
+                    if task_id and item.get("task_id") != task_id:
+                        continue
+                    if since is not None or until is not None:
+                        finished_at = item.get("finished_at")
+                        if not isinstance(finished_at, str):
+                            continue
+                        try:
+                            finished = datetime.fromisoformat(finished_at)
+                        except ValueError:
+                            continue
+                        if finished.tzinfo is not None:
+                            finished = finished.astimezone().replace(tzinfo=None)
+                        if since is not None and finished < since:
+                            continue
+                        if until is not None and finished > until:
+                            continue
+                    rows.append(item)
+        except OSError as exc:
+            logging.debug("[Scheduler] 실행 로그 읽기 실패: %s", exc)
+            return []
+        return rows[-limit:]
+
+    # ── 선제적 제안 (Phase 3.4 핵심) ──────────────────────────────────────────
+
+    def get_proactive_suggestions(self) -> List[Dict[str, str]]:
+        """사용자 컨텍스트(주제, 빈도)를 분석하여 할 일을 제안한다."""
+        from memory.user_context import get_context_manager
+        ctx_mgr = get_context_manager()
+        ctx = ctx_mgr.context
+        
+        suggestions = []
+        now = datetime.now()
+        
+        # 1. 주제 기반 제안
+        topics = ctx.get("conversation_topics", {})
+        if topics:
+            top_topic = max(topics.items(), key=lambda x: x[1])[0]
+            if topics[top_topic] >= 3:
+                suggestions.append({
+                    "type": "topic",
+                    "text": _("최근 '{top_topic}'에 대해 자주 대화하셨네요. 관련 정보를 더 찾아드릴까요?", top_topic=top_topic),
+                    "goal": f"최근 관심사인 '{top_topic}'에 대한 최신 뉴스나 유용한 정보를 정리해줘"
+                })
+        for topic_item in ctx_mgr.get_topic_recommendations(limit=2, include_strategy=True):
+            topic_name = topic_item.split(":", 1)[0]
+            suggestions.append({
+                "type": "topic_strategy",
+                "text": _("최근 주제 '{topic_name}'와 관련된 반복 전략이 보여요. 이어서 정리해드릴까요?", topic_name=topic_name),
+                "goal": f"최근 주제 '{topic_name}' 관련 작업 이어서 정리해줘",
+            })
+
+        # 2. 시간대/습관 기반 제안
+        hour = now.hour
+        habitual_commands = ctx_mgr.get_time_based_suggestions(hour=hour, limit=2)
+        for cmd in habitual_commands:
+            suggestions.append({
+                "type": "habit",
+                "text": _("이 시간대에는 '{cmd}' 관련 요청이 많았어요. 바로 도와드릴까요?", cmd=cmd),
+                "goal": cmd,
+            })
+
+        if 7 <= hour <= 9:
+            suggestions.append({
+                "type": "routine",
+                "text": _("좋은 아침이에요! 오늘 날씨와 주요 뉴스를 요약해 드릴까요?"),
+                "goal": "오늘 날씨와 주요 뉴스 요약 브리핑"
+            })
+        elif 22 <= hour <= 23:
+            suggestions.append({
+                "type": "routine",
+                "text": _("오늘 하루 수고 많으셨어요. 내일 날씨를 미리 확인해 드릴까요?"),
+                "goal": "내일 날씨와 기온 확인"
+            })
+
+        deduped = []
+        seen_goals = set()
+        for item in suggestions:
+            goal = item.get("goal", "")
+            if goal in seen_goals:
+                continue
+            deduped.append(item)
+            seen_goals.add(goal)
+        return deduped[:5]
+
+    # ── 내부 실행 로직 ────────────────────────────────────────────────────────
+
+    def _start_ticker(self):
+        threading.Thread(target=self._tick_loop, daemon=True, name="SchedulerTicker").start()
+
+    def _tick_loop(self):
+        while not self._stop_event.wait(timeout=_TICK_INTERVAL):
+            self._check_due_tasks()
+
+    def _check_due_tasks(self):
+        with self._activity_state_lock:
+            if self._activity_locked or self._activity_away or self._activity_quiet:
+                return
+            due = self._claim_due_tasks(datetime.now())
+        for task, run_meta in due:
+            threading.Thread(target=self._execute_task, args=(task, run_meta), daemon=True).start()
+
+    def _announce_scheduled_event(self, event: str, **values) -> None:
+        try:
+            from agent.speech_scheduler import get_speech_scheduler
+
+            speech_scheduler = get_speech_scheduler()
+        except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            logging.debug("예약 작업 발화를 연결하지 못했습니다: %s", exc)
+            speech_scheduler = None
+        if speech_scheduler is not None:
+            speech_scheduler.request(event, **values)
+
+    def _execute_task(self, task: ScheduledTask, run_meta: Optional[Dict[str, str]] = None):
+        started_at = (run_meta or {}).get("started_at") or datetime.now().isoformat()
+        next_run_before = (run_meta or {}).get("next_run_before", "")
+        next_run_after = (run_meta or {}).get("next_run_after", "")
+        success = False
+        error = ""
+        summary = ""
+        if task.task_type == "alarm":
+            message = _("(기쁨) 알람 시간이에요! 요청하신 '{goal}' 시각입니다.", goal=task.goal)
+            if task.alarm_sound:
+                message += _(" 알림 사운드: {alarm_sound}", alarm_sound=task.alarm_sound)
+            summary = message
+            success = True
+            if self.tts:
+                self.tts(message)
+            self._finalize_task_run(task, started_at, success, error, summary, next_run_before, next_run_after)
+            return
+
+        if task.task_type == "maintenance":
+            try:
+                from core.config_manager import ConfigManager
+                from memory.memory_consolidator import get_memory_consolidator
+                days_ago = int(ConfigManager.get("memory_consolidation_days", 14))
+                result = get_memory_consolidator().run_all(days_ago=days_ago)
+                summary = _(
+                    "메모리 정리 완료: 사실 {facts}개, 전략 {strategies}개, 대화 {conversations}건 정리",
+                    facts=result["facts"],
+                    strategies=result["strategies"],
+                    conversations=result["conversations"],
+                )
+                success = True
+            except Exception as exc:
+                error = str(exc)
+                summary = _("메모리 정리 실패")
+                logging.error("[Scheduler] 메모리 정리 실패: %s", exc)
+            if not success and summary:
+                self._announce_scheduled_event(
+                    "maintenance_result",
+                    summary=summary,
+                )
+            self._finalize_task_run(task, started_at, success, error, summary, next_run_before, next_run_after)
+            return
+
+        if task.task_type == "weekly_report":
+            try:
+                from agent.weekly_report import get_weekly_report
+                summary = get_weekly_report().generate()
+                success = True
+            except Exception as exc:
+                error = str(exc)
+                summary = _("주간 리포트 생성 실패")
+                logging.error("[Scheduler] 주간 리포트 생성 실패: %s", exc)
+            if success and summary:
+                self._announce_scheduled_event("weekly_report")
+            self._finalize_task_run(task, started_at, success, error, summary, next_run_before, next_run_after)
+            return
+
+        logging.info("[Scheduler] 작업 실행: %s", task.task_id)
+        if self.tts:
+            self.tts(_("(진지) 예약된 작업을 시작할게요: {goal}", goal=task.goal))
+        
+        if not self._orchestrator_func:
+            error = _("오케스트레이터가 연결되지 않았습니다.")
+            summary = _("예약 작업을 실행할 수 없어요.")
+            self._finalize_task_run(task, started_at, False, error, summary, next_run_before, next_run_after)
+            return
+
+        try:
+            res = self._orchestrator_func(task.goal)
+            summary = getattr(res, "summary", _("작업 완료"))
+            success = bool(getattr(res, "achieved", True))
+        except Exception as e:
+            logging.error("[Scheduler] 실행 실패: %s", e)
+            error = str(e)
+            summary = _("예약 작업 실행 실패")
+        self._finalize_task_run(task, started_at, success, error, summary, next_run_before, next_run_after)
+
+    def check_missed_tasks_on_startup(self):
+        """앱 시작 시 놓친 반복 작업을 보충 실행."""
+        with self._activity_state_lock:
+            if self._activity_locked or self._activity_away or self._activity_quiet:
+                return
+            due = self._claim_due_tasks(datetime.now())
+        for task, run_meta in due:
+            logging.info("[Scheduler] 놓친 작업 보충 실행: %s", task.task_id)
+            threading.Thread(
+                target=self._execute_task,
+                args=(task, run_meta),
+                daemon=True,
+                name=f"MissedTask-{task.task_id}",
+            ).start()
+
+    def _load(self):
+        schedule_file = self._get_schedule_file()
+        if os.path.exists(schedule_file):
+            try:
+                with open(schedule_file, encoding="utf-8") as f:
+                    data = json.load(f)
+            except (json.JSONDecodeError, UnicodeDecodeError) as e:
+                self._backup_corrupt_schedule(schedule_file, e)
+                return
+            except Exception as e:
+                logging.warning("[Scheduler] 로드 실패: %s", e)
+                return
+            if not isinstance(data, list):
+                self._backup_corrupt_schedule(schedule_file, "최상위 구조가 목록이 아닙니다")
+                return
+            try:
+                self._tasks = {it["task_id"]: self._normalize_task(it) for it in data}
+            except Exception as e:
+                # 항목 하나라도 읽지 못하면 빈 상태로 시작하므로, 다음 저장 전에 원본을 남긴다.
+                self._tasks = {}
+                self._backup_corrupt_schedule(schedule_file, e)
+
+    @staticmethod
+    def _backup_corrupt_schedule(schedule_file: str, error: Any) -> None:
+        try:
+            backup_path = backup_corrupt_file(schedule_file)
+        except OSError as backup_error:
+            logging.error("[Scheduler] 예약 파일 손상, 백업 실패: %s (%s)", error, backup_error)
+        else:
+            logging.error("[Scheduler] 예약 파일 손상, 백업 저장: %s (%s)", backup_path, error)
+
+    def _save(self):
+        try:
+            schedule_file = self._get_schedule_file()
+            data = [asdict(t) for t in self._tasks.values()]
+            write_json_atomic(schedule_file, data, ensure_ascii=False, indent=2)
+        except Exception as e:
+            logging.error("[Scheduler] 저장 실패: %s", e)
+
+    def _calc_next_run(self, expr: str) -> datetime:
+        """자연어 스케줄 표현 → 다음 실행 datetime 계산 (AriScheduler 호환)."""
+        now = datetime.now().replace(second=0, microsecond=0)
+        expr = expr.strip()
+        m = re.search(r"매일\s*(\d{1,2})[시:]\s*(\d{0,2})", expr)
+        if m:
+            h, mi = int(m.group(1)), int(m.group(2) or "0")
+            t = now.replace(hour=h, minute=mi)
+            if t <= now:
+                t += timedelta(days=1)
+            return t
+        m = re.search(r"매주\s*([월화수목금토일])요일?\s*(\d{1,2})[시:]\s*(\d{0,2})", expr)
+        if m:
+            wd = self._WEEKDAY_KO.get(m.group(1), 0)
+            h, mi = int(m.group(2)), int(m.group(3) or "0")
+            days_ahead = (wd - now.weekday()) % 7
+            t = now.replace(hour=h, minute=mi) + timedelta(days=days_ahead)
+            if t <= now:
+                t += timedelta(weeks=1)
+            return t
+        m = re.search(r"평일\s*(\d{1,2})[시:]\s*(\d{0,2})", expr)
+        if m:
+            h, mi = int(m.group(1)), int(m.group(2) or "0")
+            candidate = now.replace(hour=h, minute=mi)
+            if candidate <= now:
+                candidate += timedelta(days=1)
+            while candidate.weekday() >= 5:
+                candidate += timedelta(days=1)
+            return candidate
+        m = re.search(r"(\d+)\s*분마다", expr)
+        if m:
+            return now + timedelta(minutes=int(m.group(1)))
+        m = re.search(r"(\d+)\s*시간마다", expr)
+        if m:
+            return now + timedelta(hours=int(m.group(1)))
+        logging.warning("[Scheduler] 스케줄 파싱 실패 (%r), 24시간 후 실행", expr)
+        return now + timedelta(days=1)
+
+    def _normalize_task(self, raw: Dict[str, Any]) -> ScheduledTask:
+        payload = dict(raw)
+        payload.setdefault("repeat_rule", "")
+        payload.setdefault("except_dates", [])
+        payload.setdefault("alarm_sound", "")
+        payload.setdefault("name", "")
+        # 구버전 schedule_desc 필드 마이그레이션
+        if "schedule_desc" in payload and "schedule_expr" not in payload:
+            payload["schedule_expr"] = payload.pop("schedule_desc")
+        elif "schedule_desc" in payload:
+            payload.pop("schedule_desc")
+        if "completed" not in payload:
+            # 이전 버전 파일에는 완료 표시가 없어, 실행 시각이 지난 비활성 일회성 예약을 완료로 본다.
+            payload["completed"] = bool(
+                not payload.get("enabled", True)
+                and not payload.get("repeat", False)
+                and payload.get("last_run")
+                and payload.get("next_run")
+                and str(payload["next_run"]) <= datetime.now().isoformat()
+            )
+        # dataclass 필드에 없는 키 제거
+        valid_fields = {f.name for f in ScheduledTask.__dataclass_fields__.values()}
+        payload = {k: v for k, v in payload.items() if k in valid_fields}
+        return ScheduledTask(**payload)
+
+    def _is_except_date(self, task: ScheduledTask, date_text: str) -> bool:
+        return date_text in set(task.except_dates or [])
+
+    def _compute_next_run(self, task: ScheduledTask, last_due: datetime, now: datetime) -> datetime:
+        weekday_repeat = task.repeat_rule == "weekdays" or (
+            task.repeat_rule == "daily" and "평일" in task.schedule_expr
+        )
+        if task.repeat_rule == "daily" or weekday_repeat:
+            next_run = last_due + timedelta(days=1)
+        elif task.repeat_rule == "weekly":
+            next_run = last_due + timedelta(days=7)
+        elif task.repeat_rule == "hourly":
+            next_run = last_due + timedelta(hours=1)
+        elif task.repeat_seconds > 0:
+            next_run = last_due + timedelta(seconds=task.repeat_seconds)
+        else:
+            next_run = now + timedelta(days=1)
+        while True:
+            if weekday_repeat:
+                while next_run.weekday() >= 5:
+                    next_run += timedelta(days=1)
+            if next_run > now and not self._is_except_date(task, next_run.date().isoformat()):
+                return next_run
+            if task.repeat_rule == "weekly":
+                next_run += timedelta(days=7)
+            elif task.repeat_rule == "hourly":
+                next_run += timedelta(hours=1)
+            elif task.repeat_seconds > 0:
+                next_run += timedelta(seconds=task.repeat_seconds)
+            else:
+                next_run += timedelta(days=1)
+
+    def _claim_due_tasks(self, now: datetime) -> List[tuple[ScheduledTask, Dict[str, str]]]:
+        claimed: List[tuple[ScheduledTask, Dict[str, str]]] = []
+        with self._lock:
+            dirty = False
+            for tid, task in list(self._tasks.items()):
+                if not task.enabled or not task.next_run:
+                    continue
+                try:
+                    due_at = datetime.fromisoformat(task.next_run)
+                except Exception as exc:
+                    logging.debug("[Scheduler] 작업 시간 해석 실패: %s (%s)", tid, exc)
+                    continue
+                if self._is_except_date(task, due_at.date().isoformat()):
+                    if task.repeat:
+                        task.next_run = self._compute_next_run(task, due_at, now).isoformat()
+                    else:
+                        task.enabled = False
+                    dirty = True
+                    continue
+                if due_at > now:
+                    continue
+                started_at = now.isoformat()
+                next_run_before = task.next_run
+                task.last_run = started_at
+                if task.repeat:
+                    task.next_run = self._compute_next_run(task, due_at, now).isoformat()
+                    next_run_after = task.next_run
+                else:
+                    task.enabled = False
+                    task.completed = True
+                    next_run_after = ""
+                claimed.append((
+                    ScheduledTask(**asdict(task)),
+                    {
+                        "started_at": started_at,
+                        "next_run_before": next_run_before,
+                        "next_run_after": next_run_after,
+                    },
+                ))
+                dirty = True
+            if dirty:
+                self._save()
+        return claimed
+
+    def _finalize_task_run(
+        self,
+        task: ScheduledTask,
+        started_at: str,
+        success: bool,
+        error: str,
+        summary: str,
+        next_run_before: str,
+        next_run_after: str,
+    ) -> None:
+        finished_at = datetime.now().isoformat()
+        status_text = summary if summary else (error or _("실행 결과 없음"))
+        with self._lock:
+            current = self._tasks.get(task.task_id)
+            if current is not None:
+                current.last_result = status_text[:300]
+                if not current.last_run:
+                    current.last_run = started_at
+                self._save()
+        self._append_task_run(
+            ScheduledTaskRun(
+                task_id=task.task_id,
+                goal=task.goal,
+                task_type=task.task_type,
+                started_at=started_at,
+                finished_at=finished_at,
+                success=bool(success),
+                error=(error or "")[:300],
+                summary=(summary or "")[:300],
+                next_run_before=next_run_before,
+                next_run_after=next_run_after,
+            )
+        )
+        self._record_learning_artifacts(task, started_at, finished_at, success, error, summary)
+
+    def _append_task_run(self, record: ScheduledTaskRun) -> None:
+        run_log_file = self._get_schedule_run_log_file()
+        if not run_log_file:
+            return
+        try:
+            os.makedirs(os.path.dirname(run_log_file), exist_ok=True)
+            with self._run_log_lock:
+                with open(run_log_file, "a", encoding="utf-8") as handle:
+                    handle.write(json.dumps(asdict(record), ensure_ascii=False) + "\n")
+        except OSError as exc:
+            logging.error("[Scheduler] 실행 로그 저장 실패: %s", exc)
+
+    def _record_learning_artifacts(
+        self,
+        task: ScheduledTask,
+        started_at: str,
+        finished_at: str,
+        success: bool,
+        error: str,
+        summary: str,
+    ) -> None:
+        synthetic_goal = f"[예약:{task.task_type}] {task.goal}"
+        status_summary = (summary or error or _("예약 작업 실행"))[:300]
+        try:
+            started = datetime.fromisoformat(started_at)
+            finished = datetime.fromisoformat(finished_at)
+            duration_ms = int((finished - started).total_seconds() * 1000)
+        except Exception as exc:
+            logging.debug("[Scheduler] 실행 시간 계산 실패, 0ms로 폴백: %s", exc)
+            duration_ms = 0
+        failure_kind = ""
+        if not success:
+            try:
+                from agent.execution_analysis import classify_failure_message
+                failure_kind = classify_failure_message(error or summary or "") or "execution_failed"
+            except Exception as exc:
+                logging.debug("[Scheduler] 실패 유형 분류 실패, execution_failed 사용: %s", exc)
+                failure_kind = "execution_failed"
+        try:
+            from agent.strategy_memory import get_strategy_memory
+            get_strategy_memory().record(
+                goal=synthetic_goal,
+                steps=[],
+                success=bool(success),
+                error="" if success else status_summary,
+                duration_ms=duration_ms,
+                failure_kind=failure_kind,
+                lesson="",
+                few_shot_eligible=False,
+            )
+        except Exception as exc:
+            logging.debug("[Scheduler] StrategyMemory 기록 실패: %s", exc)
+        try:
+            from agent.episode_memory import GoalEpisode, get_episode_memory
+            get_episode_memory().record(
+                GoalEpisode(
+                    goal=synthetic_goal,
+                    achieved=bool(success),
+                    summary=status_summary,
+                    failure_kind=failure_kind,
+                    duration_ms=duration_ms,
+                    state_change_summary=f"task_type={task.task_type} | schedule={task.schedule_expr[:80]}",
+                    policy_summary="scheduled_task",
+                )
+            )
+        except Exception as exc:
+            logging.debug("[Scheduler] EpisodeMemory 기록 실패: %s", exc)
+
+_instance: Optional[ProactiveScheduler] = None
+_instance_lock = threading.Lock()
+
+def get_scheduler(tts_func: Optional[Callable] = None) -> ProactiveScheduler:
+    global _instance
+    if _instance is None:
+        with _instance_lock:
+            if _instance is None:
+                _instance = ProactiveScheduler(tts_func)
+    elif tts_func:
+        _instance.tts = tts_func
+    return _instance

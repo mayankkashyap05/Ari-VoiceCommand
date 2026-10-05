@@ -1,0 +1,106 @@
+# AI-Assistant (Ari) 의존성
+# 업데이트: 2026-05-26
+#   자율 에이전트 핵심 확장: 스트리밍/비전/로컬 MCP 서버/감사 로그/직접 파일·앱 도구
+#   신규 런타임 의존성: fastapi, uvicorn, onnxruntime, tokenizers
+#   고급 도구 확장: Google/REST API는 기존 requests, 이미지 생성은 기존 openai SDK 사용
+# 업데이트: 2026-04-22
+#   i18n 종합 보완: 타이머·확인 다이얼로그·안전 점검기 문자열 국제화 / ko·en·ja .po 54개 키 추가
+#   안전 강화: autonomous_executor 민감 환경변수 부분 문자열 필터링 / safety_checker 스레드 안전 캐시
+#   안정성: conversation_history 백그라운드 압축 / constants get_wake_responses() 함수화
+#   이번 업데이트는 새 런타임 의존성 추가 없음
+# 업데이트: 2026-04-14
+#   자기개선 루프 기준선 갱신: shared context 캐시 / 동적 계획 반복 / 반복 실패 조기 종료 /
+#   회복 전략 다변화 / lift 기반 컴포넌트 게이팅 / 임베딩 기반 skill matching / i18n locale 동기화
+#   이번 업데이트는 주석/문서 기준선 정리가 중심이며 새 런타임 의존성은 추가하지 않음
+#   numpy<2 핀 (NumPy 2.x — shiboken6/easyocr C 확장 충돌 방지)
+#   데이터 분석·시각화·문서·시스템 패키지 추가 (자율실행 엔진 복잡 작업 지원)
+#   보안 업데이트: certifi / requests / Pillow 상향
+#   웹 검색 패키지: ddgs 우선 사용, legacy duckduckgo-search 는 코드 fallback 전용
+#   Phase 1-6: conversation_history 슬라이딩 요약, UserProfileEngine, MemoryIndex(SQLite FTS5),
+#              LLMRouter, FewShotInjector, SkillLibrary, ReflectionEngine, MemoryConsolidator,
+#              execution policy / episode memory / backup-recovery guidance
+#   Phase 1-8: GoalPredictor, LearningMetrics, RegressionGuard, stream TTS, clean env validate smoke
+#   2026-04-29: AgentTaskQueue(비동기 작업 큐), ResponseCache.from_config(설정 외부화),
+#              다국어 LLMRouter/WeatherCommand 키워드, safety_checker curl 세분화,
+#              i18n 24개 신규 키(ai_command/SimpleAIAssistant 결과 문자열)
+#   선택 의존성: easyocr, pytesseract
+#   런타임 상태(로그/스케줄/메모리/플러그인 캐시)는 소스 실행 시 VoiceCommand/.ari_runtime,
+#   빌드된 exe 실행 시 %AppData%/Ari 에 저장
+# 개발 검증: validate_repo.py (compile + unittest + smoke)
+# 번역 검증: scripts/extract_strings.py + scripts/compile_po.py
+
+# ── 음성 인식 ──────────────────────────────────────────────────────────────────
+SpeechRecognition==3.10.1
+pyaudio==0.2.14
+faster-whisper>=1.0.0
+scipy>=1.11.0
+
+# ── GUI ────────────────────────────────────────────────────────────────────────
+PySide6==6.6.1
+pyautogui>=0.9.54
+pygetwindow>=0.0.9
+pyperclip>=1.8.2
+opencv-python-headless>=4.9.0.80
+
+# ── AI / LLM ───────────────────────────────────────────────────────────────────
+# OpenAI SDK: OpenAI, Groq, Mistral, Gemini, OpenRouter, NVIDIA NIM 공용
+openai>=1.0.0
+anthropic>=0.25.0
+onnxruntime>=1.17.0
+tokenizers>=0.19.0
+
+# ── TTS / 오디오 ───────────────────────────────────────────────────────────────
+ormsgpack>=1.5.0
+numpy>=1.26.0,<2  # NumPy 2.x는 shiboken6(PySide6), easyocr 등 C 확장과 충돌
+edge-tts>=7.2.8,<8
+# torch>=2.0.0
+# torchaudio
+
+# ── 네트워크 / 브라우저 자동화 ─────────────────────────────────────────────────
+certifi>=2024.7.4
+ddgs>=8.0.0
+httpx>=0.27.0
+requests>=2.33.0
+selenium>=4.18.0
+webdriver-manager>=4.0.1
+beautifulsoup4>=4.12.0   # HTML 파싱 (웹 스크래핑, 자율 실행 웹 작업)
+fastapi>=0.115.0         # 로컬 MCP HTTP 서버
+uvicorn>=0.30.0          # 로컬 MCP HTTP 서버 실행
+
+# ── 데이터 분석 / 시각화 ────────────────────────────────────────────────────────
+# numpy<2 와 호환: matplotlib 3.8+ (numpy>=1.21), pandas 2.x (numpy>=1.23) 모두 충족
+matplotlib>=3.8.0,<4     # 그래프·차트 생성 (CPU 온도 추이, 데이터 시각화 등)
+pandas>=2.1.0            # CSV/Excel 데이터 조작·분석
+openpyxl>=3.1.0          # Excel .xlsx 읽기/쓰기 (pandas Excel I/O 의존성)
+
+# ── 이미지 처리 ──────────────────────────────────────────────────────────────
+Pillow>=12.3.0           # 이미지 변환·편집·저장 (스크린샷 후처리 등)
+
+# ── 문서 생성 ────────────────────────────────────────────────────────────────
+python-docx>=1.1.0       # Word .docx 문서 생성·편집
+reportlab>=4.1.0         # PDF 문서 생성
+
+# ── 시스템 (Windows) ───────────────────────────────────────────────────────────
+comtypes>=1.4.1
+psutil>=5.9.0
+pycaw>=20230407
+pywin32>=306             # Windows API — 레지스트리·COM·셸·프로세스 관리
+
+# ── 빌드 및 유틸리티 ───────────────────────────────────────────────────────────
+huggingface_hub>=0.22.0
+nuitka>=2.5.0
+python-dotenv>=1.2.2
+watchdog>=4.0.0
+
+# ── 선택 의존성 (없어도 앱 실행 가능, 기능 저하만 발생) ─────────────────────────
+# OCR 기반 화면 텍스트 검증 (비전 검증 기능)
+# easyocr>=1.7.0          # GPU/CPU 한국어 OCR (권장)
+# pytesseract>=0.3.10     # 경량 OCR (Tesseract 별도 설치 필요)
+
+# torch>=2.0.0                  # CosyVoice 등 선택 기능에서 필요 시 설치
+
+# Ollama 로컬 LLM (설정의 "로컬 설치" 섹션 또는 install_ollama.py로 별도 설치)
+# Ollama 설치: https://ollama.com  →  ollama pull llama3.2
+# openai SDK(이미 포함)로 http://localhost:11434/v1 에 연결 — 별도 패키지 불필요
+
+# CosyVoice3 로컬 TTS는 설정의 "로컬 설치" 섹션 또는 install_cosyvoice.py로 별도 설치

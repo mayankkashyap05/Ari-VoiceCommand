@@ -1,0 +1,952 @@
+"""
+AgentPlanner — 목표 분해 / 단계 수정 / 결과 검증 플래너 핵심 로직.
+"""
+import json
+import logging
+import os
+import re
+import threading
+import time
+from datetime import datetime
+from typing import List, Optional, Dict
+
+from agent.execution_analysis import is_read_only_step_content
+from agent.learning_metrics import get_learning_metrics
+from agent.llm_retry import extract_retry_delay_seconds, is_retryable_llm_error
+from agent.planner_json_utils import (
+    parse_json_array,
+    parse_json_object,
+)
+from agent.planner.action_step import ActionStep
+from agent.planner.template_plans import TemplatePlansMixin
+
+_DEV_SCOPE_RE = re.compile(
+    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:저장소|repository|codebase|repo)\b)?|voicecommand/validate_repo\.py\b|\bdocs\b)",
+    re.IGNORECASE,
+)
+_DEV_PRODUCT_RE = re.compile(r"\bvoicecommand\b", re.IGNORECASE)
+_DEV_ACTION_RE = re.compile(
+    r"(validate_repo\.py|--compile-only|pytest|unittest|회귀|리팩토링|코드\s*(?:변경|수정)|테스트(?:\s*실행)?|문서\s*수정|bug|fix|refactor|구현|검증|개선(?:\s*과제)?|분석|전체\s*파악|영향받는\s*테스트)",
+    re.IGNORECASE,
+)
+_DEV_REPO_RE = re.compile(r"(저장소|repository|codebase|\brepo\b|프로젝트)", re.IGNORECASE)
+_DISALLOWED_DEVELOPER_PATTERNS = (
+    (re.compile(r"step_outputs\s*\[\s*\d+\s*\]"), "numeric step_outputs access"),
+    (re.compile(r"os\.environ\s*\[\s*['\"]repo_root['\"]\s*\]"), "repo_root env access"),
+    (re.compile(r"\$env:repo_root", re.IGNORECASE), "repo_root env access"),
+    (re.compile(r"__file__"), "__file__ path inference"),
+    (re.compile(r"os\.path\.expanduser\(\s*['\"]~['\"]\s*\)"), "home path inference"),
+    (re.compile(r"desktop_path"), "desktop path use in developer task"),
+    (re.compile(r"[A-Za-z]:\\\\"), "hardcoded absolute path"),
+    # 경로 추출은 앞의 "../"를 떼어 내므로 원문에서 먼저 막는다.
+    (re.compile(r"(?:^|[^\w.])\.\.[\\/]"), "parent directory path"),
+)
+_DEVELOPER_PATH_LITERAL_RE = re.compile(
+    r"(?<![A-Za-z0-9_])((?:VoiceCommand|docs|tests|market|supabase|\.github|\.claude|\.idea)[/\\][A-Za-z0-9_./\\-]+)",
+    re.IGNORECASE,
+)
+_DEVELOPER_RESCAN_PATTERNS = (
+    re.compile(r"repo_structure\.txt", re.IGNORECASE),
+    re.compile(r"collected\.json", re.IGNORECASE),
+    re.compile(r"Get-ChildItem\s+-Recurse\s+-Directory", re.IGNORECASE),
+    re.compile(r"\brglob\s*\(\s*['\"]\*\.py['\"]\s*\)", re.IGNORECASE),
+    re.compile(r"\bPath\s*\(\s*repo_root\s*\)\.rglob\s*\(", re.IGNORECASE),
+    re.compile(r"\bos\.walk\s*\(\s*repo_root", re.IGNORECASE),
+    re.compile(r"\bSelect-Object\s+FullName\b", re.IGNORECASE),
+    re.compile(r"\bOut-File\b", re.IGNORECASE),
+)
+_DEFAULT_DEVELOPER_SCOPE_PREFIXES = (
+    "voicecommand/agent",
+    "voicecommand/core",
+    "voicecommand/ui",
+    "voicecommand/plugins",
+    "voicecommand/tests",
+    "docs",
+    "voicecommand/validate_repo.py",
+)
+
+
+from agent.planner.prompt_templates import (
+    _SYS_JSON_ONLY,
+    _DECOMPOSE_PROMPT,
+    _DEVELOPER_DECOMPOSE_PROMPT,
+    _DEVELOPER_RETRY_PROMPT,
+    _FIX_PROMPT,
+    _VERIFY_PROMPT,
+    _REFLECT_PROMPT,
+    _DECOMPOSE_PROMPT_EN,
+    _DEVELOPER_DECOMPOSE_PROMPT_EN,
+    _DEVELOPER_RETRY_PROMPT_EN,
+    _FIX_PROMPT_EN,
+    _VERIFY_PROMPT_EN,
+    _REFLECT_PROMPT_EN,
+)
+
+
+def _get_lang() -> str:
+    try:
+        from i18n.translator import get_language
+        return get_language()
+    except Exception as exc:
+        logging.debug("[Planner] 언어 설정 조회 실패, ko 기본값 사용: %s", exc)
+        return "ko"
+
+
+def _get_decompose_prompt() -> str:
+    return _DECOMPOSE_PROMPT_EN if _get_lang() != "ko" else _DECOMPOSE_PROMPT
+
+
+def _get_developer_decompose_prompt() -> str:
+    return _DEVELOPER_DECOMPOSE_PROMPT_EN if _get_lang() != "ko" else _DEVELOPER_DECOMPOSE_PROMPT
+
+
+def _get_developer_retry_prompt() -> str:
+    return _DEVELOPER_RETRY_PROMPT_EN if _get_lang() != "ko" else _DEVELOPER_RETRY_PROMPT
+
+
+def _get_fix_prompt() -> str:
+    return _FIX_PROMPT_EN if _get_lang() != "ko" else _FIX_PROMPT
+
+
+def _get_verify_prompt() -> str:
+    return _VERIFY_PROMPT_EN if _get_lang() != "ko" else _VERIFY_PROMPT
+
+
+def _get_reflect_prompt() -> str:
+    return _REFLECT_PROMPT_EN if _get_lang() != "ko" else _REFLECT_PROMPT
+
+
+class AgentPlanner(TemplatePlansMixin):
+    """목표 분해 / 단계 수정 / 결과 검증 플래너"""
+
+    def __init__(self, llm_provider):
+        self.llm = llm_provider
+        self._last_learning_signals: Dict[str, bool] = {}
+
+    def _get_role_target(self, role: str) -> tuple:
+        getter = getattr(self.llm, "get_role_target", None)
+        if callable(getter):
+            return getter(role)
+        provider = getattr(self.llm, f"{role}_provider", "") or getattr(self.llm, "provider", "")
+        model = getattr(self.llm, f"{role}_model", "") or getattr(self.llm, "model", "")
+        client = getattr(self.llm, f"{role}_client", None) or getattr(self.llm, "client", None)
+        return client, provider, model
+
+    def reflect(self, goal: str, history_summary: str) -> Dict[str, str]:
+        """실패 원인 분석 및 교훈 도출 (planner_model 사용)"""
+        prompt = _get_reflect_prompt().format(goal=goal, history_summary=history_summary)
+        try:
+            client, provider, model = self._get_role_target("planner")
+            resp = self._call_llm(prompt, model=model,
+                                  client_override=client,
+                                  provider_override=provider,
+                                  role_hint="planner")
+            return self._parse_object(resp) or {}
+        except Exception as e:
+            logging.error("[Planner] 반성 실패: %s", e)
+            return {}
+
+    # ── 공개 API ──────────────────────────────────────────────────────────────
+
+    def decompose(
+        self,
+        goal: str,
+        context: Dict[str, str] = None,
+        component_trials: Optional[Dict[str, Dict[str, bool]]] = None,
+    ) -> List[ActionStep]:
+        """목표를 실행 단계 목록으로 분해 (planner_model 사용)"""
+        from agent.dag_builder import extract_resources, build_dag, assign_parallel_groups, annotate_steps
+        from agent.few_shot_injector import get_few_shot_injector
+        from agent.planner_feedback import get_planner_feedback_loop
+        signals = {
+            "StrategyMemory": False,
+            "EpisodeMemory": False,
+            "FewShot": False,
+            "PlannerFeedback": False,
+        }
+
+        def _should_activate(name: str, eligible: bool) -> bool:
+            if not eligible:
+                return False
+            if component_trials is None:
+                return True
+            return get_learning_metrics().should_activate(
+                name,
+                eligible=True,
+                trials=component_trials,
+            )
+
+        def _annotate(steps: List[ActionStep]) -> List[ActionStep]:
+            for step in steps:
+                step.reads, step.writes = extract_resources(step.content, step.step_type)
+            dag = build_dag(steps)
+            groups = assign_parallel_groups(dag)
+            return annotate_steps(steps, dag, groups)
+
+        templated = self._build_template_plan(goal)
+        if templated:
+            logging.info("[Planner] 템플릿 계획 사용 (%d자)", len(goal))
+            self._last_learning_signals = signals
+            return _annotate(templated)
+
+        is_dev_goal = self.is_developer_goal(goal)
+
+        # 과거 전략 기억 주입
+        if is_dev_goal:
+            ctx_block = self._fmt_developer_context(context, goal=goal)
+            failure_hints = self._get_failure_hints(goal)
+            if _should_activate("StrategyMemory", bool(failure_hints)):
+                signals["StrategyMemory"] = True
+                ctx_block = "## 최근 실패 힌트\n" + failure_hints + "\n" + ctx_block
+        else:
+            feedback_loop = get_planner_feedback_loop()
+            feedback_tags = feedback_loop.infer_tags(goal=goal)
+            strategy_ctx = self._get_strategy_context(goal)
+            episode_failure_patterns = self._get_episode_failure_patterns(goal)
+            ctx_block = self._fmt_context(context)
+            if _should_activate("StrategyMemory", bool(strategy_ctx)):
+                signals["StrategyMemory"] = True
+                ctx_block = strategy_ctx + "\n" + ctx_block
+            if _should_activate("EpisodeMemory", bool(episode_failure_patterns)):
+                signals["EpisodeMemory"] = True
+                ctx_block = "## 반복 실패 패턴\n" + episode_failure_patterns + "\n" + ctx_block
+            few_shot = get_few_shot_injector().get_examples(goal)
+            if _should_activate("FewShot", bool(few_shot)):
+                signals["FewShot"] = True
+                ctx_block = few_shot + "\n" + ctx_block
+            feedback_hints = feedback_loop.get_hints(goal, feedback_tags)
+            if _should_activate("PlannerFeedback", bool(feedback_hints)):
+                signals["PlannerFeedback"] = True
+                ctx_block = feedback_hints + "\n" + ctx_block
+
+        prompt_template = _get_developer_decompose_prompt() if is_dev_goal else _get_decompose_prompt()
+        prompt = prompt_template.format(goal=goal, context_block=ctx_block)
+        client, provider, model = self._get_role_target("planner")
+        raw = self._call_llm(prompt, model=model,
+                             client_override=client,
+                             provider_override=provider,
+                             role_hint="planner")
+        self._write_trace("decompose", goal, raw)
+        items = self._parse_array(raw)
+        if items and is_dev_goal:
+            items = self._sanitize_developer_items(items, goal=goal, context=context)
+        if not items:
+            if is_dev_goal:
+                retry_items = self._retry_developer_decompose(goal, context, ctx_block)
+                if retry_items:
+                    items = retry_items
+            if not items and is_dev_goal:
+                fallback_steps = self._build_developer_bootstrap_plan(context)
+                if fallback_steps:
+                    logging.info("[Planner] 개발 목표용 부트스트랩 계획 사용")
+                    self._last_learning_signals = signals
+                    return _annotate(fallback_steps)
+        if not items:
+            logging.warning("[Planner] decompose 파싱 실패: %s", raw[:200])
+            self._last_learning_signals = signals
+            return []
+        steps = [
+            ActionStep(
+                step_id=i,
+                step_type=s.get("step_type", "python"),
+                content=s.get("content", ""),
+                description_kr=s.get("description_kr", f"단계 {i+1}"),
+                expected_output=s.get("expected_output", ""),
+                condition=s.get("condition", ""),
+                on_failure=s.get("on_failure", "abort"),
+                optional=bool(s.get("optional", False)),
+            )
+            for i, s in enumerate(items)
+        ]
+        self._last_learning_signals = signals
+        return _annotate(steps)
+
+    def get_last_learning_signals(self) -> Dict[str, bool]:
+        return dict(self._last_learning_signals)
+
+    def is_developer_goal(self, goal: str) -> bool:
+        normalized = re.sub(r"\s+", " ", (goal or "").strip())
+        if not normalized:
+            return False
+        has_product = bool(_DEV_PRODUCT_RE.search(normalized))
+        has_repo_scope = bool(_DEV_SCOPE_RE.search(normalized)) or bool(_DEV_REPO_RE.search(normalized)) or has_product
+        has_dev_action = bool(_DEV_ACTION_RE.search(normalized))
+        return has_repo_scope and has_dev_action
+
+    def _retry_developer_decompose(self, goal: str, context: Dict[str, str], ctx_block: str) -> list:
+        if not context or not any(key.startswith("step_") for key in context):
+            return []
+        # 재시도 시 컨텍스트를 최소화 — 실패 힌트/긴 로그 제외하고 순수 개발 컨텍스트만 사용
+        retry_ctx = self._fmt_developer_context(context, goal=goal)
+        retry_prompt = _get_developer_retry_prompt().format(goal=goal, context_block=retry_ctx)
+        client, provider, model = self._get_role_target("planner")
+        retry_raw = self._call_llm(
+            retry_prompt,
+            model=model,
+            client_override=client,
+            provider_override=provider,
+            role_hint="planner",
+        )
+        self._write_trace("decompose_retry", goal, retry_raw)
+        retry_items = self._parse_array(retry_raw)
+        if retry_items:
+            retry_items = self._sanitize_developer_items(retry_items, goal=goal, context=context)
+        if retry_items:
+            logging.info("[Planner] 개발 목표 후속 계획 재요청 성공")
+            return retry_items
+        logging.warning("[Planner] decompose_retry 실패 → 최소 변경 fallback 없이 계획 실패 처리")
+        return []
+
+    def _build_developer_bootstrap_plan(self, context: Dict[str, str] = None) -> List[ActionStep]:
+        """개발자 모드 초기화 플랜 생성 — 저장소 스캔·검증 스크립트 확인·테스트 목록 수집."""
+        context = context or {}
+        if any(key.startswith("step_") for key in context):
+            return []
+        return [
+            ActionStep(
+                step_id=0,
+                step_type="python",
+                content=(
+                    "import json\n"
+                    "import os\n"
+                    "targets = {\n"
+                    "    'agent': os.path.join(module_dir, 'agent'),\n"
+                    "    'core': os.path.join(module_dir, 'core'),\n"
+                    "    'ui': os.path.join(module_dir, 'ui'),\n"
+                    "    'plugins': os.path.join(module_dir, 'plugins'),\n"
+                    "    'tests': os.path.join(module_dir, 'tests'),\n"
+                    "    'docs': os.path.join(repo_root, 'docs'),\n"
+                    "}\n"
+                    "summary = {}\n"
+                    "for label, target_path in targets.items():\n"
+                    "    if not os.path.isdir(target_path):\n"
+                    "        continue\n"
+                    "    files = []\n"
+                    "    for root, _, names in os.walk(target_path):\n"
+                    "        for name in sorted(names):\n"
+                    "            rel = os.path.relpath(os.path.join(root, name), target_path).replace('\\\\', '/')\n"
+                    "            files.append(rel)\n"
+                    "    summary[label] = {'file_count': len(files), 'samples': files[:5]}\n"
+                    "print(json.dumps(summary, ensure_ascii=False))"
+                ),
+                description_kr="저장소 구조 스캔",
+                expected_output="target directory summary json",
+                on_failure="abort",
+            ),
+            ActionStep(
+                step_id=1,
+                step_type="python",
+                content=(
+                    "import os\n"
+                    "matches = []\n"
+                    "for search_root in (module_dir, repo_root):\n"
+                    "    for root, _, names in os.walk(search_root):\n"
+                    "        if 'validate_repo.py' in names:\n"
+                    "            matches.append(os.path.join(root, 'validate_repo.py'))\n"
+                    "if not matches:\n"
+                    "    raise FileNotFoundError('validate_repo.py not found under repo_root')\n"
+                    "target_path = sorted(set(matches))[0]\n"
+                    "# 경로만 출력 — 소스 전체를 읽으면 컨텍스트가 폭발하므로 금지\n"
+                    "print(f'validate_repo_path={target_path}')"
+                ),
+                description_kr="검증 스크립트 확인",
+                expected_output="validate_repo_path=<path>",
+                on_failure="abort",
+            ),
+            ActionStep(
+                step_id=2,
+                step_type="python",
+                content=(
+                    "import json\n"
+                    "import os\n"
+                    "tests_dir = os.path.join(module_dir, 'tests')\n"
+                    "if not os.path.isdir(tests_dir):\n"
+                    "    raise FileNotFoundError('tests directory not found under module_dir')\n"
+                    "names = [\n"
+                    "    name\n"
+                    "    for name in sorted(os.listdir(tests_dir))\n"
+                    "    if os.path.isfile(os.path.join(tests_dir, name))\n"
+                    "    and name.startswith('test_') and name.endswith('.py')\n"
+                    "]\n"
+                    "print(json.dumps(names, ensure_ascii=False))"
+                ),
+                description_kr="관련 테스트 목록 수집",
+                expected_output="test file list",
+                on_failure="abort",
+            ),
+        ]
+    def fix_step(
+        self,
+        step: ActionStep,
+        error: str,
+        goal: str,
+        context: Dict[str, str] = None,
+    ) -> Optional[ActionStep]:
+        """실패한 단계를 LLM으로 수정 (execution_model 사용)"""
+        # 과거 실패 패턴도 힌트로 제공
+        failure_hints = self._get_failure_hints(goal)
+        ctx_block = self._fmt_context(context)
+        if failure_hints:
+            ctx_block += f"\n## 이전 실패 패턴 (반복 금지):\n{failure_hints}\n"
+
+        prompt = _get_fix_prompt().format(
+            content=step.content,
+            error=error[:500],
+            goal=goal,
+            context_block=ctx_block,
+        )
+        client, provider, model = self._get_role_target("execution")
+        raw = self._call_llm(prompt, model=model,
+                             client_override=client,
+                             provider_override=provider,
+                             role_hint="execution")
+        self._write_trace("fix_step", goal, raw)
+        data = self._parse_object(raw)
+        if not data or not data.get("content"):
+            logging.warning("[Planner] fix_step 파싱 실패: %s", raw[:200])
+            heuristic = self._heuristic_fix_step(step, error, goal, context)
+            if heuristic:
+                return heuristic
+            return None
+        if self.is_developer_goal(goal):
+            disallowed_reason = self._find_disallowed_developer_reason(data.get("content", ""), goal=goal, context=context)
+            if disallowed_reason:
+                logging.warning("[Planner] 개발용 수정안 거부 (%s)", disallowed_reason)
+                heuristic = self._heuristic_fix_step(step, error, goal, context)
+                if heuristic:
+                    return heuristic
+                return None
+        return ActionStep(
+            step_id=step.step_id,
+            step_type=data.get("step_type", step.step_type),
+            content=data["content"],
+            description_kr=data.get("description_kr", "수정된 코드"),
+            expected_output=data.get("expected_output", ""),
+            condition=step.condition,
+            on_failure=step.on_failure,
+            optional=step.optional,
+        )
+
+    def _heuristic_fix_step(
+        self,
+        step: ActionStep,
+        error: str,
+        goal: str,
+        context: Dict[str, str] = None,
+    ) -> Optional[ActionStep]:
+        """LLM 수정안이 깨졌을 때 적용하는 규칙 기반 복구."""
+        content = step.content or ""
+        normalized_error = (error or "").lower()
+        normalized_goal = goal or ""
+
+        if "검색 결과를 저장할 수 없습니다" in error and any(token in normalized_goal for token in ("검색", "뉴스", "웹")):
+            return ActionStep(
+                step_id=step.step_id,
+                step_type="python",
+                content=(
+                    "folder_path = step_outputs.get('step_0_output', '').strip()\n"
+                    "results_text = step_outputs.get('step_1_output', '')\n"
+                    "if not folder_path:\n"
+                    "    raise RuntimeError('저장 경로가 없습니다.')\n"
+                    "fallback_content = '# 검색 결과\\n\\n' + (results_text or '검색 결과를 가져오지 못했습니다.')\n"
+                    "saved_path = save_document(folder_path, 'search_results_fallback', fallback_content, preferred_format='md', title='검색 결과')\n"
+                    "print(saved_path)"
+                ),
+                description_kr="검색 결과 폴백 저장",
+                expected_output="fallback search file path",
+                condition=step.condition,
+                on_failure=step.on_failure,
+                optional=step.optional,
+            )
+
+        if "syntaxerror" in normalized_error and "with open" in content:
+            fixed_content = content.replace("; with open", "\nwith open")
+            return ActionStep(
+                step_id=step.step_id,
+                step_type=step.step_type,
+                content=fixed_content,
+                description_kr=f"{step.description_kr} (문법 보정)",
+                expected_output=step.expected_output,
+                condition=step.condition,
+                on_failure=step.on_failure,
+                optional=step.optional,
+            )
+
+        if "name 'len' is not defined" in normalized_error:
+            return ActionStep(
+                step_id=step.step_id,
+                step_type=step.step_type,
+                content=step.content,
+                description_kr=f"{step.description_kr} (조건 재평가)",
+                expected_output=step.expected_output,
+                condition=step.condition,
+                on_failure=step.on_failure,
+                optional=step.optional,
+            )
+
+        return None
+
+    def verify(self, goal: str, step_results: list) -> dict:
+        """실행 결과가 목표를 달성했는지 검증 (planner_model 사용)"""
+        lines = []
+        for i, r in enumerate(step_results):
+            status = "성공" if r.success else "실패"
+            out = r.output[:150] if r.output else (r.error[:150] if r.error else "없음")
+            lines.append(f"  단계 {i+1} [{status}]: {out}")
+        results_summary = "\n".join(lines)
+        prompt = _get_verify_prompt().format(goal=goal, results_summary=results_summary)
+        client, provider, model = self._get_role_target("planner")
+        raw = self._call_llm(prompt, model=model,
+                             client_override=client,
+                             provider_override=provider,
+                             role_hint="planner")
+        self._write_trace("verify", goal, raw)
+        data = self._parse_object(raw)
+        return data if data else {"achieved": False, "summary": "검증 실패"}
+
+    # ── 내부 ──────────────────────────────────────────────────────────────────
+
+    def _with_strategy_memory(self, callback, default):
+        try:
+            from agent.strategy_memory import get_strategy_memory
+            return callback(get_strategy_memory())
+        except Exception as exc:
+            logging.debug("[Planner] StrategyMemory 접근 실패, 기본값 사용: %s", exc)
+            return default
+
+    def _with_episode_memory(self, callback, default):
+        try:
+            from agent.episode_memory import get_episode_memory
+            return callback(get_episode_memory())
+        except Exception as exc:
+            logging.debug("[Planner] EpisodeMemory 접근 실패, 기본값 사용: %s", exc)
+            return default
+
+    def _get_strategy_context(self, goal: str) -> str:
+        """전략 기억에서 유사 과거 경험 조회 (실패 무시)"""
+        return self._with_strategy_memory(
+            lambda memory: memory.get_relevant_context(goal),
+            "",
+        )
+
+    def _get_failure_hints(self, goal: str) -> str:
+        """최근 실패 패턴 요약 문자열 반환"""
+        return self._with_strategy_memory(
+            lambda memory: self._format_failure_items(memory.recent_failures(goal)),
+            "",
+        )
+
+    def _get_episode_failure_patterns(self, goal: str) -> str:
+        return self._with_episode_memory(
+            lambda memory: self._format_failure_items(memory.get_failure_patterns(goal, limit=3)),
+            "",
+        )
+
+    def _format_failure_items(self, items) -> str:
+        return "\n".join(f"- {item}" for item in items) if items else ""
+
+    def _call_llm(self, prompt: str, model: str = "", client_override=None, provider_override: str = "", role_hint: str = "planner") -> str:
+        """대화 히스토리와 독립적으로 LLM 호출. model이 없으면 planner_model 사용."""
+        candidates = self._get_llm_candidates(role_hint, model, client_override, provider_override)
+        if not candidates:
+            return ""
+        collected_parts: List[str] = []
+        continuation_budget = 2
+        active_prompt = prompt
+
+        for candidate_index, (client, provider, target_model) in enumerate(candidates):
+            while True:
+                text = ""
+                finish_reason = ""
+                failed = False
+                for attempt in range(3):
+                    try:
+                        if provider == "anthropic":
+                            resp = client.messages.create(
+                                model=target_model,
+                                max_tokens=4096,
+                                system=_SYS_JSON_ONLY,
+                                messages=[{"role": "user", "content": active_prompt}],
+                            )
+                            text = " ".join(b.text for b in resp.content if b.type == "text")
+                            finish_reason = str(getattr(resp, "stop_reason", "") or "")
+                        else:
+                            extra_kwargs = {}
+                            if self._supports_json_response_format(provider):
+                                extra_kwargs["response_format"] = {"type": "json_object"}
+                            resp = client.chat.completions.create(
+                                model=target_model,
+                                messages=[
+                                    {"role": "system", "content": _SYS_JSON_ONLY},
+                                    {"role": "user", "content": active_prompt},
+                                ],
+                                temperature=0.1,
+                                max_tokens=4096,
+                                **extra_kwargs,
+                            )
+                            choice = resp.choices[0]
+                            text = choice.message.content or ""
+                            finish_reason = str(getattr(choice, "finish_reason", "") or "")
+                        break
+                    except Exception as e:
+                        is_custom_provider = getattr(self.llm, "_is_custom_provider", None)
+                        error_for_log = (
+                            self.llm._safe_custom_provider_error(e)
+                            if callable(is_custom_provider) and is_custom_provider(provider)
+                            else e
+                        )
+                        has_fallback = candidate_index < len(candidates) - 1
+                        delay = extract_retry_delay_seconds(e, attempt) if is_retryable_llm_error(e) else 0.0
+                        if has_fallback and delay >= 8.0:
+                            next_model = candidates[candidate_index + 1][2]
+                            logging.warning(
+                                "[Planner] %s 장기 대기 오류(%.1fs) → 선택된 대체 모델 %s로 즉시 전환: %s",
+                                target_model,
+                                delay,
+                                next_model,
+                                error_for_log,
+                            )
+                            failed = True
+                            break
+                        if attempt < 2 and is_retryable_llm_error(e):
+                            logging.warning(
+                                "[Planner] LLM 일시 오류 (%s) → %.1fs 대기 후 재시도: %s",
+                                target_model,
+                                delay,
+                                error_for_log,
+                            )
+                            time.sleep(delay)
+                            continue
+                        if has_fallback and is_retryable_llm_error(e):
+                            next_model = candidates[candidate_index + 1][2]
+                            logging.warning(
+                                "[Planner] %s 호출 실패 → 선택된 대체 모델 %s로 전환: %s",
+                                target_model,
+                                next_model,
+                                error_for_log,
+                            )
+                            failed = True
+                            break
+                        logging.error("[Planner] LLM 호출 오류 (%s): %s", target_model, error_for_log)
+                        # 이어받기 중에 실패하면 잘린 JSON을 돌려주지 않는다.
+                        return ""
+                if failed:
+                    break
+
+                collected_parts.append(text)
+                combined = "".join(collected_parts).strip()
+                if continuation_budget <= 0 or not self._should_continue_llm_output(finish_reason, combined):
+                    return combined
+
+                continuation_budget -= 1
+                active_prompt = (
+                    "이전 JSON 응답이 길이 제한으로 잘렸습니다. 이미 출력한 텍스트는 반복하지 말고, "
+                    "바로 이어지는 JSON 내용만 이어서 출력하세요.\n\n"
+                    f"원래 요청:\n{prompt}\n\n"
+                    f"지금까지 출력한 응답:\n{combined[-3000:]}"
+                )
+                logging.info("[Planner] LLM 응답이 잘려 이어받기를 시도합니다.")
+                time.sleep(0.5)
+        # 모든 모델이 실패해 여기까지 왔다면 남은 조각은 완성된 응답이 아니다.
+        return ""
+
+    @staticmethod
+    def _supports_json_response_format(provider: str) -> bool:
+        return str(provider or "").strip().lower() in {"openai", "groq"}
+
+    def _get_llm_candidates(self, role_hint: str, model: str, client_override, provider_override: str) -> List[tuple]:
+        candidates: List[tuple] = []
+        if client_override is not None or model or provider_override:
+            # 호출자가 넘긴 값은 한 시점의 조합이다. 일부가 비어 있어도 다른 시점의 값과 섞지 않는다.
+            primary_client, primary_provider, primary_model = client_override, provider_override, model
+        else:
+            primary_client, primary_provider, primary_model = self._get_role_target(role_hint)
+
+        seen = set()
+        if primary_client and primary_model:
+            key = (str(primary_provider or ""), str(primary_model or ""))
+            candidates.append((primary_client, primary_provider, primary_model))
+            seen.add(key)
+
+        if hasattr(self.llm, "get_role_fallback_targets"):
+            for client, provider, target_model in self.llm.get_role_fallback_targets(role_hint):
+                key = (str(provider or ""), str(target_model or ""))
+                if not client or not target_model or key in seen:
+                    continue
+                candidates.append((client, provider, target_model))
+                seen.add(key)
+        elif not candidates and primary_client and primary_model:
+            candidates.append((primary_client, primary_provider, primary_model))
+        return candidates
+
+    def _sanitize_developer_items(self, items: list, goal: str = "", context: Dict[str, str] = None) -> list:
+        has_repo_context = bool(context and any(key.startswith("step_") for key in context))
+        has_code_change = False
+        has_validate_repo = False
+        has_test_validation = False
+        sanitized = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            content = str(item.get("content", "") or "")
+            description = str(item.get("description_kr", "") or "")
+            disallowed_reason = self._find_disallowed_developer_reason(content, goal=goal, context=context)
+            if disallowed_reason:
+                logging.warning("[Planner] 개발 계획 거부 (%s)", disallowed_reason)
+                return []
+            if not is_read_only_step_content(content, description):
+                has_code_change = True
+            if self._is_validate_repo_validation_step(content):
+                has_validate_repo = True
+            if self._is_test_validation_step(content):
+                has_test_validation = True
+            sanitized.append(item)
+        if has_repo_context:
+            if any(str(item.get("step_type", "") or "").lower() == "think" for item in sanitized):
+                logging.warning("[Planner] 개발 계획 거부 (bootstrap 이후 think 단계 재등장)")
+                return []
+            if not has_code_change:
+                logging.warning("[Planner] 개발 계획 거부 (실제 코드 변경 단계 없음)")
+                return []
+            if self._developer_goal_requests_validate_repo(goal) and not has_validate_repo:
+                logging.warning("[Planner] 개발 계획 거부 (validate_repo 검증 단계 없음)")
+                return []
+            if self._developer_goal_requests_tests(goal) and not has_test_validation:
+                logging.warning("[Planner] 개발 계획 거부 (영향 테스트 검증 단계 없음)")
+                return []
+        return sanitized
+
+    def _find_disallowed_developer_reason(self, content: str, goal: str = "", context: Dict[str, str] = None) -> str:
+        text = content or ""
+        for pattern, reason in _DISALLOWED_DEVELOPER_PATTERNS:
+            if pattern.search(text):
+                return reason
+        normalized = self._normalize_developer_path(text)
+        if "&&" in text:
+            return "shell chaining"
+        if "py_compile" in normalized:
+            return "py_compile-only validation"
+        if "tests/" in normalized and "voicecommand/tests/" not in normalized and "voicecommand.tests." not in normalized:
+            return "root tests path"
+        if context and any(key.startswith("step_") for key in context):
+            for pattern in _DEVELOPER_RESCAN_PATTERNS:
+                if pattern.search(text):
+                    return "repeat repo scan after bootstrap"
+        for candidate in self.extract_developer_path_candidates(text):
+            if not self.is_allowed_developer_path(candidate, goal=goal, context=context):
+                return f"out-of-scope path reference: {candidate}"
+        return ""
+
+    def extract_developer_path_candidates(self, text: str) -> List[str]:
+        normalized = self._normalize_developer_path(text)
+        if not normalized:
+            return []
+        matches = []
+        for candidate in _DEVELOPER_PATH_LITERAL_RE.findall(normalized):
+            cleaned = self._normalize_developer_path(candidate)
+            if cleaned:
+                matches.append(cleaned)
+        return list(dict.fromkeys(matches))
+
+    def get_developer_allowed_prefixes(self, goal: str = "", context: Dict[str, str] = None) -> List[str]:
+        prefixes = []
+
+        def add(prefix: str) -> None:
+            cleaned = self._normalize_developer_path(prefix)
+            if cleaned and cleaned not in prefixes:
+                prefixes.append(cleaned)
+
+        normalized_goal = self._normalize_developer_path(goal)
+        for scope in ("agent", "core", "ui", "plugins", "tests"):
+            if f"voicecommand/{scope}" in normalized_goal:
+                add(f"voicecommand/{scope}")
+        if re.search(r"(?<!voicecommand/)\bdocs\b", normalized_goal):
+            add("docs")
+
+        if context:
+            repo_scan = str(context.get("step_0_output", "") or "")
+            try:
+                payload = json.loads(repo_scan)
+            except Exception as exc:
+                logging.debug("[Planner] repo_scan JSON 파싱 실패, 빈 payload 사용: %s", exc)
+                payload = {}
+            if isinstance(payload, dict):
+                for area in payload.keys():
+                    lowered = str(area).strip().lower()
+                    if lowered == "docs":
+                        add("docs")
+                    elif lowered in {"agent", "core", "ui", "plugins", "tests"}:
+                        add(f"voicecommand/{lowered}")
+
+        add("voicecommand/validate_repo.py")
+        if not prefixes:
+            for prefix in _DEFAULT_DEVELOPER_SCOPE_PREFIXES:
+                add(prefix)
+        return prefixes
+
+    def is_allowed_developer_path(self, path: str, goal: str = "", context: Dict[str, str] = None) -> bool:
+        normalized = self._normalize_developer_path(path)
+        if not normalized:
+            return True
+        # "VoiceCommand/agent/../../core/..."처럼 접두사는 같아도 허용 범위 밖을 가리키는 경로는 막는다.
+        if ".." in re.split(r"[\\/]", str(path).strip().strip("\"'")):
+            return False
+        allowed_prefixes = self.get_developer_allowed_prefixes(goal=goal, context=context)
+        for prefix in allowed_prefixes:
+            if normalized == prefix or normalized.startswith(prefix + "/"):
+                return True
+        return False
+
+    def _normalize_developer_path(self, text: str) -> str:
+        value = str(text or "").strip().strip('"').strip("'")
+        if not value:
+            return ""
+        return value.replace("\\\\", "/").replace("\\", "/").lstrip("./").lower()
+
+    def _developer_goal_requests_validate_repo(self, goal: str) -> bool:
+        normalized = self._normalize_developer_path(goal)
+        return "validate_repo.py" in normalized or "--compile-only" in normalized or "검증" in (goal or "")
+
+    def _developer_goal_requests_tests(self, goal: str) -> bool:
+        return bool(re.search(r"(영향받는\s*테스트|관련\s*테스트|pytest|unittest|tests?)", goal or "", re.IGNORECASE))
+
+    def _is_validate_repo_validation_step(self, content: str) -> bool:
+        normalized = self._normalize_developer_path(content)
+        return "validate_repo.py" in normalized
+
+    def _is_test_validation_step(self, content: str) -> bool:
+        normalized = self._normalize_developer_path(content)
+        if "pytest" not in normalized and "unittest" not in normalized:
+            return False
+        if "tests/" in normalized and "voicecommand/tests/" not in normalized:
+            return False
+        return "voicecommand/tests/" in normalized or "voicecommand.tests." in normalized
+
+    def _should_continue_llm_output(self, finish_reason: str, text: str) -> bool:
+        normalized = (finish_reason or "").lower()
+        if normalized in {"length", "max_tokens"}:
+            return True
+        if not text:
+            return False
+        stripped = text.strip()
+        if stripped.startswith("[") and stripped.count("[") > stripped.count("]"):
+            return True
+        if stripped.startswith("{") and stripped.count("{") > stripped.count("}"):
+            return True
+        return False
+
+    def _parse_array(self, text: str) -> list:
+        return parse_json_array(text)
+
+    def _parse_object(self, text: str) -> dict:
+        return parse_json_object(text)
+
+    def _fmt_context(self, context: Dict[str, str]) -> str:
+        if not context:
+            return ""
+        lines = ["이전 단계 결과:"]
+        for k, v in context.items():
+            lines.append(f"  {k}: {str(v)[:120]}")
+        return "\n".join(lines) + "\n"
+
+    @staticmethod
+    def _infer_relevant_tests(test_names: list, goal: str) -> list:
+        """goal에서 대상 .py 파일명을 추출해 관련 테스트 파일을 선별."""
+        if not test_names or not goal:
+            return []
+        py_refs = re.findall(r'\b(\w+)\.py\b', goal.lower())
+        target_bases = {name.removeprefix("test_") for name in py_refs if name}
+        if not target_bases:
+            return []
+        relevant = []
+        for test_name in test_names:
+            base = test_name.lower().removeprefix("test_").removesuffix(".py")
+            if any(base in tb or tb in base for tb in target_bases if len(tb) > 3):
+                relevant.append(test_name)
+        return relevant
+
+    def _fmt_developer_context(self, context: Dict[str, str], goal: str = "") -> str:
+        if not context:
+            return ""
+        lines = ["저장소 개발 컨텍스트:"]
+
+        repo_scan = str(context.get("step_0_output", "") or "")
+        if repo_scan:
+            try:
+                data = json.loads(repo_scan)
+                for area, info in data.items():
+                    file_count = info.get("file_count", 0)
+                    samples = ", ".join((info.get("samples") or [])[:3])
+                    lines.append(f"  {area}: file_count={file_count}, samples={samples}")
+            except Exception as exc:
+                logging.debug("[Planner] 개발 컨텍스트 repo_scan 해석 실패: %s", exc)
+                lines.append(f"  repo_scan: {repo_scan[:180]}")
+
+        validate_preview = str(context.get("step_1_output", "") or "")
+        if validate_preview:
+            compile_targets = len(re.findall(r'^\s*\"?[A-Za-z0-9_/.-]+\.py\"?,?$', validate_preview, flags=re.MULTILINE))
+            has_compile_only = "--compile-only" in validate_preview
+            lines.append(f"  validate_repo: compile_targets~{compile_targets}, compile_only={has_compile_only}")
+
+        tests_output = str(context.get("step_2_output", "") or "")
+        if tests_output:
+            try:
+                test_names = json.loads(tests_output)
+                if isinstance(test_names, list):
+                    relevant = self._infer_relevant_tests(test_names, goal)
+                    if relevant:
+                        lines.append(
+                            f"  tests: count={len(test_names)}, "
+                            f"relevant={', '.join(relevant)}, "
+                            f"all={', '.join(test_names)}"
+                        )
+                    else:
+                        lines.append(f"  tests: count={len(test_names)}, all={', '.join(test_names)}")
+                else:
+                    lines.append(f"  tests: {tests_output[:180]}")
+            except Exception as exc:
+                logging.debug("[Planner] 개발 컨텍스트 tests 해석 실패: %s", exc)
+                lines.append(f"  tests: {tests_output[:180]}")
+
+        previous_attempt = str(context.get("이전_시도", "") or "")
+        if previous_attempt:
+            lines.append(f"  previous_attempt: {previous_attempt[:200]}")
+
+        recent_episodes = str(context.get("recent_goal_episodes", "") or "")
+        if recent_episodes:
+            compact = " ".join(line.strip() for line in recent_episodes.splitlines()[:3] if line.strip())
+            lines.append(f"  recent_goal_episodes: {compact[:220]}")
+
+        return "\n".join(lines) + "\n"
+
+    def _write_trace(self, stage: str, goal: str, raw: str):
+        try:
+            from core.resource_manager import ResourceManager
+            log_dir = ResourceManager.get_writable_path("logs")
+            os.makedirs(log_dir, exist_ok=True)
+            path = os.path.join(log_dir, f"planner_trace_{datetime.now().strftime('%Y%m%d')}.log")
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(
+                    f"[{datetime.now().strftime('%H:%M:%S')}] {stage}\n"
+                    f"goal: {goal}\n"
+                    f"raw:\n{raw[:4000]}\n"
+                    f"{'=' * 80}\n"
+                )
+        except Exception as e:
+            logging.warning("[Planner] trace 저장 실패: %s", e)
+
+
+# ── 싱글톤 ─────────────────────────────────────────────────────────────────────
+
+_planner: Optional[AgentPlanner] = None
+_planner_lock = threading.Lock()
+
+
+def get_planner() -> AgentPlanner:
+    global _planner
+    if _planner is None:
+        with _planner_lock:
+            if _planner is None:
+                from agent.llm_provider import get_llm_provider
+                _planner = AgentPlanner(get_llm_provider())
+    return _planner

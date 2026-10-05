@@ -1,0 +1,405 @@
+"""PyInstaller 번들 리소스 관리"""
+import filecmp
+import hashlib
+import os
+import sys
+import shutil
+import logging
+from typing import Iterable
+
+# 앱 이름 (appdata 폴더명)
+APP_NAME = "Ari"
+_DEV_RUNTIME_DIR = ".ari_runtime"
+_LEGACY_KNOWLEDGE_BASE_FILES = (
+    "knowledge_base.db",
+    "knowledge_base.db-wal",
+    "knowledge_base.db-shm",
+)
+# 사용자가 편집하지 않는 앱 리소스. 업데이트 뒤 번들본과 다르면 새로 복사한다.
+_APP_MANAGED_FILES = frozenset({"icon.png"})
+_LEGACY_RUNTIME_MAPPINGS = (
+    ("ari_settings.json", "ari_settings.json"),
+    ("ari_memory.db", "ari_memory.db"),
+    ("browser_action_plans.json", "browser_action_plans.json"),
+    ("browser_selector_history.json", "browser_selector_history.json"),
+    ("compiled_skills", "compiled_skills"),
+    ("conversation_history.json", "conversation_history.json"),
+    ("core/logs", "logs"),
+    ("desktop_window_targets.json", "desktop_window_targets.json"),
+    ("desktop_workflow_plans.json", "desktop_workflow_plans.json"),
+    ("episode_memory.json", "episode_memory.json"),
+    ("fact_suggestions.json", "fact_suggestions.json"),
+    ("learning_metrics.json", "learning_metrics.json"),
+    ("logs", "logs"),
+    ("mood_state.json", "mood_state.json"),
+    ("planner_stats.json", "planner_stats.json"),
+    ("plugin_runtime", "plugin_runtime"),
+    ("scheduled_task_runs.jsonl", "scheduled_task_runs.jsonl"),
+    ("scheduled_tasks.json", "scheduled_tasks.json"),
+    ("agent/scheduled_tasks.json", "scheduled_tasks.json"),
+    ("skills", "skills"),
+    ("skill_library.json", "skill_library.json"),
+    ("strategy_embeddings.npy", "strategy_embeddings.npy"),
+    ("strategy_memory.json", "strategy_memory.json"),
+    ("user_context.json", "user_context.json"),
+    ("user_profile.json", "user_profile.json"),
+)
+
+
+def _is_bundled() -> bool:
+    """배포 실행 파일이면 True. Nuitka는 sys.frozen 대신 모듈마다 __compiled__를 둔다."""
+    return bool(getattr(sys, "frozen", False)) or "__compiled__" in globals()
+
+
+def is_bundled() -> bool:
+    """다른 모듈이 배포 실행 파일 여부를 확인할 때 쓰는 공개 이름."""
+    return _is_bundled()
+
+
+class ResourceManager:
+    _app_data_dir = None
+
+    @staticmethod
+    def _cleanup_legacy_knowledge_base(runtime_dir: str) -> None:
+        for name in _LEGACY_KNOWLEDGE_BASE_FILES:
+            path = os.path.join(runtime_dir, name)
+            try:
+                os.remove(path)
+            except FileNotFoundError:
+                continue
+            except OSError as exc:
+                logging.debug("이전 지식 베이스 파일 정리 실패 %s: %s", name, exc)
+
+    @staticmethod
+    def _project_root() -> str:
+        return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    @staticmethod
+    def _legacy_project_runtime_dir() -> str:
+        return ResourceManager._project_root()
+
+    @staticmethod
+    def _dev_runtime_dir() -> str:
+        return os.path.join(ResourceManager._project_root(), _DEV_RUNTIME_DIR)
+
+    @staticmethod
+    def _merge_path_if_missing(source: str, destination: str) -> int:
+        """대상에 없는 파일만 복사하고 복사한 파일 수를 반환한다. 기존 파일은 덮어쓰지 않는다."""
+        if not os.path.exists(source):
+            return 0
+        if os.path.isdir(source):
+            os.makedirs(destination, exist_ok=True)
+            return sum(
+                ResourceManager._merge_path_if_missing(
+                    os.path.join(source, name),
+                    os.path.join(destination, name),
+                )
+                for name in os.listdir(source)
+            )
+        if os.path.exists(destination):
+            return 0
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        shutil.copy2(source, destination)
+        return 1
+
+    @staticmethod
+    def import_legacy_runtime_data(selected_dir: str) -> int:
+        """이전 zip 배포판의 .ari_runtime 폴더에서 현재 데이터 폴더에 없는 파일만 가져온다.
+
+        .ari_runtime 폴더나 그 폴더를 담은 폴더를 받는다. Ari 데이터로 보이지 않으면
+        ValueError를 낸다. 기존 파일은 덮어쓰거나 지우지 않는다.
+        """
+        source = os.path.abspath(selected_dir)
+        nested = os.path.join(source, _DEV_RUNTIME_DIR)
+        if os.path.isdir(nested):
+            source = nested
+        known_names = {destination for _source, destination in _LEGACY_RUNTIME_MAPPINGS}
+        if not os.path.isdir(source) or not known_names.intersection(os.listdir(source)):
+            raise ValueError(source)
+        return ResourceManager._merge_path_if_missing(source, ResourceManager.get_app_data_dir())
+
+    @staticmethod
+    def _migrate_dev_runtime_state(
+        destination_root: str,
+        mappings: Iterable[tuple[str, str]] = _LEGACY_RUNTIME_MAPPINGS,
+    ) -> set[str]:
+        legacy_root = ResourceManager._legacy_project_runtime_dir()
+        if os.path.abspath(destination_root) == os.path.abspath(legacy_root):
+            return set()
+
+        migrated = set()
+        for source_rel, destination_rel in mappings:
+            source = os.path.join(legacy_root, source_rel)
+            destination = os.path.join(destination_root, destination_rel)
+            try:
+                copied = ResourceManager._merge_path_if_missing(source, destination)
+                if not os.path.exists(source):
+                    continue
+                if ResourceManager._contents_match(source, destination):
+                    migrated.add(os.path.normpath(source_rel))
+                elif copied:
+                    logging.warning("이전된 내용이 달라 원본을 보존합니다: %s", source_rel)
+                else:
+                    logging.debug("이전 대상과 내용이 달라 원본을 보존합니다: %s", source_rel)
+            except Exception as e:
+                logging.warning("데이터 이전에 실패하여 원본을 보존합니다 %s: %s", source_rel, e)
+        return migrated
+
+    @staticmethod
+    def _contents_match(source: str, destination: str) -> bool:
+        """원본의 모든 파일이 대상에 같은 내용으로 있는지 확인한다.
+
+        여러 원본 폴더가 한 대상 폴더로 합쳐지므로 대상에만 있는 파일은 따지지 않는다.
+        """
+        def digest(path: str) -> bytes:
+            hasher = hashlib.sha256()
+            with open(path, "rb") as handle:
+                for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                    hasher.update(chunk)
+            return hasher.digest()
+
+        if os.path.isfile(source) and os.path.isfile(destination):
+            return (
+                os.path.getsize(source) == os.path.getsize(destination)
+                and digest(source) == digest(destination)
+            )
+        if not os.path.isdir(source) or not os.path.isdir(destination):
+            return False
+
+        def is_directory_link(path: str) -> bool:
+            if os.path.islink(path) or getattr(os.path, "isjunction", lambda _path: False)(path):
+                return True
+            if os.name == "nt":
+                return getattr(os.lstat(path), "st_reparse_tag", None) == 0xA0000003
+            return False
+
+        walk_error = False
+
+        def onerror(_error: OSError) -> None:
+            nonlocal walk_error
+            walk_error = True
+
+        try:
+            if is_directory_link(source):
+                return False
+            for current, dirs, names in os.walk(source, onerror=onerror):
+                if any(is_directory_link(os.path.join(current, name)) for name in dirs):
+                    return False
+                for name in names:
+                    path = os.path.join(current, name)
+                    target = os.path.join(destination, os.path.relpath(path, source))
+                    if (
+                        not os.path.isfile(target)
+                        or os.path.getsize(path) != os.path.getsize(target)
+                        or digest(path) != digest(target)
+                    ):
+                        return False
+        except OSError:
+            return False
+        return not walk_error
+
+    @staticmethod
+    def _cleanup_legacy_runtime_state(
+        destination_root: str,
+        mappings: Iterable[tuple[str, str]] = _LEGACY_RUNTIME_MAPPINGS,
+        preserve: Iterable[str] = ("ari_settings.json",),
+        migrated: Iterable[str] = (),
+    ) -> None:
+        legacy_root = os.path.abspath(ResourceManager._legacy_project_runtime_dir())
+        if os.path.abspath(destination_root) == legacy_root:
+            return
+
+        preserved = {os.path.normpath(item) for item in preserve}
+        migrated_sources = {os.path.normpath(item) for item in migrated}
+        cleaned_sources: set[str] = set()
+        for source_rel, destination_rel in mappings:
+            normalized_source = os.path.normpath(source_rel)
+            if (
+                normalized_source in preserved
+                or normalized_source in cleaned_sources
+                or normalized_source not in migrated_sources
+            ):
+                continue
+            source = os.path.join(legacy_root, source_rel)
+            destination = os.path.join(destination_root, destination_rel)
+            if not os.path.exists(source) or not os.path.exists(destination):
+                continue
+            try:
+                if not ResourceManager._contents_match(source, destination):
+                    logging.warning("이전 대상 내용이 달라 원본을 보존합니다: %s", source_rel)
+                    continue
+                if os.path.isdir(source):
+                    shutil.rmtree(source, ignore_errors=True)
+                else:
+                    os.remove(source)
+                cleaned_sources.add(normalized_source)
+            except Exception as e:
+                logging.debug("레거시 런타임 상태 정리 실패 %s: %s", source_rel, e)
+
+    @staticmethod
+    def reset_cache() -> None:
+        ResourceManager._app_data_dir = None
+
+    @staticmethod
+    def get_app_data_dir() -> str:
+        """사용자 데이터 디렉토리 반환.
+        - 배포(frozen): %appdata%\\Ari
+        - 개발: 프로젝트 루트/.ari_runtime (환경변수 ARI_APP_DATA_DIR로 덮어쓰기 가능)
+        """
+        if ResourceManager._app_data_dir:
+            return ResourceManager._app_data_dir
+
+        env_override = os.environ.get("ARI_APP_DATA_DIR", "").strip()
+        if env_override:
+            base = os.path.abspath(os.path.expanduser(env_override))
+        elif _is_bundled():
+            base = os.path.join(
+                os.environ.get('APPDATA', os.path.expanduser('~')),
+                APP_NAME
+            )
+        else:
+            base = ResourceManager._dev_runtime_dir()
+
+        try:
+            os.makedirs(base, exist_ok=True)
+        except OSError as exc:
+            logging.warning("사용자 데이터 디렉터리를 만들 수 없어 저장 기능이 제한될 수 있습니다: %s", exc)
+            ResourceManager._app_data_dir = base
+            return base
+        ResourceManager._cleanup_legacy_knowledge_base(base)
+        if not _is_bundled():
+            migrated = ResourceManager._migrate_dev_runtime_state(base)
+            ResourceManager._cleanup_legacy_runtime_state(base, migrated=migrated)
+        ResourceManager._app_data_dir = base
+        return base
+
+    @staticmethod
+    def get_bundle_path(relative_path: str) -> str:
+        """번들(읽기전용) 리소스 경로 반환"""
+        if _is_bundled():
+            if hasattr(sys, '_MEIPASS'):
+                # PyInstaller: 임시 압축 해제 폴더
+                base = sys._MEIPASS
+            else:
+                # Nuitka standalone: 데이터 파일이 exe 옆에 위치
+                base = os.path.dirname(os.path.abspath(sys.executable))
+            return os.path.join(base, relative_path)
+        return os.path.join(ResourceManager._project_root(), relative_path)
+
+    @staticmethod
+    def get_writable_path(relative_path: str) -> str:
+        """쓰기 가능한 사용자 데이터 경로 반환"""
+        return os.path.join(ResourceManager.get_app_data_dir(), relative_path)
+
+    @staticmethod
+    def get_runtime_path(relative_path: str = "") -> str:
+        """런타임 상태 파일 경로를 반환하고 부모 디렉터리를 보장한다."""
+        path = ResourceManager.get_writable_path(relative_path) if relative_path else ResourceManager.get_app_data_dir()
+        parent = path if not relative_path or os.path.splitext(path)[1] == "" else os.path.dirname(path)
+        os.makedirs(parent, exist_ok=True)
+        return path
+
+    @staticmethod
+    def refresh_app_managed_file(source: str, destination: str) -> bool:
+        """앱이 관리하는 파일이 번들본과 다르면 번들본으로 바꾸고, 바꿨으면 True를 반환한다."""
+        if not os.path.isfile(source):
+            return False
+        try:
+            # copy2가 수정 시각까지 복사하므로 이전 비교 결과 캐시를 쓰지 않는다.
+            filecmp.clear_cache()
+            if os.path.isfile(destination) and filecmp.cmp(source, destination, shallow=False):
+                return False
+            os.makedirs(os.path.dirname(destination), exist_ok=True)
+            shutil.copy2(source, destination)
+            logging.info("✓ 파일 갱신: %s", os.path.basename(destination))
+            return True
+        except OSError as e:
+            logging.error("리소스 갱신 실패 %s: %s", os.path.basename(destination), e)
+            return False
+
+    @staticmethod
+    def extract_resources():
+        """첫 실행 시 번들 리소스를 appdata로 추출"""
+        if not _is_bundled():
+            return  # 개발 모드에서는 불필요
+
+        resources = [
+            ('images', 'images'),
+            ('theme', 'theme'),
+            ('plugins', 'plugins'),
+            ('skills', 'skills'),
+            ('DNFBitBitv2.ttf', 'DNFBitBitv2.ttf'),
+            ('icon.png', 'icon.png'),
+            ('reference.wav', 'reference.wav'),
+        ]
+
+        for src_name, dest_name in resources:
+            source = ResourceManager.get_bundle_path(src_name)
+            destination = ResourceManager.get_writable_path(dest_name)
+
+            if dest_name in _APP_MANAGED_FILES:
+                ResourceManager.refresh_app_managed_file(source, destination)
+                continue
+            if os.path.exists(destination):
+                continue  # 이미 추출됨
+
+            try:
+                if os.path.isdir(source):
+                    shutil.copytree(source, destination)
+                    logging.info("✓ 폴더 추출: %s", dest_name)
+                elif os.path.exists(source):
+                    os.makedirs(os.path.dirname(destination), exist_ok=True)
+                    shutil.copy2(source, destination)
+                    logging.info("✓ 파일 추출: %s", dest_name)
+            except Exception as e:
+                logging.error("리소스 추출 실패 %s: %s", src_name, e)
+
+    @staticmethod
+    def get_images_dir() -> str:
+        """이미지 디렉토리 경로 반환 (appdata > 번들 순)"""
+        writable = ResourceManager.get_writable_path('images')
+        if os.path.exists(writable):
+            return writable
+        return ResourceManager.get_bundle_path('images')
+
+    @staticmethod
+    def ensure_theme_files() -> str:
+        """테마 JSON 파일을 사용자 편집 가능한 위치에 보장한다."""
+        writable = ResourceManager.get_writable_path("theme")
+        source = ResourceManager.get_bundle_path("theme")
+        os.makedirs(writable, exist_ok=True)
+
+        try:
+            if os.path.isdir(source):
+                for name in os.listdir(source):
+                    src = os.path.join(source, name)
+                    dst = os.path.join(writable, name)
+                    if os.path.isdir(src):
+                        if not os.path.exists(dst):
+                            shutil.copytree(src, dst)
+                    elif os.path.isfile(src) and not os.path.exists(dst):
+                        shutil.copy2(src, dst)
+        except Exception as e:
+            logging.warning("테마 파일 준비 실패: %s", e)
+        return writable
+
+    @staticmethod
+    def ensure_plugin_files() -> str:
+        """플러그인 템플릿 파일을 사용자 편집 가능한 위치에 보장한다."""
+        writable = ResourceManager.get_writable_path("plugins")
+        source = ResourceManager.get_bundle_path("plugins")
+        os.makedirs(writable, exist_ok=True)
+
+        try:
+            if os.path.isdir(source):
+                for name in os.listdir(source):
+                    src = os.path.join(source, name)
+                    dst = os.path.join(writable, name)
+                    if os.path.isdir(src):
+                        if not os.path.exists(dst):
+                            shutil.copytree(src, dst)
+                    elif os.path.isfile(src) and not os.path.exists(dst):
+                        shutil.copy2(src, dst)
+        except Exception as e:
+            logging.warning("플러그인 파일 준비 실패: %s", e)
+        return writable

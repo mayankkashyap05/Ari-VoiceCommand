@@ -1,0 +1,535 @@
+"""
+파일 작업 유틸리티 (File Tools)
+이름 변경, 병합, 정리, CSV/JSON 분석 및 보고서 생성을 지원한다.
+"""
+import os
+import shutil
+import json
+import csv
+import logging
+import re
+from datetime import datetime
+from pathlib import Path
+from typing import List, Dict, Any, Optional
+
+from core import atomic_io
+from i18n.translator import _
+
+logger = logging.getLogger(__name__)
+
+
+def detect_file_set(folder_path: str, extensions: Optional[List[str]] = None) -> Dict[str, Any]:
+    """폴더 내 파일 세트를 스캔하고 확장자별/패턴별 통계를 반환한다."""
+    try:
+        if not os.path.isdir(folder_path):
+            return {"error": _("디렉터리가 아닙니다.")}
+        normalized_exts = {ext.lower().lstrip(".") for ext in (extensions or []) if ext}
+        files = []
+        by_extension: Dict[str, int] = {}
+        for name in sorted(os.listdir(folder_path)):
+            path = os.path.join(folder_path, name)
+            if not os.path.isfile(path):
+                continue
+            ext = os.path.splitext(name)[1].lstrip(".").lower() or "others"
+            if normalized_exts and ext not in normalized_exts:
+                continue
+            files.append(name)
+            by_extension[ext] = by_extension.get(ext, 0) + 1
+        return {
+            "file_count": len(files),
+            "extensions": by_extension,
+            "sample_files": files[:20],
+        }
+    except Exception as e:
+        logger.error("detect_file_set 오류: %s", e)
+        return {"error": str(e)}
+
+
+def batch_rename_files(folder_path: str, rename_rule: str, replacement: str = "", dry_run: bool = False) -> Dict[str, Any]:
+    """정규식 기반 파일 이름 일괄 변경."""
+    try:
+        if not os.path.isdir(folder_path):
+            return {"error": _("디렉터리가 아닙니다.")}
+        pattern = re.compile(rename_rule)
+        results = []
+        for name in sorted(os.listdir(folder_path)):
+            path = os.path.join(folder_path, name)
+            if not os.path.isfile(path):
+                continue
+            new_name = pattern.sub(replacement, name)
+            if not new_name or new_name == name:
+                continue
+            result_item = {"old_name": name, "new_name": new_name}
+            if not dry_run:
+                os.rename(path, os.path.join(folder_path, new_name))
+            results.append(result_item)
+        return {"renamed_count": len(results), "changes": results}
+    except Exception as e:
+        logger.error("batch_rename_files 오류: %s", e)
+        return {"error": str(e)}
+
+def rename_file(old_path: str, new_name: str) -> str:
+    """파일 또는 디렉터리 이름 변경.
+    
+    Args:
+        old_path: 원래 경로
+        new_name: 새로운 이름 (경로 제외)
+    """
+    try:
+        dir_name = os.path.dirname(old_path)
+        new_path = os.path.join(dir_name, new_name)
+        os.rename(old_path, new_path)
+        return new_path
+    except Exception as e:
+        logger.error("rename_file 오류: %s", e)
+        return _("오류: {error}", error=e)
+
+def merge_text_files(file_paths: List[str], output_path: str) -> str:
+    """여러 텍스트 파일을 하나로 병합.
+    
+    Args:
+        file_paths: 병합할 파일 경로 목록
+        output_path: 저장할 결과 파일 경로
+    """
+    try:
+        normalized_output = os.path.normcase(os.path.realpath(output_path))
+        for fname in file_paths:
+            if normalized_output == os.path.normcase(os.path.realpath(fname)) or (
+                os.path.exists(output_path) and os.path.exists(fname) and os.path.samefile(output_path, fname)
+            ):
+                raise ValueError(_("출력 파일은 입력 파일과 같을 수 없습니다."))
+        with open(output_path, 'w', encoding='utf-8') as outfile:
+            for fname in file_paths:
+                if not os.path.exists(fname):
+                    continue
+                with open(fname, 'r', encoding='utf-8', errors='ignore') as infile:
+                    outfile.write(
+                        _(
+                            "\n--- 원본 파일: {filename} ---\n",
+                            filename=os.path.basename(fname),
+                        )
+                    )
+                    outfile.write(infile.read())
+                    outfile.write("\n")
+        return output_path
+    except Exception as e:
+        logger.error("merge_text_files 오류: %s", e)
+        return _("오류: {error}", error=e)
+
+def organize_folder_by_extension(folder_path: str) -> Dict[str, int]:
+    """폴더 내 파일들을 확장자별 서브 폴더로 정리.
+    
+    Args:
+        folder_path: 대상 폴더 경로
+    Returns:
+        정리된 파일 통계
+    """
+    try:
+        stats = {}
+        if not os.path.isdir(folder_path):
+            return {"error": _("디렉터리가 아닙니다.")}
+            
+        for filename in os.listdir(folder_path):
+            filepath = os.path.join(folder_path, filename)
+            if os.path.isdir(filepath):
+                continue
+                
+            ext = filename.split('.')[-1].lower() if '.' in filename else 'others'
+            # 확장자가 너무 길거나 이상한 경우 처리
+            if len(ext) > 10:
+                ext = 'others'
+                
+            target_dir = os.path.join(folder_path, ext)
+            os.makedirs(target_dir, exist_ok=True)
+            
+            # 파일 이동 (중복 시 이름 변경)
+            dest_path = os.path.join(target_dir, filename)
+            if os.path.exists(dest_path):
+                base, extension = os.path.splitext(filename)
+                dest_path = os.path.join(target_dir, f"{base}_{int(datetime.now().timestamp())}{extension}")
+                
+            shutil.move(filepath, dest_path)
+            stats[ext] = stats.get(ext, 0) + 1
+            
+        return stats
+    except Exception as e:
+        logger.error("organize_folder 오류: %s", e)
+        return {"error": str(e)}
+
+def analyze_data_file(file_path: str) -> Dict[str, Any]:
+    """CSV 또는 JSON 파일의 구조와 통계를 분석.
+    
+    Args:
+        file_path: 데이터 파일 경로
+    """
+    try:
+        if not os.path.exists(file_path):
+            return {"error": _("파일이 존재하지 않습니다.")}
+            
+        ext = file_path.split('.')[-1].lower()
+        if ext == 'json':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    sample_keys = list(data[0].keys()) if data and isinstance(data[0], dict) else []
+                    column_samples = {}
+                    for row in data[:5]:
+                        if isinstance(row, dict):
+                            for key, value in row.items():
+                                column_samples.setdefault(str(key), []).append(value)
+                    return {
+                        "format": "json_array",
+                        "row_count": len(data),
+                        "sample_keys": sample_keys,
+                        "column_samples": {key: values[:3] for key, values in column_samples.items()},
+                    }
+                return {
+                    "format": "json_object",
+                    "keys": list(data.keys())
+                }
+        elif ext == 'csv':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                # 인코딩 문제 대응을 위해 시도
+                try:
+                    reader = csv.DictReader(f)
+                    rows = list(reader)
+                    numeric_columns = _summarize_numeric_columns(rows, reader.fieldnames or [])
+                    return {
+                        "format": "csv",
+                        "row_count": len(rows),
+                        "columns": reader.fieldnames,
+                        "column_samples": _sample_columns(rows, reader.fieldnames or []),
+                        "numeric_summary": numeric_columns,
+                    }
+                except Exception as exc:
+                    logger.debug("CSV 상세 파싱 실패, raw 모드로 폴백: %s", exc)
+                    f.seek(0)
+                    content = f.read(4096)
+                    return {
+                        "format": "csv_raw",
+                        "lines": len(content.splitlines()),
+                        "note": _("상세 파싱 실패")
+                    }
+        return {"error": _("지원하지 않는 형식입니다.")}
+    except Exception as e:
+        logger.error("analyze_data_file 오류: %s", e)
+        return {"error": str(e)}
+
+def generate_markdown_report(content: str, output_path: str, title: str = "분석 보고서") -> str:
+    """마크다운 형식의 보고서 생성.
+    
+    Args:
+        content: 보고서 본문 (마크다운)
+        output_path: 저장 경로
+        title: 보고서 제목
+    """
+    try:
+        if title == "분석 보고서":
+            title = _("분석 보고서")
+        full_content = f"# {title}\n\n"
+        full_content += _(
+            "*생성 일시: {timestamp}*\n\n",
+            timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        )
+        full_content += "---\n\n"
+        full_content += content
+        
+        # 폴더 생성 보장
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(full_content)
+        return output_path
+    except Exception as e:
+        logger.error("generate_markdown_report 오류: %s", e)
+        return _("오류: {error}", error=e)
+
+
+def _sample_columns(rows: List[Dict[str, Any]], columns: List[str], limit: int = 3) -> Dict[str, List[Any]]:
+    samples: Dict[str, List[Any]] = {}
+    for column in columns:
+        values = []
+        for row in rows[: max(limit * 2, limit)]:
+            value = row.get(column)
+            if value in (None, ""):
+                continue
+            values.append(value)
+            if len(values) >= limit:
+                break
+        if values:
+            samples[column] = values
+    return samples
+
+
+def _summarize_numeric_columns(rows: List[Dict[str, Any]], columns: List[str]) -> Dict[str, Dict[str, Any]]:
+    summary: Dict[str, Dict[str, Any]] = {}
+    for column in columns:
+        numeric_values = []
+        for row in rows:
+            raw = row.get(column)
+            if raw in (None, ""):
+                continue
+            try:
+                numeric_values.append(float(raw))
+            except (TypeError, ValueError):
+                numeric_values = []
+                break
+        if len(numeric_values) < 2:
+            continue
+        avg = sum(numeric_values) / len(numeric_values)
+        variance = sum((value - avg) ** 2 for value in numeric_values) / len(numeric_values)
+        std_dev = variance ** 0.5
+        outliers = [value for value in numeric_values if std_dev and abs(value - avg) > std_dev * 2]
+        summary[column] = {
+            "min": min(numeric_values),
+            "max": max(numeric_values),
+            "mean": round(avg, 4),
+            "outlier_count": len(outliers),
+            "sample_outliers": outliers[:5],
+        }
+    return summary
+
+
+# ── LLM 직접 호출용 안전 파일 도구 ─────────────────────────────────────────────
+
+def _normalize_path(path: str) -> str:
+    if not path:
+        raise ValueError(_("path가 비어 있습니다."))
+    return os.path.abspath(os.path.expanduser(path))
+
+
+def read_file(file_path: str, start_line: int = 1, end_line: Optional[int] = None) -> Dict[str, Any]:
+    """텍스트 파일 내용을 읽어 반환한다. 줄 범위는 1부터 시작한다."""
+    try:
+        path = _normalize_path(file_path)
+        if not os.path.isfile(path):
+            return {"error": _("파일이 존재하지 않습니다."), "file_path": path}
+        start = max(1, int(start_line or 1))
+        end = max(int(end_line), start) if end_line else None
+        lines = []
+        line_count = 0
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for line_count, line in enumerate(f, 1):
+                if line_count >= start and (end is None or line_count <= end):
+                    lines.append(line)
+        end = min(end, line_count) if end is not None else line_count
+        return {
+            "file_path": path,
+            "start_line": start,
+            "end_line": end,
+            "line_count": line_count,
+            "content": "".join(lines),
+        }
+    except Exception as e:
+        logger.error("read_file 오류: %s", e)
+        return {"error": str(e)}
+
+
+def write_file(file_path: str, content: str, mode: str = "overwrite") -> Dict[str, Any]:
+    """파일에 내용을 쓰거나 추가한다."""
+    try:
+        path = _normalize_path(file_path)
+        file_mode = "a" if str(mode or "overwrite").lower() == "append" else "w"
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        if file_mode == "a":
+            with open(path, file_mode, encoding="utf-8") as f:
+                f.write(content or "")
+        else:
+            atomic_io.write_text_atomic(path, content or "")
+        return {
+            "file_path": path,
+            "mode": "append" if file_mode == "a" else "overwrite",
+            "bytes": len((content or "").encode("utf-8")),
+        }
+    except Exception as e:
+        logger.error("write_file 오류: %s", e)
+        return {"error": str(e)}
+
+
+def edit_file(file_path: str, old_string: str, new_string: str) -> Dict[str, Any]:
+    """파일 내 고유한 문자열 1개를 교체한다."""
+    try:
+        if not old_string:
+            return {"error": _("old_string이 비어 있습니다.")}
+        path = _normalize_path(file_path)
+        if not os.path.isfile(path):
+            return {"error": _("파일이 존재하지 않습니다."), "file_path": path}
+        raw_content = Path(path).read_bytes()
+        has_utf8_bom = raw_content[:3] == bytes((239, 187, 191))
+        if has_utf8_bom:
+            try:
+                content = raw_content[3:].decode("utf-8")
+            except UnicodeDecodeError:
+                return {
+                    "error": _("파일 인코딩을 확인할 수 없어 편집하지 않았습니다."),
+                    "file_path": path,
+                }
+            encoding = "utf-8"
+        else:
+            try:
+                content = raw_content.decode("utf-8")
+                encoding = "utf-8"
+            except UnicodeDecodeError:
+                try:
+                    content = raw_content.decode("cp949")
+                    encoding = "cp949"
+                except UnicodeDecodeError:
+                    return {
+                        "error": _("파일 인코딩을 확인할 수 없어 편집하지 않았습니다."),
+                        "file_path": path,
+                    }
+
+        normalized_chars = []
+        offsets = [0]
+        source_index = 0
+        while source_index < len(content):
+            char = content[source_index]
+            if char == "\r":
+                if source_index + 1 < len(content) and content[source_index + 1] == "\n":
+                    source_index += 1
+                char = "\n"
+            normalized_chars.append(char)
+            source_index += 1
+            offsets.append(source_index)
+        normalized_content = "".join(normalized_chars)
+        normalized_old = old_string.replace("\r\n", "\n").replace("\r", "\n")
+        normalized_new = (new_string or "").replace("\r\n", "\n").replace("\r", "\n")
+        count = normalized_content.count(normalized_old)
+        if count != 1:
+            return {
+                "error": _(
+                    "old_string은 파일 내 정확히 1회 등장해야 합니다. 현재 {count}회",
+                    count=count,
+                ),
+                "matches": count,
+            }
+        match_start = normalized_content.index(normalized_old)
+        match_end = match_start + len(normalized_old)
+        newline = "\r\n" if "\r\n" in content else ("\r" if "\r" in content else "\n")
+        replacement = normalized_new.replace("\n", newline)
+        updated_content = (
+            content[:offsets[match_start]]
+            + replacement
+            + content[offsets[match_end]:]
+        )
+        output = (bytes((239, 187, 191)) if has_utf8_bom else b"") + updated_content.encode(encoding)
+        atomic_io.write_bytes_atomic(path, output)
+        return {
+            "file_path": path,
+            "replaced": True,
+            "old_length": len(old_string),
+            "new_length": len(new_string or ""),
+        }
+    except Exception as e:
+        logger.error("edit_file 오류: %s", e)
+        return {"error": str(e)}
+
+
+def list_directory(path: str, pattern: str = "*", recursive: bool = False) -> Dict[str, Any]:
+    """디렉터리 내 파일/폴더 목록을 반환한다."""
+    try:
+        base = _normalize_path(path)
+        if not os.path.isdir(base):
+            return {"error": _("디렉터리가 아닙니다."), "path": base}
+        root = Path(base)
+        glob_pattern = pattern or "*"
+        entries = root.rglob(glob_pattern) if recursive else root.glob(glob_pattern)
+        items = []
+        for entry in sorted(entries, key=lambda item: str(item).lower()):
+            try:
+                stat = entry.stat()
+                items.append({
+                    "path": str(entry),
+                    "name": entry.name,
+                    "is_dir": entry.is_dir(),
+                    "size": stat.st_size,
+                })
+            except OSError:
+                continue
+        return {
+            "path": base,
+            "pattern": glob_pattern,
+            "recursive": bool(recursive),
+            "items": items[:500],
+            "count": len(items),
+        }
+    except Exception as e:
+        logger.error("list_directory 오류: %s", e)
+        return {"error": str(e)}
+
+
+def search_in_files(path: str, pattern: str, file_glob: str = "*") -> Dict[str, Any]:
+    """파일들 안에서 정규식 패턴을 검색한다."""
+    try:
+        base = _normalize_path(path)
+        regex = re.compile(pattern)
+        root = Path(base)
+        files = [root] if root.is_file() else list(root.rglob(file_glob or "*"))
+        matches = []
+        for file in files:
+            if not file.is_file():
+                continue
+            try:
+                with open(file, "r", encoding="utf-8", errors="replace") as f:
+                    for line_no, line in enumerate(f, start=1):
+                        if regex.search(line):
+                            matches.append({
+                                "file": str(file),
+                                "line": line_no,
+                                "text": line.rstrip("\n")[:300],
+                            })
+                            if len(matches) >= 500:
+                                return {
+                                    "path": base,
+                                    "pattern": pattern,
+                                    "matches": matches,
+                                    "truncated": True,
+                                }
+            except OSError:
+                continue
+        return {"path": base, "pattern": pattern, "matches": matches, "count": len(matches)}
+    except Exception as e:
+        logger.error("search_in_files 오류: %s", e)
+        return {"error": str(e)}
+
+
+def move_file(src: str, dst: str) -> Dict[str, Any]:
+    """파일 또는 폴더를 이동하거나 이름을 변경한다."""
+    try:
+        src_path = _normalize_path(src)
+        dst_path = _normalize_path(dst)
+        if not os.path.exists(src_path):
+            return {"error": _("원본 경로가 존재하지 않습니다."), "src": src_path}
+        os.makedirs(os.path.dirname(dst_path) or ".", exist_ok=True)
+        shutil.move(src_path, dst_path)
+        return {"src": src_path, "dst": dst_path, "moved": True}
+    except Exception as e:
+        logger.error("move_file 오류: %s", e)
+        return {"error": str(e)}
+
+
+def delete_file(path: str, confirmed: bool = False) -> Dict[str, Any]:
+    """파일 또는 빈 폴더를 삭제한다. confirmed=True가 필요하다."""
+    try:
+        target = _normalize_path(path)
+        from agent.confirmation_manager import get_confirmation_manager
+        from agent.safety_checker import DangerLevel, SafetyReport
+
+        report = SafetyReport(
+            level=DangerLevel.CAUTION,
+            matched_patterns=[target],
+            summary=f"Delete {target}",
+            category="file_delete",
+        )
+        if get_confirmation_manager().request_confirmation(f"Delete {target}", report) is not True:
+            return {"error": "File deletion was not approved by the user.", "path": target}
+        if os.path.isdir(target):
+            os.rmdir(target)
+        elif os.path.isfile(target):
+            os.remove(target)
+        else:
+            return {"error": _("대상 경로가 존재하지 않습니다."), "path": target}
+        return {"path": target, "deleted": True}
+    except Exception as e:
+        logger.error("delete_file 오류: %s", e)
+        return {"error": str(e)}

@@ -1,0 +1,183 @@
+import os
+import sys
+import tempfile
+import types
+import unittest
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+from agent import file_tools
+from agent.file_tools import analyze_data_file, batch_rename_files, detect_file_set
+
+
+class FileToolsTests(unittest.TestCase):
+    def test_detect_file_set_groups_extensions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            open(os.path.join(tmp, "a.txt"), "w", encoding="utf-8").close()
+            open(os.path.join(tmp, "b.csv"), "w", encoding="utf-8").close()
+
+            result = detect_file_set(tmp)
+
+            self.assertEqual(result["file_count"], 2)
+            self.assertEqual(result["extensions"]["txt"], 1)
+            self.assertEqual(result["extensions"]["csv"], 1)
+
+    def test_batch_rename_files_applies_regex_rule(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            open(os.path.join(tmp, "hello world.txt"), "w", encoding="utf-8").close()
+
+            result = batch_rename_files(tmp, r"\s+", "_")
+
+            self.assertEqual(result["renamed_count"], 1)
+            self.assertTrue(os.path.exists(os.path.join(tmp, "hello_world.txt")))
+
+    def test_analyze_data_file_returns_numeric_summary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "scores.csv")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write("name,score\nari,10\nbee,11\ncee,50\n")
+
+            result = analyze_data_file(path)
+
+            self.assertIn("numeric_summary", result)
+            self.assertIn("score", result["numeric_summary"])
+            self.assertIsInstance(result["numeric_summary"]["score"]["outlier_count"], int)
+
+    def test_read_edit_search_and_move_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / "sample.txt"
+
+            write_result = file_tools.write_file(str(path), "alpha\nbeta\n")
+            self.assertNotIn("error", write_result)
+
+            read_result = file_tools.read_file(str(path), start_line=2)
+            self.assertEqual(read_result["content"], "beta\n")
+
+            edit_result = file_tools.edit_file(str(path), "beta", "gamma")
+            self.assertTrue(edit_result["replaced"])
+
+            search_result = file_tools.search_in_files(str(root), "gamma", "*.txt")
+            self.assertEqual(search_result["count"], 1)
+
+            moved = root / "moved.txt"
+            move_result = file_tools.move_file(str(path), str(moved))
+            self.assertTrue(move_result["moved"])
+
+            fake_module = types.ModuleType("agent.confirmation_manager")
+            fake_manager = MagicMock()
+            fake_manager.request_confirmation.return_value = True
+            fake_module.get_confirmation_manager = MagicMock(return_value=fake_manager)
+            with patch.dict(sys.modules, {"agent.confirmation_manager": fake_module}):
+                delete_result = file_tools.delete_file(str(moved))
+            self.assertTrue(delete_result["deleted"])
+
+    def test_edit_requires_unique_old_string(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "dup.txt"
+            path.write_text("same same", encoding="utf-8")
+            result = file_tools.edit_file(str(path), "same", "once")
+            self.assertIn("error", result)
+            self.assertEqual(result["matches"], 2)
+
+
+    def test_merge_text_files_rejects_output_matching_input(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.txt")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write("원본 내용")
+
+            result = file_tools.merge_text_files([path], path)
+
+            self.assertTrue(result.startswith("오류:"))
+            with open(path, encoding="utf-8") as handle:
+                self.assertEqual(handle.read(), "원본 내용")
+
+    def test_read_file_returns_only_requested_range(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "lines.txt")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write("".join(f"line{idx}\n" for idx in range(1, 11)))
+
+            result = file_tools.read_file(path, start_line=3, end_line=5)
+
+            self.assertEqual(result["content"], "line3\nline4\nline5\n")
+            self.assertEqual(result["start_line"], 3)
+            self.assertEqual(result["end_line"], 5)
+            self.assertEqual(result["line_count"], 10)
+
+    def test_read_file_clamps_end_line_beyond_eof(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "short.txt")
+            with open(path, "w", encoding="utf-8") as handle:
+                handle.write("one\ntwo\n")
+
+            result = file_tools.read_file(path, start_line=2, end_line=99)
+
+            self.assertEqual(result["content"], "two\n")
+            self.assertEqual(result["end_line"], 2)
+            self.assertEqual(result["line_count"], 2)
+
+    def test_edit_file_preserves_cp949_and_utf8_bom(self):
+        source = "한글\r\nbefore\r\n"
+        cases = (
+            ("cp949", source.encode("cp949")),
+            ("utf-8-bom", b"\xef\xbb\xbf" + source.encode("utf-8")),
+        )
+        for name, original in cases:
+            with self.subTest(encoding=name), tempfile.TemporaryDirectory() as tmp:
+                path = Path(tmp) / "sample.txt"
+                path.write_bytes(original)
+
+                result = file_tools.edit_file(str(path), "before", "after")
+
+                expected = source.replace("before", "after")
+                if name == "cp949":
+                    expected_bytes = expected.encode("cp949")
+                else:
+                    expected_bytes = b"\xef\xbb\xbf" + expected.encode("utf-8")
+                self.assertTrue(result["replaced"])
+                self.assertEqual(path.read_bytes(), expected_bytes)
+
+    def test_edit_file_does_not_write_when_encoding_is_unknown(self):
+        for original in (b"\x81\x30invalid", b"\xef\xbb\xbf\xffinvalid"):
+            with self.subTest(original=original), tempfile.TemporaryDirectory() as tmp:
+                path = Path(tmp) / "unknown.txt"
+                path.write_bytes(original)
+
+                result = file_tools.edit_file(str(path), "invalid", "changed")
+
+                self.assertIn("error", result)
+                self.assertEqual(path.read_bytes(), original)
+
+    def test_atomic_write_failures_preserve_existing_file_contents(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sample.txt"
+            original = "기존 내용\n".encode("utf-8")
+            path.write_bytes(original)
+
+            with patch("core.atomic_io.write_text_atomic", side_effect=OSError("write failed")):
+                result = file_tools.write_file(str(path), "새 내용\n")
+                self.assertIn("error", result)
+                self.assertEqual(path.read_bytes(), original)
+
+            with patch("core.atomic_io.write_bytes_atomic", side_effect=OSError("write failed")):
+                result = file_tools.edit_file(str(path), "기존", "변경")
+                self.assertIn("error", result)
+                self.assertEqual(path.read_bytes(), original)
+
+    def test_write_file_preserves_overwrite_and_append_results(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "sample.txt"
+            overwritten = file_tools.write_file(str(path), "첫째\n둘째\n")
+            self.assertEqual(overwritten["mode"], "overwrite")
+            self.assertEqual(overwritten["bytes"], len("첫째\n둘째\n".encode("utf-8")))
+            self.assertEqual(path.read_bytes(), ("첫째\n둘째\n".replace("\n", os.linesep)).encode("utf-8"))
+
+            appended = file_tools.write_file(str(path), "셋째\n", mode="append")
+            self.assertEqual(appended["mode"], "append")
+            self.assertEqual(path.read_text(encoding="utf-8"), "첫째\n둘째\n셋째\n")
+
+
+if __name__ == "__main__":
+    unittest.main()

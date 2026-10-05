@@ -1,0 +1,243 @@
+"""Ari 앱에서 마켓플레이스를 조회하고 설치하는 클라이언트."""
+from __future__ import annotations
+
+import hashlib
+import io
+import json
+import logging
+import os
+import re
+import urllib.error
+import urllib.parse
+import urllib.request
+import zipfile
+from typing import Dict, List, Optional
+
+from i18n.translator import _
+
+logger = logging.getLogger(__name__)
+
+MARKETPLACE_API = os.environ.get(
+    "ARI_MARKETPLACE_API",
+    "https://zuaxkndycqrgswcygtnl.supabase.co/functions/v1",
+)
+SUPABASE_ANON_KEY = os.environ.get("ARI_SUPABASE_ANON_KEY") or os.environ.get("SUPABASE_ANON_KEY", "")
+
+_BASE_HEADERS = {
+    "Content-Type": "application/json",
+    "apikey": SUPABASE_ANON_KEY,
+}
+
+
+def _marketplace_available() -> bool:
+    """API URL이 설정된 경우에만 True (anon key는 선택)."""
+    if not MARKETPLACE_API:
+        logger.debug("마켓플레이스 API URL 미설정 — 작업 건너뜀")
+        return False
+    return True
+
+
+def _require_web_url(url: str) -> str:
+    """Bandit B310 대응: http/https URL만 허용한다."""
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError(_("허용되지 않는 URL입니다: {url}", url=url))
+    return url
+
+
+def _get(url: str) -> dict:
+    req = urllib.request.Request(_require_web_url(url), headers=_BASE_HEADERS)
+    # URL scheme/host validation is handled by _require_web_url().
+    with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _post(url: str, body: dict) -> dict:
+    req = urllib.request.Request(
+        _require_web_url(url),
+        data=json.dumps(body).encode("utf-8"),
+        headers=_BASE_HEADERS,
+        method="POST",
+    )
+    # URL scheme/host validation is handled by _require_web_url().
+    with urllib.request.urlopen(req, timeout=30) as resp:  # nosec B310
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _plugin_target_filename(plugin_name: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", (plugin_name or "plugin").strip())
+    safe = safe.strip("._") or "plugin"
+    return f"{safe}.zip"
+
+
+def _compute_sha256(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def _resolve_zip_plugin_metadata(archive: zipfile.ZipFile, plugin_name: str, entry: str) -> tuple[str, str]:
+    resolved_name = plugin_name
+    resolved_entry = entry
+
+    try:
+        with archive.open("plugin.json") as meta_file:
+            meta = json.loads(meta_file.read().decode("utf-8"))
+        resolved_name = str(meta.get("name", "") or resolved_name)
+        resolved_entry = str(meta.get("entry", "") or resolved_entry)
+    except Exception as exc:
+        logger.debug("ZIP 내부 plugin.json 재확인 실패: %s", exc)
+
+    root_python_files = [
+        name for name in archive.namelist()
+        if name.endswith(".py") and "/" not in name and "\\" not in name
+    ]
+    if resolved_entry not in archive.namelist():
+        if len(root_python_files) == 1:
+            resolved_entry = root_python_files[0]
+        elif _plugin_target_filename(resolved_name) in root_python_files:
+            resolved_entry = _plugin_target_filename(resolved_name)
+
+    return resolved_name, resolved_entry
+
+
+def fetch_plugins(search: str = "", sort: str = "install_count") -> List[Dict]:
+    """마켓플레이스 플러그인 목록 조회."""
+    if not _marketplace_available():
+        return []
+    query = urllib.parse.urlencode({"search": search, "sort": sort})
+    return _get(f"{MARKETPLACE_API}/get-plugins?{query}").get("items", [])
+
+
+def fetch_plugin(plugin_id: str) -> Optional[Dict]:
+    """특정 플러그인 상세 조회."""
+    if not _marketplace_available():
+        return None
+    try:
+        return _get(f"{MARKETPLACE_API}/get-plugin?plugin_id={plugin_id}")
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            logger.info("플러그인 없음 (plugin_id=%s): HTTP 404", plugin_id)
+        else:
+            logger.error("플러그인 조회 실패 — 네트워크 오류 (plugin_id=%s): %s", plugin_id, e)
+        return None
+    except Exception as e:
+        logger.error("플러그인 조회 실패 — 네트워크 오류 (plugin_id=%s): %s", plugin_id, e)
+        return None
+
+
+def install_plugin(
+    plugin_id: str,
+    plugin_dir: Optional[str] = None,
+    load_after_install: bool = True,
+    trust_after_install: bool = False,
+) -> bool:
+    """
+    플러그인을 설치한다.
+    1. install-plugin 호출 → install_count 증가 + release_url 획득
+    2. ZIP 다운로드 후 plugin_dir에 ZIP 그대로 저장
+    3. 요청된 경우 설치 동의를 신뢰 목록에 저장하고 플러그인을 로드
+    """
+    if not _marketplace_available():
+        return False
+
+    # 1. install-plugin 호출
+    try:
+        data = _post(f"{MARKETPLACE_API}/install-plugin", {"plugin_id": plugin_id})
+    except Exception as e:
+        logger.error("install-plugin 호출 실패: %s", e)
+        return False
+
+    release_url = data.get("release_url")
+    plugin_name = str(data.get("name", "") or "")
+    entry = str(data.get("entry", "") or "")
+    sha256 = str(data.get("sha256", "") or "")
+    if not plugin_name or not entry or not sha256:
+        plugin_meta = fetch_plugin(plugin_id) or {}
+        plugin_name = plugin_name or str(plugin_meta.get("name", "") or "")
+        entry = entry or str(plugin_meta.get("entry", "") or "")
+        sha256 = sha256 or str(plugin_meta.get("sha256", "") or "")
+    if not release_url or not plugin_name or not entry or not sha256:
+        logger.error(
+            "install-plugin 응답/상세정보 누락 (plugin_id=%s, release_url=%s, name=%s, entry=%s, sha256=%s)",
+            plugin_id,
+            bool(release_url),
+            plugin_name,
+            entry,
+            bool(sha256),
+        )
+        return False
+
+    # 2. plugin_dir 결정
+    if plugin_dir is None:
+        try:
+            from core.plugin_loader import get_plugin_manager
+            plugin_dir = get_plugin_manager().plugin_dir()
+        except Exception:
+            plugin_dir = os.path.join(
+                os.path.expanduser("~"), "AppData", "Roaming", "Ari", "plugins"
+            )
+
+    os.makedirs(plugin_dir, exist_ok=True)
+
+    # 3. ZIP 다운로드 및 압축 해제 (루트 레벨 .py 파일만)
+    try:
+        # release_url is validated through _require_web_url() before opening.
+        with urllib.request.urlopen(_require_web_url(release_url), timeout=30) as resp:  # nosec B310
+            content = resp.read()
+    except Exception as e:
+        logger.error("ZIP 다운로드 실패: %s", e)
+        return False
+
+    actual_sha256 = _compute_sha256(content)
+    if actual_sha256 != sha256:
+        logger.error("ZIP SHA256 검증 실패: expected=%s actual=%s", sha256, actual_sha256)
+        return False
+
+    installed_files: List[str] = []
+    with zipfile.ZipFile(io.BytesIO(content)) as archive:
+        plugin_name, entry = _resolve_zip_plugin_metadata(archive, plugin_name, entry)
+        if entry not in archive.namelist():
+            logger.error("ZIP에 entry 파일이 없습니다: %s", entry)
+            return False
+        target_name = _plugin_target_filename(plugin_name)
+        target_path = os.path.join(plugin_dir, target_name)
+        with open(target_path, "wb") as output:
+            output.write(content)
+        installed_files.append(target_name)
+
+    legacy_path = os.path.join(plugin_dir, f"{os.path.splitext(installed_files[0])[0]}.py")
+    if os.path.exists(legacy_path):
+        try:
+            os.remove(legacy_path)
+        except OSError as exc:
+            logger.warning("기존 단일 파일 플러그인 제거 실패: %s", exc)
+
+    if not installed_files:
+        logger.error("설치할 entry 파일이 없습니다.")
+        return False
+
+    logger.info("플러그인 설치 완료: %s → %s", installed_files, plugin_dir)
+
+    if trust_after_install:
+        from core.plugin_loader import get_plugin_manager
+
+        manager = get_plugin_manager()
+        for fname in installed_files:
+            path = os.path.join(plugin_dir, fname)
+            if not manager.trust_plugin(path):
+                logger.warning("플러그인 설치 동의를 신뢰 목록에 저장하지 못했습니다: %s", fname)
+
+    if load_after_install:
+        try:
+            from core.plugin_loader import get_plugin_manager
+            pm = get_plugin_manager()
+            for fname in installed_files:
+                path = os.path.join(plugin_dir, fname)
+                pm.unload_plugin(plugin_name)
+                pm.load_plugin(path)
+                logger.info("플러그인 로드: %s", fname)
+        except Exception as e:
+            raise RuntimeError(
+                _("플러그인 파일은 저장되었지만 활성화에 실패했습니다: {error}", error=e)
+            ) from e
+
+    return True

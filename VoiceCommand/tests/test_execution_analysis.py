@@ -1,0 +1,69 @@
+import os
+import unittest
+from pathlib import Path
+
+
+from agent.execution_analysis import (
+    analyze_failure,
+    classify_failure_message,
+    describes_open_action,
+    describes_storage_action,
+    existing_paths,
+    extract_artifacts,
+    extract_developer_result_paths,
+    extract_step_targets,
+    is_read_only_step_content,
+)
+
+
+VOICECOMMAND_ROOT = Path(__file__).resolve().parent.parent
+
+
+class ExecutionAnalysisTests(unittest.TestCase):
+    def test_classify_failure_message(self):
+        self.assertEqual(classify_failure_message("HTTP timeout while fetching"), "timeout")
+        self.assertEqual(classify_failure_message("Access is denied"), "permission_denied")
+        self.assertEqual(classify_failure_message("NameError: foo"), "code_generation_error")
+
+    def test_analyze_failure_returns_profile(self):
+        analysis = analyze_failure("HTTP timeout while fetching")
+
+        self.assertEqual(analysis.primary_cause, "timeout")
+        self.assertGreater(analysis.severity, 0.0)
+        self.assertGreater(analysis.recovery_probability, 0.0)
+        self.assertEqual(analysis.recommended_strategy, "retry")
+
+    def test_read_only_step_detection(self):
+        self.assertTrue(is_read_only_step_content("print('hello')", "정보 수집"))
+        self.assertFalse(is_read_only_step_content("save_document('a','b','c')", "문서 저장"))
+
+    def test_extract_artifacts_and_existing_paths(self):
+        target = os.path.abspath(os.path.join(VOICECOMMAND_ROOT, "..", "README.md"))
+        artifacts = extract_artifacts([f"saved: {target}", "see https://example.com/page"])
+        self.assertIn(target, artifacts["paths"])
+        self.assertIn("https://example.com/page", artifacts["urls"])
+        self.assertIn(target, existing_paths(artifacts["paths"]))
+
+    def test_description_helpers(self):
+        self.assertTrue(describes_storage_action("문서 저장"))
+        self.assertTrue(describes_open_action("앱 실행"))
+        self.assertFalse(describes_open_action("정보 수집"))
+
+    def test_extract_step_targets_includes_windows_and_goal_hints(self):
+        targets = extract_step_targets(
+            "result = run_desktop_workflow(goal_hint='메모장 저장', expected_window='메모장')\nopen_url('https://example.com')"
+        )
+        self.assertIn("메모장", targets["windows"])
+        self.assertIn("메모장 저장", targets["goal_hints"])
+        self.assertIn("example.com", targets["domains"])
+
+    def test_extract_developer_result_paths_lowercases_and_dedupes(self):
+        text = '{"saved": "VoiceCommand\\agent\\Foo.py", "again": "voicecommand/agent/foo.py", "doc": ["docs/A.md"]}'
+
+        paths = extract_developer_result_paths(text, os.getcwd())
+
+        self.assertEqual(paths, ["voicecommand/agent/foo.py", "docs/a.md"])
+
+
+if __name__ == "__main__":
+    unittest.main()

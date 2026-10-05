@@ -1,0 +1,1017 @@
+"""
+에이전트 오케스트레이터 (Agent Orchestrator)
+Plan → Execute+Self-Fix → Verify 다층 루프로 목표를 자율적으로 달성한다.
+
+사용 패턴:
+  1. execute_with_self_fix(code, step_type, goal)
+     단일 코드 실행 + 자동 수정 (기존 executor 대체)
+
+  2. run(goal)
+     복잡한 목표 → 다단계 계획 → 병렬 실행+자동수정 → 코드 기반 검증 → [재계획] 루프
+"""
+import logging
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from dataclasses import dataclass, field, asdict
+from typing import Callable, Dict, List, Optional
+
+from agent.agent_planner import AgentPlanner, ActionStep, get_planner
+from agent.autonomous_executor import AutonomousExecutor, ExecutionResult, get_executor
+from agent.execution_engine import ExecutionEngine, StepResult  # StepResult는 여기서 정의
+from agent.verification_engine import VerificationEngine
+from agent.learning_engine import LearningEngine
+from core.mood_state import get_mood_state
+from i18n.translator import _
+
+logger = logging.getLogger(__name__)
+MAX_TOTAL_TIMEOUT = 120.0
+
+# StepResult를 execution_engine에서 임포트하여 re-export한다.
+# 기존 코드의 `from agent.agent_orchestrator import StepResult` 는 계속 동작한다.
+__all__ = ["AgentOrchestrator", "AgentRunResult", "StepResult", "get_orchestrator"]
+
+
+# ── 데이터 클래스 ──────────────────────────────────────────────────────────────
+
+@dataclass
+class AgentRunResult:
+    goal: str
+    step_results: List[StepResult] = field(default_factory=list)
+    achieved: bool = False
+    summary: str = ""
+    total_iterations: int = 0
+    learning_components: Dict[str, bool] = field(default_factory=dict)
+    # 단계는 모두 성공했지만 상태를 확인할 수단이 없었다. 다시 실행하면 동작이 중복된다.
+    verification_unavailable: bool = False
+    learning_component_trials: Dict[str, Dict[str, bool]] = field(default_factory=dict)
+
+    def all_exec_results(self) -> List[ExecutionResult]:
+        return [sr.exec_result for sr in self.step_results]
+
+
+# ── 오케스트레이터 ─────────────────────────────────────────────────────────────
+
+class AgentOrchestrator:
+    """Plan → Execute+Self-Fix → Verify 다층 자율 실행기"""
+
+    MAX_PLAN_ITERATIONS = 4   # 전체 재계획 최대 횟수
+    MAX_STEP_RETRIES = 2      # 단계 당 자동 수정 최대 횟수
+
+    def __init__(
+        self,
+        executor: AutonomousExecutor,
+        planner: AgentPlanner,
+        tts_func: Optional[Callable] = None,
+        progress_callback: Optional[Callable] = None,
+        thinking_callback: Optional[Callable] = None,
+        cancel_event: Optional[threading.Event] = None,
+    ):
+        self.executor = executor
+        self.planner = planner
+        self.tts = tts_func
+        self.progress_callback = progress_callback
+        self.thinking_callback = thinking_callback
+        self._run_lock = threading.Lock()
+        self._context_lock = threading.Lock()
+        self._owns_cancel_event = cancel_event is None
+        self._interrupt_requested = cancel_event if cancel_event is not None else threading.Event()
+        self._children_lock = threading.Lock()
+        self._children: set = set()
+        self._last_checkpoint: dict | None = None
+        self.default_timeout = self._load_timeout_seconds()
+        self.max_subagents = self._load_max_subagents()
+        self._subagent_pool = ThreadPoolExecutor(
+            max_workers=max(1, self.max_subagents),
+            thread_name_prefix="AriSubagent",
+        )
+
+        self._exec = ExecutionEngine(
+            executor=executor,
+            planner=planner,
+            tts_func=tts_func,
+            progress_callback=progress_callback,
+            context_lock=self._context_lock,
+            cancel_event=self._interrupt_requested,
+        )
+        self._verify_engine = VerificationEngine(planner=planner)
+        self._learn = LearningEngine(
+            is_developer_goal_fn=self._is_developer_goal,
+            tts_func=tts_func,
+            executor=executor,
+        )
+
+    # ── 공개 API ──────────────────────────────────────────────────────────────
+
+    def set_progress_callback(self, cb: Optional[Callable]) -> None:
+        """진행 이벤트 콜백 설정. UI 대시보드 연결에 사용."""
+        self.progress_callback = cb
+        self._exec.progress_callback = cb
+
+    def set_thinking_callback(self, cb: Optional[Callable]) -> None:
+        """생각 중(Thinking) 상태 콜백 설정. 캐릭터 애니메이션 제어에 사용."""
+        self.thinking_callback = cb
+
+    def _load_timeout_seconds(self) -> float:
+        try:
+            from core.config_manager import ConfigManager
+            return float(ConfigManager.get("agent_timeout_seconds", MAX_TOTAL_TIMEOUT) or MAX_TOTAL_TIMEOUT)
+        except Exception:
+            return MAX_TOTAL_TIMEOUT
+
+    def _load_max_subagents(self) -> int:
+        try:
+            from core.config_manager import ConfigManager
+            return max(1, int(ConfigManager.get("max_subagents", 3) or 3))
+        except Exception:
+            return 3
+
+    def interrupt(self) -> None:
+        """진행 중인 에이전트 루프를 다음 안전 지점에서 중단하도록 요청한다."""
+        self._interrupt_requested.set()
+        with self._children_lock:
+            children = list(self._children)
+        for child in children:
+            child.interrupt()
+        try:
+            cancel = getattr(self.executor, "cancel_running_processes", None)
+            if callable(cancel):
+                cancel()
+        except Exception as exc:
+            logger.debug("[Orchestrator] 실행 프로세스 중단 요청 실패: %s", exc)
+        self._emit_progress("interrupt_requested")
+
+    def resume(self, additional_goal: str = "") -> AgentRunResult:
+        """마지막 중단 체크포인트의 미완료 단계와 실행 문맥을 복원한다."""
+        checkpoint = dict(self._last_checkpoint or {})
+        goal = str(checkpoint.get("goal", "") or "").strip()
+        if additional_goal:
+            goal = f"{goal}\n\n추가 지시: {additional_goal}" if goal else additional_goal
+        if not goal:
+            return AgentRunResult(goal=additional_goal, achieved=False, summary=_("재개할 작업이 없습니다."))
+        return self.run(goal, _checkpoint=checkpoint)
+
+    def spawn_subagent(
+        self,
+        goal: str,
+        context: dict | str | None = None,
+        timeout: float = 60.0,
+    ) -> AgentRunResult:
+        """독립 목표를 별도 에이전트 실행 컨텍스트에서 처리한다."""
+        goal = str(goal or "").strip()
+        if not goal:
+            return AgentRunResult(goal="", achieved=False, summary=_("subagent.goal_required"))
+        if isinstance(context, dict):
+            context_text = "\n".join(f"{key}: {value}" for key, value in context.items() if value)
+        else:
+            context_text = str(context or "").strip()
+        delegated_goal = goal
+        if context_text:
+            delegated_goal = f"{goal}\n\n[전달 컨텍스트]\n{context_text[:2000]}"
+
+        # 자식마다 중단 신호를 따로 둬야 시간 초과 때 부모를 멈추지 않고 그 자식만 멈출 수 있다.
+        # 부모의 중단은 interrupt()가 _children을 돌며 전달한다.
+        child_event = threading.Event()
+        started: list = []
+
+        def _run() -> AgentRunResult:
+            child = AgentOrchestrator(
+                executor=AutonomousExecutor(self.tts),
+                planner=get_planner(),
+                tts_func=self.tts,
+                cancel_event=child_event,
+            )
+            with self._children_lock:
+                self._children.add(child)
+                started.append(child)
+            if self._interrupt_requested.is_set():
+                child.interrupt()
+            try:
+                return child.run(delegated_goal, timeout=timeout)
+            finally:
+                with self._children_lock:
+                    self._children.discard(child)
+
+        self._emit_progress("subagent_start", goal=goal)
+        future = self._subagent_pool.submit(_run)
+        try:
+            result = future.result(timeout=max(1.0, float(timeout) + 5.0))
+            self._emit_progress("subagent_complete", goal=goal, achieved=result.achieved)
+            return result
+        except FuturesTimeoutError:
+            future.cancel()
+            # 이미 실행 중인 자식은 cancel()로 멈추지 않으므로 중단 신호와 실행 중인 프로세스 종료를 요청한다.
+            child_event.set()
+            for child in list(started):
+                child.interrupt()
+            self._emit_progress("subagent_timeout", goal=goal)
+            return AgentRunResult(goal=goal, achieved=False, summary=_("subagent.timeout"))
+        except Exception as exc:
+            logger.error("[Orchestrator] 하위 에이전트 실패: %s", exc, exc_info=True)
+            self._emit_progress("subagent_error", goal=goal, error=str(exc))
+            return AgentRunResult(goal=goal, achieved=False, summary=_("subagent.failed").format(error=exc))
+
+    def execute_with_self_fix(
+        self,
+        content: str,
+        step_type: str,
+        goal: str,
+    ) -> ExecutionResult:
+        """단일 단계 실행 + 자동 수정 (단순 도구 호출용)"""
+        step = ActionStep(
+            step_id=0,
+            step_type=step_type,
+            content=content,
+            description_kr="단일 명령 실행",
+        )
+        res, _, _ = self._exec.execute_step_with_retry(step, goal, {})
+        return res
+
+    def run(
+        self,
+        goal: str,
+        timeout: Optional[float] = None,
+        _checkpoint: Optional[Dict] = None,
+    ) -> AgentRunResult:
+        """복잡한 목표를 다층 루프로 자율 달성."""
+        self._learn.wait_for_background_thread()
+        if not self._run_lock.acquire(blocking=False):
+            logger.warning("[Orchestrator] 이미 에이전트가 실행 중입니다.")
+            return AgentRunResult(goal=goal, summary=_("다른 작업이 진행 중입니다."))
+
+        start_time = time.time()
+        if self._owns_cancel_event:
+            self._interrupt_requested.clear()
+        self._set_thinking(True)
+        try:
+            timeout_seconds = self.default_timeout if timeout is None else float(timeout)
+            deadline = start_time + max(0.1, timeout_seconds)
+            component_trials: Dict[str, Dict[str, bool]] = {}
+            shared_context = (
+                {}
+                if _checkpoint or self._interrupt_requested.is_set()
+                else self._build_shared_context(goal, component_trials)
+            )
+            if self._is_timeout_exceeded(deadline):
+                return AgentRunResult(goal=goal, achieved=False, summary=_("실행 시간 초과"))
+            run_result = self._run_loop(
+                goal,
+                shared_context=shared_context,
+                deadline=deadline,
+                checkpoint=_checkpoint,
+                component_trials=component_trials,
+            )
+            if self._interrupt_requested.is_set():
+                run_result.achieved = False
+                run_result.summary = _("사용자 요청으로 중단되었습니다.")
+                return run_result
+            lesson = ""
+            reflection = None
+            if (
+                not run_result.achieved
+                and not run_result.verification_unavailable
+                and not self._is_timeout_exceeded(deadline)
+                and not self._interrupt_requested.is_set()
+            ):
+                if self._should_activate_component(
+                    "ReflectionEngine", component_trials
+                ):
+                    reflection = self._learn.reflect_on_failure(goal, run_result)
+                    run_result.learning_components["ReflectionEngine"] = True
+                    lesson = getattr(reflection, "lesson", "") or ""
+                    if lesson and not self._interrupt_requested.is_set():
+                        run_result.summary += _("\n(교훈: {lesson})").format(lesson=lesson)
+                        retry_context = {
+                            "reflection_insight": lesson,
+                            "avoid_patterns": " | ".join(
+                                getattr(reflection, "avoid_patterns", [])[:3]
+                            ),
+                        }
+                        retry_result = self._run_loop(
+                            goal,
+                            reflection_context=retry_context,
+                            shared_context=shared_context,
+                            deadline=deadline,
+                            component_trials=component_trials,
+                        )
+                        if retry_result.achieved or retry_result.verification_unavailable:
+                            retry_result.learning_components["ReflectionEngine"] = True
+                            run_result = retry_result
+            elif not self._interrupt_requested.is_set():
+                self._learn.schedule_reflection(
+                    goal,
+                    run_result,
+                    callback=lambda reflection_result: self._learn.record_reflection_lesson(
+                        goal,
+                        reflection_result,
+                    ),
+                )
+
+            if self._interrupt_requested.is_set():
+                run_result.achieved = False
+                run_result.summary = _("사용자 요청으로 중단되었습니다.")
+                return run_result
+            self._last_checkpoint = None
+            duration = int((time.time() - start_time) * 1000)
+            self._learn.schedule_post_run_update(goal, run_result, duration)
+            self._learn.record_learning_metrics(run_result)
+            self._record_strategy(
+                goal,
+                run_result,
+                duration,
+                lesson=lesson,
+                failure_kind_override=getattr(reflection, "root_cause", ""),
+            )
+            try:
+                mood_state = get_mood_state()
+                if mood_state is not None and (
+                    run_result.achieved or not run_result.verification_unavailable
+                ):
+                    mood_state.record_task_result(run_result.achieved)
+            except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                logger.debug("[Orchestrator] 기분 상태 갱신 생략: %s", exc)
+            payload = {"goal": goal, "achieved": run_result.achieved, "summary": run_result.summary}
+            self._emit_plugin_event("on_agent_complete", payload)
+            if run_result.achieved:
+                self._emit_plugin_event("agent.task.completed", payload)
+            try:
+                from agent.speech_scheduler import get_speech_scheduler
+
+                speech_scheduler = get_speech_scheduler()
+                if speech_scheduler is not None:
+                    speech_scheduler.request("agent_done", summary=run_result.summary)
+            except (
+                ImportError,
+                AttributeError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                logger.debug("작업 완료 발화 예약을 건너뜁니다: %s", exc)
+            return run_result
+        finally:
+            self._set_thinking(False)
+            self._run_lock.release()
+
+    @property
+    def is_running(self) -> bool:
+        return self._run_lock.locked()
+
+    # ── 내부 루프 ─────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _restore_action_step(raw_step) -> Optional[ActionStep]:
+        if isinstance(raw_step, ActionStep):
+            return raw_step
+        if not isinstance(raw_step, dict):
+            return None
+        try:
+            return ActionStep(**raw_step)
+        except (TypeError, ValueError):
+            logger.debug("[Orchestrator] Invalid checkpoint step ignored")
+            return None
+
+    @classmethod
+    def _restore_step_result(cls, raw_result) -> Optional[StepResult]:
+        if isinstance(raw_result, StepResult):
+            return raw_result
+        if not isinstance(raw_result, dict):
+            return None
+        step = cls._restore_action_step(raw_result.get("step"))
+        raw_exec_result = raw_result.get("exec_result")
+        if isinstance(raw_exec_result, ExecutionResult):
+            exec_result = raw_exec_result
+        elif isinstance(raw_exec_result, dict):
+            try:
+                exec_result = ExecutionResult(**raw_exec_result)
+            except (TypeError, ValueError):
+                return None
+        else:
+            exec_result = None
+        if step is None or exec_result is None:
+            return None
+        try:
+            return StepResult(**{**raw_result, "step": step, "exec_result": exec_result})
+        except (TypeError, ValueError):
+            return None
+
+    @classmethod
+    def _restore_checkpoint_state(cls, checkpoint: Optional[Dict]):
+        if not checkpoint:
+            return [], [], {}, False
+        steps = [
+            step
+            for raw_step in checkpoint.get("steps", []) or []
+            if (step := cls._restore_action_step(raw_step)) is not None
+        ]
+        results = [
+            result
+            for raw_result in checkpoint.get("step_results", []) or []
+            if (result := cls._restore_step_result(raw_result)) is not None
+        ]
+        context = checkpoint.get("context")
+        if not isinstance(context, dict):
+            context = checkpoint.get("execution_context")
+        if not isinstance(context, dict):
+            context = {}
+        return steps, results, dict(context), bool("steps" in checkpoint)
+
+    def _save_checkpoint(self, goal, iteration, steps, run_result, context, current_results=()):
+        self._last_checkpoint = {
+            "goal": goal,
+            "iteration": iteration,
+            "step_results": list(run_result.step_results),
+            "current_step_results": list(current_results),
+            "context": dict(context),
+        }
+        if steps is not None:
+            self._last_checkpoint["steps"] = [asdict(step) for step in steps]
+        run_result.achieved = False
+        run_result.summary = _("사용자 요청으로 중단되었습니다.")
+        self._emit_progress("interrupted", iteration=iteration)
+
+    def _run_loop(
+        self,
+        goal: str,
+        reflection_context: Optional[Dict[str, str]] = None,
+        shared_context: Optional[Dict[str, str]] = None,
+        deadline: Optional[float] = None,
+        checkpoint: Optional[Dict] = None,
+        component_trials: Optional[Dict[str, Dict[str, bool]]] = None,
+    ) -> AgentRunResult:
+        """실제 Plan-Execute-Verify 루프"""
+        run_result = AgentRunResult(
+            goal=goal,
+            learning_component_trials=(
+                component_trials if component_trials is not None else {}
+            ),
+        )
+        context: Dict[str, str] = {"goal": goal}
+        learning_components: Dict[str, bool] = {}
+
+        if shared_context and shared_context.get("recent_goal_episodes"):
+            learning_components["EpisodeMemory"] = True
+        if shared_context and shared_context.get("goal_risk_warning"):
+            learning_components["GoalPredictor"] = True
+
+        context_init: Dict[str, str] = {}
+        if shared_context:
+            context_init.update({
+                str(key): str(value)
+                for key, value in shared_context.items()
+                if value
+            })
+        if reflection_context:
+            context_init.update({
+                str(key): str(value)
+                for key, value in reflection_context.items()
+                if value
+            })
+        if context_init:
+            with self._context_lock:
+                context.update(context_init)
+
+        saved_steps, saved_results, saved_context, resume_plan = self._restore_checkpoint_state(checkpoint)
+        if checkpoint:
+            context.update(saved_context)
+            context["goal"] = goal
+            run_result.step_results = saved_results
+        resumed_results = []
+        if resume_plan:
+            raw_results = checkpoint.get("current_step_results", checkpoint.get("step_results", []))
+            resumed_results = [
+                result for raw in raw_results
+                if (result := self._restore_step_result(raw)) is not None
+                and result.exec_result.success
+                and any(result.step == step for step in saved_steps)
+            ]
+
+        if checkpoint or self._interrupt_requested.is_set() or self._should_prefer_template_over_skill(goal):
+            logger.info("[Orchestrator] 안정 템플릿 우선 적용: skill 재사용 생략")
+        else:
+            skill_result = self._run_with_skill_if_available(
+                goal, context, learning_components, component_trials
+            )
+            if skill_result is not None:
+                self._merge_learning_components(learning_components, skill_result.learning_components)
+                skill_result.learning_components = learning_components
+                skill_result.learning_component_trials = run_result.learning_component_trials
+                return skill_result
+
+        difficulty = self._estimate_goal_difficulty(goal)
+        max_iterations = max(2, min(2 + round(difficulty * 4), 6))
+        logger.info("[Orchestrator] 목표 난이도 %.2f → 최대 %d회 반복", difficulty, max_iterations)
+        replan_reasons: list[str] = []
+
+        start_iteration = int(checkpoint.get("iteration", 0)) if checkpoint else 0
+        for iteration in range(start_iteration, max(max_iterations, start_iteration + 1)):
+            if self._interrupt_requested.is_set():
+                self._save_checkpoint(goal, iteration, saved_steps if resume_plan else None, run_result, context, resumed_results)
+                break
+            if self._is_timeout_exceeded(deadline):
+                run_result.summary = _("실행 시간 초과")
+                break
+            run_result.total_iterations = iteration + 1
+            logger.info(
+                f"[Orchestrator] 계획 수립 (반복 {iteration+1}/{max_iterations})"
+            )
+
+            # Layer 1: Plan
+            timeout_hint = context.pop("이전_단계_타임아웃", "")
+            if timeout_hint:
+                with self._context_lock:
+                    context["재계획_힌트"] = (
+                        f"{context.get('재계획_힌트', '')} {timeout_hint}"
+                    ).strip()
+            restoring = resume_plan
+            prior_results = resumed_results if restoring else []
+            steps = saved_steps if restoring else self.planner.decompose(
+                goal,
+                context,
+                component_trials=component_trials,
+            )
+            resume_plan = False
+            if self._is_timeout_exceeded(deadline):
+                run_result.summary = _("실행 시간 초과")
+                break
+            self._merge_learning_components(
+                learning_components, self.planner.get_last_learning_signals()
+            )
+            if not steps and not restoring:
+                run_result.summary = _("계획 수립에 실패했습니다.")
+                break
+            prevalidation_issues = self._prevalidate_steps(steps)
+            if prevalidation_issues:
+                reason = " | ".join(prevalidation_issues[:3])
+                logger.warning("[Orchestrator] 사전 검증 실패, 재계획: %s", reason)
+                with self._context_lock:
+                    context["이전_시도"] = reason
+                self._emit_progress(
+                    "replan",
+                    iteration=iteration,
+                    reason=reason,
+                )
+                reason_sig = reason[:80]
+                if reason_sig in replan_reasons:
+                    logger.info("[Orchestrator] 동일 재계획 이유 반복, 루프 조기 종료: %s", reason_sig)
+                    run_result.summary = _("반복 실패 패턴 감지: {reason}", reason=reason)
+                    break
+                replan_reasons.append(reason_sig)
+                if iteration >= max_iterations - 1:
+                    run_result.summary = _("사전 검증 실패: {reason}", reason=reason)
+                continue
+
+            self._log_plan(steps)
+            self._emit_progress(
+                "plan_ready", steps=[asdict(s) for s in steps], iteration=iteration
+            )
+
+            # Layer 2: Execute + Self-Fix
+            if self._interrupt_requested.is_set():
+                self._save_checkpoint(goal, iteration, steps, run_result, context, prior_results)
+                break
+            completed_ids = {result.step.step_id for result in prior_results}
+            pending_steps = [step for step in steps if step.step_id not in completed_ids]
+            all_success, step_results = self._execute_plan(
+                pending_steps, context, goal
+            )
+            current_results = prior_results + step_results
+            if self._interrupt_requested.is_set():
+                run_result.step_results.extend(step_results)
+                self._save_checkpoint(goal, iteration, steps, run_result, context, current_results)
+                break
+            if self._is_timeout_exceeded(deadline):
+                run_result.summary = _("실행 시간 초과")
+                break
+            run_result.step_results.extend(step_results)
+
+            if not all_success:
+                failed = [
+                    sr for sr in step_results if not sr.exec_result.success
+                ]
+                adaptive_ctx = self._build_adaptive_context(failed)
+                with self._context_lock:
+                    context.update(adaptive_ctx)
+                reason = adaptive_ctx.get("재계획_이유", "실행 실패")
+                self._emit_progress("replan", iteration=iteration, reason=reason)
+                self._say(_("[진지] 접근 방법을 바꿔서 다시 시도합니다."))
+                reason_sig = reason[:80]
+                if reason_sig in replan_reasons:
+                    logger.info("[Orchestrator] 동일 재계획 이유 반복, 루프 조기 종료: %s", reason_sig)
+                    run_result.summary = _("반복 실패 패턴 감지: {reason}", reason=reason)
+                    break
+                replan_reasons.append(reason_sig)
+                if iteration >= max_iterations - 1:
+                    run_result.summary = _("실행 실패: {reason}", reason=reason)
+                continue
+
+            # Layer 3: Verify
+            self._emit_progress("verify_start")
+            if self._interrupt_requested.is_set():
+                self._save_checkpoint(goal, iteration, steps, run_result, context, current_results)
+                break
+            achieved, summary = self._verify_engine.verify(goal, current_results)
+            if self._interrupt_requested.is_set():
+                self._save_checkpoint(goal, iteration, steps, run_result, context, current_results)
+                break
+            run_result.achieved = achieved
+            run_result.summary = summary
+
+            if achieved:
+                self._emit_progress("achieved", summary=summary)
+                self._say(f"[기쁨] {summary}")
+                break
+            else:
+                # 모든 단계가 성공했고 상태를 확인할 수단만 없으면 다시 실행하지 않는다.
+                # 재계획하면 이미 끝난 동작(파일 생성, 전송 등)이 한 번 더 실행되고 얻은 결과도 사라진다.
+                if summary == _("요청한 결과를 실제 상태로 검증하지 못했습니다."):
+                    output = next(
+                        (
+                            str(sr.exec_result.output).strip()
+                            for sr in reversed(current_results)
+                            if str(getattr(sr.exec_result, "output", "") or "").strip()
+                        ),
+                        "",
+                    )
+                    if output:
+                        run_result.summary = f"{summary} {output[:200]}"
+                    run_result.verification_unavailable = True
+                    self._emit_progress("not_achieved", summary=run_result.summary, iteration=iteration)
+                    break
+                with self._context_lock:
+                    context["이전_시도"] = summary
+                self._emit_progress(
+                    "not_achieved", summary=summary, iteration=iteration
+                )
+                self._say(_("[진지] 목표를 아직 달성하지 못했어요. 다시 시도합니다."))
+                reason_sig = summary[:80]
+                if reason_sig in replan_reasons:
+                    logger.info("[Orchestrator] 동일 재계획 이유 반복, 루프 조기 종료: %s", reason_sig)
+                    run_result.summary = _("반복 실패 패턴 감지: {reason}", reason=summary)
+                    break
+                replan_reasons.append(reason_sig)
+
+        run_result.learning_components = learning_components
+        return run_result
+
+    def _build_shared_context(
+        self,
+        goal: str,
+        component_trials: Optional[Dict[str, Dict[str, bool]]] = None,
+    ) -> Dict[str, str]:
+        """루프 진입 전 1회만 실행해야 하는 고비용 검색을 수행한다."""
+        from agent.learning_metrics import get_learning_metrics
+
+        metrics = get_learning_metrics()
+        additions: Dict[str, str] = {}
+
+        try:
+            from agent.episode_memory import get_episode_memory
+
+            summary = get_episode_memory().get_recent_summary(goal=goal, limit=3)
+            if metrics.should_activate(
+                "EpisodeMemory",
+                eligible=bool(summary),
+                trials=component_trials,
+            ):
+                additions["recent_goal_episodes"] = summary[:600]
+        except Exception as exc:
+            logger.debug("[Orchestrator] episode memory 생략: %s", exc)
+
+        try:
+            from agent.goal_predictor import get_goal_predictor
+
+            prediction = get_goal_predictor().warn_if_high_risk(goal)
+            if metrics.should_activate(
+                "GoalPredictor",
+                eligible=bool(prediction.warning),
+                trials=component_trials,
+            ):
+                additions["goal_risk_warning"] = prediction.warning[:300]
+                if prediction.risk_factors:
+                    additions["goal_risk_factors"] = (
+                        " | ".join(prediction.risk_factors[:3])[:300]
+                    )
+                self._emit_progress(
+                    "risk_warning",
+                    warning=prediction.warning,
+                    sample_size=prediction.sample_size,
+                    success_rate=prediction.estimated_success_rate,
+                )
+                self._say(f"[진지] {prediction.warning}")
+        except Exception as exc:
+            logger.debug("[Orchestrator] goal predictor 생략: %s", exc)
+
+        return additions
+
+    def _estimate_goal_difficulty(self, goal: str) -> float:
+        """목표의 예상 복잡도를 0.0~1.0으로 반환한다."""
+        from i18n.translator import get_language
+
+        connectors_by_language: dict[str, list[str]] = {
+            "ko": ["그리고", "다음에", "이후에", "후에", "그 다음", "마지막으로"],
+            "en": ["and then", "next", "after that", "then", "finally"],
+            "ja": ["そして", "次に", "その後", "最後に"],
+        }
+        connectors = connectors_by_language.get(get_language(), connectors_by_language["ko"])
+        normalized_goal = str(goal or "")
+
+        score = min(sum(1 for connector in connectors if connector in normalized_goal) * 0.15, 0.45)
+
+        try:
+            from agent.tag_keywords import TAG_KEYWORDS
+
+            matched_domains = sum(
+                1
+                for keywords in TAG_KEYWORDS.values()
+                if any(keyword.lower() in normalized_goal.lower() for keyword in keywords)
+            )
+            if matched_domains >= 3:
+                score += 0.3
+            elif matched_domains >= 2:
+                score += 0.15
+        except Exception as exc:
+            logger.debug("[Orchestrator] 태그 기반 난이도 추정 생략: %s", exc)
+
+        try:
+            from agent.strategy_memory import get_strategy_memory
+
+            similar = get_strategy_memory().search_similar_records(goal, limit=3)
+            if similar:
+                avg_steps = sum(len(record.steps_desc or []) for record in similar) / len(similar)
+                if avg_steps > 5:
+                    score += 0.25
+        except Exception as exc:
+            logger.debug("[Orchestrator] 전략 기억 기반 난이도 추정 생략: %s", exc)
+
+        return min(score, 1.0)
+
+    # ── 스킬 실행 ─────────────────────────────────────────────────────────────
+
+    def _should_prefer_template_over_skill(self, goal: str) -> bool:
+        try:
+            if self._is_developer_goal(goal):
+                return True
+            template_steps = self.planner._build_template_plan(goal)
+        except Exception as exc:
+            logger.debug("[Orchestrator] 템플릿 우선 판단 생략: %s", exc)
+            return False
+        return bool(template_steps)
+
+    def _is_developer_goal(self, goal: str) -> bool:
+        try:
+            return bool(
+                hasattr(self.planner, "is_developer_goal")
+                and self.planner.is_developer_goal(goal)
+            )
+        except Exception:
+            return False
+
+    def _should_activate_component(
+        self,
+        name: str,
+        component_trials: Optional[Dict[str, Dict[str, bool]]],
+    ) -> bool:
+        if component_trials is None:
+            return True
+        from agent.learning_metrics import get_learning_metrics
+
+        return get_learning_metrics().should_activate(
+            name,
+            eligible=True,
+            trials=component_trials,
+        )
+
+    def _run_with_skill_if_available(
+        self,
+        goal: str,
+        context: Dict[str, str],
+        learning_components: Dict[str, bool],
+        component_trials: Optional[Dict[str, Dict[str, bool]]] = None,
+    ) -> Optional[AgentRunResult]:
+        if self._interrupt_requested.is_set():
+            return None
+        try:
+            from agent.skill_library import get_skill_library
+            skill = get_skill_library().get_applicable_skill(goal)
+            if not skill:
+                return None
+            if not self._should_activate_component(
+                "SkillLibrary", component_trials
+            ):
+                return None
+            learning_components["SkillLibrary"] = True
+
+            # Direction 2: 컴파일된 Python 스킬 우선 실행
+            if skill.compiled:
+                result = self._run_compiled_skill(skill, goal)
+                if self._interrupt_requested.is_set():
+                    return result or AgentRunResult(goal=goal, summary=_("사용자 요청으로 중단되었습니다."))
+                if result is not None:
+                    with self._context_lock:
+                        context["skill_id"] = skill.skill_id
+                    result.learning_components["SkillLibrary"] = True
+                    return result
+                # 컴파일 스킬 실패 → 일반 스텝 실행으로 폴백
+
+            steps = [
+                ActionStep(
+                    step_id=item.get("step_id", idx),
+                    step_type=item.get("step_type", "python"),
+                    content=item.get("content", ""),
+                    description_kr=item.get("description_kr", f"스킬 단계 {idx+1}"),
+                    expected_output=item.get("expected_output", ""),
+                    condition=item.get("condition", ""),
+                    on_failure=item.get("on_failure", "abort"),
+                    optional=bool(item.get("optional", False)),
+                )
+                for idx, item in enumerate(skill.steps)
+            ]
+            all_success, step_results = self._execute_plan(
+                steps, context, goal
+            )
+            result = AgentRunResult(
+                goal=goal, step_results=step_results, total_iterations=1
+            )
+            result.learning_components["SkillLibrary"] = True
+            if self._interrupt_requested.is_set():
+                self._save_checkpoint(goal, 0, steps, result, context, step_results)
+                return result
+            if all_success:
+                achieved, summary = self._verify_engine.verify(goal, step_results)
+                if self._interrupt_requested.is_set():
+                    self._save_checkpoint(goal, 0, steps, result, context, step_results)
+                    return result
+                result.achieved = achieved
+                result.summary = summary
+                if achieved:
+                    with self._context_lock:
+                        context["skill_id"] = skill.skill_id
+                    get_skill_library().record_feedback(skill.skill_id, positive=True)
+                    return result
+            # 실패 시 에러 수집 후 자기수정 트리거
+            error = " | ".join(
+                (sr.exec_result.error or sr.exec_result.output or "")[:120]
+                for sr in step_results
+                if not sr.exec_result.success
+            )
+            get_skill_library().deprecate_if_failing(skill.skill_id, error=error)
+        except Exception as e:
+            logger.debug("[Orchestrator] skill 실행 생략: %s", e)
+        return None
+
+    def _run_compiled_skill(self, skill, goal: str) -> Optional[AgentRunResult]:
+        """Direction 2: 컴파일된 Python 스킬 실행. 성공 시 AgentRunResult 반환."""
+        try:
+            from agent.skill_library import get_skill_library
+            from agent.skill_optimizer import get_skill_optimizer
+            optimizer = get_skill_optimizer()
+            success, output = optimizer.run_compiled(skill.skill_id, goal)
+            result = AgentRunResult(goal=goal, total_iterations=1)
+            if self._interrupt_requested.is_set():
+                return result
+            if success:
+                result.step_results = [StepResult(
+                    step=ActionStep(0, "python", optimizer.load_compiled(skill.skill_id) or "", skill.name),
+                    exec_result=ExecutionResult(success=True, output=output),
+                )]
+                result.achieved, result.summary = self._verify_engine.verify(goal, result.step_results)
+                if result.achieved:
+                    get_skill_library().record_feedback(skill.skill_id, positive=True)
+                    logger.info("[Orchestrator] 컴파일 스킬 실행 성공: %s", skill.name)
+                return result
+            # 실패 → 코드 수정 트리거 후 None 반환 (스텝 폴백)
+            logger.info(
+                f"[Orchestrator] 컴파일 스킬 실패, 코드 수정 예약: {output[:100]}"
+            )
+            get_skill_library().record_feedback(
+                skill.skill_id, positive=False, error=output
+            )
+            return None
+        except Exception as exc:
+            logger.debug("[Orchestrator] 컴파일 스킬 실행 오류: %s", exc)
+            return None
+
+    # ── 유틸리티 ──────────────────────────────────────────────────────────────
+
+    def _merge_learning_components(
+        self,
+        target: Dict[str, bool],
+        updates: Optional[Dict[str, bool]],
+    ) -> None:
+        for name, activated in dict(updates or {}).items():
+            if activated:
+                target[name] = True
+
+    def _emit_progress(self, event_type: str, **kwargs) -> None:
+        if self.progress_callback:
+            try:
+                self.progress_callback(event_type, **kwargs)
+            except Exception as e:
+                logger.debug("[Orchestrator] 진행 콜백 오류: %s", e)
+
+    def _set_thinking(self, thinking: bool) -> None:
+        if self.thinking_callback:
+            try:
+                self.thinking_callback(thinking)
+            except Exception as e:
+                logger.debug("[Orchestrator] 생각 콜백 오류: %s", e)
+
+    def _is_timeout_exceeded(self, deadline: Optional[float]) -> bool:
+        return deadline is not None and time.time() > deadline
+
+    def _emit_plugin_event(self, event_name: str, payload: dict) -> None:
+        try:
+            from core.plugin_loader import get_plugin_manager
+            get_plugin_manager().emit_event(event_name, payload)
+        except Exception as exc:
+            logger.debug("[Orchestrator] 플러그인 이벤트 발행 생략 (%s): %s", event_name, exc)
+
+    def _say(self, msg: str) -> None:
+        if self.tts:
+            self.tts(msg)
+
+    def _log_plan(self, steps: List[ActionStep]) -> None:
+        logger.info("[Orchestrator] %d단계 계획 수립됨", len(steps))
+
+    def _prevalidate_steps(self, steps: List[ActionStep]) -> List[str]:
+        issues: List[str] = []
+        for step in steps:
+            if step.step_type == "shell" and not step.content.strip():
+                issues.append(f"빈 shell 명령 감지: {step.step_id}")
+                continue
+            if step.step_type != "python" or not step.content.strip():
+                continue
+            try:
+                from agent.safety_checker import DangerLevel, get_safety_checker
+
+                report = get_safety_checker().check_python(step.content)
+                if report.level == DangerLevel.DANGEROUS:
+                    issues.append(f"위험 코드 감지: {step.step_id}")
+            except Exception as exc:
+                logger.debug("[Orchestrator] 사전 검증 생략(step=%s): %s", step.step_id, exc)
+        return issues
+
+    # ── 엔진 위임 proxy (테스트·외부 호환) ──────────────────────────────────────
+
+    def _eval_condition(self, condition: str, context: dict) -> bool:
+        return self._exec._eval_condition(condition, context)
+
+    def _group_by_dependency(self, steps):
+        return self._exec._group_by_dependency(steps)
+
+    def _build_adaptive_context(self, failed_steps) -> dict:
+        return self._exec._build_adaptive_context(failed_steps)
+
+    def _execute_step_with_retry(self, step, goal: str, context: dict):
+        return self._exec._execute_step_with_retry(step, goal, context)
+
+    def _post_run_update(self, goal: str, run_result, duration_ms: int):
+        return self._learn._post_run_update(goal, run_result, duration_ms)
+
+    def _verify(self, goal: str, step_results) -> tuple:
+        return self._verify_engine.verify(goal, step_results)
+
+    def _update_runtime_context(self, context: dict, exec_result) -> None:
+        return self._exec._update_runtime_context(context, exec_result)
+
+    def _execute_plan(self, steps, context: dict, goal: str) -> tuple:
+        return self._exec.execute_plan(steps, context, goal, step_runner=self._execute_step_with_retry)
+
+    def _record_strategy(self, goal: str, run_result, duration_ms: int, **kwargs) -> None:
+        return self._learn.record_strategy(goal, run_result, duration_ms, **kwargs)
+
+
+# ── 싱글턴 팩토리 ──────────────────────────────────────────────────────────────
+
+_orchestrator: Optional[AgentOrchestrator] = None
+_orchestrator_lock = threading.Lock()
+
+
+def is_agent_running() -> bool:
+    """초기화된 오케스트레이터의 실행 상태를 반환한다."""
+    return bool(_orchestrator and _orchestrator.is_running)
+
+
+def get_orchestrator(
+    tts_func: Optional[Callable] = None,
+    progress_callback: Optional[Callable] = None,
+) -> AgentOrchestrator:
+    global _orchestrator
+    if _orchestrator is None:
+        with _orchestrator_lock:
+            if _orchestrator is None:
+                _orchestrator = AgentOrchestrator(
+                    get_executor(tts_func), get_planner(), tts_func, progress_callback
+                )
+    else:
+        if tts_func:
+            _orchestrator.tts = tts_func
+            _orchestrator.executor.tts_wrapper = tts_func
+            _orchestrator._exec.tts = tts_func
+            _orchestrator._learn.tts = tts_func
+        if progress_callback:
+            _orchestrator.progress_callback = progress_callback
+            _orchestrator._exec.progress_callback = progress_callback
+    return _orchestrator
