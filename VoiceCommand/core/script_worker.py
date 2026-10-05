@@ -50,7 +50,7 @@ def run_python_script(script_path: str) -> int:
 
             i18n_init()
         except Exception as exc:
-            # 번역 초기화에 실패해도 스크립트 실행은 계속한다(안내 문구만 기본 언어로 나온다).
+            # 번역 초기화에 실패해도 스크립트 실행은 계속한다(안내 문구만 Default Language로 나온다).
             logging.debug("스크립트 작업 번역 초기화 실패: %s", exc)
         try:
             with tokenize.open(script_path) as script_file:

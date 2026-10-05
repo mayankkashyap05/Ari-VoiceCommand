@@ -49,15 +49,15 @@ _NATIVE_HOURS = [
     "열두",
 ]
 _SINO_ONES = ["", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"]
-_DIGIT_NAMES = ["영", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"]
+_DIGIT_NAMES = ["zero", "일", "이", "삼", "사", "오", "육", "칠", "팔", "구"]
 
 
 def _sino(n: int) -> str:
     """정수를 한자어 수사 문자열로 변환 (0~9999)."""
     if n < 0:
-        return "마이너스 " + _sino(abs(n))
+        return "minus " + _sino(abs(n))
     if n == 0:
-        return "영"
+        return "zero"
     if n > 9999:
         return "".join(_DIGIT_NAMES[int(d)] for d in str(n))
 
@@ -194,7 +194,7 @@ def apply_emotion_prosody(text: str, emotion: str) -> str:
     return text
 
 class _PCMChunkBuffer:
-    """콜백 재생용 PCM 청크 버퍼."""
+    """콜백 play용 PCM 청크 버퍼."""
 
     def __init__(self):
         self._chunks = deque()

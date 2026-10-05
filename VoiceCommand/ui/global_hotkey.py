@@ -1,4 +1,4 @@
-"""Windows 전역 음성 입력 단축키."""
+"""Windows 전역 음성 Input 단축키."""
 
 import ctypes
 import logging
@@ -91,7 +91,7 @@ def parse_global_hotkey(sequence: str) -> tuple[int, int]:
 
 
 class GlobalVoiceHotkey(QAbstractNativeEventFilter):
-    """Qt 네이티브 이벤트 필터로 Win32 전역 단축키를 받는다."""
+    """Qt 네이티브 이벤트 필터로 Win32 Global hotkey를 받는다."""
 
     def __init__(self, voice_thread, api=None, platform=None):
         super().__init__()
@@ -137,7 +137,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         return self._api
 
     def configure(self) -> bool:
-        """저장된 단축키 설정을 적용한다."""
+        """Save된 단축키 Settings을 Apply한다."""
         settings = ConfigManager.load_settings()
         sequence = str(settings.get("voice_activation_hotkey", "Ctrl+Alt+Space"))
         mode = settings.get("voice_activation_mode", "push_to_talk")
@@ -154,7 +154,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         try:
             modifiers, key = parse_global_hotkey(sequence)
         except ValueError as exc:
-            logging.warning("전역 단축키 설정이 올바르지 않습니다: %s", exc)
+            logging.warning("Global hotkey Settingsis invalid: %s", exc)
             return False
 
         api = self._user32()
@@ -162,7 +162,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         if not api.RegisterHotKey(None, hotkey_id, modifiers | _MOD_NOREPEAT, key):
             get_last_error = getattr(ctypes, "get_last_error", lambda: 0)
             logging.warning(
-                "전역 단축키 등록 실패 (다른 앱이 사용 중일 수 있습니다, 오류 %d)",
+                "Global hotkey 등록 실패 (다른 앱이 사용 중일 수 있습니다, Error %d)",
                 get_last_error(),
             )
             return False
@@ -203,7 +203,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
                 if is_tts_playing():
                     stop_speaking()
             except (ImportError, AttributeError, RuntimeError) as exc:
-                logging.debug("TTS 중단 처리 생략: %s", exc)
+                logging.debug("TTS Stop processing skipped: %s", exc)
 
             if self._mode == "push_to_talk":
                 self._holding = self.voice_thread.request_listening(push_to_talk=True)
@@ -214,7 +214,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
             return True, 0
         except Exception:
             # 네이티브 이벤트 콜백에서 예외가 새면 앱이 종료될 수 있다.
-            log_exception("전역 단축키 네이티브 이벤트 처리 실패")
+            log_exception("Global hotkey 네이티브 이벤트 처리 실패")
             return False, 0
 
     def _check_key_release(self) -> None:

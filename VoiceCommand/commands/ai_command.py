@@ -27,7 +27,7 @@ from i18n.translator import _, get_language
 
 
 class AICommand(FastPathMixin, BaseCommand):
-    """AI 어시스턴트 대화 명령 (기본/fallback)"""
+    """AI 어시스턴트 대화 명령 (Default/fallback)"""
     priority = 100
     _BUSY_NOTICE_INTERVAL_SECONDS = 5.0
     _KR_NUM = {
@@ -44,12 +44,12 @@ class AICommand(FastPathMixin, BaseCommand):
         "반": 0.5,
     }
     _COMPLEX_TASK_KEYWORDS = (
-        "저장", "정리", "요약", "보고서", "리포트", "분석", "검색", "찾아",
+        "Save", "정리", "요약", "보고서", "리포트", "분석", "검색", "찾아",
         "만들", "생성", "열어", "실행", "복사", "이동", "삭제", "로그인",
         "브라우저", "파일", "폴더", "문서", "다운로드", "자동화",
         "보안", "점검", "진단", "검사",
-        "설치", "업데이트", "업그레이드", "백업", "복원",
-        "관리", "모니터링", "알림", "알려줘", "확인해줘",
+        "Install", "Update", "업그레이드", "백업", "복원",
+        "관리", "모니터링", "알림", "알려줘", "OK해줘",
         "스케줄", "예약", "반복", "매일", "매주",
         "스크린샷", "캡처", "녹화", "클립보드",
     )
@@ -95,7 +95,7 @@ class AICommand(FastPathMixin, BaseCommand):
             self.scheduler = get_scheduler(tts_func)
             self.scheduler.set_orchestrator_func(self.orchestrator.run)
         except Exception as e:
-            logging.warning("[AICommand] 스케줄러 초기화 실패: %s", e)
+            logging.warning("[AICommand] 스케줄러 initialization failed: %s", e)
             self.scheduler = None
 
         self._plugin_handlers: Dict[str, Callable] = {}
@@ -167,14 +167,14 @@ class AICommand(FastPathMixin, BaseCommand):
             "today": _("오늘"),
             "tomorrow": _("내일"),
             "am": _("오전"),
-            "pm": _("오후"),
+            "pm": _("오later"),
             "clock_hour": _("시"),
             "duration_hour": _("시간"),
             "minute": _("분"),
             "second": _("초"),
             "day": _("일"),
             "at": _("에"),
-            "after": _("후"),
+            "after": _("later"),
             "later": _("뒤"),
         }
 
@@ -208,7 +208,7 @@ class AICommand(FastPathMixin, BaseCommand):
         return patterns
 
     def _format_time_of_day(self, dt: datetime) -> str:
-        ampm = _("오전") if dt.hour < 12 else _("오후")
+        ampm = _("오전") if dt.hour < 12 else _("오later")
         hour = dt.hour if dt.hour <= 12 else dt.hour - 12
         if hour == 0:
             hour = 12
@@ -228,11 +228,11 @@ class AICommand(FastPathMixin, BaseCommand):
             _("매일"),
             _("매주"),
             _("알려줘"),
-            _("확인해줘"),
+            _("OK해줘"),
         )
 
     def register_plugin_tool_handler(self, tool_name: str, handler: Callable) -> None:
-        """플러그인 도구 핸들러를 등록하고 디스패치 테이블을 갱신한다."""
+        """Plugins 도구 핸들러를 등록하고 디스패치 테이블을 갱신한다."""
         self._plugin_handlers[tool_name] = handler
         self._dispatch = self._build_dispatch_table()
 
@@ -246,9 +246,9 @@ class AICommand(FastPathMixin, BaseCommand):
         from core.VoiceCommand import execute_command
         query = args.get("query", "").strip()
         if not query:
-            self.tts_wrapper(_("어떤 음악이나 영상을 재생할까요?"))
+            self.tts_wrapper(_("어떤 음악이나 zero상을 play할까요?"))
             return None
-        execute_command(f"유튜브 {query} 재생")
+        execute_command(f"YouTube {query} play")
         return None
 
     def _handle_set_timer(self, args: dict) -> Optional[str]:
@@ -273,11 +273,11 @@ class AICommand(FastPathMixin, BaseCommand):
             return str(exc)
         label = timer_manager.format_duration_label(total_minutes)
         if name:
-            return _("'{name}' 타이머를 설정했습니다. ({label})").format(
+            return _("'{name}' 타이머를 Settings했습니다. ({label})").format(
                 name=name,
                 label=label,
             )
-        return _("{label} 타이머를 설정했습니다.").format(label=label)
+        return _("{label} 타이머를 Settings했습니다.").format(label=label)
 
     def _handle_cancel_timer(self, args: dict) -> Optional[str]:
         from core.VoiceCommand import timer_manager
@@ -288,8 +288,8 @@ class AICommand(FastPathMixin, BaseCommand):
                 return _("'{name}' 타이머를 찾지 못했습니다.").format(name=name.strip())
             return _("현재 실행 중인 타이머가 없습니다.")
         if name.strip():
-            return _("'{name}' 타이머를 취소했습니다.").format(name=name.strip())
-        return _("타이머가 취소되었습니다.")
+            return _("'{name}' 타이머를 Cancel했습니다.").format(name=name.strip())
+        return _("타이머가 Cancel되었습니다.")
 
     def _handle_get_weather(self, args: dict) -> Optional[str]:
         try:
@@ -297,7 +297,7 @@ class AICommand(FastPathMixin, BaseCommand):
 
             return weather_service.get_weather_from_text(str(args.get("location", "") or ""))
         except Exception as exc:
-            logging.error("날씨 도구 실행 실패: %s", exc, exc_info=True)
+            logging.error("Weather tool execution failed: %s", exc, exc_info=True)
             return _("날씨 정보를 가져오는 데 실패했습니다.")
 
     def _handle_adjust_volume(self, args: dict) -> Optional[str]:
@@ -323,39 +323,39 @@ class AICommand(FastPathMixin, BaseCommand):
         if scheduled:
             return scheduled
         from core.VoiceCommand import execute_command
-        execute_command("컴퓨터 종료")
+        execute_command("computer shutdown")
         return None
 
     def _handle_get_screen_status(self, args: dict) -> Optional[str]:
-        """현재 화면 상태 (작업표시줄, 전체화면 등) 정보를 수집하여 반환"""
+        """Current screen state (작업표시줄, 전체화면 등) 정보를 수집하여 반환"""
         try:
             from core.VoiceCommand import _state
             from PySide6.QtWidgets import QApplication
 
             character_widget = _state.character_widget
             if not character_widget:
-                return _("캐릭터 위젯이 아직 초기화되지 않았습니다.")
+                return _("Character 위젯이 아직 초기화되지 않았습니다.")
 
             geom = character_widget.get_screen_geometry()
             current_screen = getattr(character_widget, "_current_screen", None) or QApplication.primaryScreen()
             if current_screen is None:
-                return _("현재 화면 정보를 확인할 수 없습니다.")
+                return _("현재 화면 정보를 OK할 수 없습니다.")
             full_geom = current_screen.geometry()
             
             is_full = (geom.width() >= full_geom.width() - 10 and 
                        geom.height() >= full_geom.height() - 10)
             
             status = _(
-                "현재 화면 상태: {mode}\n",
-                mode=_("[전체화면 모드]") if is_full else _("[일반 모드]"),
+                "Current screen state: {mode}\n",
+                mode=_("[전체화면 모드]") if is_full else _("[General 모드]"),
             )
             status += _(
-                "- 가용 화면 크기: {width}x{height}\n",
+                "- Available screen size: {width}x{height}\n",
                 width=geom.width(),
                 height=geom.height(),
             )
             status += _(
-                "- 전체 모니터 크기: {width}x{height}\n",
+                "- Total monitor size: {width}x{height}\n",
                 width=full_geom.width(),
                 height=full_geom.height(),
             )
@@ -363,14 +363,14 @@ class AICommand(FastPathMixin, BaseCommand):
             if not is_full:
                 status += _("- 현재 작업표시줄이 화면의 일부를 차지하고 있어, 저는 작업표시줄 바로 위에 서 있습니다.")
             else:
-                status += _("- 현재 게임이나 영상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다.")
+                status += _("- 현재 게임이나 zero상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다.")
             
             return status
         except Exception as e:
-            return _("화면 상태 확인 중 오류 발생: {error}", error=e)
+            return _("화면 상태 OK 중 Error 발생: {error}", error=e)
 
     def _handle_python(self, args: dict) -> Optional[str]:
-        """단일 Python 코드 실행 — 실패 시 오케스트레이터가 자동 수정 후 재시도"""
+        """단일 Python 코드 실행 — 실패 시 오케스트레이터가 자동 수정 later 재시도"""
         code = args.get("code", "").strip()
         if not code:
             return None
@@ -380,7 +380,7 @@ class AICommand(FastPathMixin, BaseCommand):
         return self._result_to_korean(result)
 
     def _handle_shell(self, args: dict) -> Optional[str]:
-        """단일 Shell 명령 실행 — 실패 시 오케스트레이터가 자동 수정 후 재시도"""
+        """단일 Shell 명령 실행 — 실패 시 오케스트레이터가 자동 수정 later 재시도"""
         command = args.get("command", "").strip()
         if not command:
             return None
@@ -391,13 +391,13 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _handle_agent_task(self, args: dict) -> Optional[str]:
         """
-        복잡한 다단계 목표 — Plan→Execute+Self-Fix→Verify 루프 실행.
-        달성 여부, 단계 수, 요약을 반환.
+        Complex multi-step goal — Plan→Execute+Self-Fix→Verify 루프 실행.
+        Returns achievement status, step count, and summary.
         """
         goal = self._resolve_agent_task_goal(args)
         if not goal:
             return None
-        self.tts_wrapper(_("복잡한 목표를 단계별로 처리할게요."))
+        self.tts_wrapper(_("복잡한 목표를 steps별로 처리할게요."))
         dashboard = self._maybe_show_agent_dashboard(goal)
         previous_callback = getattr(self.orchestrator, "progress_callback", None)
         if dashboard is not None:
@@ -440,30 +440,30 @@ class AICommand(FastPathMixin, BaseCommand):
             # GUI 스레드로 생성을 위임하는 시그널이 필요하다.
             from PySide6.QtCore import QThread
             if QThread.currentThread() is not app.thread():
-                logging.debug("에이전트 대시보드 생략: GUI 스레드가 아님")
+                logging.debug("Agent dashboard skipped: Not a GUI thread")
                 return None
             from ui.agent_dashboard import AgentDashboard
             dashboard = AgentDashboard(self.orchestrator, goal)
             dashboard.show()
             return dashboard
         except Exception as exc:
-            logging.debug("에이전트 대시보드 표시 생략: %s", exc)
+            logging.debug("Agent dashboard display skipped: %s", exc)
             return None
 
     def _handle_web_search(self, args: dict) -> Optional[str]:
-        """인터넷 검색 후 결과 반환"""
+        """인터넷 검색 later 결과 반환"""
         query = args.get("query", "").strip()
         if not query:
             return None
         max_results = int(args.get("max_results", 5))
         try:
             from services.web_tools import web_search
-            logging.info("[AICommand] web_search 실행: query=%d자, max_results=%s", len(query), max_results)
+            logging.info("[AICommand] web_search executing: query=%d자, max_results=%s", len(query), max_results)
             result = web_search(query, max_results=max_results)
-            return f"[웹 검색 결과]\n{result}\n\n지시사항: 위 검색 결과를 바탕으로 사용자의 원래 질문에 대해 구어체로 3문장 이내로 요약하여 자연스럽게 대답해주세요."
+            return f"[Web search results]\n{result}\n\nInstructions: Based on the search results above, naturally answer the user's original question in conversational style, summarized in 3 sentences or less."
         except Exception as e:
-            logging.error("web_search 오류: %s", e)
-            return _("검색 오류: {error}", error=e)
+            logging.error("web_search error: %s", e)
+            return _("검색 Error: {error}", error=e)
 
     def _handle_web_fetch(self, args: dict) -> Optional[str]:
         """URL 내용 가져오기"""
@@ -475,16 +475,16 @@ class AICommand(FastPathMixin, BaseCommand):
             result = web_fetch(url)
             return result
         except Exception as e:
-            logging.error("web_fetch 오류: %s", e)
-            return _("페이지 로드 오류: {error}", error=e)
+            logging.error("web_fetch error: %s", e)
+            return _("페이지 로드 Error: {error}", error=e)
 
     def _handle_memory_search(self, args: dict) -> Optional[str]:
         query = str(args.get("query", "") or "").strip()
         if not query:
-            return _("검색어를 입력해 주세요.")
+            return _("검색어를 Input해 주세요.")
         kind = str(args.get("kind", "") or "").strip()
         if kind and kind not in {"fact", "conversation", "digest"}:
-            return _("기억 검색 종류가 올바르지 않아요.")
+            return _("기억 검색 types가 올바르지 않아요.")
         since = str(args.get("since", "") or "").strip()
         if since:
             try:
@@ -516,12 +516,12 @@ class AICommand(FastPathMixin, BaseCommand):
         key = str(args.get("key", "") or "").strip()
         value = str(args.get("value", "") or "").strip()
         if not key or not value:
-            return _("기억 항목 이름과 내용을 입력해 주세요.")
+            return _("기억 항목 이름과 내용을 Input해 주세요.")
 
         responses = []
         command = MemoryCommand(responses.append)
         command._remember(explicit[1], source="user_request")
-        return responses[-1] if responses else _("기억을 저장하지 못했어요.")
+        return responses[-1] if responses else _("기억을 Save하지 못했어요.")
 
     def _handle_memory_forget(self, args: dict) -> Optional[str]:
         explicit = _parse_explicit_command(self._current_goal)
@@ -529,10 +529,10 @@ class AICommand(FastPathMixin, BaseCommand):
             return _("이번 요청에서 명시적으로 기억을 잊으라고 하지 않았어요.")
         key = str(args.get("key", "") or "").strip()
         if not key:
-            return _("삭제할 기억 항목을 입력해 주세요.")
+            return _("삭제할 기억 항목을 Input해 주세요.")
         content = explicit[1]
         if explicit[0] == "forget" and not content:
-            return _("삭제할 기억 항목을 입력해 주세요.")
+            return _("삭제할 기억 항목을 Input해 주세요.")
 
         responses = []
         command = MemoryCommand(responses.append)
@@ -552,12 +552,12 @@ class AICommand(FastPathMixin, BaseCommand):
             try:
                 raw_arguments = json.loads(raw_arguments)
             except json.JSONDecodeError:
-                logging.warning("[AICommand] MCP arguments JSON 파싱 실패, input 래핑")
+                logging.warning("[AICommand] MCP arguments JSON parse failed, wrapping input")
                 raw_arguments = {"input": raw_arguments}
         if raw_arguments is None:
             raw_arguments = {}
         if not isinstance(raw_arguments, dict):
-            logging.warning("[AICommand] MCP arguments 타입 보정: %s", type(raw_arguments).__name__)
+            logging.warning("[AICommand] MCP arguments type correction: %s", type(raw_arguments).__name__)
             raw_arguments = {"input": raw_arguments}
 
         try:
@@ -567,8 +567,8 @@ class AICommand(FastPathMixin, BaseCommand):
         except Exception as exc:
             from i18n.translator import _
 
-            logging.error("mcp_call 오류: %s", exc, exc_info=True)
-            return _("MCP 도구 호출 중 오류가 발생했습니다: {error}").format(error=exc)
+            logging.error("mcp_call error: %s", exc, exc_info=True)
+            return _("MCP 도구 호출 중 Error가 발생했습니다: {error}").format(error=exc)
 
     def _handle_api_call(self, args: dict) -> Optional[str]:
         try:
@@ -580,7 +580,7 @@ class AICommand(FastPathMixin, BaseCommand):
                 params = {"input": params}
             return get_api_connector().call(operation, params=params, service=service)
         except Exception as exc:
-            logging.error("api_call 오류: %s", exc, exc_info=True)
+            logging.error("api_call error: %s", exc, exc_info=True)
             return _("api_call.failed").format(error=exc)
 
     def _format_tool_payload(self, payload: object) -> str:
@@ -654,8 +654,8 @@ class AICommand(FastPathMixin, BaseCommand):
             from agent.llm_provider import get_llm_provider
             return get_llm_provider().analyze_image(path, prompt)
         except Exception as exc:
-            logging.error("스크린샷 분석 실패: %s", exc, exc_info=True)
-            return _("스크린샷 분석 실패: {error}").format(error=exc)
+            logging.error("Screenshot analysis failed: %s", exc, exc_info=True)
+            return _("Screenshot analysis failed: {error}").format(error=exc)
 
     def _handle_analyze_image_file(self, args: dict) -> Optional[str]:
         try:
@@ -664,8 +664,8 @@ class AICommand(FastPathMixin, BaseCommand):
             from agent.llm_provider import get_llm_provider
             return get_llm_provider().analyze_image(image_path, prompt)
         except Exception as exc:
-            logging.error("이미지 분석 실패: %s", exc, exc_info=True)
-            return _("이미지 분석 실패: {error}").format(error=exc)
+            logging.error("Image analysis failed: %s", exc, exc_info=True)
+            return _("Image analysis failed: {error}").format(error=exc)
 
     def _handle_launch_app(self, args: dict) -> Optional[str]:
         name = str(args.get("name", "") or "")
@@ -717,7 +717,7 @@ class AICommand(FastPathMixin, BaseCommand):
         text = str(args.get("text", "") or "")
         result = self.executor._automation.write_clipboard(text)
         self.executor._log_audit("clipboard", "[set_clipboard]", "success", f"{len(result)} chars", self._current_goal)
-        return _("클립보드에 저장했습니다.")
+        return _("클립보드에 Save했습니다.")
 
     def _google_tools_enabled(self) -> bool:
         from core.config_manager import ConfigManager
@@ -725,7 +725,7 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _handle_get_calendar_events(self, args: dict) -> Optional[str]:
         if not self._google_tools_enabled():
-            return "설정에서 Google 도구 사용을 켜야 합니다."
+            return "Settings에서 Google 도구 사용을 켜야 합니다."
         try:
             from services.google_calendar import get_calendar_service
             events = get_calendar_service().get_events(
@@ -740,7 +740,7 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _handle_create_calendar_event(self, args: dict) -> Optional[str]:
         if not self._google_tools_enabled():
-            return "설정에서 Google 도구 사용을 켜야 합니다."
+            return "Settings에서 Google 도구 사용을 켜야 합니다."
         try:
             from services.google_calendar import get_calendar_service
             event = get_calendar_service().create_event(
@@ -757,7 +757,7 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _handle_send_email(self, args: dict) -> Optional[str]:
         if not self._google_tools_enabled():
-            return "설정에서 Google 도구 사용을 켜야 합니다."
+            return "Settings에서 Google 도구 사용을 켜야 합니다."
         try:
             from services.gmail_service import get_gmail_service
             result = get_gmail_service().send_email(
@@ -772,7 +772,7 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _handle_read_emails(self, args: dict) -> Optional[str]:
         if not self._google_tools_enabled():
-            return "설정에서 Google 도구 사용을 켜야 합니다."
+            return "Settings에서 Google 도구 사용을 켜야 합니다."
         try:
             from services.gmail_service import get_gmail_service
             result = get_gmail_service().read_emails(
@@ -805,10 +805,10 @@ class AICommand(FastPathMixin, BaseCommand):
 
         # 종료/재시작 goal → 에이전트 루프 대신 SystemCommand 직접 라우팅
         _SHUTDOWN_GOALS = (
-            "컴퓨터 종료",
+            "computer shutdown",
             "pc 종료",
             "시스템 종료",
-            "전원 끄기",
+            "전원 Off",
             "shutdown",
         )
         _RESTART_GOALS = (
@@ -855,15 +855,15 @@ class AICommand(FastPathMixin, BaseCommand):
         )
 
     def _handle_cancel_scheduled_task(self, args: dict) -> Optional[str]:
-        """예약 작업 취소"""
+        """예약 작업 Cancel"""
         task_id = args.get("task_id", "").strip()
         if not task_id:
-            return _("취소할 작업 ID를 알려주세요.")
+            return _("Cancel할 작업 ID를 알려주세요.")
         if self.scheduler is None:
             return _("스케줄러를 사용할 수 없습니다.")
         success = self.scheduler.cancel(task_id)
         if success:
-            return _("작업 {task_id}가 취소되었습니다.").format(task_id=task_id)
+            return _("작업 {task_id}가 Cancel되었습니다.").format(task_id=task_id)
         return _("ID '{task_id}'에 해당하는 작업을 찾을 수 없어요.").format(task_id=task_id)
 
     def _handle_list_scheduled_tasks(self, args: dict) -> Optional[str]:
@@ -894,7 +894,7 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _parse_schedule(self, when_kr: str) -> Tuple[Optional[datetime], bool, int]:
         """
-        현행 언어의 시간 표현을 (next_run_dt, repeat, repeat_seconds) 튜플로 변환.
+        현행 Language의 시간 표현을 (next_run_dt, repeat, repeat_seconds) 튜플로 변환.
         파싱 실패 시 (None, False, 0) 반환.
         """
         now = datetime.now()
@@ -913,7 +913,7 @@ class AICommand(FastPathMixin, BaseCommand):
         if terms["every_hour"].replace(" ", "") in normalized.replace(" ", ""):
             return now + timedelta(hours=1), True, 3600
 
-        # "매일 [오전|오후] N시 [M분]" → 반복 (매 24시간)
+        # "매일 [오전|오later] N시 [M분]" → 반복 (매 24시간)
         m = re.search(
             rf"{re.escape(terms['daily'])}\s*"
             rf"({re.escape(terms['am'])}|{re.escape(terms['pm'])})?\s*"
@@ -933,7 +933,7 @@ class AICommand(FastPathMixin, BaseCommand):
                 target += timedelta(days=1)
             return target, True, 86400
 
-        # "내일 [오전|오후] N시 [M분]"
+        # "내일 [오전|오later] N시 [M분]"
         m = re.search(
             rf"{re.escape(terms['tomorrow'])}\s*"
             rf"({re.escape(terms['am'])}|{re.escape(terms['pm'])})?\s*"
@@ -951,7 +951,7 @@ class AICommand(FastPathMixin, BaseCommand):
             target = (now + timedelta(days=1)).replace(hour=hour, minute=minute, second=0, microsecond=0)
             return target, False, 0
 
-        # "[오늘] [오전|오후] N시 [M분]"
+        # "[오늘] [오전|오later] N시 [M분]"
         m = re.search(
             rf"(?:{re.escape(terms['today'])}\s*)?"
             rf"({re.escape(terms['am'])}|{re.escape(terms['pm'])})?\s*"
@@ -1027,7 +1027,7 @@ class AICommand(FastPathMixin, BaseCommand):
             return None
         if ampm == _("오전"):
             return 0 if hour == 12 else hour
-        if ampm == _("오후"):
+        if ampm == _("오later"):
             if hour == 12:
                 return 12
             return hour + 12 if hour < 12 else None
@@ -1045,7 +1045,7 @@ class AICommand(FastPathMixin, BaseCommand):
             planner = getattr(self.orchestrator, "planner", None)
             return bool(planner and hasattr(planner, "is_developer_goal") and planner.is_developer_goal(goal))
         except Exception as exc:
-            logging.debug("[AICommand] 개발자 목표 판별 실패, 일반 목표로 처리: %s", exc)
+            logging.debug("[AICommand] 개발자 목표 판별 실패, General 목표로 처리: %s", exc)
             return False
 
     def _resolve_user_report_dir(self) -> Path:
@@ -1103,7 +1103,7 @@ class AICommand(FastPathMixin, BaseCommand):
             report_path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
             return str(report_path)
         except Exception as exc:
-            logging.warning("[AICommand] 실행 보고서 저장 실패: %s", exc)
+            logging.warning("[AICommand] 실행 보고서 Save 실패: %s", exc)
             return ""
 
     def _describe_report_location(self, report_path: str) -> str:
@@ -1116,8 +1116,8 @@ class AICommand(FastPathMixin, BaseCommand):
 
     def _result_to_korean(self, result: ExecutionResult) -> Optional[str]:
         if not result.success:
-            if result.error == _("사용자 취소") or result.error == "사용자 취소":
-                return _("사용자가 실행을 취소했습니다.")
+            if result.error == _("사용자 Cancel") or result.error == "사용자 Cancel":
+                return _("사용자가 실행을 Cancel했습니다.")
             return _("실행 실패: {error}").format(error=result.error[:80]) if result.error else _("실행에 실패했습니다.")
         if result.output:
             return _("실행 완료. 출력: {output}").format(output=result.output[:200])
@@ -1129,12 +1129,12 @@ class AICommand(FastPathMixin, BaseCommand):
         if run.achieved:
             if saved_path:
                 path = Path(saved_path)
-                message = _("작업 완료. {folder} 폴더에 {file}를 저장했습니다.").format(
+                message = _("작업 완료. {folder} 폴더에 {file}를 Save했습니다.").format(
                     folder=path.parent.name,
                     file=path.name,
                 )
             else:
-                message = _("작업 완료 ({steps}단계). {summary}").format(
+                message = _("작업 완료 ({steps}steps). {summary}").format(
                     steps=steps_done,
                     summary=self._shorten_user_summary(run.summary),
                 )
@@ -1144,7 +1144,7 @@ class AICommand(FastPathMixin, BaseCommand):
                 summary=self._shorten_user_summary(run.summary),
             )
         if report_path:
-            message += " " + _("실행 보고서는 {location}에 저장했습니다.").format(
+            message += " " + _("실행 보고서는 {location}에 Save했습니다.").format(
                 location=self._describe_report_location(report_path)
             )
         return message
@@ -1182,7 +1182,7 @@ class AICommand(FastPathMixin, BaseCommand):
                         return saved_path
             for line in output.splitlines():
                 lowered = line.lower()
-                if not any(token in lowered for token in ("saved_path", "report_path", "output_path", "저장", "saved")):
+                if not any(token in lowered for token in ("saved_path", "report_path", "output_path", "Save", "saved")):
                     continue
                 path_match = re.search(r'([A-Za-z]:\\[^\r\n]+?\.(?:md|txt|pdf))', line)
                 if path_match:
@@ -1221,10 +1221,10 @@ class AICommand(FastPathMixin, BaseCommand):
         result_text = str(result).strip()
         if not result_text or result_text.casefold() in {"false", "null", "none", "{}", "[]"}:
             return False
-        # ponytail: 오류 키워드 판별, 누락 시 도구별 결과 표식으로 보강
+        # ponytail: Error 키워드 판별, 누락 시 도구별 결과 표식으로 보강
         failure_markers = (
-            "오류", "실패", "찾지 못", "찾을 수 없", "할 수 없", "없습니다", "지원하지 않",
-            "최대", "error", "failed", "failure", "not found", "unable", "cannot", "could not",
+            "Error", "실패", "찾지 못", "찾을 수 없", "할 수 없", "없습니다", "지원하지 않",
+            "max", "error", "failed", "failure", "not found", "unable", "cannot", "could not",
             "maximum", "exceeds", "limit", "失敗", "エラー", "見つかりません", "できません",
             "ありません", "上限",
         )
@@ -1265,7 +1265,7 @@ class AICommand(FastPathMixin, BaseCommand):
         if tool_name == "launch_app":
             result_text = str(result).strip()
             if result_text.startswith(("http://", "https://")):
-                return _("기본 브라우저로 웹사이트를 열었습니다: {url}").format(url=result_text)
+                return _("Default 브라우저로 웹사이트를 열었습니다: {url}").format(url=result_text)
         if has_preface and tool_name != "get_weather":
             return _("요청을 처리했습니다.")
         if tool_name in {"set_timer", "cancel_timer", "adjust_volume"}:
@@ -1277,9 +1277,9 @@ class AICommand(FastPathMixin, BaseCommand):
         if tool_name == "focus_window":
             return _("창을 활성화했습니다.")
         if tool_name == "take_screenshot":
-            return _("스크린샷을 저장했습니다: {path}").format(path=str(result))
+            return _("스크린샷을 Save했습니다: {path}").format(path=str(result))
         if tool_name == "get_weather":
-            return _("날씨를 확인했습니다. {result}").format(result=str(result).strip())
+            return _("날씨를 OK했습니다. {result}").format(result=str(result).strip())
         return ""
 
     def _get_skill_context(self, text: str) -> dict:
@@ -1309,7 +1309,7 @@ class AICommand(FastPathMixin, BaseCommand):
         try:
             return get_language()
         except Exception as exc:
-            logging.debug("[AICommand] 언어 조회 실패, ko 기본값 사용: %s", exc)
+            logging.debug("[AICommand] Language 조회 실패, ko Default값 사용: %s", exc)
             return "ko"
 
     def _build_script_skill_escalation_tool_call(self, text: str, skill_ctx: dict) -> dict:
@@ -1424,7 +1424,7 @@ class AICommand(FastPathMixin, BaseCommand):
             and self._is_shutdown_confirmation_response(response)
         ):
             logging.info(
-                "[AICommand] 종료 확인성 응답으로 판단해 텍스트 기반 도구 복구를 보류: %s",
+                "[AICommand] 종료 OK성 응답으로 판단해 텍스트 기반 도구 복구를 보류: %s",
                 response[:80],
             )
             return recovered
@@ -1434,7 +1434,7 @@ class AICommand(FastPathMixin, BaseCommand):
                 recovered.append({
                     "id": "ai_command_recover_1",
                     "name": "schedule_task",
-                    "arguments": {"goal": "컴퓨터 종료", "when": normalized_when},
+                    "arguments": {"goal": "computer shutdown", "when": normalized_when},
                 })
                 return recovered
             timer_args = self._extract_timer_args_from_response(response)
@@ -1469,7 +1469,7 @@ class AICommand(FastPathMixin, BaseCommand):
                 recovered.append({
                     "id": "ai_command_recover_1",
                     "name": "schedule_task",
-                    "arguments": {"goal": "컴퓨터 종료", "when": normalized_when},
+                    "arguments": {"goal": "computer shutdown", "when": normalized_when},
                 })
                 return recovered
             recovered.append({
@@ -1514,7 +1514,7 @@ class AICommand(FastPathMixin, BaseCommand):
         return recovered
 
     def _is_shutdown_confirmation_response(self, response: str) -> bool:
-        """종료/전원 차단을 실제 실행하지 않고 사용자 재확인을 요청하는 응답인지 판별."""
+        """종료/전원 차단을 실제 실행하지 않고 사용자 재OK을 요청하는 응답인지 판별."""
         normalized = re.sub(r"\s+", " ", (response or "").strip()).lower()
         if not normalized:
             return False
@@ -1522,16 +1522,16 @@ class AICommand(FastPathMixin, BaseCommand):
         if not self._contains_shutdown_reference(normalized):
             return False
 
-        # 각 패턴은 "종료 언급"과 "재확인을 구하는 명시적 어구"가 서로 가까이
+        # 각 패턴은 "종료 언급"과 "재OK을 구하는 명시적 어구"가 서로 가까이
         # (약 20~30자 이내) 붙어 있을 때만 매칭한다. 예전에는 물음표(?)만 있으면
         # 무조건 매칭돼서, 모델이 "지원하지 않아요. ...선택해 주시겠어요?"처럼
-        # 무관한 안내문 끝에 물음표를 붙였을 뿐인데도 재확인 응답으로 오판해
+        # 무관한 안내문 끝에 물음표를 붙였을 뿐인데도 재OK 응답으로 오판해
         # 도구 호출 복구를 막아버리는 문제가 있었다.
         confirmation_patterns = (
             r"(정말|진짜).{0,20}(꺼|끄|종료).{0,20}(까요|습니까)",
             r"(꺼|끄|종료).{0,20}(드릴까요|할까요|해도\s*될까요|하시겠습니까)",
-            r"(진행\s*중인\s*작업|저장\s*안|중단됩니다).{0,20}(정말|꺼드릴까요|종료할까요)",
-            r"(확인|괜찮|준비).{0,20}(되면|되셨으면|말씀|답|확인)",
+            r"(진행\s*중인\s*작업|Save\s*안|중단됩니다).{0,20}(정말|꺼드릴까요|종료할까요)",
+            r"(OK|괜찮|준비).{0,20}(되면|되셨으면|말씀|답|OK)",
             r"(are\s+you\s+sure|really|confirm|confirmation|do\s+you\s+want|would\s+you\s+like).{0,30}(shutdown|shut\s*down|shut\s+it\s+down|shutting\s+down|turn\s+off|power\s+off)",
             r"(shutdown|shut\s*down|shut\s+it\s+down|shutting\s+down|turn\s+off|power\s+off).{0,30}(are\s+you\s+sure|really|confirm|confirmation|do\s+you\s+want|would\s+you\s+like)",
             r"(unsaved|ongoing|in\s+progress|running\s+work|current\s+work).{0,30}(stop|interrupt|terminate|close|lost|shutdown|shut\s*down|shut\s+it\s+down|shutting\s+down)",
@@ -1545,7 +1545,7 @@ class AICommand(FastPathMixin, BaseCommand):
         )
 
     def _contains_shutdown_reference(self, text: str) -> bool:
-        """한국어/영어/일본어 종료·전원 차단 언급을 보수적으로 감지한다."""
+        """한국어/zero어/일본어 종료·전원 차단 언급을 보수적으로 감지한다."""
         normalized = re.sub(r"\s+", " ", (text or "").strip()).lower()
         if not normalized:
             return False
@@ -1572,9 +1572,9 @@ class AICommand(FastPathMixin, BaseCommand):
         return ""
 
     def _is_shutdown_request(self, text: str) -> bool:
-        # "끄지 마", "don't shut down", "終了しないで" 같은 부정·취소는 종료 요청이 아니다.
+        # "끄지 마", "don't shut down", "終了しないで" 같은 부정·Cancel는 종료 요청이 아니다.
         if re.search(
-            r"지\s*마|지\s*말|하지\s*않|안\s*해|취소|don'?t|do\s+not|never|cancel|ないで|しないで|やめて|キャンセル",
+            r"지\s*마|지\s*말|하지\s*않|안\s*해|Cancel|don'?t|do\s+not|never|cancel|ないで|しないで|やめて|キャンセル",
             text or "",
             flags=re.IGNORECASE,
         ):
@@ -1601,7 +1601,7 @@ class AICommand(FastPathMixin, BaseCommand):
             return None
         if not self._is_shutdown_request(goal_text):
             return None
-        return self._handle_schedule_task({"goal": "컴퓨터 종료", "when": when})
+        return self._handle_schedule_task({"goal": "computer shutdown", "when": when})
 
     def _should_escalate_to_agent_task(self, user_text: str, response: Optional[str]) -> bool:
         """도구 호출이 없을 때 복잡한 작업 요청을 에이전트 태스크로 승격할지 판단."""
@@ -1620,7 +1620,7 @@ class AICommand(FastPathMixin, BaseCommand):
         has_complex_phrase = any(
             phrase in normalized for phrase in (
                 "시스템 상태",
-                "상태 확인",
+                "상태 OK",
                 "보안 점검",
                 "자체 보안 점검",
                 "건강 점검",
@@ -1826,7 +1826,7 @@ class AICommand(FastPathMixin, BaseCommand):
                             history_recorder("user", text)
                             history_recorder("assistant", response)
                         except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
-                            logging.debug("빠른 처리 대화 이력 기록 생략: %s", exc)
+                            logging.debug("Fast processing 대화 이력 기록 생략: %s", exc)
                     lang = self._get_current_language()
                     try:
                         from memory.memory_manager import get_memory_manager
@@ -1834,12 +1834,12 @@ class AICommand(FastPathMixin, BaseCommand):
                             text, response, data_source="local", lang=lang
                         )
                     except Exception as exc:
-                        logging.debug("빠른 처리 대화 기록 저장 생략: %s", exc)
+                        logging.debug("Fast processing Conversation history Save 생략: %s", exc)
                     try:
                         from core.VoiceCommand import emit_plugin_event
                         emit_plugin_event("on_voice_command", {"text": text, "response": response})
                     except Exception as exc:
-                        logging.debug("빠른 처리 음성 명령 이벤트 발행 생략: %s", exc)
+                        logging.debug("Fast processing 음성 명령 Event publishing skipped: %s", exc)
                 return
 
             self._current_goal = text
@@ -1886,7 +1886,7 @@ class AICommand(FastPathMixin, BaseCommand):
                         "name": "run_agent_task",
                         "arguments": {
                             "goal": text,
-                            "explanation": "복합 작업으로 판단되어 단계별 실행으로 전환할게요.",
+                            "explanation": "복합 작업으로 판단되어 steps별 실행으로 전환할게요.",
                         },
                     }]
                     logging.info("[AICommand] 복합 요청을 run_agent_task로 자동 승격 (%d자)", len(text))
@@ -1901,7 +1901,7 @@ class AICommand(FastPathMixin, BaseCommand):
                     results = self._execute_tool_calls(tool_calls, tool_result_callback=tool_result_callback)
                     history_results = [
                         result if result is not None else (
-                            _("작업은 완료됐지만 확인 가능한 결과를 받지 못했습니다.")
+                            _("작업은 완료됐지만 OK 가능한 결과를 받지 못했습니다.")
                             if tool_call.get("name") in self._dispatch
                             else _("등록되지 않은 도구라 실행하지 못했습니다.")
                         )
@@ -1959,14 +1959,14 @@ class AICommand(FastPathMixin, BaseCommand):
                 else:
                     if tool_calls:
                         cancelled_results = [
-                            _("요청이 취소되어 도구를 실행하지 않았습니다.")
+                            _("요청이 Cancel되어 도구를 실행하지 않았습니다.")
                         ] * len(tool_calls)
                         recorder = getattr(self.ai_assistant, "record_tool_result", None)
                         if callable(recorder):
                             try:
                                 recorder(tool_calls, cancelled_results, "")
                             except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
-                                logging.warning("취소된 도구 결과 기록 실패: %s", exc)
+                                logging.warning("Cancel된 도구 결과 기록 실패: %s", exc)
                     if response:
                         self._emit_user_message(response)
 
@@ -2012,7 +2012,7 @@ class AICommand(FastPathMixin, BaseCommand):
                         TypeError,
                         ValueError,
                     ) as exc:
-                        logging.debug("중단된 대화 기록 저장 생략: %s", exc)
+                        logging.debug("중단된 Conversation history Save 생략: %s", exc)
                     marker_record = getattr(
                         self.ai_assistant, "mark_last_response_interrupted", None
                     )
@@ -2057,19 +2057,19 @@ class AICommand(FastPathMixin, BaseCommand):
                         lang=lang,
                     )
                 except Exception as exc:
-                    logging.debug("대화 기록 저장 생략: %s", exc)
+                    logging.debug("Conversation history Save 생략: %s", exc)
                 try:
                     from core.VoiceCommand import emit_plugin_event
                     emit_plugin_event("on_voice_command", {"text": text, "response": response})
                 except Exception as exc:
-                    logging.debug("음성 명령 이벤트 발행 생략: %s", exc)
+                    logging.debug("음성 명령 Event publishing skipped: %s", exc)
 
         except AttributeError as e:
             logging.error("AI 어시스턴트가 초기화되지 않았습니다: %s", e)
             self.tts_wrapper(_("AI 기능을 사용할 수 없습니다."))
         except Exception as e:
-            logging.error("AI 응답 생성 오류: %s", e, exc_info=True)
-            self.tts_wrapper(_("응답 생성 중 오류가 발생했습니다."))
+            logging.error("AI 응답 생성 Error: %s", e, exc_info=True)
+            self.tts_wrapper(_("응답 생성 중 Error가 발생했습니다."))
         finally:
             if instant_ack is not None:
                 instant_ack.cancel()
@@ -2105,8 +2105,8 @@ class AICommand(FastPathMixin, BaseCommand):
                 try:
                     result = handler(args)
                 except Exception as e:
-                    logging.error("tool 핸들러 오류 (%s): %s", name, e, exc_info=True)
-                    result = f"오류: 도구 실행 실패: {e}. 성공한 실행 결과가 확인되지 않았습니다. 실행했거나 대체 동작을 했다고 말하지 마세요."
+                    logging.error("tool 핸들러 Error (%s): %s", name, e, exc_info=True)
+                    result = f"Error: 도구 실행 실패: {e}. 성공한 실행 결과가 OK되지 않았습니다. 실행했거나 대체 동작을 했다고 말하지 마세요."
                 else:
                     if tool_result_callback is not None:
                         tool_result_callback(name, result)
@@ -2135,7 +2135,7 @@ class AICommand(FastPathMixin, BaseCommand):
                 cancel_event=cancel_event,
             )
         except Exception as e:
-            logging.error("에이전틱 후속 처리 오류: %s", e, exc_info=True)
+            logging.error("에이전틱 later속 처리 Error: %s", e, exc_info=True)
             return None
 
     def _invoke_with_optional_stream(
@@ -2196,7 +2196,7 @@ class AICommand(FastPathMixin, BaseCommand):
             context_mgr = get_context_manager()
             if any(word in user_input for word in ["날씨", "기온", "온도"]):
                 context_mgr.record_command("weather")
-            elif any(word in user_input for word in ["음악", "노래", "재생"]):
+            elif any(word in user_input for word in ["음악", "노래", "play"]):
                 context_mgr.record_command("music")
             elif any(word in user_input for word in ["시간", "몇 시"]):
                 context_mgr.record_command("time")

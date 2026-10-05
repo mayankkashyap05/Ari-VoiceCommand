@@ -74,7 +74,7 @@ def _parse_explicit_command(text: str) -> tuple[str, str] | None:
 
 
 def is_memory_command(text: str) -> bool:
-    """메모리 명령 턴인지 확인한다."""
+    """메모리 명령 턴인지 OK한다."""
     return bool(_parse_explicit_command(text)) or any(
         phrase in text for phrase in _MEMORY_COMMAND_PHRASES
     )
@@ -121,7 +121,7 @@ class MemoryCommand(BaseCommand):
             from agent.skill_library import get_skill_library
             skills = get_skill_library().list_skills()
             if not skills:
-                self.tts_wrapper(_("아직 저장된 스킬이 없어요."))
+                self.tts_wrapper(_("아직 Save된 스킬이 없어요."))
                 return
             self.tts_wrapper(_("현재 스킬은 {skills}예요.", skills=", ".join(skill.name for skill in skills[:5])))
             return
@@ -165,7 +165,7 @@ class MemoryCommand(BaseCommand):
                 self.tts_wrapper(_("무엇을 기억할까요?"))
                 return
         if is_sensitive_memory_text(content):
-            self.tts_wrapper(_("민감 정보는 저장하지 않아요."))
+            self.tts_wrapper(_("민감 정보는 Save하지 않아요."))
             return
 
         key, value = content, content
@@ -182,7 +182,7 @@ class MemoryCommand(BaseCommand):
         if not context.record_fact(
             key, value, source=source, confidence=1.0, ttl_days=0, force=True
         ):
-            self.tts_wrapper(_("기억을 저장하지 못했어요."))
+            self.tts_wrapper(_("기억을 Save하지 못했어요."))
             return
         self.tts_wrapper(_("기억했어요: {value}", value=value))
 
@@ -265,24 +265,24 @@ class MemoryCommand(BaseCommand):
             report = SafetyReport(
                 level=DangerLevel.DANGEROUS,
                 matched_patterns=[_("기억 삭제")],
-                summary=_("기억, 관련 대화 기록, 맞는 선호를 삭제합니다."),
+                summary=_("기억, 관련 Conversation history, 맞는 선호를 삭제합니다."),
                 category="memory",
             )
             confirmed = get_confirmation_manager().request_confirmation(
-                _("기억·관련 대화 기록·맞는 선호 삭제: {fact}", fact=display),
+                _("기억·관련 Conversation history·맞는 선호 삭제: {fact}", fact=display),
                 report,
                 self.tts_wrapper,
             )
         except (ImportError, RuntimeError):
             confirmed = False
         if not confirmed:
-            self.tts_wrapper(_("삭제를 취소했어요."))
+            self.tts_wrapper(_("삭제를 Cancel했어요."))
             return
         # 값이 같은 선호를 사실보다 먼저 지운다. 실패하면 사실이 남아 다시 시도할 수 있다.
         # 한 글자 이하로는 무관한 선호까지 걸리므로 맞춰 보지 않는다.
         preference_delete_failed = False
         fact_value = str(fact.get("value", "")).strip()
-        # 확인을 기다리는 동안 사실이 바뀌었으면 아무것도 지우지 않는다.
+        # OK을 기다리는 동안 사실이 바뀌었으면 아무것도 지우지 않는다.
         # 검사와 삭제 사이에 다른 변경이 끼어들지 못하게 한 번에 잠근다.
         with context._lock:
             current = context.get_facts_snapshot().get(key)

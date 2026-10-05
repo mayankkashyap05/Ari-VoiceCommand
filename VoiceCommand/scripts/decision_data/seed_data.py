@@ -1,7 +1,7 @@
 """Phase 0 기준선용으로 직접 작성한 작은 다국어 seed family.
 
 각 튜플은 ``(한국어, 영어, 일본어)``다. 분할 단위는 family이며, 번역문과 생성된
-받아쓰기 잡음 변형은 같은 분할에 둔다. 그래야 시험 예시가 다른 언어로 된 학습
+받아쓰기 잡음 변형은 같은 분할에 둔다. 그래야 시험 예시가 다른 Language로 된 학습
 예시의 바꿔 쓴 문장이 되지 않는다.
 """
 
@@ -42,7 +42,7 @@ SLOT_FAMILY_GROUPS: dict[str, dict[int, str]] = {
 
 
 # 기본 후보마다 서로 다른 바꿔 쓰기 family를 네 개 이상 둔다. 이 자료는
-# 라우팅용 seed이지 실제 서비스 언어 범위를 보장하는 것이 아니므로 예시를 일부러
+# 라우팅용 seed이지 실제 서비스 Language 범위를 보장하는 것이 아니므로 예시를 일부러
 # 짧고 구체적으로 썼다. 음성으로 자주 부르는 후보에는 조사 생략, 반말 어미,
 # 앱 이름 교체를 다루는
 # family를 더 둔다.
@@ -50,7 +50,7 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
     "get_weather": (
         ("오늘 날씨 알려줘", "Tell me today's weather", "今日の天気を教えて"),
         ("밖에 비 와?", "Is it raining outside?", "外は雨？"),
-        ("이번 주말 날씨 확인해줘", "Check the weekend weather", "週末の天気を確認して"),
+        ("이번 주말 날씨 OK해줘", "Check the weekend weather", "週末の天気を確認して"),
         ("지금 기온이 몇 도야", "What is the temperature now?", "今の気温は何度？"),
         ("날씨 어때", "How is the weather", "天気どう"),
         ("오늘 추워?", "Is it cold today?", "今日寒い？"),
@@ -60,14 +60,14 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
     "get_current_time": (
         ("지금 몇 시야", "What time is it now?", "今何時？"),
         ("현재 시간을 알려줘", "Tell me the current time", "現在時刻を教えて"),
-        ("시계 좀 확인해줘", "Check the clock for me", "時計を確認して"),
+        ("시계 좀 OK해줘", "Check the clock for me", "時計を確認して"),
         ("서울 시간으로 몇 시인지 말해줘", "What time is it in Seoul?", "ソウルは今何時？"),
         ("몇 시야", "What time", "何時"),
         ("시간 좀 알려줘", "Give me the time", "時間を教えて"),
         ("지금 시각 알려줘", "Tell me the time right now", "今の時刻を教えて"),
         ("몇 시인지 말해줄래", "Could you tell me what time it is", "何時か言ってくれる"),
         ("여기 현지 시간이 지금 몇 시인지 알려줘", "Tell me the local time here right now", "ここでの現地時刻を今教えて"),
-        ("내 지역의 현재 시각을 확인해 줘", "Check the current local time in my area", "この地域の現在時刻を確認して"),
+        ("내 지역의 현재 시각을 OK해 줘", "Check the current local time in my area", "この地域の現在時刻を確認して"),
     ),
     "adjust_volume": (
         ("볼륨을 높여줘", "Turn up the volume", "音量を上げて"),
@@ -89,49 +89,49 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
         ("이 URL 내용을 가져와줘", "Fetch the contents of this URL", "このURLの内容を取得して"),
         ("웹 페이지를 읽어줘", "Read this web page", "このウェブページを読んで"),
         ("링크를 열고 본문을 가져와", "Open the link and fetch the article", "リンクを開いて本文を取得して"),
-        ("주소의 내용을 확인해줘", "Retrieve the content at this address", "このアドレスの内容を確認して"),
+        ("주소의 내용을 OK해줘", "Retrieve the content at this address", "このアドレスの内容を確認して"),
     ),
     "list_scheduled_tasks": (
         ("예약된 작업 목록 보여줘", "Show my scheduled tasks", "予約タスクの一覧を見せて"),
-        ("스케줄 뭐가 등록됐는지 확인해줘", "List what is scheduled", "何が予約されているか確認して"),
+        ("스케줄 뭐가 등록됐는지 OK해줘", "List what is scheduled", "何が予約されているか確認して"),
         ("등록한 예약 작업을 알려줘", "Tell me my scheduled jobs", "登録した予約タスクを教えて"),
         ("예약 목록을 조회해", "Display the schedule list", "予約一覧を表示して"),
     ),
     "get_calendar_events": (
-        ("오늘 일정 확인해줘", "Check today's calendar events", "今日のカレンダー予定を確認して"),
+        ("오늘 일정 OK해줘", "Check today's calendar events", "今日のカレンダー予定を確認して"),
         ("이번 주 일정 보여줘", "Show my events for this week", "今週の予定を見せて"),
         ("캘린더에서 다음 약속을 찾아줘", "Find my next calendar appointment", "カレンダーから次の予定を探して"),
         ("내 회의 일정 알려줘", "Tell me my meeting schedule", "会議の予定を教えて"),
     ),
     "read_emails": (
         ("새 이메일 읽어줘", "Read my new emails", "新着メールを読んで"),
-        ("받은 편지함 확인해줘", "Check my inbox", "受信トレイを確認して"),
+        ("받은 편지함 OK해줘", "Check my inbox", "受信トレイを確認して"),
         ("최근 메일 몇 개 보여줘", "Show me the latest emails", "最近のメールをいくつか見せて"),
         ("중요한 메일을 찾아 읽어줘", "Find and read the important emails", "重要なメールを探して読んで"),
     ),
     "read_file": (
         ("메모 파일 내용을 읽어줘", "Read the contents of the notes file", "メモファイルの内容を読んで"),
         ("이 파일을 열어서 보여줘", "Open and show this file", "このファイルを開いて見せて"),
-        ("설정 파일을 읽어 확인해줘", "Read the config file", "設定ファイルを読んで"),
+        ("Settings 파일을 읽어 OK해줘", "Read the config file", "設定ファイルを読んで"),
         ("문서 파일 내용을 알려줘", "Tell me what is in the document", "文書ファイルの内容を教えて"),
     ),
     "write_file": (
-        ("새 파일에 이 내용을 저장해줘", "Write this content to a new file", "この内容を新しいファイルに書いて"),
+        ("새 파일에 이 내용을 Save해줘", "Write this content to a new file", "この内容を新しいファイルに書いて"),
         ("문서 파일을 만들어줘", "Create a document file", "文書ファイルを作って"),
-        ("텍스트를 파일로 저장해", "Save this text to a file", "このテキストをファイルに保存して"),
+        ("텍스트를 파일로 Save해", "Save this text to a file", "このテキストをファイルに保存して"),
         ("파일에 내용을 추가해줘", "Append this content to the file", "ファイルに内容を追加して"),
     ),
     "edit_file": (
         ("파일 안의 오타를 고쳐줘", "Fix the typo in the file", "ファイル内の誤字を直して"),
         ("이 문서의 문장을 바꿔줘", "Replace the sentence in this document", "この文書の文を置き換えて"),
-        ("설정 파일에서 값을 수정해", "Change the value in the config file", "設定ファイルの値を変更して"),
+        ("Settings 파일에서 값을 수정해", "Change the value in the config file", "設定ファイルの値を変更して"),
         ("파일의 특정 문자열을 교체해줘", "Replace a string in the file", "ファイル内の文字列を置換して"),
     ),
     "list_directory": (
         ("다운로드 폴더 목록을 보여줘", "List the Downloads folder", "ダウンロードフォルダーを一覧表示して"),
         ("이 폴더 안에 뭐가 있는지 알려줘", "Show what is in this folder", "このフォルダーの中身を見せて"),
         ("현재 디렉터리 파일을 나열해", "List the files in the current directory", "現在のディレクトリのファイルを一覧にして"),
-        ("폴더 내용을 확인해줘", "Check the directory contents", "フォルダーの内容を確認して"),
+        ("폴더 내용을 OK해줘", "Check the directory contents", "フォルダーの内容を確認して"),
     ),
     "search_in_files": (
         ("프로젝트 파일에서 TODO를 찾아줘", "Search the project files for TODO", "プロジェクトのファイルからTODOを探して"),
@@ -186,7 +186,7 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
     "get_running_apps": (
         ("실행 중인 앱 목록을 알려줘", "List the running applications", "起動中のアプリ一覧を教えて"),
         ("지금 켜진 프로그램을 보여줘", "Show the programs that are open", "今開いているプログラムを見せて"),
-        ("실행 중인 프로세스를 확인해", "Check the running processes", "実行中のプロセスを確認して"),
+        ("실행 중인 프로세스를 OK해", "Check the running processes", "実行中のプロセスを確認して"),
         ("어떤 앱이 실행 중인지 알려줘", "Tell me which apps are running", "どのアプリが起動中か教えて"),
         ("활성 상태인 앱을 빠짐없이 목록으로 보여줘", "List every app that is currently active", "現在アクティブなアプリを一覧で全部見せて"),
         ("지금 실행 중인 프로그램을 목록으로 알려줘", "Show the running programs as a list", "実行中のプログラムを一覧で見せて"),
@@ -202,27 +202,27 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
         ("네이버 웨일 창 선택해", "Select the Naver Whale window", "Naver Whaleのウィンドウを選んで"),
     ),
     "play_youtube": (
-        ("유튜브에서 재즈 틀어줘", "Play jazz on YouTube", "YouTubeでジャズを再生して"),
-        ("유튜브로 이 노래 찾아서 재생해", "Find and play this song on YouTube", "YouTubeでこの曲を探して再生して"),
-        ("유튜브에서 공부 음악 틀어", "Play study music on YouTube", "YouTubeで勉強用の音楽を流して"),
-        ("유튜브 뮤직비디오 재생해줘", "Play the music video on YouTube", "YouTubeのミュージックビデオを再生して"),
+        ("YouTube에서 재즈 틀어줘", "Play jazz on YouTube", "YouTubeでジャズを再生して"),
+        ("YouTube로 이 노래 찾아서 play해", "Find and play this song on YouTube", "YouTubeでこの曲を探して再生して"),
+        ("YouTube에서 공부 음악 틀어", "Play study music on YouTube", "YouTubeで勉強用の音楽を流して"),
+        ("YouTube 뮤직비디오 play해줘", "Play the music video on YouTube", "YouTubeのミュージックビデオを再生して"),
     ),
     "take_screenshot": (
-        ("화면 캡처를 저장해줘", "Take and save a screenshot", "画面をキャプチャして保存して"),
+        ("화면 캡처를 Save해줘", "Take and save a screenshot", "画面をキャプチャして保存して"),
         ("지금 화면을 스크린샷으로 찍어", "Capture the current screen", "今の画面をスクリーンショットして"),
         ("스크린샷 파일을 만들어줘", "Create a screenshot file", "スクリーンショットファイルを作って"),
-        ("화면을 이미지로 저장해", "Save the screen as an image", "画面を画像として保存して"),
+        ("화면을 이미지로 Save해", "Save the screen as an image", "画面を画像として保存して"),
         ("화면 캡처해", "Capture the screen", "画面をキャプチャして"),
         ("스크린샷 찍어줘", "Take a screenshot", "スクリーンショット撮って"),
         ("지금 화면 좀 찍어", "Snap the screen now", "今の画面を撮って"),
-        ("화면 그대로 저장해줘", "Save the screen as is", "画面をそのまま保存して"),
-        ("회의 내용을 적어두려고 화면 이미지를 저장해줘", "Save a snapshot of the display for my notes", "メモ用にディスプレイのスナップショットを保存して"),
+        ("화면 그대로 Save해줘", "Save the screen as is", "画面をそのまま保存して"),
+        ("회의 내용을 적어두려고 화면 이미지를 Save해줘", "Save a snapshot of the display for my notes", "メモ用にディスプレイのスナップショットを保存して"),
         ("오류 상황을 기록하려고 현재 화면을 이미지로 캡처해줘", "Capture the current screen as an image to document this issue", "問題の記録用に今の画面を画像でキャプチャして"),
     ),
     "get_clipboard": (
         ("클립보드 내용을 보여줘", "Show the clipboard contents", "クリップボードの内容を見せて"),
         ("방금 복사한 내용을 읽어줘", "Read what I just copied", "さっきコピーした内容を読んで"),
-        ("현재 클립보드를 확인해", "Check the current clipboard", "現在のクリップボードを確認して"),
+        ("현재 클립보드를 OK해", "Check the current clipboard", "現在のクリップボードを確認して"),
         ("클립보드 텍스트를 가져와", "Get the clipboard text", "クリップボードのテキストを取得して"),
     ),
     "set_clipboard": (
@@ -232,9 +232,9 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
         ("클립보드 값을 바꿔줘", "Replace the clipboard value", "クリップボードの内容を置き換えて"),
     ),
     "get_screen_status": (
-        ("현재 화면 상태를 확인해줘", "Check the current screen status", "現在の画面状態を確認して"),
+        ("Current screen state를 OK해줘", "Check the current screen status", "現在の画面状態を確認して"),
         ("전체 화면인지 알려줘", "Tell me whether this is fullscreen", "全画面表示か教えて"),
-        ("작업 표시줄 위치를 확인해", "Check the taskbar position", "タスクバーの位置を確認して"),
+        ("작업 표시줄 위치를 OK해", "Check the taskbar position", "タスクバーの位置を確認して"),
         ("화면 환경을 점검해줘", "Inspect the display state", "画面の状態を調べて"),
     ),
     "execute_python_code": (
@@ -275,7 +275,7 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
     ),
     "memory_forget": (
         (
-            "저장된 정보에서 예전 노트북 모델을 지워줘",
+            "Save된 정보에서 예전 노트북 모델을 지워줘",
             "Delete the old laptop model from my saved details",
             "保存済みの情報から以前のノートパソコンの機種を削除して",
         ),
@@ -290,29 +290,29 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
             "登録済みの情報から以前の通勤手段を取り除いて",
         ),
         (
-            "저장된 프로필에서 오래된 여행 선호를 없애줘",
+            "Save된 프로필에서 오래된 여행 선호를 없애줘",
             "Clear an outdated travel preference from my saved profile",
             "保存済みプロフィールから古い旅行の好みを消して",
         ),
     ),
     "memory_remember": (
         (
-            "내 생일은 10월 8일이야. 이 내용을 저장해 두고 다음에 축하해줘",
+            "내 생일은 10월 8일이야. 이 내용을 Save해 두고 다음에 축하해줘",
             "My birthday is October 8; save that and use it when you congratulate me later",
             "私の誕生日は10月8日です。これを保存して次にお祝いするときに使ってください",
         ),
         (
-            "매운 음식을 잘 못 먹으니 이 선호를 저장해 두고 식당 추천에 반영해줘",
+            "매운 음식을 잘 못 먹으니 이 선호를 Save해 두고 식당 추천에 반영해줘",
             "I do not handle spicy food well; save that preference for restaurant suggestions",
             "辛い料理が苦手なので、その好みを記録して店のおすすめに反映して",
         ),
         (
-            "우리 고양이 이름은 호두야. 이 이름을 저장해 두고 다음에 물으면 알려줘",
+            "우리 고양이 이름은 호두야. 이 이름을 Save해 두고 다음에 물으면 알려줘",
             "My cat is named Hodu; save the name so you can use it next time",
             "うちの猫はホドゥという名前です。その名前を保存して次に聞いたら答えて",
         ),
         (
-            "짧은 요약을 먼저 받는 편이 좋으니 이 선호를 저장해 둬",
+            "짧은 요약을 먼저 받는 편이 좋으니 이 선호를 Save해 둬",
             "I prefer getting a short summary first; keep that as a preference",
             "短い要約を先に読むほうが好きなので、その好みを記録しておいて",
         ),
@@ -324,7 +324,7 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
             "前に話したカフェの名前は何だったかな？",
         ),
         (
-            "내가 선호하는 회의 시간대가 언제였는지 확인해줘",
+            "내가 선호하는 회의 시간대가 언제였는지 OK해줘",
             "Check which meeting time I said I prefer",
             "私が希望していた会議の時間帯を確認して",
         ),
@@ -358,28 +358,28 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
         ("새 이미지를 만들어줘", "Generate a new image", "新しい画像を作って"),
     ),
     "set_timer": (
-        ("5분 타이머를 설정해줘", "Set a five minute timer", "5分のタイマーを設定して"),
+        ("5분 타이머를 Settings해줘", "Set a five minute timer", "5分のタイマーを設定して"),
         ("10초 뒤에 알림해줘", "Set an alert for ten seconds", "10秒後に通知して"),
         ("한 시간 타이머 시작해", "Start a one hour timer", "1時間のタイマーを開始して"),
         ("요리 타이머를 20분으로 맞춰줘", "Set the cooking timer for twenty minutes", "料理タイマーを20分にして"),
     ),
     "cancel_timer": (
-        ("타이머를 취소해줘", "Cancel the timer", "タイマーをキャンセルして"),
+        ("타이머를 Cancel해줘", "Cancel the timer", "タイマーをキャンセルして"),
         ("진행 중인 알림을 멈춰", "Stop the active timer", "動いているタイマーを止めて"),
         ("최근 타이머를 지워줘", "Cancel the most recent timer", "最近のタイマーを取り消して"),
-        ("요리 타이머를 취소해", "Cancel the cooking timer", "料理タイマーをキャンセルして"),
+        ("요리 타이머를 Cancel해", "Cancel the cooking timer", "料理タイマーをキャンセルして"),
     ),
     "schedule_task": (
         ("30분 뒤에 컴퓨터를 종료하도록 예약해줘", "Schedule the computer to shut down in thirty minutes", "30分後にコンピューターを終了するよう予約して"),
-        ("내일 아침에 파일을 저장하도록 예약해", "Schedule saving the file tomorrow morning", "明日の朝にファイルを保存するよう予約して"),
+        ("내일 아침에 파일을 Save하도록 예약해", "Schedule saving the file tomorrow morning", "明日の朝にファイルを保存するよう予約して"),
         ("오후 3시에 이 작업을 실행해줘", "Schedule this task for 3 PM", "午後3時にこの作業を実行するよう予約して"),
-        ("나중에 이 목표를 실행하도록 설정해", "Schedule this goal to run later", "後でこの目標を実行するよう設定して"),
+        ("나중에 이 목표를 실행하도록 Settings해", "Schedule this goal to run later", "後でこの目標を実行するよう設定して"),
     ),
     "cancel_scheduled_task": (
-        ("예약된 작업을 취소해줘", "Cancel the scheduled task", "予約タスクをキャンセルして"),
+        ("예약된 작업을 Cancel해줘", "Cancel the scheduled task", "予約タスクをキャンセルして"),
         ("등록한 예약 하나를 지워", "Remove one scheduled job", "登録した予約を一つ削除して"),
-        ("스케줄 ID 작업을 취소해", "Cancel the task with this schedule ID", "このスケジュールIDのタスクを取り消して"),
-        ("나중에 실행할 작업을 취소해줘", "Cancel the task that will run later", "後で実行するタスクをキャンセルして"),
+        ("스케줄 ID 작업을 Cancel해", "Cancel the task with this schedule ID", "このスケジュールIDのタスクを取り消して"),
+        ("나중에 실행할 작업을 Cancel해줘", "Cancel the task that will run later", "後で実行するタスクをキャンセルして"),
     ),
     "shutdown_computer": (
         ("컴퓨터를 종료해줘", "Shut down the computer", "コンピューターをシャットダウンして"),
@@ -393,17 +393,17 @@ TOOL_FAMILY_TEXTS: dict[str, tuple[LanguageText, ...]] = {
 HARD_NEGATIVE_FAMILIES: tuple[tuple[str, str, LanguageText], ...] = (
     ("web_search", "launch-word-search", ("크롬이 자꾸 꺼지는 이유를 검색해줘", "Search why Chrome keeps closing", "Chromeが何度も終了する理由を検索して")),
     ("unknown_or_complex", "web-word-open", ("크롬을 열어서 검색해줘", "Open Chrome and search", "Chromeを開いて検索して")),
-    ("unknown_or_complex", "web-word-complex", ("크롬 문제를 전부 확인해서 고쳐줘", "Check and fix all the Chrome problems", "Chromeの問題を全部確認して直して")),
+    ("unknown_or_complex", "web-word-complex", ("크롬 문제를 전부 OK해서 고쳐줘", "Check and fix all the Chrome problems", "Chromeの問題を全部確認して直して")),
     ("search_in_files", "search-word-file", ("파일에서 TODO를 찾아서 보여줘", "Find TODO in the file and show it", "ファイルからTODOを探して見せて")),
     ("read_file", "read-word-content", ("파일 내용을 그대로 읽어줘", "Read the file contents verbatim", "ファイルの内容をそのまま読んで")),
-    ("edit_file", "edit-word-save", ("기존 파일의 오타를 고쳐서 저장해줘", "Fix the typo in the existing file and save it", "既存ファイルの誤字を直して保存して")),
+    ("edit_file", "edit-word-save", ("기존 파일의 오타를 고쳐서 Save해줘", "Fix the typo in the existing file and save it", "既存ファイルの誤字を直して保存して")),
     ("write_file", "write-word-change", ("새 문서를 만들어서 내용을 써줘", "Create a new document and write the content", "新しい文書を作って内容を書いて")),
     ("unknown_or_complex", "calendar-create-word", ("캘린더에 회의를 추가하고 기존 일정을 보여줘", "Add a meeting and show the existing calendar events", "会議を追加して既存の予定を見せて")),
-    ("unknown_or_complex", "calendar-read-word", ("내일 일정이 있는지 확인하고 새 약속도 만들어줘", "Check tomorrow's events and create an appointment", "明日の予定を確認して新しい約束も作って")),
+    ("unknown_or_complex", "calendar-read-word", ("내일 일정이 있는지 OK하고 새 약속도 만들어줘", "Check tomorrow's events and create an appointment", "明日の予定を確認して新しい約束も作って")),
     ("unknown_or_complex", "screen-analyze-word", ("스크린샷을 찍고 화면 오류를 분석해줘", "Take a screenshot and analyze the screen error", "スクリーンショットを撮って画面のエラーを分析して")),
-    ("take_screenshot", "screen-save-word", ("화면을 분석하지 말고 캡처 파일만 저장해줘", "Save only a screen capture without analyzing it", "分析せず画面キャプチャだけ保存して")),
+    ("take_screenshot", "screen-save-word", ("화면을 분석하지 말고 캡처 파일만 Save해줘", "Save only a screen capture without analyzing it", "分析せず画面キャプチャだけ保存して")),
     ("set_clipboard", "clipboard-copy-word", ("클립보드 내용을 읽지 말고 이 문장을 복사해줘", "Do not read the clipboard; copy this sentence", "クリップボードを読まずこの文をコピーして")),
-    ("get_clipboard", "clipboard-read-word", ("복사된 클립보드 내용을 확인해줘", "Check the copied clipboard contents", "コピーしたクリップボードの内容を確認して")),
+    ("get_clipboard", "clipboard-read-word", ("복사된 클립보드 내용을 OK해줘", "Check the copied clipboard contents", "コピーしたクリップボードの内容を確認して")),
     ("schedule_task", "timer-schedule-word", ("타이머가 아니라 내일 작업을 예약해줘", "Schedule a task for tomorrow, not a timer", "タイマーではなく明日の作業を予約して")),
     ("set_timer", "schedule-timer-word", ("작업 예약 말고 5분 타이머를 맞춰줘", "Set a five minute timer instead of scheduling a task", "作業予約ではなく5分のタイマーを設定して")),
     ("unknown_or_complex", "shell-agent-word", ("터미널 명령이 아니라 여러 단계 작업을 맡겨줘", "Delegate the multi-step task instead of running a shell command", "シェルコマンドではなく複数手順の作業を任せて")),
@@ -415,11 +415,11 @@ HARD_NEGATIVE_FAMILIES: tuple[tuple[str, str, LanguageText], ...] = (
 
 UNKNOWN_FAMILIES: dict[str, tuple[LanguageText, ...]] = {
     "compound": (
-        ("유튜브를 켜고 재즈를 검색해서 재생해줘", "Open YouTube, search for jazz, and play it", "YouTubeを開いてジャズを検索して再生して"),
-        ("크롬을 열고 메일을 확인한 뒤 요약해줘", "Open Chrome, check my email, and summarize it", "Chromeを開いてメールを確認し要約して"),
+        ("YouTube를 켜고 재즈를 검색해서 play해줘", "Open YouTube, search for jazz, and play it", "YouTubeを開いてジャズを検索して再生して"),
+        ("크롬을 열고 메일을 OK한 뒤 요약해줘", "Open Chrome, check my email, and summarize it", "Chromeを開いてメールを確認し要約して"),
         ("파일을 찾아서 수정하고 동료에게 보내줘", "Find the file, edit it, and send it to my colleague", "ファイルを探して編集し同僚に送って"),
         ("화면을 캡처하고 오류 원인을 분석해서 고쳐줘", "Capture the screen, diagnose the error, and fix it", "画面をキャプチャしてエラーを分析し直して"),
-        ("날씨를 보고 일정에 맞춰 알림을 설정해줘", "Check the weather and set an alert based on my schedule", "天気を確認して予定に合わせて通知を設定して"),
+        ("날씨를 보고 일정에 맞춰 알림을 Settings해줘", "Check the weather and set an alert based on my schedule", "天気を確認して予定に合わせて通知を設定して"),
         ("폴더를 정리하고 중복 파일을 찾아 삭제해줘", "Organize the folder and find and delete duplicates", "フォルダーを整理して重複ファイルを探し削除して"),
     ),
     "conversation": (
@@ -427,7 +427,7 @@ UNKNOWN_FAMILIES: dict[str, tuple[LanguageText, ...]] = {
         ("재미있는 이야기 해줘", "Tell me something interesting", "面白い話をして"),
         ("나랑 잠깐 이야기할래", "Will you chat with me for a moment?", "少し話してくれる？"),
         ("고마워", "Thank you", "ありがとう"),
-        ("오늘 하루가 힘들었어", "Today was a difficult day", "今日は大変な一日だった"),
+        ("오늘 하루가 힘Heard어", "Today was a difficult day", "今日は大変な一日だった"),
     ),
     "knowledge": (
         ("블랙홀은 어떻게 만들어져?", "How are black holes formed?", "ブラックホールはどうやってできるの？"),

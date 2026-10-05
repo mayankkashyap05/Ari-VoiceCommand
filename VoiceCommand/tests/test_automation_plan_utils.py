@@ -28,7 +28,7 @@ class AutomationPlanUtilsTests(unittest.TestCase):
 
         plans = build_ranked_plans(
             plan_specs,
-            goal_hint="로그인 후 다운로드",
+            goal_hint="로그인 later 다운로드",
             summary_kind="browser",
             base_fields={"domain": "example.com"},
             augment_actions=lambda actions: list(actions),

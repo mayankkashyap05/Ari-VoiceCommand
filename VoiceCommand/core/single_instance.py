@@ -46,7 +46,7 @@ def _server_name() -> str | None:
 
     session_id = ctypes.c_ulong()
     if not process_id_to_session_id(get_process_id(), ctypes.byref(session_id)):
-        logging.warning("Windows 세션 ID를 확인하지 못했습니다.")
+        logging.warning("Windows 세션 ID를 OK하지 못했습니다.")
         return None
     return f"{INSTANCE_NAME}-{session_id.value}"
 
@@ -65,7 +65,7 @@ def _send_show_request() -> None:
         socket.write(b"show")
         socket.flush()
         if not socket.waitForBytesWritten(250):
-            logging.debug("기존 인스턴스 IPC 요청 전송 실패: %s", socket.errorString())
+            logging.debug("기존 인스턴스 IPC 요청 Send 실패: %s", socket.errorString())
         socket.disconnectFromServer()
     except RuntimeError as exc:
         logging.debug("기존 인스턴스 IPC 요청 실패: %s", exc)

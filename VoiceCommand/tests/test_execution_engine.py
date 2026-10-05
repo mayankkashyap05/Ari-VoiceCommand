@@ -61,7 +61,7 @@ class ExecutionEngineConditionTests(unittest.TestCase):
             step_id=1,
             step_type="python",
             content="print('retry')",
-            description_kr="재시도 단계",
+            description_kr="재시도 steps",
         )
         engine.planner = SimpleNamespace(
             fix_step=MagicMock(return_value=retry_step)
@@ -71,9 +71,9 @@ class ExecutionEngineConditionTests(unittest.TestCase):
         engine._run_step = lambda step, context: ExecutionResult(success=False, error="same failure")
         engine._estimate_step_timeout = lambda step: 999.0
 
-        step = ActionStep(step_id=1, step_type="python", content="print('x')", description_kr="실패 단계")
+        step = ActionStep(step_id=1, step_type="python", content="print('x')", description_kr="실패 steps")
 
-        result, attempts, was_fixed = engine._execute_step_with_retry(step, "반복 오류", {})
+        result, attempts, was_fixed = engine._execute_step_with_retry(step, "반복 Error", {})
 
         self.assertFalse(result.success)
         self.assertEqual(attempts, 2)
@@ -88,7 +88,7 @@ class ExecutionEngineConditionTests(unittest.TestCase):
             step_id=2,
             step_type="python",
             content="print('retry once')",
-            description_kr="재시도 단계",
+            description_kr="재시도 steps",
             optional=True,
         )
         engine.planner = SimpleNamespace(
@@ -111,7 +111,7 @@ class ExecutionEngineConditionTests(unittest.TestCase):
             step_id=2,
             step_type="python",
             content="print('start')",
-            description_kr="optional 단계",
+            description_kr="optional steps",
             optional=True,
         )
 
@@ -133,14 +133,14 @@ class ExecutionEngineConditionTests(unittest.TestCase):
         engine._run_step = lambda step, context: ExecutionResult(success=True, output="done")
 
         context = {}
-        step = ActionStep(step_id=3, step_type="python", content="print('ok')", description_kr="빠른 단계")
+        step = ActionStep(step_id=3, step_type="python", content="print('ok')", description_kr="빠른 steps")
 
         result, attempts, was_fixed = engine._execute_step_with_retry(step, "타임아웃 힌트", context)
 
         self.assertTrue(result.success)
         self.assertEqual(attempts, 1)
         self.assertFalse(was_fixed)
-        self.assertIn("이전_단계_타임아웃", context)
+        self.assertIn("이전_steps_타임아웃", context)
 
 
 if __name__ == "__main__":

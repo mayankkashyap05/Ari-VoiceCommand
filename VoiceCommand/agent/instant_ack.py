@@ -7,7 +7,7 @@ from collections.abc import Callable
 
 
 class InstantAckTimer:
-    """첫 응답 전 제한 시간 뒤에 확인 문구를 한 번 알린다."""
+    """첫 응답 전 제한 시간 뒤에 OK 문구를 한 번 알린다."""
 
     def __init__(self, callback: Callable[[], None], *, timer_factory=None):
         self._callback = callback

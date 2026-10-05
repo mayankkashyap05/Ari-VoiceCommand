@@ -1,5 +1,5 @@
 """
-FACT 신뢰도 업데이트 엔진.
+FACT 신뢰도 Update 엔진.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ def compute_reinforcement(prior: float, source: str, reinforcement_count: int) -
     base = REINFORCE_BASE * sw
     bonus = REINFORCE_DECAY * math.log2(1 + min(reinforcement_count, 10)) * sw
     posterior = min(prior + base + bonus, MAX_CONFIDENCE)
-    return TrustUpdateResult(posterior, posterior - prior, "reinforce", "재확인으로 신뢰도 강화")
+    return TrustUpdateResult(posterior, posterior - prior, "reinforce", "재OK으로 신뢰도 강화")
 
 
 def compute_conflict_update(prior: float, new_confidence: float, prior_source: str, new_source: str, conflict_count: int) -> TrustUpdateResult:
@@ -103,7 +103,7 @@ def batch_decay(facts: dict, current_time) -> dict:
             new_payload["confidence"] = round(result.new_confidence, 2)
             updated[key] = new_payload
         except (AttributeError, TypeError, ValueError, OverflowError) as exc:
-            logging.debug("batch_decay 오류 (key=%s): %s", key, exc)
+            logging.debug("batch_decay Error (key=%s): %s", key, exc)
             updated[key] = payload
     return updated
 

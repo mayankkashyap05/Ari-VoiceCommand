@@ -1,6 +1,6 @@
 """
 실행 엔진 (Execution Engine)
-단계 실행, 병렬/순차 그룹핑, 조건 평가, 자동 수정, pip 설치,
+steps 실행, 병렬/순차 그룹핑, 조건 평가, 자동 수정, pip 설치,
 런타임 컨텍스트 갱신, 개발자 가드를 담당한다.
 """
 import concurrent.futures
@@ -43,7 +43,7 @@ try:
 except Exception:
     suggest_next_actions = None
 
-# executor._lock 경합 시 반환되는 오류 문자열 — self-fix 대상에서 제외
+# executor._lock 경합 시 반환되는 Error 문자열 — self-fix 대상에서 제외
 _LOCK_CONTENTION_ERRORS = frozenset({
     "이미 다른 코드가 실행 중입니다.",
     "이미 다른 명령이 실행 중입니다.",
@@ -68,9 +68,9 @@ _IMPORT_TO_PIP: dict = {
 
 
 class ExecutionEngine:
-    """단계 실행·그룹핑·자동 수정·컨텍스트 갱신 담당"""
+    """steps 실행·그룹핑·자동 수정·컨텍스트 갱신 담당"""
 
-    MAX_STEP_RETRIES = 2  # 단계 당 자동 수정 최대 횟수
+    MAX_STEP_RETRIES = 2  # steps 당 자동 수정 max 횟수
 
     # 자동 설치 시 사용자 동의 없이 설치 가능한 안전 패키지 목록
     _AUTO_INSTALL_SAFE = frozenset({
@@ -109,7 +109,7 @@ class ExecutionEngine:
 
     @staticmethod
     def _cancelled_result() -> ExecutionResult:
-        return ExecutionResult(success=False, error="사용자 취소")
+        return ExecutionResult(success=False, error="사용자 Cancel")
 
     def _cancelled_step_result(self, step: ActionStep) -> StepResult:
         return StepResult(
@@ -233,7 +233,7 @@ class ExecutionEngine:
         context: Dict[str, str],
         cancel_event: Optional[threading.Event] = None,
     ) -> Tuple[ExecutionResult, int, bool]:
-        """공개 래퍼 — 단일 단계 실행 + 자동 수정."""
+        """공개 래퍼 — 단일 steps 실행 + 자동 수정."""
         return self._execute_step_with_retry(
             step, goal, context, cancel_event=cancel_event
         )
@@ -263,14 +263,14 @@ class ExecutionEngine:
             expected = self._estimate_step_timeout(curr)
             if elapsed > expected:
                 logger.warning(
-                    "[ExecutionEngine] 단계 실행 시간 초과: %.1fs (예상 %.1fs), step=%s",
+                    "[ExecutionEngine] steps 실행 시간 초과: %.1fs (예상 %.1fs), step=%s",
                     elapsed,
                     expected,
                     curr.step_id,
                 )
-                context["이전_단계_타임아웃"] = _(
+                context["이전_steps_타임아웃"] = _(
                     "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). "
-                    "단계를 더 작게 분할하거나 비동기 방식을 고려하세요."
+                    "steps를 더 작게 분할하거나 비동기 방식을 고려하세요."
                 ).format(
                     step_id=curr.step_id,
                     elapsed=elapsed,
@@ -280,7 +280,7 @@ class ExecutionEngine:
                 return res, att, fixed
             if att > self.MAX_STEP_RETRIES:
                 break
-            err = res.error or res.output or "오류"
+            err = res.error or res.output or "Error"
             err_sig = err[:120]
             if err_sig in seen_errors:
                 logger.info(
@@ -300,14 +300,14 @@ class ExecutionEngine:
                 if self._is_cancel_requested():
                     return self._cancelled_result(), att, fixed
                 continue
-            # ModuleNotFoundError → pip 자동 설치 후 LLM 수정 없이 재시도
+            # ModuleNotFoundError → pip 자동 설치 later LLM 수정 없이 재시도
             if self._is_cancel_requested():
                 return self._cancelled_result(), att, fixed
             if "No module named" in err and self._auto_install_if_needed(err):
-                logger.info("[ExecutionEngine] 패키지 설치 후 단계 재실행")
+                logger.info("[ExecutionEngine] 패키지 설치 later steps 재실행")
                 continue
             self._say(
-                _("[걱정] 오류 발생, 수정 중입니다. ({att}/{max})").format(
+                _("[걱정] Error 발생, 수정 중입니다. ({att}/{max})").format(
                     att=att,
                     max=self.MAX_STEP_RETRIES,
                 )
@@ -333,7 +333,7 @@ class ExecutionEngine:
         goal: str,
         context: Dict[str, str],
     ) -> Optional[ActionStep]:
-        """실패 단계에 적합한 회복 전략을 선택하여 수정된 ActionStep을 반환한다."""
+        """실패 steps에 적합한 회복 전략을 선택하여 수정된 ActionStep을 반환한다."""
         if self._is_cancel_requested():
             return None
         analysis = analyze_failure(error)
@@ -343,14 +343,14 @@ class ExecutionEngine:
 
         fixed = self.planner.fix_step(step, error, goal, context)
         if fixed and fixed.content and fixed.content != step.content:
-            logger.info("[ExecutionEngine] 전략: LLM 코드 수정 적용")
+            logger.info("[ExecutionEngine] 전략: LLM 코드 수정 Apply")
             return fixed
 
         simplify_allowed = analysis.recommended_strategy in {"simplify", "llm_fix", "retry"}
         if attempt >= 2 and simplify_allowed and failure_kind in ("syntax_error", "code_generation_error"):
             simplify_prompt = _(
-                "다음 코드가 실패했습니다:\n{content}\n오류: {error}\n"
-                "기능을 유지하되 최대한 단순하게 다시 작성하세요. "
+                "다음 코드가 실패했습니다:\n{content}\nError: {error}\n"
+                "기능을 유지하되 max한 단순하게 다시 작성하세요. "
                 "표준 라이브러리만 사용하고, try/except 추가 금지."
             ).format(content=step.content, error=error[:200])
             try:
@@ -359,7 +359,7 @@ class ExecutionEngine:
                 resp = get_llm_provider().chat(user_message=simplify_prompt, save_history=False)
                 simplified_content = resp.strip() if resp else ""
                 if simplified_content and simplified_content != step.content:
-                    logger.info("[ExecutionEngine] 전략: 단계 단순화 적용")
+                    logger.info("[ExecutionEngine] 전략: steps 단순화 Apply")
                     return dataclasses.replace(step, content=simplified_content)
             except Exception as exc:
                 logger.debug("[ExecutionEngine] 단순화 실패: %s", exc)
@@ -369,13 +369,13 @@ class ExecutionEngine:
             and analysis.recommended_strategy in {"skip", "simplify", "llm_fix"}
             and getattr(step, "optional", False)
         ):
-            logger.info("[ExecutionEngine] 전략: optional 단계 건너뜀")
+            logger.info("[ExecutionEngine] 전략: optional steps 건너뜀")
             return dataclasses.replace(step, content="pass  # skipped: optional step failed")
 
         return None
 
     def _estimate_step_timeout(self, step: ActionStep) -> float:
-        """단계 타입별 예상 타임아웃(초)을 반환한다."""
+        """steps 타입별 예상 타임아웃(초)을 반환한다."""
         default_timeouts: dict[str, float] = {
             "python": 30.0,
             "shell": 20.0,
@@ -535,14 +535,14 @@ class ExecutionEngine:
         try:
             exit_code = pip_main(["install", pip_pkg, "--quiet"])
         except Exception as exc:
-            logger.debug("[ExecutionEngine] pip install 오류: %s", exc)
+            logger.debug("[ExecutionEngine] pip install Error: %s", exc)
             return False
         return int(exit_code or 0) == 0
 
     def _auto_install_if_needed(self, error: str) -> bool:
         """ModuleNotFoundError 감지 시 pip install 자동 실행.
         안전 목록 패키지: 자동 설치.
-        미확인 패키지: 사용자 동의 후 설치.
+        미OK 패키지: 사용자 동의 later 설치.
         설치 성공 시 True 반환."""
         match = re.search(r"No module named '([^']+)'", error)
         if not match:
@@ -560,10 +560,10 @@ class ExecutionEngine:
             ))
             return False
 
-        # 미확인 패키지 → 사용자 동의 필요
+        # 미OK 패키지 → 사용자 동의 필요
         if pip_pkg not in self._AUTO_INSTALL_SAFE and pkg not in self._AUTO_INSTALL_SAFE:
             self._say("'%s' 패키지 설치가 필요합니다. 허용하시겠습니까?" % pip_pkg)
-            logger.info("[ExecutionEngine] 미확인 패키지 설치 동의 요청: %s", pip_pkg)
+            logger.info("[ExecutionEngine] 미OK 패키지 설치 동의 요청: %s", pip_pkg)
             try:
                 from agent.safety_checker import SafetyReport, DangerLevel
                 from agent.confirmation_manager import get_confirmation_manager
@@ -571,7 +571,7 @@ class ExecutionEngine:
                     level=DangerLevel.CAUTION,
                     matched_patterns=["pip install %s" % pip_pkg],
                     summary=(
-                        "'%s' 패키지를 설치합니다. 출처를 확인하세요." % pip_pkg
+                        "'%s' 패키지를 설치합니다. 출처를 OK하세요." % pip_pkg
                     ),
                     category="package_install",
                 )
@@ -583,11 +583,11 @@ class ExecutionEngine:
                     return False
             except Exception as exc:
                 logger.debug(
-                    "[ExecutionEngine] 확인 다이얼로그 생략 (비GUI 환경): %s", exc
+                    "[ExecutionEngine] OK 다이얼로그 생략 (비GUI 환경): %s", exc
                 )
                 return False
 
-        # 패키지명이 유효한 PyPI 식별자인지 확인 (command injection 방지)
+        # 패키지명이 유효한 PyPI 식별자인지 OK (command injection 방지)
         if not re.fullmatch(r"[A-Za-z0-9_.\-]+", pip_pkg):
             logger.warning(
                 "[ExecutionEngine] 유효하지 않은 패키지명, 설치 거부: %s", pip_pkg
@@ -891,9 +891,9 @@ class ExecutionEngine:
         )
         ctx = {
             "재계획_이유": (
-                f"실행 실패 ({', '.join(set(kinds)) if kinds else '오류'})"
+                f"실행 실패 ({', '.join(set(kinds)) if kinds else 'Error'})"
             ),
-            "실패_오류": errs[:300],
+            "실패_Error": errs[:300],
         }
         target_hints: Dict[str, List] = {
             "paths": [],
@@ -911,7 +911,7 @@ class ExecutionEngine:
             if str(getattr(sr.exec_result, "state_delta_summary", "") or "").strip()
         ]
         if state_summaries:
-            ctx["실패_후_상태변화"] = " | ".join(state_summaries[:3])[:400]
+            ctx["실패_later_상태변화"] = " | ".join(state_summaries[:3])[:400]
         if artifacts["paths"]:
             ctx["관측_경로"] = ", ".join(artifacts["paths"][:3])
         if artifacts["urls"]:
@@ -942,7 +942,7 @@ class ExecutionEngine:
                     if candidate.get("target_path")
                 )
                 ctx["복구_권장"] = (
-                    "필요 시 get_recovery_candidates(...) 확인 후 restore_last_backup(path) 사용"
+                    "필요 시 get_recovery_candidates(...) OK later restore_last_backup(path) 사용"
                 )
             guidance = self.executor.get_recovery_guidance(
                 goal=failed[0].step.description_kr if failed else "",
@@ -1059,7 +1059,7 @@ class ExecutionEngine:
             try:
                 self.progress_callback(event_type, **kwargs)
             except Exception as e:
-                logger.debug("[ExecutionEngine] 진행 콜백 오류: %s", e)
+                logger.debug("[ExecutionEngine] Progress callback error: %s", e)
 
     def _say(self, msg: str) -> None:
         if self.tts:

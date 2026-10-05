@@ -93,10 +93,10 @@ class NativeRuntimeSmokeTests(unittest.TestCase):
         try:
             AudioUtilities.GetSpeakers().EndpointVolume.GetMasterVolumeLevelScalar()
         except _ctypes.COMError as exc:
-            # E_NOTFOUND: 기본 출력 장치가 없는 CI 러너
+            # E_NOTFOUND: Default 출력 장치가 없는 CI 러너
             if exc.hresult != -2147023728:
                 raise
-            self.skipTest(f"스피커 장치 없음: {exc}")
+            self.skipTest(f"스피커 장치 None: {exc}")
 
         results = []
         worker = threading.Thread(

@@ -281,7 +281,7 @@ class DecisionDataTests(unittest.TestCase):
             "복사된 클립보드 내용을 확인해줘": "get_clipboard",
             "타이머가 아니라 내일 작업을 예약해줘": "schedule_task",
             "작업 예약 말고 5분 타이머를 맞춰줘": "set_timer",
-            "터미널 명령이 아니라 여러 단계 작업을 맡겨줘": UNKNOWN_LABEL,
+            "터미널 명령이 아니라 여러 steps 작업을 맡겨줘": UNKNOWN_LABEL,
             "에이전트 말고 이 터미널 명령만 실행해줘": "execute_shell_command",
             "검색하지 말고 지금 날씨만 알려줘": "get_weather",
         }
@@ -294,7 +294,7 @@ class DecisionDataTests(unittest.TestCase):
             self.assertEqual(labels_by_text[text], label)
 
         # 이 기준 목록은 직접 작성한 seed와 맞춰 둔다. 모든 hard-negative
-        # 기록은 지원하는 후보나 판단 보류를 써야 한다.
+        # 기록은 지원하는 later보나 판단 보류를 써야 한다.
         candidate_labels = set(self.manifest["candidate_labels"])
         self.assertTrue(all(label in candidate_labels for label, _, _ in HARD_NEGATIVE_FAMILIES))
 
@@ -309,7 +309,7 @@ class DecisionDataTests(unittest.TestCase):
             for row in self.rows
             if row["language"] == "en" and row["text"] in {"Close Chrome", "Quit Discord"}
         }
-        # 병합 후 대표 이름은 바뀔 수 있으므로 이름이 아니라 불변식을 확인한다.
+        # 병합 later 대표 이름은 바뀔 수 있으므로 이름이 아니라 불변식을 확인한다.
         # 앱 이름만 바뀐 문장은 한 family 안에 머물러야 학습과 평가가 갈리지 않는다.
         self.assertEqual(len(launch_families), 1)
         self.assertEqual(len(close_families), 1)

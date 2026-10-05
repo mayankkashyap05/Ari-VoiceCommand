@@ -1,13 +1,13 @@
-"""전역 오디오 입력/출력 리소스를 공유하는 락 및 PyAudio 싱글톤."""
+"""Global audio Input/출력 리소스를 공유하는 락 및 PyAudio 싱글톤."""
 
 import logging
 import threading
 from contextlib import contextmanager
 
-# 입력(마이크)과 출력(스피커)을 별도 락으로 분리
-# PyAudio의 입력/출력 스트림은 독립적이므로 같은 락을 공유할 필요 없음
-_audio_input_lock = threading.Lock()   # 마이크 캡처용
-_audio_output_lock = threading.Lock()  # 스피커 재생용
+# Input(Microphone)과 출력(스피커)을 별도 락으로 분리
+# PyAudio의 Input/출력 스트림은 독립적이므로 같은 락을 공유할 필요 None
+_audio_input_lock = threading.Lock()   # Microphone 캡처용
+_audio_output_lock = threading.Lock()  # 스피커 play용
 _output_device_override = threading.local()
 _NO_OUTPUT_DEVICE_OVERRIDE = object()
 
@@ -58,7 +58,7 @@ class GlobalAudio:
             try:
                 stream.close()
             except (OSError, RuntimeError, ValueError) as exc:
-                logging.debug("오디오 스트림 닫기 생략: %s", exc)
+                logging.debug("오디오 스트림 Close 생략: %s", exc)
 
     @classmethod
     def terminate(cls):
@@ -69,7 +69,7 @@ class GlobalAudio:
                     cls._instance.terminate()
                     logging.info("전역 PyAudio 인스턴스 종료 완료")
                 except (OSError, RuntimeError, ValueError) as exc:
-                    logging.debug("PyAudio 종료 오류 (무시): %s", exc)
+                    logging.debug("PyAudio 종료 Error (무시): %s", exc)
                 finally:
                     cls._instance = None
 
@@ -80,17 +80,17 @@ def initialize_global_audio() -> bool:
         GlobalAudio.get_instance()
         return True
     except Exception as exc:
-        logging.warning("전역 오디오 초기화 실패; 오디오 기능을 사용할 수 없습니다: %s", exc)
+        logging.warning("Global audio 초기화 실패; 오디오 기능을 사용할 수 없습니다: %s", exc)
         return False
 
 
 def get_audio_lock():
-    """전역 오디오 입력 락 반환 (하위 호환)"""
+    """Global audio Input 락 반환 (하위 호환)"""
     return _audio_input_lock
 
 
 def get_audio_output_lock():
-    """전역 오디오 출력 락 반환"""
+    """Global audio 출력 락 반환"""
     return _audio_output_lock
 
 
@@ -98,8 +98,8 @@ def get_audio_output_lock():
 def output_device_override(device_name: str | None):
     """현재 스레드에서만 사용할 출력 장치를 임시 지정한다.
 
-    설정 진단처럼 저장 전의 장치 선택을 시험할 때 전역 설정을 바꾸지 않고
-    TTS 제공자가 선택한 장치로 재생하도록 한다.
+    Settings 진단처럼 Save 전의 장치 선택을 시험할 때 전역 Settings을 바꾸지 않고
+    TTS 제공자가 선택한 장치로 play하도록 한다.
     """
     previous = getattr(_output_device_override, "name", _NO_OUTPUT_DEVICE_OVERRIDE)
     _output_device_override.name = str(device_name or "")
@@ -117,7 +117,7 @@ def output_device_override(device_name: str | None):
 
 # ── 출력 장치 유틸리티 ─────────────────────────────────────────────────────────
 
-# TTS는 22~24kHz mono를 재생한다. host API마다 이걸 받아주는 정도가 다르다.
+# TTS는 22~24kHz mono를 play한다. host API마다 이걸 받아주는 정도가 다르다.
 #   MME/DirectSound : 임의 레이트를 알아서 리샘플 → 항상 안전
 #   WASAPI          : 공유 모드에서 장치 고유 레이트(44.1/48k)만 허용 → 거부
 #   WDM-KS          : 독점 커널 스트리밍 → 다른 앱이 잡고 있으면 열리지 않음
@@ -150,7 +150,7 @@ def _normalize_device_name(name: str) -> str:
 
 
 def list_output_devices() -> list[dict]:
-    """사용 가능한 오디오 출력 장치 목록을 반환한다.
+    """사용 가능한 Audio Output 장치 목록을 반환한다.
 
     Returns:
         [{"index": int, "name": str, "hostApi": int, "hostApiName": str}, ...]
@@ -174,7 +174,7 @@ def list_output_devices() -> list[dict]:
 
 
 def get_configured_output_device_name() -> str:
-    """설정에 저장된 출력 장치 이름(없으면 빈 문자열)."""
+    """Settings에 Save된 출력 장치 이름(없으면 빈 문자열)."""
     override = getattr(_output_device_override, "name", _NO_OUTPUT_DEVICE_OVERRIDE)
     if override is not _NO_OUTPUT_DEVICE_OVERRIDE:
         return str(override or "")
@@ -182,14 +182,14 @@ def get_configured_output_device_name() -> str:
         from core.config_manager import ConfigManager
         return str(ConfigManager.get("audio_output_device", "") or "")
     except Exception as exc:
-        logging.debug("출력 장치 설정 조회 실패: %s", exc)
+        logging.debug("출력 장치 Settings 조회 실패: %s", exc)
         return ""
 
 
 def get_output_device_index() -> int | None:
-    """설정에 저장된 출력 장치의 PyAudio 인덱스를 반환한다.
+    """Settings에 Save된 출력 장치의 PyAudio 인덱스를 반환한다.
 
-    설정이 비어있거나 장치를 찾지 못하면 None(시스템 기본값)을 반환한다.
+    Settings이 비어있거나 장치를 찾지 못하면 None(시스템 Default값)을 반환한다.
     """
     try:
         device_name = get_configured_output_device_name()
@@ -197,7 +197,7 @@ def get_output_device_index() -> int | None:
             return None
         return _find_device_index_by_name(device_name)
     except Exception as exc:
-        logging.debug("출력 장치 인덱스 조회 실패, 기본값 사용: %s", exc)
+        logging.debug("출력 장치 인덱스 조회 실패, Default값 사용: %s", exc)
         return None
 
 
@@ -217,7 +217,7 @@ def _names_refer_to_same_device(configured: str, candidate: str) -> bool:
 
 
 def find_output_device_candidates(name: str) -> list[int]:
-    """설정된 이름과 같은 장치를 host API 안전 순으로 나열한다.
+    """Settings된 이름과 같은 장치를 host API 안전 순으로 나열한다.
 
     같은 스피커가 MME·DirectSound·WASAPI·WDM-KS로 중복 노출되는데
     TTS의 22~24kHz mono를 받아주는 건 앞쪽 두 개뿐이다. 호출자는
@@ -232,7 +232,7 @@ def find_output_device_candidates(name: str) -> list[int]:
         if _names_refer_to_same_device(wanted, _normalize_device_name(device["name"]))
     ]
     if not matches:
-        logging.warning("출력 장치 '%s'를 찾을 수 없어 시스템 기본값 사용", name)
+        logging.warning("출력 장치 '%s'를 찾을 수 없어 시스템 Default값 사용", name)
         return []
 
     matches.sort(key=lambda d: _host_api_rank(d.get("hostApiName", "")))

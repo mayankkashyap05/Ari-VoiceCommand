@@ -239,7 +239,7 @@ class MemoryConsolidator:
                 return False
             return bool(index.index_digest(target_day, digest))
         except Exception as exc:
-            # 선택 기능 오류가 다른 기억 정리를 막지 않게 한다.
+            # 선택 기능 Error가 다른 기억 정리를 막지 않게 한다.
             logging.warning("Daily digest generation skipped: %s", exc)
             return False
 

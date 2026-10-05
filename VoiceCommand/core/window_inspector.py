@@ -129,7 +129,7 @@ class _LastInputInfo(ctypes.Structure):
 
 
 def get_idle_seconds() -> int | None:
-    """마지막 입력 이후 초를 반환한다."""
+    """마지막 Input 이later 초를 반환한다."""
     if sys.platform != "win32":
         return None
     info = _LastInputInfo(ctypes.sizeof(_LastInputInfo), 0)
@@ -146,7 +146,7 @@ def get_idle_seconds() -> int | None:
 
 
 def get_session_locked() -> bool | None:
-    """현재 입력 데스크톱이 잠금 화면인지 확인한다."""
+    """현재 Input 데스크톱이 잠금 화면인지 OK한다."""
     if sys.platform != "win32":
         return False
     user32 = _dll("user32")

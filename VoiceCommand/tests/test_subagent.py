@@ -1,4 +1,4 @@
-﻿from agent.agent_orchestrator import AgentRunResult
+from agent.agent_orchestrator import AgentRunResult
 
 
 def test_spawn_subagent_returns_child_result(monkeypatch):

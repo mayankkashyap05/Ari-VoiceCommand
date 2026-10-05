@@ -144,16 +144,16 @@ desktop_path = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Desktop"
 desktop_str = str(desktop_path)
 samples = [
     "바탕화면에 샘플 폴더 만들어줘",
-    "시스템 정보 수집해서 md로 저장해줘",
-    f"{desktop_str} 폴더 목록 저장해줘",
+    "시스템 정보 수집해서 md로 Save해줘",
+    f"{desktop_str} Save folder listing",
     "https://example.com 열어줘",
-    "https://example.com 에서 파일 다운로드해서 저장해줘",
-    '메모장 열고 "테스트 메모" 입력해줘',
+    "https://example.com 에서 파일 다운로드해서 Save해줘",
+    '메모장 열고 "테스트 메모" Input해줘',
     "크롬으로 https://example.com 열어줘",
     "VSCode 열어줘",
     "계산기 실행해줘",
     os.path.join(desktop_str, "alpha.txt") + " 파일 이름을 beta.txt로 변경해줘",
-    os.path.join(desktop_str, "logs", "ari.log") + " 로그 리포트 저장해줘",
+    os.path.join(desktop_str, "logs", "ari.log") + " 로그 리포트 Save해줘",
 ]
 
 for sample in samples:
@@ -374,7 +374,7 @@ def run(action, description: str) -> float:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Ari 저장소 검증 스크립트")
+    parser = argparse.ArgumentParser(description="Ari Save소 검증 스크립트")
     parser.add_argument("--compile-only", action="store_true", help="문법 검사만 실행")
     parser.add_argument("--tests-only", action="store_true", help="유닛 테스트만 실행")
     parser.add_argument("--smoke-only", action="store_true", help="템플릿 스모크 테스트만 실행")
@@ -388,9 +388,9 @@ def main() -> int:
     args = parse_args()
     selected_modes = sum([args.compile_only, args.tests_only, args.smoke_only])
     if selected_modes > 1:
-        raise SystemExit("compile/tests/smoke 전용 옵션은 하나만 사용할 수 있습니다.")
+        raise SystemExit("compile/tests/smoke Only one dedicated option can be used.")
     if args.list and args.json:
-        raise SystemExit("--list 와 --json 은 함께 사용할 수 없습니다.")
+        raise SystemExit("--list 와 --json 은 Cannot be used together.")
 
     payload = {
         "compile_targets": COMPILE_TARGETS,

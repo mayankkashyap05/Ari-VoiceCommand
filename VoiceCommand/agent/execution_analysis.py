@@ -1,6 +1,6 @@
 """
-실행 결과/단계 분석 유틸리티.
-실패 분류, 읽기 전용 단계 판정, 실행 산출물 추출 규칙을 한 곳에 모은다.
+실행 결과/steps 분석 유틸리티.
+실패 분류, 읽기 전용 steps 판정, 실행 산출물 추출 규칙을 한 곳에 모은다.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from typing import Dict, Iterable, List
 
 
 _MUTATING_TOKENS = (
-    # 파일 저장/쓰기 — open()의 read 모드는 포함하지 않음
+    # 파일 Save/쓰기 — open()의 read 모드는 포함하지 않음
     "save_document",
     ", 'w')", ", 'w')", ', "w")', ', "w")',
     ", 'a')", ', "a")',
@@ -37,7 +37,7 @@ _MUTATING_TOKENS = (
     "copy-item", "remove-item", "rename-item", "start-process",
 )
 
-_STORAGE_DESC_TOKENS = ("저장", "생성", "폴더", "파일", "문서", "보고서", "목록", "요약")
+_STORAGE_DESC_TOKENS = ("Save", "생성", "폴더", "파일", "문서", "보고서", "목록", "요약")
 _OPEN_DESC_TOKENS = ("열기", "실행")
 _STATEFUL_UI_TOKENS = (
     "open_url", "open_path", "launch_app", "click_screen", "move_mouse",
@@ -125,9 +125,9 @@ def classify_failure_message(message: str) -> str:
         return "syntax_error"
     if "nameerror" in normalized or "attributeerror" in normalized or "module" in normalized:
         return "code_generation_error"
-    if "검색 오류" in normalized or "http" in normalized or "연결" in normalized:
+    if "검색 Error" in normalized or "http" in normalized or "연결" in normalized:
         return "network_error"
-    if "사용자 취소" in normalized:
+    if "사용자 Cancel" in normalized:
         return "user_cancelled"
     return "execution_failed"
 
@@ -189,7 +189,7 @@ def mutates_runtime_state(content: str, description: str = "") -> bool:
 
 
 def extract_step_targets(text: str) -> Dict[str, List[str]]:
-    """단계 코드/명령에서 경로/URL 타깃을 추출한다."""
+    """steps 코드/명령에서 경로/URL 타깃을 추출한다."""
     text = text or ""
     paths = [p.strip().strip('"').strip("'") for p in _PATH_LITERAL_RE.findall(text)]
     urls = [u.strip().strip('"').strip("'") for u in _URL_RE.findall(text)]
@@ -219,7 +219,7 @@ def extract_step_targets(text: str) -> Dict[str, List[str]]:
 
 
 def extract_workflow_hints(texts: Iterable[str]) -> List[str]:
-    """단계 코드/설명에서 재사용 가능한 워크플로우 힌트를 추출한다."""
+    """steps 코드/설명에서 재사용 가능한 워크플로우 힌트를 추출한다."""
     hints: List[str] = []
     for text in texts:
         if not text:
@@ -236,7 +236,7 @@ def extract_workflow_hints(texts: Iterable[str]) -> List[str]:
 
 
 def extract_developer_result_paths(text: str, repo_root: str) -> List[str]:
-    """실행 결과 텍스트에서 저장소 안 파일 경로 후보를 소문자 상대 경로로 뽑는다."""
+    """실행 결과 텍스트에서 Save소 안 파일 경로 later보를 소문자 상대 경로로 뽑는다."""
     candidates: List[str] = []
     normalized_repo_root = os.path.abspath(repo_root).replace("\\", "/").lower()
 

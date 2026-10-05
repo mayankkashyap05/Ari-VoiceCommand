@@ -1,4 +1,4 @@
-"""짧고 단일한 요청의 의미와 인자를 결정적으로 확인한다."""
+"""짧고 단일한 요청의 의미와 인자를 결정적으로 OK한다."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from agent.decision.candidates import DIRECT_ALLOWLIST
 
 
 DIRECT_CANDIDATES = DIRECT_ALLOWLIST
-# 의미를 확인하고 측정하려고 해석은 하지만 직접 실행하지는 않는다.
+# 의미를 OK하고 측정하려고 해석은 하지만 직접 실행하지는 않는다.
 # 배포 검사를 통과하기 전까지 직접 실행 허용 목록에 넣지 않는다.
 TIER_B_CANDIDATES = frozenset({"get_weather", "set_timer", "cancel_timer", "launch_app"})
 PARSED_CANDIDATES = frozenset(DIRECT_CANDIDATES) | TIER_B_CANDIDATES
@@ -63,8 +63,8 @@ _GRAMMARS: dict[str, dict[str, tuple[str, ...]]] = {
             r"(?:지금|현재)?몇시(?:야|예요|에요|지|인지|인가요|니)?",
             r"(?:지금|현재)?몇시인지(?:좀)?(?:알려|말해)" + _KO_REQ,
             r"(?:지금|현재)(?:시간|시각)",
-            r"(?:지금|현재)?(?:시간|시각)(?:을|를|이|좀)*(?:알려|말해|확인해)" + _KO_REQ,
-            r"(?:지금)?시계(?:를|좀)*(?:확인해|봐)" + _KO_REQ,
+            r"(?:지금|현재)?(?:시간|시각)(?:을|를|이|좀)*(?:알려|말해|OK해)" + _KO_REQ,
+            r"(?:지금)?시계(?:를|좀)*(?:OK해|봐)" + _KO_REQ,
         ),
         "en": (
             r"what\s+time\s+is\s+it(?:\s+(?:now|right\s+now))?",
@@ -89,9 +89,9 @@ _GRAMMARS: dict[str, dict[str, tuple[str, ...]]] = {
         "ko": (
             r"(?:지금|현재)?(?:실행중인|실행중|켜져있는|켜진|열려있는|열린|돌아가는|떠있는)?"
             r"(?:앱|어플|프로그램|프로세스|애플리케이션)(?:들)?(?:목록|리스트)?(?:을|를|좀)*"
-            r"(?:보여|알려|확인해|나열해)" + _KO_REQ,
+            r"(?:보여|알려|OK해|나열해)" + _KO_REQ,
             r"(?:지금|현재)?(?:뭐가|어떤앱이|어떤프로그램이)(?:켜져|실행되고|돌아가고|열려)있는지"
-            r"(?:좀)?(?:보여|알려|확인해)" + _KO_REQ,
+            r"(?:좀)?(?:보여|알려|OK해)" + _KO_REQ,
         ),
         "en": (
             r"(?:list|show(?:\s+me)?|display|check)\s+(?:all\s+)?(?:the\s+)?(?:currently\s+)?"
@@ -117,9 +117,9 @@ _GRAMMARS: dict[str, dict[str, tuple[str, ...]]] = {
     "take_screenshot": {
         "ko": (
             r"(?:지금|현재)?(?:의)?(?:화면|스크린샷|스샷)(?:을|를|좀)*"
-            r"(?:(?:캡처|캡쳐|촬영)(?:해|해서저장해)|찍어)" + _KO_REQ,
-            r"(?:지금|현재)?(?:의)?화면(?:을|를)?스크린샷으로(?:찍어|저장해)" + _KO_REQ,
-            r"(?:지금|현재)?(?:의)?(?:화면|화면캡처|스크린샷|스샷)(?:을|를|좀)*(?:그대로)?저장해"
+            r"(?:(?:캡처|캡쳐|촬zero)(?:해|해서Save해)|찍어)" + _KO_REQ,
+            r"(?:지금|현재)?(?:의)?화면(?:을|를)?스크린샷으로(?:찍어|Save해)" + _KO_REQ,
+            r"(?:지금|현재)?(?:의)?(?:화면|화면캡처|스크린샷|스샷)(?:을|를|좀)*(?:그대로)?Save해"
             + _KO_REQ,
         ),
         "en": (
@@ -170,11 +170,11 @@ _GRAMMARS: dict[str, dict[str, tuple[str, ...]]] = {
     "set_timer": {
         "ko": (
             r"(?P<minutes>\d{1,3})분(?:(?P<seconds>\d{1,2})초)?(?:짜리)?(?:으로|로)?타이머(?:를|좀)*"
-            r"(?:맞춰|설정해|켜|시작해|걸어|해)" + _KO_REQ,
+            r"(?:맞춰|Settings해|켜|시작해|걸어|해)" + _KO_REQ,
             r"(?P<seconds>\d{1,3})초(?:짜리)?(?:으로|로)?타이머(?:를|좀)*"
-            r"(?:맞춰|설정해|켜|시작해|걸어|해)" + _KO_REQ,
+            r"(?:맞춰|Settings해|켜|시작해|걸어|해)" + _KO_REQ,
             r"타이머(?:를|좀)*(?P<minutes>\d{1,3})분(?:(?P<seconds>\d{1,2})초)?(?:으로|로)?"
-            r"(?:맞춰|설정해|걸어|해)" + _KO_REQ,
+            r"(?:맞춰|Settings해|걸어|해)" + _KO_REQ,
         ),
         "en": (
             r"(?:set|start)\s+(?:a\s+)?timer\s+for\s+(?P<minutes>\d{1,3})\s+minutes?"
@@ -192,7 +192,7 @@ _GRAMMARS: dict[str, dict[str, tuple[str, ...]]] = {
     },
     "cancel_timer": {
         "ko": (
-            r"(?:지금|진행중인|설정한|맞춘)?타이머(?:를|좀)*(?:취소해|꺼|멈춰|중지해|끝내|없애)" + _KO_REQ,
+            r"(?:지금|진행중인|Settings한|맞춘)?타이머(?:를|좀)*(?:Cancel해|꺼|멈춰|중지해|끝내|없애)" + _KO_REQ,
         ),
         "en": (r"(?:cancel|stop|clear|turn\s+off)\s+(?:the\s+|my\s+)?timer",),
         "ja": (r"タイマー(?:を)?(?:キャンセルし|止め|停止し|解除し|消し)" + _JA_REQ,),
@@ -200,9 +200,9 @@ _GRAMMARS: dict[str, dict[str, tuple[str, ...]]] = {
     # 현재 날씨만 다룬다. 처리기는 장소만 받고 날짜나 비교는 받지 않는다.
     "get_weather": {
         "ko": (
-            r"(?!.*(?:내일|어제|모레|주말|다음주|비교|아침|오전|오후|저녁|밤|나중))(?:지금|오늘)?"
+            r"(?!.*(?:내일|어제|모레|주말|다음주|비교|아침|오전|오later|저녁|밤|나중))(?:지금|오늘)?"
             r"(?:(?P<location>[가-힣]{2,8}?)(?:의)?)?(?:지금|오늘)?날씨(?:는|가|를|좀)*"
-            r"(?:어때(?:요)?|알려" + _KO_REQ + r"|확인해" + _KO_REQ + r")",
+            r"(?:어때(?:요)?|알려" + _KO_REQ + r"|OK해" + _KO_REQ + r")",
         ),
         "en": (
             r"(?!.*\b(?:tomorrow|yesterday|tonight|weekend|week|compare|and|morning|afternoon|evening|later)\b)"
@@ -259,7 +259,7 @@ _ACTION_ANCHORS: dict[str, dict[str, tuple[str, ...]]] = {
         "ja": (r"アプリ", r"プログラム", r"プロセス", r"実行中", r"起動中"),
     },
     "screenshot": {
-        "ko": (r"스크린\s*샷", r"화면", r"캡처", r"촬영"),
+        "ko": (r"스크린\s*샷", r"화면", r"캡처", r"촬zero"),
         "en": (r"\bscreens?hots?\b", r"\bscreen\s+shot\b", r"\bcapture\b"),
         "ja": (r"スクリーンショット", r"画面", r"キャプチャ", r"撮"),
     },
@@ -284,7 +284,7 @@ _ACTION_ANCHORS: dict[str, dict[str, tuple[str, ...]]] = {
         "ja": (r"検索", r"探し", r"調べ"),
     },
     "play": {
-        "ko": (r"재생", r"틀어"),
+        "ko": (r"play", r"틀어"),
         "en": (r"\bplay\b",),
         "ja": (r"再生", r"流し"),
     },
@@ -313,7 +313,7 @@ _NEGATIONS = {
 }
 
 _UNSAFE_CONTEXT_ACTIONS = {
-    "ko": (r"삭제|지워|전송|보내|구매|결제|포맷|초기화|종료",),
+    "ko": (r"삭제|지워|Send|보내|구매|결제|포맷|초기화|종료",),
     "en": (r"\b(?:delete|erase|remove|send|purchase|buy|format|reset|shut\s+down)\b",),
     "ja": (r"削除|消去|送信|購入|支払|フォーマット|初期化|終了",),
 }
@@ -326,9 +326,9 @@ _SAFE_CONTEXTS = {
         r"to\s+(?:document|record|reference)\s+(?:this|the|my)\s+(?:issue|work|notes?|meeting)",
     ),
     "ko": (
-        r"(?:회의|통화|발표|수업|업무|작업|여행|메모|기록|대화|토론|문서|자료|오류|문제)(?:\s*(?:내용|준비|상황|자료|기록|작성))?(?:을|를|의)?\s*(?:위해(?:서)?|때문에|하려고|목적으로)",
-        r"(?:회의\s*내용|오류\s*상황)(?:을|를)\s*(?:적어두|기록하)려고",
-        r"영상\s*소리(?:가)?\s*(?:커서|높아서|작아서)",
+        r"(?:회의|통화|발표|수업|업무|작업|여행|메모|기록|대화|토론|문서|자료|Error|문제)(?:\s*(?:내용|준비|상황|자료|기록|작성))?(?:을|를|의)?\s*(?:위해(?:서)?|때문에|하려고|목적으로)",
+        r"(?:회의\s*내용|Error\s*상황)(?:을|를)\s*(?:적어두|기록하)려고",
+        r"zero상\s*소리(?:가)?\s*(?:커서|높아서|작아서)",
     ),
     "ja": (
         r"(?:会議|通話|発表|授業|作業|旅行|メモ|記録|会話|議論|資料|問題|エラー|動画|音声)(?:(?:の)?(?:準備|内容|記録|資料))?(?:の)?(?:ために|ため|ので|ように|用に)",
@@ -338,7 +338,7 @@ _SAFE_CONTEXTS = {
 
 _CANDIDATE_ALIASES: dict[str, dict[str, tuple[tuple[str, str], ...]]] = {
     "adjust_volume": {
-        "ko": ((r"(?<![가-힣])(?:(?:시스템|출력|재생|스피커|전체)(?:의|\s+)?){1,2}(?:음량|볼륨|소리|레벨)(?=(?:을|를|은|는|이|가|[^가-힣]|$))", "볼륨"),),
+        "ko": ((r"(?<![가-힣])(?:(?:시스템|출력|play|스피커|전체)(?:의|\s+)?){1,2}(?:음량|볼륨|소리|레벨)(?=(?:을|를|은|는|이|가|[^가-힣]|$))", "볼륨"),),
         "en": (
             (r"(?<![a-z0-9])(?:(?:system|output|playback|speaker|overall)\s+){0,2}(?:audio|sound|volume)(?:\s+(?:level|output))?(?![a-z0-9])", "volume"),
             (r"(?<![a-z0-9])speaker\s+output(?![a-z0-9])", "volume"),
@@ -450,7 +450,7 @@ def _strip_fillers(value: str, language: str) -> str:
 def is_multi_intent(text: str) -> bool:
     """점수를 매기기 전에 여러 동작을 분명히 잇는 요청을 표시한다.
 
-    일반 대화 라우터 대신 쓰는 사전 검사이므로, "Code"라는 앱 이름처럼 낱말이
+    General 대화 라우터 대신 쓰는 사전 검사이므로, "Code"라는 앱 이름처럼 낱말이
     겹쳐도 로컬 점수 계산을 건너뛰지 않는다.
     """
     if not isinstance(text, str) or not text.strip() or len(text) > 4096:
@@ -579,7 +579,7 @@ def _volume_arguments(match: re.Match[str] | None, candidate: str) -> tuple[dict
     if direction == "mute":
         return {"direction": "mute", "amount": 100}, True, False
     raw_amount = values.get("amount")
-    # 양이 없으면 기존 처리기가 기본 단계를 적용한다.
+    # 양이 없으면 기존 처리기가 Default steps를 Apply한다.
     if raw_amount is None:
         return {"direction": direction}, True, False
     raw_amount = re.sub(r"[\s-]+", "-", raw_amount.casefold())
@@ -617,7 +617,7 @@ def _tier_b_arguments(match: re.Match[str], candidate: str) -> tuple[dict[str, o
 
 
 def parse_candidate(text: str, candidate: str) -> SemanticParse:
-    """후보 하나가 문장 전체를 설명하는지와 필요한 인자를 확인한다."""
+    """later보 하나가 문장 전체를 설명하는지와 필요한 인자를 OK한다."""
     if not isinstance(text, str) or not text.strip() or len(text) > 4096:
         return SemanticParse(candidate, "")
     value = _normalise(text)
@@ -630,7 +630,7 @@ def parse_candidate(text: str, candidate: str) -> SemanticParse:
     if not value:
         return SemanticParse(candidate, language)
     match, matched_view = _candidate_grammar_match_with_view(value, candidate, language)
-    # 주변 문맥이 무해한 문맥 허용 목록으로 모두 확인된 핵심 구절에서만
+    # 주변 문맥이 무해한 문맥 허용 목록으로 모두 OK된 핵심 구절에서만
     # 남은 동작 수를 센다. 아래의 부정 표현 검사는 여전히
     # 원래 문장을 쓴다.
     anchors = action_anchor_count(matched_view, language)

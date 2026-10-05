@@ -3,7 +3,7 @@
 각 문장은 배포 모델, fast 모드, 직접 실행을 켠 상태로 ``AICommand.run_interaction``을
 거친다. 도구 처리기와 대화 모델은 호출 횟수만 세는 대체물로 바뀌므로 시스템 상태가
 바뀌거나 네트워크 호출이 일어나지 않는다. 배포 빌드는 EXE 자체 검사가, 판단 경로는
-이 도구가 확인한다.
+이 도구가 OK한다.
 
     py -m scripts.decision_data.acceptance --output acceptance.json
 """
@@ -59,7 +59,7 @@ def _skill_context() -> dict:
 
 
 def _arguments_match(tool: str, expected: dict, actual: dict) -> bool:
-    """코퍼스의 의미 메타데이터와 별개로 처리기 인자를 확인한다."""
+    """코퍼스의 의미 메타데이터와 별개로 처리기 인자를 OK한다."""
     if tool != "adjust_volume":
         # 시각·앱 목록·스크린샷 코퍼스의 기대값은 의도를 나타낼 뿐이고,
         # 기존 처리기는 인자를 받지 않는다.

@@ -1,4 +1,4 @@
-"""Google OAuth 인증과 보호된 토큰 저장."""
+"""Google OAuth 인증과 보호된 토큰 Save."""
 from __future__ import annotations
 
 import base64
@@ -213,7 +213,7 @@ def authorize(client_id: str, client_secret: str, *, open_browser=webbrowser.ope
         deadline = time.monotonic() + timeout
         while not received.is_set():
             if cancel_event is not None and cancel_event.is_set():
-                raise RuntimeError(_("Google 인증이 취소되었습니다."))
+                raise RuntimeError(_("Google 인증이 Cancel되었습니다."))
             if time.monotonic() >= deadline:
                 raise TimeoutError(_("Google 인증 시간이 초과되었습니다."))
             server.handle_request()
@@ -222,11 +222,11 @@ def authorize(client_id: str, client_secret: str, *, open_browser=webbrowser.ope
         if not result.get("code"):
             raise RuntimeError(_("Google 인증 코드가 없습니다."))
         if cancel_event is not None and cancel_event.is_set():
-            raise RuntimeError(_("Google 인증이 취소되었습니다."))
+            raise RuntimeError(_("Google 인증이 Cancel되었습니다."))
         token = exchange_code(client_id, client_secret, result["code"], verifier, redirect_uri)
         token["client_id"] = client_id
         token["client_secret"] = client_secret
-        # 갱신·연결 해제와 같은 잠금 안에서 저장해, 먼저 시작된 그 작업이 새 연결을 덮어쓰거나 지우지 않게 한다.
+        # 갱신·연결 해제와 같은 잠금 안에서 Save해, 먼저 시작된 그 작업이 새 연결을 덮어쓰거나 지우지 않게 한다.
         with _TOKEN_LOCK:
             cancelled = cancel_event is not None and cancel_event.is_set()
             if not cancelled:
@@ -240,7 +240,7 @@ def authorize(client_id: str, client_secret: str, *, open_browser=webbrowser.ope
                 )
             except requests.RequestException:
                 pass
-            raise RuntimeError(_("Google 인증이 취소되었습니다."))
+            raise RuntimeError(_("Google 인증이 Cancel되었습니다."))
     finally:
         server.server_close()
 
@@ -256,7 +256,7 @@ def _refresh_stored_token(token: dict) -> str:
     if not client_id or not client_secret:
         client_id, client_secret = _configured_credentials()
     if not client_id or not client_secret:
-        raise GoogleAuthRequired("설정에 저장된 Google Client ID·Secret을 확인하고 다시 연결해 주세요.")
+        raise GoogleAuthRequired("Settings에 Save된 Google Client ID·Secret을 OK하고 다시 연결해 주세요.")
     try:
         refreshed = refresh_access_token(client_id, client_secret, str(token.get("refresh_token", "")))
     except GoogleOAuthError as exc:
@@ -264,7 +264,7 @@ def _refresh_stored_token(token: dict) -> str:
             clear_token()
             raise GoogleAuthRequired("Google 인증이 만료되었습니다. 다시 연결해 주세요.") from None
         if exc.error == "invalid_client":
-            raise GoogleAuthRequired("설정에 저장된 Google Client ID·Secret을 확인하고 다시 연결해 주세요.") from None
+            raise GoogleAuthRequired("Settings에 Save된 Google Client ID·Secret을 OK하고 다시 연결해 주세요.") from None
         raise
     token.update(refreshed)
     token["expires_at"] = time.time() + int(refreshed.get("expires_in", 0))
@@ -280,7 +280,7 @@ def get_access_token() -> str:
     with _TOKEN_LOCK:
         token = load_token()
         if not token:
-            raise GoogleAuthRequired("Google 인증 토큰이 없습니다. 설정에서 계정을 연결해 주세요.")
+            raise GoogleAuthRequired("Google 인증 토큰이 없습니다. Settings에서 계정을 연결해 주세요.")
         access = str(token.get("access_token", "") or "")
         expires_at = float(token.get("expires_at", 0) or 0)
         if access and expires_at > time.time() + 60:

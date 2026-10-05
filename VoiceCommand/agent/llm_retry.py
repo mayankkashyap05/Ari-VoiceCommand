@@ -28,6 +28,6 @@ def extract_retry_delay_seconds(error: Exception, attempt: int) -> float:
             try:
                 return max(0.5, min(float(match.group(1)), 60.0))
             except Exception as exc:
-                logging.debug("[LLM] 재시도 지연 파싱 실패, 다음 패턴 확인: %s", exc)
+                logging.debug("[LLM] 재시도 지연 파싱 실패, 다음 패턴 OK: %s", exc)
                 continue
     return min(2.0 * (attempt + 1), 10.0)

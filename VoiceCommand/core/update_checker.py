@@ -1,4 +1,4 @@
-"""릴리스 업데이트 확인과 알림을 담당한다."""
+"""릴리스 Update OK과 알림을 담당한다."""
 
 from datetime import datetime, timezone
 import http.client
@@ -155,11 +155,11 @@ def _write_runtime_state(updates: dict) -> dict:
 
 
 def get_update_status() -> dict:
-    """설정 화면에 표시할 업데이트 상태를 반환한다."""
+    """Settings 화면에 표시할 Update 상태를 반환한다."""
     try:
         state = _read_runtime_state()[1]
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
-        logging.debug("업데이트 상태를 읽지 못했습니다: %s", error)
+        logging.debug("Update 상태를 읽지 못했습니다: %s", error)
         return {}
     status = {
         key: state.get(key)
@@ -292,7 +292,7 @@ def _record_failure() -> int:
         )
         return failures
     except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
-        logging.debug("업데이트 확인 실패 상태를 저장하지 못했습니다: %s", error)
+        logging.debug("Update OK 실패 상태를 Save하지 못했습니다: %s", error)
         return 1
 
 
@@ -419,7 +419,7 @@ def _check_for_updates() -> tuple[int, int]:
             for manifest in manifests:
                 if compare_versions(manifest["version"], current_version) <= 0:
                     continue
-                # 건너뛴 버전이 최고 버전이어도 다른 후보의 안내가 가려지지 않게 먼저 제외한다.
+                # 건너뛴 버전이 최고 버전이어도 다른 later보의 안내가 가려지지 않게 먼저 제외한다.
                 if manifest["version"] == skipped:
                     continue
                 # 정식판을 건너뛴 사용자에게 그보다 낮은 시험판을 권하지 않는다.
@@ -466,7 +466,7 @@ def _check_for_updates() -> tuple[int, int]:
         RecursionError,
         http.client.HTTPException,
     ) as error:
-        logging.debug("업데이트 확인을 건너뜁니다: %s", error)
+        logging.debug("Update OK을 건너뜁니다: %s", error)
         return 0, _record_failure()
 
 
@@ -498,7 +498,7 @@ def _initial_check_delay() -> int:
 
 
 class UpdateChecker(QObject):
-    """네트워크 확인을 백그라운드에서 실행하고 UI 알림을 예약한다."""
+    """네트워크 OK을 백그라운드에서 실행하고 UI 알림을 예약한다."""
 
     _result_ready = Signal(object)
     status_changed = Signal(object)
@@ -564,7 +564,7 @@ class UpdateChecker(QObject):
         if not installed_notice and not has_update:
             return
 
-        installed_message = _("Ari {version}으로 업데이트됐어요.").format(
+        installed_message = _("Ari {version}으로 Update됐어요.").format(
             version=current_version
         )
         quick_message = _("빠른 로컬 명령 처리를 사용할 수 있습니다.")
@@ -588,7 +588,7 @@ class UpdateChecker(QObject):
             state_updates["notified_update_version"] = version
         if self.tray_icon is not None and tray_messages:
             self.tray_icon.showMessage(
-                _("업데이트 확인") if has_update else _("업데이트 완료"),
+                _("Update OK") if has_update else _("Update 완료"),
                 "\n".join(tray_messages),
                 QSystemTrayIcon.Information,
                 10_000,
@@ -611,7 +611,7 @@ class UpdateChecker(QObject):
             try:
                 _write_runtime_state(state_updates)
             except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
-                logging.debug("업데이트 알림 상태를 저장하지 못했습니다: %s", error)
+                logging.debug("Update 알림 상태를 Save하지 못했습니다: %s", error)
 
     def notify_installed_update(self) -> None:
         self._notify_pending()
@@ -636,7 +636,7 @@ class UpdateChecker(QObject):
                 )
                 self.status_changed.emit(get_update_status())
             except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as error:
-                logging.debug("건너뛴 업데이트를 저장하지 못했습니다: %s", error)
+                logging.debug("건너뛴 Update를 Save하지 못했습니다: %s", error)
 
     def stop(self) -> None:
         self._check_timer.stop()

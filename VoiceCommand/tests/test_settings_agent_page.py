@@ -83,7 +83,7 @@ class LocalDecisionSettingsSaveTests(unittest.TestCase):
 
             engine.reload.assert_called_once_with()
             engine.load.assert_called_once_with()
-            self.assertEqual(page.local_decision_status.text(), "로컬 판단 모델: 준비됨")
+            self.assertEqual(page.local_decision_status.text(), "Local decision model: 준비됨")
 
     def test_plugin_hot_reload_is_disabled_by_default_and_can_be_enabled(self):
         page = _AgentSettingsPage({})

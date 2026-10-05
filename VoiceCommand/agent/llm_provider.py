@@ -1,6 +1,6 @@
 """
-다중 LLM 제공자 통합 — Groq, OpenAI, Anthropic, Mistral, Gemini, OpenRouter
-모든 OpenAI-호환 제공자는 openai SDK + base_url 방식으로 통일.
+다중 LLM Provider 통합 — Groq, OpenAI, Anthropic, Mistral, Gemini, OpenRouter
+모든 OpenAI-호환 Provider는 openai SDK + base_url 방식으로 통일.
 Anthropic만 자체 SDK 사용.
 """
 import base64
@@ -43,7 +43,7 @@ _EN_MONTHS = {
 from agent.tool_selection import _get_tool_instruction, _CORE_TOOL_NAMES, _TOOL_NAMES_BY_INTENT
 
 class LLMProvider:
-    """단일 인터페이스로 여러 LLM 제공자를 지원하는 클래스."""
+    """단일 인터페이스로 여러 LLM Provider를 지원하는 클래스."""
 
     def __init__(self, provider="groq", api_key="", model="",
                  planner_model="", execution_model="",
@@ -62,7 +62,7 @@ class LLMProvider:
             ).items()
         }
         self.model = model.strip()
-        # 역할별 제공자 (비어있으면 기본 제공자 사용)
+        # 역할별 Provider (비어있으면 Default Provider 사용)
         self.planner_provider = planner_provider.strip() or provider
         self.execution_provider = execution_provider.strip() or provider
 
@@ -87,7 +87,7 @@ class LLMProvider:
         self.router_enabled = bool(router_enabled)
         self.conversation_history = []
         self._history_lock = threading.RLock()
-        # 설정 재구성 도중 제공자·모델·client가 섞여 읽히지 않게 한다.
+        # Settings 재구성 도중 Provider·모델·client가 섞여 읽히지 않게 한다.
         self._config_lock = threading.RLock()
         self._active_stream_lock = threading.Lock()
         self._active_stream = None
@@ -96,8 +96,8 @@ class LLMProvider:
         self.max_context_tokens = self._load_int_setting("max_context_tokens", 8000)
         self._tool_streaming_support: dict[str, bool] = {}
         self.client = None
-        self.planner_client = None   # None = 기본 client 사용
-        self.execution_client = None  # None = 기본 client 사용
+        self.planner_client = None   # None = Default client 사용
+        self.execution_client = None  # None = Default client 사용
         self.memory_extractor_client = None
         self._plugin_tools: list = []
         self._plugin_tool_intents: dict[str, set[str]] = {}
@@ -116,7 +116,7 @@ class LLMProvider:
 
         if api_key or provider == "ollama" or not self.provider_configs.get(provider, {}).get("requires_api_key", True):
             self._init_client()
-        # 별도 제공자가 지정된 경우 추가 클라이언트 초기화
+        # 별도 Provider가 지정된 경우 추가 클라이언트 초기화
         if planner_provider and planner_provider != provider and (
             planner_api_key or not self.provider_configs.get(planner_provider, {}).get("requires_api_key", True)
         ):
@@ -124,7 +124,7 @@ class LLMProvider:
                 self.planner_provider, planner_api_key, role="planner"
             )
             if self.planner_client:
-                logging.info("플래너 클라이언트 초기화 완료 (%s / %s)", self.planner_provider, self.planner_model)
+                logging.info("플래너 클라이언트 initialization complete (%s / %s)", self.planner_provider, self.planner_model)
         elif self.client and (
             self._read_timeout_seconds(self.provider, "planner")
             != self._read_timeout_seconds(self.provider, "default")
@@ -139,7 +139,7 @@ class LLMProvider:
                 self.execution_provider, execution_api_key, role="execution"
             )
             if self.execution_client:
-                logging.info("실행 클라이언트 초기화 완료 (%s / %s)", self.execution_provider, self.execution_model)
+                logging.info("실행 클라이언트 initialization complete (%s / %s)", self.execution_provider, self.execution_model)
         if self.memory_extractor_provider not in {provider, self.execution_provider} and (
             memory_extractor_api_key
             or not self.provider_configs.get(self.memory_extractor_provider, {}).get(
@@ -155,7 +155,7 @@ class LLMProvider:
     # ── 초기화 ─────────────────────────────────────────────────────────────────
 
     def _make_client(self, provider: str, api_key: str, role: str = "default"):
-        """제공자와 API 키로 클라이언트 객체를 생성한다."""
+        """Provider와 API 키로 클라이언트 객체를 생성한다."""
         cfg = self.provider_configs.get(provider)
         if cfg is None:
             return None
@@ -180,7 +180,7 @@ class LLMProvider:
                 elif cfg.get("base_url"):
                     kwargs["base_url"] = cfg["base_url"]
                 if self._is_custom_provider(provider) and not api_key:
-                    # OpenAI SDK는 키를 필수로 받지만 로컬 서버 설정에서는 키가 선택 사항입니다.
+                    # OpenAI SDK는 키를 필수로 받지만 로컬 서버 Settings에서는 키가 선택 사항입니다.
                     kwargs["api_key"] = "custom-provider"
                 if provider == "openrouter":
                     kwargs["default_headers"] = {
@@ -189,7 +189,7 @@ class LLMProvider:
                     }
                 return OpenAI(**kwargs)
         except Exception as e:
-            self._log_provider_exception(logging.error, "LLM 클라이언트 초기화 실패", provider, e)
+            self._log_provider_exception(logging.error, "LLM 클라이언트 initialization failed", provider, e)
             return None
 
     def _read_timeout_seconds(self, provider: str, role: str) -> float:
@@ -301,13 +301,13 @@ class LLMProvider:
         try:
             return ConfigManager.get("ollama_base_url", "http://localhost:11434/v1")
         except Exception as exc:
-            logging.debug("[LLMProvider] ollama_base_url 조회 실패, 기본값 사용: %s", exc)
+            logging.debug("[LLMProvider] ollama_base_url 조회 실패, Default값 사용: %s", exc)
             return "http://localhost:11434/v1"
 
     def _init_client(self):
         self.client = self._make_client(self.provider, self.api_key)
         if self.client:
-            logging.info("LLM 클라이언트 초기화 완료 (%s / %s)", self.provider, self.model)
+            logging.info("LLM 클라이언트 initialization complete (%s / %s)", self.provider, self.model)
             logging.info(
                 "  - Planner: %s/%s, Execution: %s/%s",
                 self.planner_provider,
@@ -334,7 +334,7 @@ class LLMProvider:
         schema: dict,
         intents: list[str] | None = None,
     ) -> None:
-        """플러그인 도구 스키마를 등록한다."""
+        """Plugins 도구 스키마를 등록한다."""
         tool_name = str(schema.get("function", {}).get("name", "") or "")
         self._plugin_tools = [
             tool for tool in self._plugin_tools
@@ -419,7 +419,7 @@ class LLMProvider:
             try:
                 close()
             except (OSError, RuntimeError, TypeError, ValueError, httpx.HTTPError) as exc:
-                logging.debug("LLM 스트림 닫기 생략: %s", exc)
+                logging.debug("LLM 스트림 Close 생략: %s", exc)
         return True
 
     @staticmethod
@@ -482,7 +482,7 @@ class LLMProvider:
         with self._history_lock:
             history = list(self.conversation_history)
         if not tool_blocks:
-            # Anthropic 형식의 도구 블록은 다른 제공자가 받지 못한다.
+            # Anthropic 형식의 도구 블록은 다른 Provider가 받지 못한다.
             # 뺀 자리에서 같은 역할이 이어지면 역할 교대를 요구하는 서버가 거절하므로 합친다.
             kept, dropped = [], False
             for message in history:
@@ -571,7 +571,7 @@ class LLMProvider:
         text = (message or "").lower()
         skip_keywords = (
             "날씨", "기온", "시간", "몇 시", "temperature", "weather", "forecast",
-            "예약", "스케줄", "일정", "저장", "실행", "삭제", "이동", "복사",
+            "예약", "스케줄", "일정", "Save", "실행", "삭제", "이동", "복사",
             "tool", "명령", "지금", "현재", "today", "now",
         )
         static_signals = (
@@ -581,22 +581,22 @@ class LLMProvider:
         return any(signal in text for signal in static_signals) and not any(keyword in text for keyword in skip_keywords)
 
     def _offline_response(self, message: str) -> str:
-        return _("(걱정) 연결 설정을 확인해주세요. 기본 명령은 그대로 쓸 수 있어요.")
+        return _("(걱정) 연결 Settings을 OK해주세요. Default 명령은 그대로 쓸 수 있어요.")
 
     @staticmethod
     def _error_response(error: Exception) -> str:
         status = getattr(error, "status_code", None)
         if status in {401, 403}:
-            return _("(걱정) 인증에 실패했어요. 설정에서 인증 정보를 확인해주세요.")
+            return _("(걱정) 인증에 실패했어요. Settings에서 인증 정보를 OK해주세요.")
         if status == 429:
-            return _("(걱정) 요청 한도를 초과했어요. 잠시 후 다시 시도해주세요.")
+            return _("(걱정) 요청 한도를 초과했어요. 잠시 later 다시 시도해주세요.")
         if isinstance(status, int) and 500 <= status < 600:
-            return _("(걱정) 서버 오류로 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요.")
+            return _("(걱정) 서버 Error로 요청을 처리하지 못했어요. 잠시 later 다시 시도해주세요.")
         if isinstance(error, (ConnectionError, TimeoutError)) or type(error).__name__ in {
             "APIConnectionError", "APITimeoutError", "ConnectError", "ConnectTimeout", "ReadTimeout",
         }:
-            return _("(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 확인해주세요.")
-        return _("(걱정) 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요.")
+            return _("(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 OK해주세요.")
+        return _("(걱정) 요청을 처리하지 못했어요. 잠시 later 다시 시도해주세요.")
 
     def _create_completion_with_fallback(
         self,
@@ -653,7 +653,7 @@ class LLMProvider:
             if self._is_custom_provider(last_backend):
                 raise self._safe_custom_provider_error(last_error) from None
             raise last_error
-        raise RuntimeError("요청을 전송할 연결이 없습니다.")
+        raise RuntimeError("요청을 Send할 연결이 없습니다.")
 
     def _consume_tool_call_stream(self, stream, stream_callback, cancel_event=None):
         text_parts = []
@@ -845,8 +845,8 @@ class LLMProvider:
         role_label = {
             "planner": "플래너",
             "execution": "실행",
-        }.get(role, "기본")
-        return f"{label} {role_label} 모델이 설정되지 않았습니다. 설정에서 선택한 모델을 지정해주세요."
+        }.get(role, "Default")
+        return f"{label} {role_label} 모델이 Settings되지 않았습니다. Settings에서 선택한 모델을 지정해주세요."
 
     def get_role_target(self, role: str) -> tuple[Any, str, str]:
         """역할의 (client, provider, model)을 재구성 도중의 값이 섞이지 않게 한 번에 돌려준다."""
@@ -886,14 +886,14 @@ class LLMProvider:
         if client:
             return client, provider, model
 
-        logging.warning("[LLMRouter] %s 역할 클라이언트가 없어 기본 모델로 폴백합니다.", role)
+        logging.warning("[LLMRouter] %s 역할 클라이언트가 없어 Default 모델로 폴백합니다.", role)
         return self.client, self.provider, self.model
 
     def extract_memory_suggestions(self, user_message: str) -> str:
-        """사용자 발화에서 기억 후보 JSON을 반환한다."""
+        """사용자 발화에서 기억 later보 JSON을 반환한다."""
         client, provider, model = self._get_role_target("memory_extractor")
         if not client or not model:
-            raise RuntimeError("기억 추출 모델이 설정되지 않았습니다.")
+            raise RuntimeError("기억 추출 모델이 Settings되지 않았습니다.")
         instructions = (
             "Extract only personal facts, preferences, and profile details explicitly stated "
             "in the user utterance. Return one JSON object with keys facts, preferences, bio. "
@@ -959,7 +959,7 @@ class LLMProvider:
         if provider == "groq":
             return {"reasoning_format": "hidden"}
         if provider == "nvidia_nim":
-            # Nemotron 3 계열은 추론이 기본으로 켜져 있고 태그 없이 content에 섞인다(모델 카드 기준).
+            # Nemotron 3 계열은 추론이 Default으로 켜져 있고 태그 없이 content에 섞인다(모델 카드 기준).
             return {"chat_template_kwargs": {"enable_thinking": False}}
         return {}
 
@@ -1000,7 +1000,7 @@ class LLMProvider:
             if not client:
                 return self._offline_response(user_message)
             if not model:
-                logging.warning("[LLMProvider] 모델 미설정: provider=%s", provider)
+                logging.warning("[LLMProvider] 모델 미Settings: provider=%s", provider)
                 return self._missing_model_response(provider)
             situation_prompt = (
                 self._build_situation_prompt() if include_history else ""
@@ -1087,7 +1087,7 @@ class LLMProvider:
         except Exception as e:
             if cancel_event is not None and cancel_event.is_set():
                 return ""
-            self._log_provider_exception(logging.error, "LLM chat 오류", provider, e)
+            self._log_provider_exception(logging.error, "LLM chat Error", provider, e)
             return self._error_response(e)
 
     def chat_with_tools(
@@ -1110,7 +1110,7 @@ class LLMProvider:
             if not client:
                 return self._offline_response(user_message), []
             if not model:
-                logging.warning("[LLMProvider] 도구 대화 모델 미설정: provider=%s", provider)
+                logging.warning("[LLMProvider] 도구 대화 모델 미Settings: provider=%s", provider)
                 return self._missing_model_response(provider), []
             self.add_to_history("user", user_message)
             skill_ctx = self._get_skill_context(user_message)
@@ -1195,7 +1195,7 @@ class LLMProvider:
                     ):
                         raise
                     logging.debug(
-                        "[LLMProvider] 사용자 정의 제공자 스트리밍 미지원, 일반 요청으로 폴백"
+                        "[LLMProvider] 사용자 정의 Provider 스트리밍 미지원, General 요청으로 폴백"
                     )
 
             if cancel_event is not None and cancel_event.is_set():
@@ -1273,7 +1273,7 @@ class LLMProvider:
         except Exception as e:
             if cancel_event is not None and cancel_event.is_set():
                 return "", []
-            self._log_provider_exception(logging.error, "LLM chat_with_tools 오류", provider, e)
+            self._log_provider_exception(logging.error, "LLM chat_with_tools Error", provider, e)
             return self._error_response(e), []
 
     def stream_chat(
@@ -1283,7 +1283,7 @@ class LLMProvider:
         on_done: Callable[[str, list], None] | None,
         **kwargs,
     ) -> str:
-        """제공자별 스트리밍 응답을 공통 콜백 인터페이스로 전달한다."""
+        """Provider별 스트리밍 응답을 공통 콜백 인터페이스로 전달한다."""
         cancel_event = kwargs.get("cancel_event") or threading.Event()
         client, provider, model = self._resolve_route(
             str(messages[-1].get("content", "")) if messages else "",
@@ -1375,12 +1375,12 @@ class LLMProvider:
         return full_text
 
     def analyze_image(self, image_path_or_b64: str, prompt: str = "") -> str:
-        """이미지 파일 또는 base64 문자열을 현재 제공자 비전 모델로 분석한다."""
+        """이미지 파일 또는 base64 문자열을 현재 Provider 비전 모델로 분석한다."""
         provider = self.provider
         try:
             from core.config_manager import ConfigManager
             if not bool(ConfigManager.get("vision_enabled", True)):
-                return "이미지 분석 기능이 설정에서 비활성화되어 있습니다."
+                return "이미지 분석 기능이 Settings에서 비활성화되어 있습니다."
         except Exception:
             pass
         if not self._has_any_client():
@@ -1447,7 +1447,7 @@ class LLMProvider:
                 return f"{prompt}\n\n[OCR 결과]\n{text}".strip()
         except Exception as exc:
             logging.debug("[LLMProvider] OCR 폴백 실패: %s", exc)
-        return "현재 제공자에서 이미지 분석을 사용할 수 없습니다."
+        return "현재 Provider에서 이미지 분석을 사용할 수 없습니다."
 
     def feed_tool_result(
         self,
@@ -1470,7 +1470,7 @@ class LLMProvider:
             if not client:
                 return "도구 결과 처리 실패: AI 클라이언트가 없습니다."
             if not model:
-                logging.warning("[LLMProvider] tool_result 모델 미설정: provider=%s", provider)
+                logging.warning("[LLMProvider] tool_result 모델 미Settings: provider=%s", provider)
                 return self._missing_model_response(provider)
             if not tool_calls or len(tool_calls) != len(results):
                 raise ValueError("Every tool call must have exactly one result")
@@ -1509,7 +1509,7 @@ class LLMProvider:
                 ),
             }]
             # 도구 실행 도중 기록이 비워졌으면 이번 요청이 문맥에 없다. 그때만 다시 넣는다.
-            # 문맥용 기록은 긴 메시지를 줄이거나 합치므로 원본 기록으로 확인한다.
+            # 문맥용 기록은 긴 메시지를 줄이거나 합치므로 원본 기록으로 checks.
             with self._history_lock:
                 last_user_text = next(
                     (
@@ -1543,7 +1543,7 @@ class LLMProvider:
         except Exception as e:
             if cancel_event is not None and cancel_event.is_set():
                 return ""
-            self._log_provider_exception(logging.error, "feed_tool_result 오류", provider, e)
+            self._log_provider_exception(logging.error, "feed_tool_result Error", provider, e)
             return self._error_response(e) if self._is_custom_provider(provider) else f"도구 결과 처리 실패: {e}"
 
     @staticmethod
@@ -1652,7 +1652,7 @@ class LLMProvider:
                 self.add_to_history("assistant", msg)
             return msg, tool_calls
         except Exception as e:
-            logging.error("Anthropic API 오류: %s", e)
+            logging.error("Anthropic API Error: %s", e)
             return self._error_response(e), []
 
     def _anthropic_feed_tool_result(self, original_msg, tool_calls, results, model_override="", client_override=None, stream_callback=None):
@@ -1695,7 +1695,7 @@ class LLMProvider:
                 self.add_to_history("assistant", msg)
             return msg
         except Exception as e:
-            logging.error("Anthropic feed 오류: %s", e)
+            logging.error("Anthropic feed Error: %s", e)
             return f"도구 결과 처리 실패: {e}"
 
     def _stream_or_chat_completion(
@@ -1889,7 +1889,7 @@ class LLMProvider:
         return _(
             "[실시간 데이터 응답 지침]\n"
             "- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n"
-            "- 정보가 없으면 '검색 결과에서 확인하지 못했습니다'라고 솔직하게 말하세요.\n"
+            "- 정보가 없으면 '검색 결과에서 OK하지 못했습니다'라고 솔직하게 말하세요.\n"
             "- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
         )
 
@@ -1973,7 +1973,7 @@ class LLMProvider:
 
         elapsed_minutes = metrics.get("last_interaction_elapsed_minutes")
         elapsed_value = (
-            _("없음")
+            _("None")
             if elapsed_minutes is None
             else self._format_situation_duration(elapsed_minutes)
         )
@@ -2002,7 +2002,7 @@ class LLMProvider:
             try:
                 mood_valence, _mood_arousal = mood_state.values()
             except (ArithmeticError, RuntimeError, TypeError, ValueError) as exc:
-                logging.debug("[LLMProvider] 기분 상태 조회 실패: %s", exc)
+                logging.debug("[LLMProvider] Mood state 조회 실패: %s", exc)
             else:
                 if mood_valence >= 0.2:
                     mood_label = _("좋음")
@@ -2061,8 +2061,8 @@ class LLMProvider:
             from i18n.translator import get_language
             lang = get_language()
         except Exception as exc:
-            logging.debug("[LLMProvider] 언어 설정 조회 실패, ko 기본값 사용: %s", exc)
-            lang = "ko"
+            logging.debug("[LLMProvider] language setting lookup failed, using en default: %s", exc)
+            lang = "en"
         _BASE_PROMPT = {
             "ko": "당신은 AI 어시스턴트 아리입니다.",
             "en": "You are Ari, an AI assistant.",
@@ -2074,10 +2074,10 @@ class LLMProvider:
             "ja": "常に日本語で応答してください。",
         }
         parts: List[str] = []
-        base_prompt = self.system_prompt or _BASE_PROMPT.get(lang, _BASE_PROMPT["ko"])
+        base_prompt = self.system_prompt or _BASE_PROMPT.get(lang, _BASE_PROMPT["en"])
         parts.append(self.rp_generator.build_system_prompt(base_prompt))
         parts.append(_get_tool_instruction())
-        parts.append(_LANG_INSTRUCTION.get(lang, _LANG_INSTRUCTION["ko"]))
+        parts.append(_LANG_INSTRUCTION.get(lang, _LANG_INSTRUCTION["en"]))
         time_prompt = ""
         if include_context:
             try:
@@ -2086,7 +2086,7 @@ class LLMProvider:
                 if profile_prompt:
                     parts.append(profile_prompt)
             except Exception as e:
-                logging.debug("[LLM] 사용자 프로파일 주입 실패: %s", e)
+                logging.debug("[LLM] user profile injection failed: %s", e)
             try:
                 from memory.memory_manager import get_memory_manager
                 memory_manager = get_memory_manager()
@@ -2097,7 +2097,7 @@ class LLMProvider:
                 if facts_prompt:
                     parts.append(facts_prompt)
             except Exception as e:
-                logging.debug("[LLM] 사실 주입 실패: %s", e)
+                logging.debug("[LLM] fact injection failed: %s", e)
             try:
                 from memory.memory_manager import get_memory_manager
                 memory_manager = get_memory_manager()
@@ -2146,7 +2146,7 @@ def _build_llm_provider() -> LLMProvider:
         from core.config_manager import ConfigManager
         s = dict(ConfigManager.load_settings())
     except Exception as exc:
-        logging.debug("[LLMProvider] 설정 로드 실패, 기본 LLM 설정 사용: %s", exc)
+        logging.debug("[LLMProvider] Settings 로드 실패, Default LLM Settings 사용: %s", exc)
         s = {}
     from core.custom_llm_providers import custom_api_key_name, normalize_custom_provider_settings
 
@@ -2156,7 +2156,7 @@ def _build_llm_provider() -> LLMProvider:
     def select_provider(setting_key, model_key, fallback):
         selected = s.get(setting_key, "") or fallback
         if selected not in provider_configs:
-            # 역할 제공자는 기본 제공자로, 기본 제공자는 groq로 돌린다.
+            # 역할 Provider는 Default Provider로, Default Provider는 groq로 돌린다.
             selected = fallback if fallback in provider_configs else "groq"
             s[setting_key] = selected
             s[model_key] = ""

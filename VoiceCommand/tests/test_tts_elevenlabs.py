@@ -29,7 +29,7 @@ class ElevenLabsProviderTests(unittest.TestCase):
                     "tts.tts_elevenlabs.get_emotion_details",
                     return_value={"elevenlabs_tag": "[happy]"},
                 ):
-                    payload = provider._speech_payload("Hello", "기쁨")
+                    payload = provider._speech_payload("Hello", "Joy")
 
                 self.assertEqual(payload["text"], "[happy] Hello")
                 self.assertNotIn("voice_settings", payload)
@@ -47,7 +47,7 @@ class ElevenLabsProviderTests(unittest.TestCase):
     def test_non_v3_model_keeps_legacy_emotion_offsets(self):
         provider = ElevenLabsTTS(api_key="test-key", model_id="eleven_multilingual_v2")
 
-        payload = provider._speech_payload("Hello", "기쁨")
+        payload = provider._speech_payload("Hello", "Joy")
 
         self.assertEqual(payload["text"], "Hello")
         self.assertEqual(payload["voice_settings"]["style"], 0.08)

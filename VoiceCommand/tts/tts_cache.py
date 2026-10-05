@@ -67,7 +67,7 @@ class DiskTTSAudioCache:
                 touched_ns = max(time.time_ns(), current.st_mtime_ns + 1)
                 os.utime(path, ns=(current.st_atime_ns, touched_ns))
             except OSError as exc:
-                logger.debug("TTS 캐시 사용 시각 갱신 실패: %s", exc)
+                logger.debug("TTS Cache access time update failed: %s", exc)
             return pcm
 
     def put(self, key, pcm):
@@ -89,13 +89,13 @@ class DiskTTSAudioCache:
                 temporary_path = None
                 self._evict(directory)
             except OSError as exc:
-                logger.debug("TTS 캐시 저장 실패: %s", exc)
+                logger.debug("TTS Cache save failed: %s", exc)
             finally:
                 if temporary_path is not None:
                     try:
                         os.unlink(temporary_path)
                     except OSError as exc:
-                        logger.debug("TTS 캐시 임시 파일 삭제 실패: %s", exc)
+                        logger.debug("TTS Cache temp file deletion failed: %s", exc)
 
     def _evict(self, directory):
         try:

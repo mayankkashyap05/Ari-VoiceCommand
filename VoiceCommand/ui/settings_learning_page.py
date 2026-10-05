@@ -1,4 +1,4 @@
-"""학습 상태와 저장된 교훈을 보여 주는 설정 페이지."""
+"""학습 상태와 Save된 교훈을 보여 주는 Settings 페이지."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -32,7 +32,7 @@ def format_skill_row(skill, usage: dict) -> str:
     rate_text = (
         _("{rate}%").format(rate=success_rate)
         if success_rate is not None
-        else _("표본 없음")
+        else _("표본 None")
     )
     last_used = _format_last_used(str(skill_usage.get("last_used", "") or ""))
     status = _("사용 중") if skill.enabled else _("꺼짐")
@@ -48,7 +48,7 @@ def format_skill_row(skill, usage: dict) -> str:
 
 def _format_last_used(timestamp: str) -> str:
     if not timestamp:
-        return _("기록 없음")
+        return _("기록 None")
     try:
         return datetime.fromisoformat(timestamp).strftime("%Y-%m-%d %H:%M")
     except ValueError:
@@ -65,7 +65,7 @@ class _LearningSettingsPage(QWidget):
         self.skill_list = QListWidget()
         self.skill_list.setMaximumHeight(150)
         skills_layout.addWidget(self.skill_list)
-        self.disable_skill_button = QPushButton(_("이 스킬 끄기"))
+        self.disable_skill_button = QPushButton(_("이 스킬 Off"))
         self.disable_skill_button.setEnabled(False)
         self.disable_skill_button.clicked.connect(self._disable_selected_skill)
         skills_layout.addWidget(self.disable_skill_button)

@@ -37,7 +37,7 @@ def _parse_http_url(url: str, allowed_schemes, *, allow_local: bool):
     except (AttributeError, TypeError, ValueError) as exc:
         raise UnsafeUrlError(f"잘못된 URL입니다. {exc}") from exc
     if scheme not in allowed_schemes:
-        raise UnsafeUrlError(f"허용되지 않은 URL 스킴입니다: {scheme or '없음'}")
+        raise UnsafeUrlError(f"허용되지 않은 URL 스킴입니다: {scheme or 'None'}")
     if not host:
         raise UnsafeUrlError("호스트가 없는 URL입니다.")
     if parsed.username is not None or parsed.password is not None:
@@ -113,7 +113,7 @@ def validate_browser_landing(start_url: str, current_url: str) -> None:
 
 
 def validate_browser_session(driver, start_url: str) -> None:
-    """현재 페이지를 검사하고 위반 시 내용을 비운다. 요청이 전송된 뒤 검사하는 사후 방어다."""
+    """현재 페이지를 검사하고 위반 시 내용을 비운다. 요청이 Send된 뒤 검사하는 사later 방어다."""
     try:
         validate_browser_landing(start_url, str(getattr(driver, "current_url", "") or ""))
     except UnsafeUrlError:
@@ -250,7 +250,7 @@ class _SafeRedirectHandler(urllib.request.HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         count = getattr(req, "_safe_redirect_count", 0) + 1
         if count > self.max_redirects:
-            raise urllib.error.HTTPError(req.full_url, code, "최대 리디렉션 횟수를 초과했습니다.", headers, fp)
+            raise urllib.error.HTTPError(req.full_url, code, "max 리디렉션 횟수를 초과했습니다.", headers, fp)
         _parsed, _host, _port, address = _parse_http_url(newurl, self.allowed_schemes, allow_local=False)
         redirected = super().redirect_request(req, fp, code, msg, headers, newurl)
         if redirected is not None:
@@ -287,8 +287,8 @@ def read_limited(response, max_bytes: int) -> bytes:
     decoder = zlib.decompressobj(wbits)
     output = bytearray()
     truncated = False
-    # 압축 입력에도 상한을 둔다. 출력이 늘지 않는 빈 멤버가 끝없이 이어질 수 있기 때문이다.
-    # 압축 헤더나 압축되지 않는 본문 때문에 입력이 출력보다 조금 클 수 있어 여유를 둔다.
+    # 압축 Input에도 상한을 둔다. 출력이 늘지 않는 빈 멤버가 끝없이 이어질 수 있기 때문이다.
+    # 압축 헤더나 압축되지 않는 본문 때문에 Input이 출력보다 조금 클 수 있어 여유를 둔다.
     input_limit = max_bytes + _COMPRESSED_INPUT_SLACK
     input_size = 0
     first_chunk = True

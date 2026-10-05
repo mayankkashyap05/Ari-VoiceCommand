@@ -31,8 +31,8 @@ class RequestFailureMessageTests(unittest.TestCase):
             (status_error(401), "인증"),
             (status_error(403), "인증"),
             (status_error(429), "요청 한도"),
-            (status_error(500), "서버 오류"),
-            (status_error(503), "서버 오류"),
+            (status_error(500), "서버 Error"),
+            (status_error(503), "서버 Error"),
             (RuntimeError("unknown"), "요청을 처리"),
             (APIConnectionError("connection failed"), "네트워크"),
             (APITimeoutError("timed out"), "네트워크"),
@@ -100,7 +100,7 @@ class RequestFailureMessageTests(unittest.TestCase):
         with patch.object(provider, "_build_system", return_value="system"), \
                 patch.object(provider, "_get_skill_context", return_value={}):
             response, calls = provider.chat_with_tools("안녕")
-        self.assertIn("서버 오류", response)
+        self.assertIn("서버 Error", response)
         self.assertEqual(calls, [])
 
     def test_error_catalogs_compile_with_matching_entries(self):

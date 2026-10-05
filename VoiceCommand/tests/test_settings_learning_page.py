@@ -42,7 +42,7 @@ class LearningSettingsPageFormattingTests(unittest.TestCase):
             label = format_skill_row(skill, {})
 
         self.assertIn("성공률 75%", label)
-        self.assertIn("마지막 사용: 기록 없음", label)
+        self.assertIn("마지막 사용: 기록 None", label)
         self.assertIn("상태: 꺼짐", label)
 
 

@@ -27,7 +27,7 @@ class _FakeAssistant:
 class _AgentTaskAssistant:
     def chat_with_tools(self, text, include_context=True):
         del include_context
-        return "(진지) 바로 처리할게요.", [{
+        return "(Serious) 바로 처리할게요.", [{
             "id": "tool_1",
             "name": "run_agent_task",
             "arguments": {
@@ -83,7 +83,7 @@ class _ToolCallAssistant:
     def feed_tool_result(self, original_text, tool_calls, results, stream_callback=None):
         del original_text, stream_callback
         self.followups.append((tool_calls, results))
-        return "후속 설명 응답입니다."
+        return "later속 설명 응답입니다."
 
     def record_tool_result(self, tool_calls, results, response):
         self.recorded_results.append((tool_calls, results, response))
@@ -363,7 +363,7 @@ class AICommandTests(unittest.TestCase):
         with patch("commands.ai_command.datetime", _FixedDateTime):
             result = command._handle_get_current_time({})
 
-        self.assertEqual(result, "현재 시간은 오후 4시 48분입니다.")
+        self.assertEqual(result, "현재 시간은 오later 4시 48분입니다.")
 
     def test_get_current_time_uses_active_language_translation(self):
         previous_language = get_language()
@@ -382,7 +382,7 @@ class AICommandTests(unittest.TestCase):
             result = command._handle_get_current_time({})
 
         expected_time = _("{ampm} {hour}시 {minute}분").format(
-            ampm=_("오후"),
+            ampm=_("오later"),
             hour=4,
             minute=48,
         )
@@ -433,10 +433,10 @@ class AICommandTests(unittest.TestCase):
         command = AICommand(_FakeAssistant(), lambda msg: None, {"enabled": False})
 
         cleaned = command._sanitize_user_facing_text(
-            '(진지) 알겠습니다. tool_calls: [{"name":"run_agent_task","arguments":{"goal":"Ari autonomy test"}}] 이제 진행할게요.'
+            '(Serious) 알겠습니다. tool_calls: [{"name":"run_agent_task","arguments":{"goal":"Ari autonomy test"}}] 이제 진행할게요.'
         )
 
-        self.assertEqual(cleaned, "(진지) 알겠습니다. 이제 진행할게요.")
+        self.assertEqual(cleaned, "(Serious) 알겠습니다. 이제 진행할게요.")
 
     def test_sanitize_user_facing_text_removes_trailing_symbol_tokens(self):
         command = AICommand(_FakeAssistant(), lambda msg: None, {"enabled": False})
@@ -674,7 +674,7 @@ class AICommandTests(unittest.TestCase):
             (
                 "set_timer",
                 {"minutes": 1},
-                _("타이머는 최대 {max}개까지 설정할 수 있습니다.").format(max=10),
+                _("타이머는 max {max}개까지 설정할 수 있습니다.").format(max=10),
                 "타이머를 설정해줘",
             ),
         )
@@ -696,7 +696,7 @@ class AICommandTests(unittest.TestCase):
                 self.assertEqual(len(assistant.followups), 1)
                 self.assertEqual(assistant.recorded_results[0][1], [result])
                 self.assertEqual(assistant.recorded_results[0][2], "")
-                self.assertIn("후속 설명 응답입니다.", response)
+                self.assertIn("later속 설명 응답입니다.", response)
 
     def test_none_tool_result_is_recorded_as_completed_without_value(self):
         assistant = _ToolCallAssistant([{
@@ -741,7 +741,7 @@ class AICommandTests(unittest.TestCase):
 
         self.assertEqual(
             response,
-            _("기본 브라우저로 웹사이트를 열었습니다: {url}").format(
+            _("Default 브라우저로 웹사이트를 열었습니다: {url}").format(
                 url="https://www.naver.com"
             ),
         )
@@ -762,7 +762,7 @@ class AICommandTests(unittest.TestCase):
 
         self.assertEqual(len(assistant.followups), 1)
         self.assertEqual(assistant.recorded_results[0][1], ["앱", "shot.png"])
-        self.assertIn("후속 설명 응답입니다.", response)
+        self.assertIn("later속 설명 응답입니다.", response)
 
     def test_explanation_request_uses_followup_for_simple_tool(self):
         assistant = _ToolCallAssistant([{
@@ -780,7 +780,7 @@ class AICommandTests(unittest.TestCase):
 
         self.assertEqual(len(assistant.followups), 1)
         self.assertEqual(assistant.recorded_results[0][1], ["메모장"])
-        self.assertIn("후속 설명 응답입니다.", response)
+        self.assertIn("later속 설명 응답입니다.", response)
 
     def test_weather_result_uses_local_response_when_it_is_usable(self):
         assistant = _ToolCallAssistant([{
@@ -818,7 +818,7 @@ class AICommandTests(unittest.TestCase):
             assistant.recorded_results[0][1],
             ['{"focused": false, "title": "메모장"}'],
         )
-        self.assertIn("후속 설명 응답입니다.", response)
+        self.assertIn("later속 설명 응답입니다.", response)
 
     def test_disabling_tool_followup_policy_keeps_llm_followup(self):
         assistant = _ToolCallAssistant([{
@@ -836,7 +836,7 @@ class AICommandTests(unittest.TestCase):
 
         self.assertEqual(len(assistant.followups), 1)
         self.assertEqual(assistant.recorded_results[0][1], ["메모장"])
-        self.assertIn("후속 설명 응답입니다.", response)
+        self.assertIn("later속 설명 응답입니다.", response)
 
     def test_run_interaction_passes_stream_callback_when_supported(self):
         command = AICommand(_StreamingAssistant(), lambda msg: None, {"enabled": False})
@@ -957,10 +957,10 @@ class AICommandTests(unittest.TestCase):
 
     def test_run_agent_task_stores_tool_result_in_conversation_history(self):
         command = AICommand(_AgentTaskAssistant(), lambda msg: None, {"enabled": False})
-        command._dispatch["run_agent_task"] = lambda args: "작업 실패 (2회 시도). 계획 수립에 실패했습니다. 실행 보고서는 바탕화면 Ari Reports 폴더의 agent_run_test.md에 저장했습니다."
+        command._dispatch["run_agent_task"] = lambda args: "작업 실패 (2회 시도). Plan established에 실패했습니다. 실행 보고서는 바탕화면 Ari Reports 폴더의 agent_run_test.md에 저장했습니다."
 
         with patch("memory.memory_manager.get_memory_manager") as memory_manager:
-            combined = command.run_interaction("VoiceCommand 저장소 전체 파악 후 코드 변경 및 검증")
+            combined = command.run_interaction("VoiceCommand 저장소 전체 파악 later 코드 변경 및 검증")
 
         self.assertIn("실행 보고서", combined)
         memory_manager.return_value.process_interaction.assert_called_once()
@@ -1046,7 +1046,7 @@ class AICommandTests(unittest.TestCase):
         self.assertEqual(command._extract_saved_path_from_agent_run(run_result), "")
 
     def test_delayed_shutdown_is_scheduled_not_executed_immediately(self):
-        # P2-5 이후: 지연 종료는 SystemCommand 경로(execute_command)로 라우팅됨
+        # P2-5 이later: 지연 종료는 SystemCommand 경로(execute_command)로 라우팅됨
         command = AICommand(_FakeAssistant(), lambda msg: None, {"enabled": False})
         command._current_goal = "5분 뒤에 컴퓨터 꺼줘"
 
@@ -1059,7 +1059,7 @@ class AICommandTests(unittest.TestCase):
         self.assertTrue(executed_cmds, "execute_command가 호출되지 않음")
         self.assertTrue(
             any("5분" in cmd for cmd in executed_cmds),
-            f"5분이 포함된 명령 없음: {executed_cmds}",
+            f"5분이 포함된 명령 None: {executed_cmds}",
         )
 
     def test_handle_mcp_call_routes_through_mcp_pool(self):
@@ -1099,7 +1099,7 @@ class AICommandTests(unittest.TestCase):
 
         recovered = command._recover_tool_calls_from_response(
             "컴퓨터 꺼줘",
-            "(진지) 지금 컴퓨터를 종료하면 진행 중인 작업이 모두 중단됩니다. "
+            "(Serious) 지금 컴퓨터를 종료하면 진행 중인 작업이 모두 중단됩니다. "
             "혹시 저장 안 한 코드나 작업이 있으신가요? 정말 꺼드릴까요?",
         )
 
@@ -1278,7 +1278,7 @@ class AICommandTests(unittest.TestCase):
                 return cls(2026, 3, 25, 3, 31, 51)
 
         with patch("commands.ai_command.datetime", _FixedDateTime):
-            next_run, repeat, repeat_seconds = command._parse_schedule("5분 후")
+            next_run, repeat, repeat_seconds = command._parse_schedule("5분 later")
 
         self.assertEqual(next_run, datetime(2026, 3, 25, 3, 36, 51))
         self.assertFalse(repeat)

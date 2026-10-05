@@ -35,7 +35,7 @@ def _profile_from_dict(data) -> UserProfile:
 
 
 class UserProfileEngine:
-    """프로필은 user_context.json의 "profile" 키에 저장한다."""
+    """프로필은 user_context.json의 "profile" 키에 Save한다."""
 
     def __init__(self, context_manager=None):
         if context_manager is None:
@@ -69,7 +69,7 @@ class UserProfileEngine:
                 backup_corrupt_file(self.file_path)
             except OSError as backup_error:
                 logging.error("[UserProfile] 손상 파일 백업 실패: %s", backup_error)
-            logging.warning("[UserProfile] JSON 로드 실패: %s", exc)
+            logging.warning("[UserProfile] JSON load failed: %s", exc)
             return UserProfile()
         except (OSError, TypeError, ValueError, AttributeError) as exc:
             logging.warning("[UserProfile] 로드 실패: %s", exc)
@@ -77,7 +77,7 @@ class UserProfileEngine:
 
     def _save(self):
         if not self._context.save_profile_data(asdict(self.profile)):
-            logging.warning("[UserProfile] 저장 실패")
+            logging.warning("[UserProfile] Save 실패")
 
     def update(self, user_msg: str, command_type: str = "", success: bool = True):
         text = (user_msg or "").lower()
@@ -93,7 +93,7 @@ class UserProfileEngine:
             "코딩": ("코드", "파이썬", "python", "개발", "버그", "리팩토링", "테스트"),
             "자동화": ("자동화", "스케줄", "예약", "반복", "워크플로"),
             "요리": ("요리", "레시피", "음식"),
-            "미디어": ("음악", "영화", "유튜브", "영상"),
+            "미디어": ("음악", "zero화", "YouTube", "zero상"),
         }
         for area, keywords in expertise_keywords.items():
             if any(keyword in text for keyword in keywords):

@@ -83,7 +83,7 @@ class _AutomationHelpersCore:
         """파일 탐색기 등으로 경로를 열거나 파일을 실행한다."""
         normalized = os.path.abspath(path)
         if not os.path.exists(normalized):
-            raise FileNotFoundError(f"열 경로를 찾지 못했습니다: {path}")
+            raise FileNotFoundError(f"열 Path not found: {path}")
         self._shell_open(normalized)
         return path
 
@@ -91,7 +91,7 @@ class _AutomationHelpersCore:
         """이름 또는 경로로 앱을 실행한다."""
         normalized = (target or "").strip().strip('"')
         if not normalized:
-            raise ValueError("실행할 대상이 비어 있습니다.")
+            raise ValueError("Execution target is empty.")
 
         if os.path.exists(normalized):
             self._shell_open(os.path.abspath(normalized))
@@ -111,7 +111,7 @@ class _AutomationHelpersCore:
             if site_name == " ".join(alias.split()).casefold():
                 return self.open_url(url)
 
-        raise FileNotFoundError(f"실행 가능한 앱을 찾지 못했습니다: {target}")
+        raise FileNotFoundError(f"Could not find executable app: {target}")
 
     def _resolve_executable_target(self, target: str) -> str:
         normalized = (target or "").strip().strip('"')
@@ -179,7 +179,7 @@ class _AutomationHelpersCore:
         return False
 
     def is_image_visible(self, image_path: str, confidence: float = 0.8) -> bool:
-        """지정한 이미지가 현재 화면에 보이는지 읽기 전용으로 확인한다."""
+        """지정한 이미지가 현재 화면에 보이는지 읽기 전용으로 OK한다."""
         pg = self._get_pyautogui()
         try:
             pos = pg.locateCenterOnScreen(image_path, confidence=confidence)
@@ -195,7 +195,7 @@ class _AutomationHelpersCore:
         return f"{x},{y}"
 
     def type_text(self, text: str, interval: float = 0.01, use_clipboard: bool = True) -> str:
-        """텍스트를 입력한다. 한글 대응을 위해 기본적으로 클립보드를 사용한다."""
+        """텍스트를 Input한다. 한글 대응을 위해 Default적으로 클립보드를 사용한다."""
         pg = self._get_pyautogui()
         if use_clipboard:
             try:
@@ -203,7 +203,7 @@ class _AutomationHelpersCore:
                 pg.hotkey("ctrl", "v")
                 return text
             except Exception as exc:
-                logging.debug("[AutomationHelpers] 클립보드 붙여넣기 실패, write 모드로 전환: %s", exc)
+                logging.debug("[AutomationHelpers] 클립보드 Paste failed, switching to write mode: %s", exc)
                 use_clipboard = False
         pg.write(text, interval=interval)
         return text
@@ -278,7 +278,7 @@ class _AutomationHelpersCore:
                 self.remember_window_target(goal_hint or title_substring, win.title)
                 return True
             except Exception as exc:
-                logging.debug("[AutomationHelpers] 창 활성화 실패: %s", exc)
+                logging.debug("[AutomationHelpers] Window activation failed: %s", exc)
                 return False
         return False
 
@@ -292,7 +292,7 @@ class _AutomationHelpersCore:
                 self.remember_window_target(goal_hint or title_substring, win.title)
                 return win.title
             time.sleep(0.5)
-        raise TimeoutError(f"창을 찾지 못했습니다: {target}")
+        raise TimeoutError(f"Window not found: {target}")
 
     def wait_for_window_state(self, title_substring: str, minimum_count: int = 1, timeout: float = 10.0) -> dict:
         """특정 창이 원하는 개수 이상 나타날 때까지 대기한다."""
@@ -302,7 +302,7 @@ class _AutomationHelpersCore:
             if state["count"] >= minimum_count:
                 return state
             time.sleep(0.5)
-        raise TimeoutError(f"창 상태를 만족하지 못했습니다: {title_substring} >= {minimum_count}")
+        raise TimeoutError(f"Window state not satisfied: {title_substring} >= {minimum_count}")
 
     # ── 클립보드 및 기타 ────────────────────────────────────────────────────────
 
@@ -347,7 +347,7 @@ class _AutomationHelpersCore:
             from webdriver_manager.chrome import ChromeDriverManager
             from selenium.webdriver.chrome.service import Service
         except ImportError as e:
-            raise RuntimeError("selenium / webdriver-manager가 설치되어야 합니다.") from e
+            raise RuntimeError("selenium / webdriver-manager가 must be installed.") from e
 
         options = Options()
         if headless:
@@ -362,7 +362,7 @@ class _AutomationHelpersCore:
             wait = WebDriverWait(driver, 20)
             password_selector = password_selector or "input[type='password']"
             
-            # 자격 증명을 입력하기 직전마다 현재 주소를 다시 확인한다.
+            # 자격 증명을 Input하기 직전마다 현재 주소를 다시 OK한다.
             user_el = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, username_selector)))
             validate_browser_session(driver, url)
             user_el.clear()
@@ -384,7 +384,7 @@ class _AutomationHelpersCore:
         except UnsafeUrlError:
             raise
         except Exception as exc:
-            raise RuntimeError(f"브라우저 로그인 자동화 실패: {exc}") from exc
+            raise RuntimeError(f"Browser login automation failed: {exc}") from exc
         finally:
             if headless and driver is not None:
                 try:
@@ -689,7 +689,7 @@ class _AutomationHelpersCore:
         fallback_actions: Optional[List[dict]] = None,
         headless: bool = False,
     ) -> dict:
-        """과거 성공 브라우저 전략을 우선 적용하고 없으면 fallback으로 실행."""
+        """과거 성공 브라우저 전략을 우선 Apply하고 없으면 fallback으로 실행."""
         plan = self.build_adaptive_browser_plan(url=url, goal_hint=goal_hint, fallback_actions=fallback_actions)
         result = self.run_browser_actions((url or "").strip(), actions=plan["actions"], headless=headless, goal_hint=goal_hint)
         result["adaptive_plan"] = plan
@@ -826,7 +826,7 @@ class _AutomationHelpersCore:
         actions: Optional[List[dict]] = None,
         timeout: float = 10.0,
     ) -> dict:
-        """앱 실행/창 대기/포커스/후속 액션을 하나의 데스크톱 워크플로우로 수행한다."""
+        """앱 실행/창 대기/포커스/later속 액션을 하나의 데스크톱 워크플로우로 수행한다."""
         actions = actions or self.get_desktop_workflow_plan(goal_hint)
         opened = ""
         window_title = ""
@@ -838,7 +838,7 @@ class _AutomationHelpersCore:
                 window_title = self.wait_for_window(expected_window, timeout=timeout, goal_hint=goal_hint)
                 self.focus_window(expected_window, goal_hint=goal_hint)
         except Exception as exc:
-            action_results.append(f"오류: setup ({str(exc)[:60]})")
+            action_results.append(f"Error: setup ({str(exc)[:60]})")
 
         for action in actions:
             try:
@@ -852,7 +852,7 @@ class _AutomationHelpersCore:
                 )
             except Exception as e:
                 act_type = (action.get("type") or "").strip()
-                action_results.append(f"오류: {act_type} ({str(e)[:60]})")
+                action_results.append(f"Error: {act_type} ({str(e)[:60]})")
 
         if goal_hint and actions and self._should_remember_desktop_workflow(action_results):
             self.remember_desktop_workflow_plan(goal_hint, actions)
@@ -872,7 +872,7 @@ class _AutomationHelpersCore:
         fallback_actions: Optional[List[dict]] = None,
         timeout: float = 10.0,
     ) -> dict:
-        """과거 성공 데스크톱 전략을 우선 적용하고 없으면 fallback으로 실행."""
+        """과거 성공 데스크톱 전략을 우선 Apply하고 없으면 fallback으로 실행."""
         plan = self.build_adaptive_desktop_plan(
             goal_hint=goal_hint,
             expected_window=expected_window,
@@ -1110,21 +1110,21 @@ class _AutomationHelpersCore:
             pyautogui.FAILSAFE = True
             return pyautogui
         except ImportError as e:
-            raise RuntimeError("pyautogui가 설치되어야 합니다.") from e
+            raise RuntimeError("pyautogui가 must be installed.") from e
 
     def _get_pyperclip(self):
         try:
             import pyperclip
             return pyperclip
         except ImportError as e:
-            raise RuntimeError("pyperclip이 설치되어야 합니다.") from e
+            raise RuntimeError("pyperclip이 must be installed.") from e
 
     def _get_pygetwindow(self):
         try:
             import pygetwindow
             return pygetwindow
         except ImportError as e:
-            raise RuntimeError("pygetwindow가 설치되어야 합니다.") from e
+            raise RuntimeError("pygetwindow가 must be installed.") from e
 
     def _shell_open(self, target: str):
         if os.name != "nt":

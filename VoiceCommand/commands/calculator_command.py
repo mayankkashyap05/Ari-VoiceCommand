@@ -9,7 +9,7 @@ _EXPRESSION = re.compile(r'(-?\d+\.?\d*)\s*([+\-*/])\s*(-?\d+\.?\d*)')
 def _normalize(text: str) -> str:
     # 한글 연산자를 기호로 변환
     text = text.replace("더하기", "+").replace("플러스", "+")
-    text = text.replace("빼기", "-").replace("마이너스", "-")
+    text = text.replace("빼기", "-").replace("minus", "-")
     text = text.replace("곱하기", "*").replace("곱", "*").replace("×", "*").replace("x", "*")
     return text.replace("나누기", "/").replace("÷", "/")
 
@@ -52,5 +52,5 @@ class CalculatorCommand(BaseCommand):
                 self._tts("계산할 수식을 이해하지 못했습니다")
 
         except Exception as e:
-            logging.error(f"계산 오류: {e}")
+            logging.error(f"계산 Error: {e}")
             self._tts("계산에 실패했습니다")

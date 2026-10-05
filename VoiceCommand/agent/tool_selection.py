@@ -7,8 +7,8 @@ def _get_tool_instruction() -> str:
         from i18n.translator import get_language
         lang = get_language()
     except Exception as exc:
-        logging.debug("[LLMProvider] 도구 지침 언어 조회 실패, ko 기본값 사용: %s", exc)
-        lang = "ko"
+        logging.debug("[LLMProvider] tool instruction language lookup failed, using en default: %s", exc)
+        lang = "en"
     if lang == "en":
         return (
             "[Tool Usage Guidelines]\n"
@@ -24,8 +24,8 @@ def _get_tool_instruction() -> str:
     return (
         "[도구 사용 지침]\n"
         "- 사용자의 PC 동작 요청은 적절한 도구를 우선 호출하세요.\n"
-        "- 위험하거나 파괴적인 작업은 명확한 의도를 확인하세요.\n"
-        "- URL/코드/영문 명칭은 손상시키지 마세요."
+        "- 위험하거나 파괴적인 작업은 명확한 의도를 OK하세요.\n"
+        "- URL/코드/zero문 명칭은 손상시키지 마세요."
     )
 
 _CORE_TOOL_NAMES = {

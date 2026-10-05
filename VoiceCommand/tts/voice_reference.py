@@ -29,5 +29,5 @@ def get_reference_wav(settings: dict | None = None) -> str:
 
 
 def get_reference_text(settings: dict | None = None) -> str:
-    """기존 CosyVoice 참조 대본 설정을 공통으로 돌려준다."""
+    """기존 CosyVoice 참조 대본 Settings을 공통으로 돌려준다."""
     return str(_settings(settings).get("cosyvoice_reference_text", "") or "")

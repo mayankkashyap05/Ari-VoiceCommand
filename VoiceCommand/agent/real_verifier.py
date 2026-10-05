@@ -1,4 +1,4 @@
-"""실행 결과를 휴리스틱·OCR·코드·LLM로 다단계 검증하는 엔진."""
+"""실행 결과를 휴리스틱·OCR·코드·LLM로 다steps 검증하는 엔진."""
 
 import logging
 import os
@@ -20,18 +20,18 @@ from agent.safety_checker import DangerLevel, get_safety_checker
 from i18n.translator import _
 
 _VERIFY_CODE_PROMPT = """\
-다음 목표가 실제로 달성됐는지 확인하는 파이썬 검증 코드를 작성하세요.
+다음 목표가 실제로 달성됐는지 OK하는 파이썬 검증 코드를 작성하세요.
 
 목표: {goal}
 
-실행된 단계와 출력:
+실행된 steps와 출력:
 {steps_summary}
 
 검증 요구사항:
-1. 목표 달성 여부를 '실제 상태'로 확인하세요.
+1. 목표 달성 여부를 '실제 상태'로 OK하세요.
    - 파일 작업: os.path.exists(path) 등을 사용
    - 창/앱 실행: get_active_window_title(), find_window("제목"), focus_window("제목") 없는 읽기 전용 검사 활용
-   - 웹 브라우저: get_browser_state(), get_browser_current_url(), 창 제목 확인
+   - 웹 브라우저: get_browser_state(), get_browser_current_url(), 창 제목 OK
    - 다운로드: wait_for_download() 같은 상태 헬퍼는 사용 가능하되 새 다운로드를 시작하지 마세요
 2. 주의: 브라우저 열기(open_url), 앱 실행(launch_app) 등 상태를 변화시키는 함수를 다시 호출하지 마세요. (읽기 전용 검증)
 3. 마지막 줄에 반드시 True 또는 False를 print()로 출력하세요.
@@ -68,7 +68,7 @@ _DEVELOPER_FAILURE_HINTS = (
     "error:",
     "no module named",
     "modulenotfounderror",
-    "계획 수립에 실패",
+    "Plan established에 실패",
     "실행 실패",
 )
 _CONTINUE_SYNTAX_HINTS = (
@@ -87,7 +87,7 @@ class VerificationResult:
 
 
 class RealVerifier:
-    """검증 코드를 실제로 실행하여 목표 달성 여부를 확인한다."""
+    """검증 코드를 실제로 실행하여 목표 달성 여부를 OK한다."""
 
     def __init__(self, llm_provider, executor):
         self.llm = llm_provider
@@ -137,7 +137,7 @@ class RealVerifier:
                     verified=False,
                     method="heuristic",
                     evidence=(exec_r.error or exec_r.output or "")[:200],
-                    summary=_("일부 단계가 실패하여 목표를 달성하지 못했습니다."),
+                    summary=_("일부 steps가 실패하여 목표를 달성하지 못했습니다."),
                 )
             outputs.append((exec_r.output or "").strip())
             state_delta_summary = str(getattr(exec_r, "state_delta_summary", "") or "").strip()
@@ -181,7 +181,7 @@ class RealVerifier:
                 verified=True,
                 method="heuristic",
                 evidence=visible_image[:200],
-                summary=_("화면 이미지 인식을 통해 목표 상태를 확인했습니다."),
+                summary=_("화면 이미지 인식을 통해 목표 상태를 OK했습니다."),
             )
 
         return None
@@ -211,7 +211,7 @@ class RealVerifier:
         return VerificationResult(
             bool(evidence), "heuristic", evidence[:200],
             _("브라우저 또는 앱 상태가 목표와 일치해 작업을 완료했습니다.")
-            if evidence else _("요청한 대상의 실제 상태를 확인하지 못했습니다."),
+            if evidence else _("요청한 대상의 실제 상태를 OK하지 못했습니다."),
         )
 
     def _is_developer_goal(self, goal: str) -> bool:
@@ -231,7 +231,7 @@ class RealVerifier:
             description = getattr(step, "description_kr", "") or ""
             output = str(getattr(exec_r, "output", "") or "")
             error = str(getattr(exec_r, "error", "") or "")
-            # 검증 힌트는 실행 출력에서만 확인 — content/description 에는 validate_repo.py
+            # 검증 힌트는 실행 출력에서만 OK — content/description 에는 validate_repo.py
             # 소스 코드가 포함될 수 있어 오판 방지를 위해 output/error 만 사용
             exec_output_only = "\n".join([output, error]).lower()
 
@@ -244,7 +244,7 @@ class RealVerifier:
                         verified=False,
                         method="developer",
                         evidence=(error or output)[:200],
-                        summary=_("검증 단계가 실패하여 저장소 작업을 완료하지 못했습니다."),
+                        summary=_("검증 steps가 실패하여 Save소 작업을 완료하지 못했습니다."),
                     )
                 validation_outputs.append("\n".join(part for part in [description, output, error] if part).strip())
 
@@ -257,7 +257,7 @@ class RealVerifier:
                 verified=False,
                 method="developer",
                 evidence=validation_outputs[-1][:200],
-                summary=_("검증 로그에 실패 신호가 남아 있어 저장소 작업이 완료되지 않았습니다."),
+                summary=_("검증 로그에 실패 신호가 남아 있어 Save소 작업이 완료되지 않았습니다."),
             )
 
         if any(token in joined for token in _DEVELOPER_SUCCESS_HINTS) or (
@@ -267,14 +267,14 @@ class RealVerifier:
                 verified=True,
                 method="developer",
                 evidence=validation_outputs[-1][:200],
-                summary=_("코드 변경 후 저장소 검증 명령이 성공적으로 완료됐습니다."),
+                summary=_("코드 변경 later Save소 검증 명령이 성공적으로 완료됐습니다."),
             )
 
         return VerificationResult(
             verified=False,
             method="developer",
             evidence=validation_outputs[-1][:200],
-            summary=_("검증 단계는 있었지만 성공 신호가 명확하지 않아 저장소 작업을 완료로 볼 수 없습니다."),
+            summary=_("검증 steps는 있었지만 성공 신호가 명확하지 않아 Save소 작업을 완료로 볼 수 없습니다."),
         )
 
     def _extract_goal_folder_name(self, goal: str) -> str:
@@ -324,7 +324,7 @@ class RealVerifier:
             method="ocr",
             evidence=evidence[:200],
             summary=_(
-                "화면 OCR에서 목표 관련 텍스트를 확인했습니다. ({found}/{total})",
+                "화면 OCR에서 목표 관련 텍스트를 OK했습니다. ({found}/{total})",
                 found=len(keywords_found),
                 total=len(expected_keywords),
             ),
@@ -356,14 +356,14 @@ class RealVerifier:
             exec_r = getattr(sr, "exec_result", sr)
             desc = getattr(sr.step, "description_kr", "") if hasattr(sr, "step") else ""
             status = "성공" if exec_r.success else "실패"
-            out = (exec_r.output or exec_r.error or "없음")[:100]
-            lines.append(f"  단계 {i+1} [{status}] {desc}: {out}")
+            out = (exec_r.output or exec_r.error or "None")[:100]
+            lines.append(f"  steps {i+1} [{status}] {desc}: {out}")
             
             extracted = extract_artifacts([exec_r.output or "", exec_r.error or ""])
             artifacts["paths"].extend(extracted["paths"])
             artifacts["urls"].extend(extracted["urls"])
 
-        steps_summary = "\n".join(lines) or "  (단계 정보 없음)"
+        steps_summary = "\n".join(lines) or "  (steps 정보 None)"
         artifact_lines = []
         if artifacts["paths"]:
             artifact_lines.append("관측된 경로: " + ", ".join(set(artifacts["paths"]))[:400])
@@ -377,7 +377,7 @@ class RealVerifier:
         try:
             code = self._call_planner_llm(
                 prompt,
-                system_override="파이썬 검증 코드만 반환하세요. 설명·마크다운 없음.",
+                system_override="파이썬 검증 코드만 반환하세요. 설명·마크다운 None.",
             )
             code = _RE_CODE_FENCE.sub("", code).strip()
             if not self._looks_like_python_code(code):
@@ -447,13 +447,13 @@ class RealVerifier:
                         if has_fallback and delay >= 8.0:
                             next_model = candidates[candidate_index + 1][2]
                             logging.warning(
-                                f"[RealVerifier] {target_model} 장기 대기 오류({delay:.1f}s) → 선택된 대체 모델 {next_model}로 즉시 전환: {error_for_log}"
+                                f"[RealVerifier] {target_model} 장기 대기 Error({delay:.1f}s) → 선택된 대체 모델 {next_model}로 즉시 전환: {error_for_log}"
                             )
                             failed = True
                             break
                         if attempt < 2 and is_retryable_llm_error(e):
                             logging.warning(
-                                f"[RealVerifier] LLM 일시 오류 ({target_model}) → {delay:.1f}s 대기 후 재시도: {error_for_log}"
+                                f"[RealVerifier] LLM 일시 Error ({target_model}) → {delay:.1f}s 대기 later 재시도: {error_for_log}"
                             )
                             time.sleep(delay)
                             continue
@@ -464,7 +464,7 @@ class RealVerifier:
                             )
                             failed = True
                             break
-                        logging.error(f"[RealVerifier] LLM 호출 오류 ({target_model}): {error_for_log}")
+                        logging.error(f"[RealVerifier] LLM 호출 Error ({target_model}): {error_for_log}")
                         # 이어받기 중에 실패하면 잘린 코드를 돌려주지 않는다.
                         return ""
                 if failed:
@@ -535,7 +535,7 @@ class RealVerifier:
     def _run_verification(self, code: str) -> Optional[VerificationResult]:
         """검증 코드를 실행하고 결과 해석."""
         try:
-            # 검증 코드는 아래에서 안전 확인 없이 실행되므로 읽기 전용이면서 안전 검사도 통과해야 한다.
+            # 검증 코드는 아래에서 안전 OK 없이 실행되므로 읽기 전용이면서 안전 검사도 통과해야 한다.
             if (
                 not is_read_only_step_content(code, "verification code")
                 or get_safety_checker().check_python(code).level is not DangerLevel.SAFE
@@ -569,7 +569,7 @@ class RealVerifier:
                 ),
             )
         except Exception as e:
-            logging.error(f"[RealVerifier] 검증 실행 오류: {e}")
+            logging.error(f"[RealVerifier] 검증 실행 Error: {e}")
             return None
 
     def _llm_verify(self, goal: str, step_results: list) -> VerificationResult:

@@ -17,7 +17,7 @@ class _SafeAudioDiagnosticThread(AudioDiagnosticThread):
 
 class AudioDiagnosticPanel(QGroupBox):
     def __init__(self, input_device, output_device, parent=None):
-        super().__init__(_("마이크 및 스피커 진단"), parent)
+        super().__init__(_("Microphone 및 스피커 진단"), parent)
         self._input_device = input_device
         self._output_device = output_device
         self._thread: AudioDiagnosticThread | None = None
@@ -25,18 +25,18 @@ class AudioDiagnosticPanel(QGroupBox):
         self._closing = False
 
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(_("마이크 입력 레벨:")))
+        layout.addWidget(QLabel(_("Microphone Input 레벨:")))
         self.level_bar = QProgressBar()
         self.level_bar.setRange(0, 100)
         self.level_bar.setFormat("%p%")
         layout.addWidget(self.level_bar)
 
         buttons = QHBoxLayout()
-        self.monitor_button = QPushButton(_("마이크 레벨 확인"))
+        self.monitor_button = QPushButton(_("Microphone 레벨 OK"))
         self.monitor_button.setStyleSheet(secondary_btn_style())
         self.monitor_button.clicked.connect(self._toggle_monitor)
         buttons.addWidget(self.monitor_button)
-        self.record_button = QPushButton(_("3초 녹음 후 재생"))
+        self.record_button = QPushButton(_("3초 녹음 later play"))
         self.record_button.setStyleSheet(secondary_btn_style())
         self.record_button.clicked.connect(self._start_record_playback)
         buttons.addWidget(self.record_button)
@@ -53,7 +53,7 @@ class AudioDiagnosticPanel(QGroupBox):
         if self._thread is not None and self._thread.isRunning():
             if self._mode == "monitor":
                 self._thread.requestInterruption()
-                self.status.setText(_("마이크 확인을 중지하고 있습니다..."))
+                self.status.setText(_("Microphone OK을 중지하고 있습니다..."))
             return
         self._start(monitor_only=True)
 
@@ -64,10 +64,10 @@ class AudioDiagnosticPanel(QGroupBox):
     def _start(self, monitor_only: bool):
         self._closing = False
         self._mode = "monitor" if monitor_only else "record_playback"
-        self.monitor_button.setText(_("중지") if monitor_only else _("마이크 레벨 확인"))
+        self.monitor_button.setText(_("중지") if monitor_only else _("Microphone 레벨 OK"))
         self.record_button.setEnabled(not monitor_only)
         self.status.setText(
-            _("마이크 입력을 확인하고 있습니다...")
+            _("Microphone Input을 OK하고 있습니다...")
             if monitor_only
             else _("3초 동안 녹음하고 있습니다. 잠시 말씀해 주세요...")
         )
@@ -87,7 +87,7 @@ class AudioDiagnosticPanel(QGroupBox):
             return
         self._thread = None
         self._mode = ""
-        self.monitor_button.setText(_("마이크 레벨 확인"))
+        self.monitor_button.setText(_("Microphone 레벨 OK"))
         self.record_button.setEnabled(True)
         if message:
             self.status.setText(message)

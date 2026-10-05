@@ -34,7 +34,7 @@ _MAX_LESSON_LEN = 400
 
 
 def _sanitize(text: str, max_len: int) -> str:
-    """개행·제어문자 이스케이프 후 최대 길이 제한."""
+    """개행·제어문자 이스케이프 later max 길이 제한."""
     cleaned = str(text or "").replace("\r", " ").replace("\n", " ").replace("\x00", "")
     return cleaned[:max_len]
 
@@ -42,14 +42,14 @@ def _sanitize(text: str, max_len: int) -> str:
 def _get_fix_suggestions() -> dict[str, str]:
     return {
         "timeout": _("대기 시간을 늘리거나 비동기 폴링 방식으로 전환하고, 재시도 횟수를 명시하세요."),
-        "permission_denied": _("관리자 권한 없이 접근 가능한 경로를 먼저 확인하거나, 권한 요청 단계를 선행하세요."),
-        "missing_module": _("필요한 패키지가 없습니다. pip install로 설치 단계를 먼저 실행하거나 표준 라이브러리로 대체하세요."),
-        "missing_resource": _("파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 단계를 먼저 실행하세요."),
+        "permission_denied": _("관리자 권한 없이 접근 가능한 경로를 먼저 OK하거나, 권한 요청 steps를 선행하세요."),
+        "missing_module": _("필요한 패키지가 없습니다. pip install로 설치 steps를 먼저 실행하거나 표준 라이브러리로 대체하세요."),
+        "missing_resource": _("파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 steps를 먼저 실행하세요."),
         "syntax_error": _("코드의 들여쓰기와 따옴표를 재검토하고, 더 단순한 구조로 재작성하세요."),
-        "code_generation_error": _("사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 확인하세요."),
+        "code_generation_error": _("사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 OK하세요."),
         "network_error": _("요청에 타임아웃과 재시도 로직을 추가하고, 오프라인 대안을 검토하세요."),
-        "user_cancelled": _("파괴적 작업 전에 사용자에게 미리 알리고, 취소 시 롤백 단계를 포함하세요."),
-        "execution_failed": _("단계를 더 작게 나누고, 각 단계의 사전 조건을 검증하는 로직을 추가하세요."),
+        "user_cancelled": _("파괴적 작업 전에 사용자에게 미리 알리고, Cancel 시 롤백 steps를 포함하세요."),
+        "execution_failed": _("steps를 더 작게 나누고, 각 steps의 사전 조건을 검증하는 로직을 추가하세요."),
     }
 
 
@@ -61,17 +61,17 @@ def _get_avoid_patterns() -> dict[str, List[str]]:
             _("관리자 권한 검증 없이 레지스트리 접근"),
         ],
         "missing_module": [
-            _("설치 확인 없이 외부 패키지 직접 import"),
+            _("설치 OK 없이 외부 패키지 직접 import"),
             _("표준 라이브러리 대체 없이 선택 패키지 의존"),
         ],
-        "missing_resource": [_("존재 확인 없이 파일·경로 사용"), _("상대 경로만으로 파일 탐색")],
+        "missing_resource": [_("존재 OK 없이 파일·경로 사용"), _("상대 경로만으로 파일 탐색")],
         "syntax_error": [_("복잡한 중첩 코드 단일 블록 생성"), _("탭·스페이스 혼합 들여쓰기")],
         "code_generation_error": [
-            _("미확인 모듈명 직접 사용"),
+            _("미OK 모듈명 직접 사용"),
             _("선택적 패키지 동적 import 없이 참조"),
         ],
         "network_error": [_("재시도 없는 단일 HTTP 요청"), _("타임아웃 없는 네트워크 호출")],
-        "user_cancelled": [_("확인 없이 파괴적 작업 실행")],
+        "user_cancelled": [_("OK 없이 파괴적 작업 실행")],
         "execution_failed": [_("동일 실패 패턴 조건 변경 없이 반복")],
     }
 
@@ -156,9 +156,9 @@ class ReflectionEngine:
         prompt = (
             f"목표: {_sanitize(goal, _MAX_GOAL_LEN)}\n"
             f"분류된 실패 원인: {root_cause}\n"
-            f"대표 오류: {_sanitize(primary_failure, _MAX_FAILURE_LEN)}\n"
-            f"최근 단계 이력:\n{chr(10).join(history_lines) if history_lines else '- 없음'}\n"
-            f"과거 동일 원인 교훈:\n{chr(10).join(f'- {item}' for item in prior_lessons) if prior_lessons else '- 없음'}\n\n"
+            f"대표 Error: {_sanitize(primary_failure, _MAX_FAILURE_LEN)}\n"
+            f"최근 steps 이력:\n{chr(10).join(history_lines) if history_lines else '- None'}\n"
+            f"과거 동일 원인 교훈:\n{chr(10).join(f'- {item}' for item in prior_lessons) if prior_lessons else '- None'}\n\n"
             "다음 JSON 객체만 반환하세요:\n"
             '{"lesson":"핵심 교훈","avoid_patterns":["피해야 할 접근"],"fix_suggestion":"추천 수정 방향"}'
         )

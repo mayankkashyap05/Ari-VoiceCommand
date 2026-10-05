@@ -95,7 +95,7 @@ class AgentIntegrationTests(unittest.TestCase):
             with open(report_path, "r", encoding="utf-8") as handle:
                 report = handle.read()
             self.assertIn("## 브라우저 관련 창 (서비스 기준)", report)
-            self.assertIn("## 일반 앱 창 (앱 종류 기준)", report)
+            self.assertIn("## 일반 앱 창 (앱 types 기준)", report)
             self.assertIn("## 브라우저 탭 추정", report)
             self.assertIn("## 원본 창 제목 목록", report)
             self.assertIn("## 선택한 전략", report)
@@ -106,7 +106,7 @@ class AgentIntegrationTests(unittest.TestCase):
             planner = AgentPlanner(DummyLLMProvider())
             executor = AutonomousExecutor()
             executor.execution_globals["desktop_path"] = tmp
-            goal = "바탕화면에 Ari workspace audit 폴더를 만들고, 현재 열린 창 제목들을 수집해서 브라우저 관련 창과 일반 앱 창으로 분류한 markdown 보고서를 저장합니다. 브라우저 창은 도메인이나 서비스 이름 기준으로 묶고, 일반 앱 창은 앱 종류별로 묶어서 정리합니다. 같은 이름 파일이 이미 있으면 자동으로 백업하고 안전하게 덮어써줍니다."
+            goal = "바탕화면에 Ari workspace audit 폴더를 만들고, 현재 열린 창 제목들을 수집해서 브라우저 관련 창과 일반 앱 창으로 분류한 markdown 보고서를 저장합니다. 브라우저 창은 도메인이나 서비스 이름 기준으로 묶고, 일반 앱 창은 앱 types별로 묶어서 정리합니다. 같은 이름 파일이 이미 있으면 자동으로 백업하고 안전하게 덮어써줍니다."
 
             steps = planner.decompose(goal, {})
             self.assertEqual(len(steps), 2)
@@ -127,7 +127,7 @@ class AgentIntegrationTests(unittest.TestCase):
             with open(report_path, "r", encoding="utf-8") as handle:
                 report = handle.read()
             self.assertIn("## 브라우저 관련 창 (서비스 기준)", report)
-            self.assertIn("## 일반 앱 창 (앱 종류 기준)", report)
+            self.assertIn("## 일반 앱 창 (앱 types 기준)", report)
             self.assertIn("## 브라우저 탭 추정", report)
             self.assertIn("## 원본 창 제목 목록", report)
             self.assertIn("### ", report)
@@ -158,7 +158,7 @@ class AgentIntegrationTests(unittest.TestCase):
             ]
             goal = (
                 "바탕화면에 'Ari stress final audit' 폴더를 만들고, 현재 열린 창 제목들을 수집해서 "
-                "브라우저 관련 창은 서비스 기준으로, 일반 앱 창은 앱 종류 기준으로 분류한 markdown 보고서를 summary.md로 저장해줘. "
+                "브라우저 관련 창은 서비스 기준으로, 일반 앱 창은 앱 types 기준으로 분류한 markdown 보고서를 summary.md로 저장해줘. "
                 "같은 이름 파일이 이미 있으면 자동 백업하고 안전하게 덮어써줘. 마지막에 어떤 전략을 선택했고 무엇을 검증했는지도 짧게 적어줘."
             )
 
@@ -215,7 +215,7 @@ class AgentIntegrationTests(unittest.TestCase):
                 "바탕화면에 'Ari autonomy strict audit' 폴더를 만들고, 현재 열린 창 제목들을 수집해서 "
                 "브라우저 관련 창과 일반 앱 창으로 분류한 markdown 보고서를 summary.md로 저장해줘. "
                 "브라우저 창은 서비스 이름 기준으로 묶고 탭 수를 추정해 함께 적고, "
-                "같은 이름 파일이 이미 있으면 자동 백업 후 안전하게 덮어써줘. "
+                "같은 이름 파일이 이미 있으면 자동 백업 later 안전하게 덮어써줘. "
                 "끝나면 선택 전략과 검증 내용을 짧게 정리해줘."
             )
 
@@ -246,7 +246,7 @@ class AgentIntegrationTests(unittest.TestCase):
             with open(report_path, "r", encoding="utf-8") as handle:
                 report = handle.read()
             self.assertIn("## 브라우저 관련 창 (서비스 기준)", report)
-            self.assertIn("## 일반 앱 창 (앱 종류 기준)", report)
+            self.assertIn("## 일반 앱 창 (앱 types 기준)", report)
             self.assertIn("## 브라우저 탭 추정", report)
             self.assertIn("Whale", report)
             self.assertIn("## 백업 및 덮어쓰기", report)
@@ -292,7 +292,7 @@ class AgentIntegrationTests(unittest.TestCase):
 
         self.assertTrue(
             orchestrator._should_prefer_template_over_skill(
-                "VoiceCommand 저장소 전체 파악 후, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료"
+                "VoiceCommand 저장소 전체 파악 later, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료"
             )
         )
 
@@ -371,7 +371,7 @@ class AgentIntegrationTests(unittest.TestCase):
 
     def test_browser_login_and_collect_goal_builds_template(self):
         planner = AgentPlanner(DummyLLMProvider())
-        steps = planner.decompose("https://example.com 로그인 후 링크 수집해줘", {})
+        steps = planner.decompose("https://example.com 로그인 later 링크 수집해줘", {})
         self.assertTrue(steps)
         self.assertEqual(len(steps), 1)
         self.assertIn("click_text", steps[0].content)
@@ -457,7 +457,7 @@ class AgentIntegrationTests(unittest.TestCase):
     def test_post_run_update_skips_skill_extraction_for_developer_goal(self):
         orchestrator = AgentOrchestrator(AutonomousExecutor(), AgentPlanner(DummyLLMProvider()))
         run_result = AgentRunResult(
-            goal="VoiceCommand 저장소 전체 파악 후, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료",
+            goal="VoiceCommand 저장소 전체 파악 later, 사용자 체감이 크고 회귀 위험이 낮은 개선 과제 1개를 선정하여 코드 변경 및 검증까지 완료",
             achieved=False,
             summary="저장소 분석만 수행됐고 실제 코드 변경과 검증이 확인되지 않았습니다.",
             step_results=[],
@@ -649,16 +649,16 @@ class AgentIntegrationTests(unittest.TestCase):
 
         issues = orchestrator._prevalidate_steps(steps)
 
-        self.assertIn("빈 shell 명령 감지: 1", issues)
-        self.assertIn("위험 코드 감지: 2", issues)
+        self.assertIn("Empty shell command detected: 1", issues)
+        self.assertIn("Dangerous code detected: 2", issues)
 
     def test_run_loop_replans_after_prevalidation_failure(self):
         orchestrator = AgentOrchestrator(AutonomousExecutor(), AgentPlanner(DummyLLMProvider()))
         invalid_steps = [
-            ActionStep(step_id=0, step_type="shell", content=" ", description_kr="잘못된 단계"),
+            ActionStep(step_id=0, step_type="shell", content=" ", description_kr="잘못된 steps"),
         ]
         valid_steps = [
-            ActionStep(step_id=1, step_type="python", content="print('ok')", description_kr="정상 단계"),
+            ActionStep(step_id=1, step_type="python", content="print('ok')", description_kr="정상 steps"),
         ]
 
         with patch.object(orchestrator, "_run_with_skill_if_available", return_value=None):
@@ -783,7 +783,7 @@ class AgentIntegrationTests(unittest.TestCase):
         orchestrator = AgentOrchestrator(AutonomousExecutor(), AgentPlanner(DummyLLMProvider()))
         steps = [
             ActionStep(step_id=0, step_type="python", content="run_desktop_workflow(goal_hint='메모장 저장', expected_window='메모장')", description_kr="메모장 작업"),
-            ActionStep(step_id=1, step_type="python", content="run_desktop_workflow(goal_hint='메모장 저장', expected_window='메모장')", description_kr="메모장 후속 작업"),
+            ActionStep(step_id=1, step_type="python", content="run_desktop_workflow(goal_hint='메모장 저장', expected_window='메모장')", description_kr="메모장 later속 작업"),
         ]
 
         groups = orchestrator._group_by_dependency(steps)
@@ -803,7 +803,7 @@ class AgentIntegrationTests(unittest.TestCase):
             StepResult(step=step, exec_result=exec_result, failure_kind="timeout")
         ])
 
-        self.assertIn("browser_url=https://example.com", context.get("실패_후_상태변화", ""))
+        self.assertIn("browser_url=https://example.com", context.get("실패_later_상태변화", ""))
         self.assertIn("timeout", context.get("재계획_이유", ""))
         self.assertIn("example.com", context.get("실패_대상_도메인", ""))
         if context.get("복구_가이드"):

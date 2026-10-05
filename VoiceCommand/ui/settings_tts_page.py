@@ -1,5 +1,5 @@
 """
-TTS 설정 페이지 위젯
+TTS Settings 페이지 위젯
 """
 import logging
 import os
@@ -39,7 +39,7 @@ def _release_installer_thread(thread):
 
 
 def _installer_running(thread_type) -> bool:
-    """설정 창을 닫았다 다시 열어도 앞서 시작한 같은 종류의 설치가 돌고 있는지 알려 준다."""
+    """Settings 창을 닫았다 다시 열어도 앞서 시작한 같은 types의 설치가 돌고 있는지 알려 준다."""
     return any(
         isinstance(thread, thread_type) and thread.isRunning()
         for thread in _live_installer_threads
@@ -47,7 +47,7 @@ def _installer_running(thread_type) -> bool:
 
 
 class _TTSActionRelay(QObject):
-    """작업 스레드 결과를 GUI 스레드로 넘긴다. 설정 창보다 오래 살아야 해서 모듈에 하나만 둔다."""
+    """작업 스레드 결과를 GUI 스레드로 넘긴다. Settings 창보다 오래 살아야 해서 모듈에 하나만 둔다."""
 
     completed = Signal(object, object, str)
 
@@ -76,7 +76,7 @@ def _tts_modes():
 
 
 class _TTSSettingsPage(QWidget):
-    """TTS 엔진 설정 탭 위젯."""
+    """TTS 엔진 Settings 탭 위젯."""
 
     def __init__(self, settings: dict, parent=None):
         super().__init__(parent)
@@ -127,8 +127,8 @@ class _TTSSettingsPage(QWidget):
         self._on_tts_changed()
 
     def _build_tts_group(self):
-        # TTS 설정 그룹
-        tts_group = QGroupBox(_("음성 합성 (TTS) 설정"))
+        # TTS Settings 그룹
+        tts_group = QGroupBox(_("음성 합성 (TTS) Settings"))
         tts_vbox = QVBoxLayout(tts_group)
 
         tts_vbox.addWidget(QLabel(_("TTS 엔진 선택:")))
@@ -158,9 +158,9 @@ class _TTSSettingsPage(QWidget):
         return tts_group
 
     def _build_general_group(self, tts_vbox):
-        general_grp = QGroupBox(_("공통 TTS 설정"))
+        general_grp = QGroupBox(_("공통 TTS Settings"))
         general_layout = QVBoxLayout(general_grp)
-        general_layout.addWidget(QLabel(_("재생 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):")))
+        general_layout.addWidget(QLabel(_("play 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):")))
         self.tts_volume_input = QLineEdit(str(self._settings.get("tts_volume", 1.0)))
         general_layout.addWidget(self.tts_volume_input)
         tts_vbox.addWidget(general_grp)
@@ -168,7 +168,7 @@ class _TTSSettingsPage(QWidget):
     def _build_voice_cloning_group(self, tts_vbox):
         self._voice_cloning_group = QGroupBox(_("보이스 클로닝"))
         cloning_layout = QVBoxLayout(self._voice_cloning_group)
-        cloning_layout.addWidget(QLabel(_("참조 WAV 파일 (비워두면 기본 reference.wav 사용):")))
+        cloning_layout.addWidget(QLabel(_("참조 WAV 파일 (비워두면 Default reference.wav 사용):")))
         reference_row = QHBoxLayout()
         self.tts_reference_wav_input = QLineEdit(
             self._settings.get("tts_reference_wav", "")
@@ -188,8 +188,8 @@ class _TTSSettingsPage(QWidget):
         tts_vbox.addWidget(self._voice_cloning_group)
 
     def _build_fish_group(self, tts_vbox):
-        # Fish Audio 설정
-        fish_grp = QGroupBox(_("Fish Audio 설정"))
+        # Fish Audio Settings
+        fish_grp = QGroupBox(_("Fish Audio Settings"))
         fl = QVBoxLayout(fish_grp)
         fl.addWidget(QLabel(_("API Key:")))
         self.fish_key_input = QLineEdit(self._settings.get("fish_api_key", ""))
@@ -210,10 +210,10 @@ class _TTSSettingsPage(QWidget):
         self._tts_groups["fish"] = fish_grp
 
     def _build_cosyvoice_group(self, tts_vbox):
-        # CosyVoice3 설정
-        cv_grp = QGroupBox(_("CosyVoice3 설정 (로컬 GPU)"))
+        # CosyVoice3 Settings
+        cv_grp = QGroupBox(_("CosyVoice3 Settings (로컬 GPU)"))
         cvl = QVBoxLayout(cv_grp)
-        cvl.addWidget(QLabel(_("CosyVoice 설치 경로 (비워두면 자동 감지):")))
+        cvl.addWidget(QLabel(_("CosyVoice Install path (비워두면 자동 감지):")))
         dir_row = QHBoxLayout()
         self.cosyvoice_dir_input = QLineEdit(self._settings.get("cosyvoice_dir", ""))
         self.cosyvoice_dir_input.setPlaceholderText(_("예: C:/CosyVoice"))
@@ -238,7 +238,7 @@ class _TTSSettingsPage(QWidget):
         self._tts_groups["local"] = cv_grp
 
     def _build_openai_compat_group(self, tts_vbox):
-        compat_grp = QGroupBox(_("OpenAI 호환 TTS 설정"))
+        compat_grp = QGroupBox(_("OpenAI 호환 TTS Settings"))
         compat_layout = QVBoxLayout(compat_grp)
         compat_layout.addWidget(QLabel(_("서버 URL (예: http://127.0.0.1:8880/v1):")))
         self.openai_compat_base_url_input = QLineEdit(
@@ -264,7 +264,7 @@ class _TTSSettingsPage(QWidget):
         compat_layout.addWidget(self.openai_compat_voice_input)
         compat_options = QHBoxLayout()
         self.openai_compat_clone_combo = QComboBox()
-        self.openai_compat_clone_combo.addItem(_("기본 음성"), "none")
+        self.openai_compat_clone_combo.addItem(_("Default 음성"), "none")
         self.openai_compat_clone_combo.addItem(_("참조 음성 복제"), "ref_audio")
         self._set_combo(
             self.openai_compat_clone_combo,
@@ -286,13 +286,13 @@ class _TTSSettingsPage(QWidget):
         self._tts_groups["openai_compat_tts"] = compat_grp
 
     def _build_openai_tts_group(self, tts_vbox):
-        # OpenAI TTS 설정
-        oai_grp = QGroupBox(_("OpenAI TTS 설정"))
+        # OpenAI TTS Settings
+        oai_grp = QGroupBox(_("OpenAI TTS Settings"))
         oail = QVBoxLayout(oai_grp)
         oail.addWidget(QLabel(_("API Key (선택):")))
         self.openai_tts_key_input = QLineEdit(self._settings.get("openai_tts_api_key", ""))
         self.openai_tts_key_input.setEchoMode(QLineEdit.EchoMode.Password)
-        self.openai_tts_key_input.setPlaceholderText(_("비워두면 AI 설정을 따릅니다."))
+        self.openai_tts_key_input.setPlaceholderText(_("비워두면 AI Settings을 따릅니다."))
         oail.addWidget(self.openai_tts_key_input)
         row = QHBoxLayout()
         row.addWidget(QLabel(_("목소리:")))
@@ -317,8 +317,8 @@ class _TTSSettingsPage(QWidget):
         self._tts_groups["openai_tts"] = oai_grp
 
     def _build_elevenlabs_group(self, tts_vbox):
-        # ElevenLabs 설정
-        el_grp = QGroupBox(_("ElevenLabs 설정"))
+        # ElevenLabs Settings
+        el_grp = QGroupBox(_("ElevenLabs Settings"))
         ell = QVBoxLayout(el_grp)
         ell.addWidget(QLabel(_("API Key:")))
         self.elevenlabs_key_input = QLineEdit(self._settings.get("elevenlabs_api_key", ""))
@@ -354,15 +354,15 @@ class _TTSSettingsPage(QWidget):
         self._tts_groups["elevenlabs"] = el_grp
 
     def _build_edge_group(self, tts_vbox):
-        # Edge TTS 설정
-        edge_grp = QGroupBox(_("Edge TTS 설정 (무료)"))
+        # Edge TTS Settings
+        edge_grp = QGroupBox(_("Edge TTS Settings (무료)"))
         edgel = QVBoxLayout(edge_grp)
         edgel.addWidget(QLabel(_("목소리 선택:")))
         self.edge_voice_combo = QComboBox()
         for vid, vlbl in [
             ("ko-KR-SunHiNeural", _("SunHi (여성)")),
-            ("ko-KR-InJoonNeural", _("InJoon (남성)")),
-            ("ko-KR-HyunsuNeural", _("Hyunsu (남성)")),
+            ("ko-KR-InJoonNeural", _("InJoon (Male)")),
+            ("ko-KR-HyunsuNeural", _("Hyunsu (Male)")),
         ]:
             self.edge_voice_combo.addItem(vlbl, vid)
         self._set_combo(self.edge_voice_combo, self._settings.get("edge_tts_voice", "ko-KR-SunHiNeural"))
@@ -406,7 +406,7 @@ class _TTSSettingsPage(QWidget):
 
     @Slot(object, object, str)
     def _finish_elevenlabs_action(self, job, result, error: str):
-        # 다른 설정 창의 작업이거나 창이 닫혀 정리된 작업이면 무시한다.
+        # 다른 Settings 창의 작업이거나 창이 닫혀 정리된 작업이면 무시한다.
         if job is not self._tts_action_job:
             return
         self._tts_action_job = None
@@ -416,7 +416,7 @@ class _TTSSettingsPage(QWidget):
     def _load_elevenlabs_models(self):
         api_key = self.elevenlabs_key_input.text().strip()
         if not api_key:
-            QMessageBox.warning(self, _("ElevenLabs"), _("API Key를 입력하세요."))
+            QMessageBox.warning(self, _("ElevenLabs"), _("API Key를 Please enter."))
             return
 
         def finish(models, error):
@@ -439,7 +439,7 @@ class _TTSSettingsPage(QWidget):
     def _load_elevenlabs_voices(self):
         api_key = self.elevenlabs_key_input.text().strip()
         if not api_key:
-            QMessageBox.warning(self, _("ElevenLabs"), _("API Key를 입력하세요."))
+            QMessageBox.warning(self, _("ElevenLabs"), _("API Key를 Please enter."))
             return
 
         def finish(voices, error):
@@ -462,7 +462,7 @@ class _TTSSettingsPage(QWidget):
     def _create_elevenlabs_clone(self):
         api_key = self.elevenlabs_key_input.text().strip()
         if not api_key:
-            QMessageBox.warning(self, _("ElevenLabs"), _("API Key를 입력하세요."))
+            QMessageBox.warning(self, _("ElevenLabs"), _("API Key를 Please enter."))
             return
         from tts.voice_reference import get_reference_wav
 
@@ -577,7 +577,7 @@ class _TTSSettingsPage(QWidget):
         self.local_install_section.start_detection()
 
     def _locate_ollama(self):
-        """사용자가 ollama.exe를 직접 고르면 설정에 저장하고 상태를 다시 확인한다."""
+        """사용자가 ollama.exe를 직접 고르면 Settings에 Save하고 상태를 다시 OK한다."""
         path, _filter = QFileDialog.getOpenFileName(
             self, _("ollama.exe 위치 선택"),
             os.path.dirname(self._ollama_executable_path) or "C:/",
@@ -589,11 +589,11 @@ class _TTSSettingsPage(QWidget):
             QMessageBox.warning(self, _("위치 지정"), _("ollama.exe 파일을 선택하세요."))
             return
         self._ollama_executable_path = os.path.abspath(path)
-        # 설치 작업이 저장 전에도 이 경로를 쓰도록 바로 기록한다. 설정창 저장 때도 get_values로 함께 저장된다.
+        # 설치 작업이 Save 전에도 이 경로를 쓰도록 바로 기록한다. Settings창 Save 때도 get_values로 함께 Save된다.
         from core.config_manager import ConfigManager
         from core.ollama_installer import OLLAMA_EXECUTABLE_SETTING
         if not ConfigManager.set_value(OLLAMA_EXECUTABLE_SETTING, self._ollama_executable_path):
-            logging.warning("ollama.exe 경로를 바로 저장하지 못했습니다. 설정창 저장 때 다시 저장합니다.")
+            logging.warning("ollama.exe Could not save path directly. SettingsWill save again at window save.")
         self.local_install_section.start_detection()
 
     def _on_local_install_detected(self, result: dict):
@@ -618,7 +618,7 @@ class _TTSSettingsPage(QWidget):
 
         installed_dir = self.local_install_section.cosyvoice_dir
         if installed_dir:
-            # 이미 설치돼 있으면 다시 설치할지 먼저 묻고, 기본 선택은 '아니요'로 둔다.
+            # 이미 설치돼 있으면 다시 설치할지 먼저 묻고, Default 선택은 '아니요'로 둔다.
             confirm = QMessageBox.question(
                 self,
                 _("CosyVoice 설치"),
@@ -692,7 +692,7 @@ class _TTSSettingsPage(QWidget):
             self.cosyvoice_dir_status.setText(_("✓ 감지됨: {path}").format(path=path))
             self.cosyvoice_dir_status.setStyleSheet("color: #27ae60;")
         else:
-            self.cosyvoice_dir_status.setText(_("✗ 자동 감지 실패 — 경로를 직접 입력하세요."))
+            self.cosyvoice_dir_status.setText(_("✗ 자동 감지 실패 — 경로를 직접 Please enter."))
             self.cosyvoice_dir_status.setStyleSheet("color: #e74c3c;")
 
     def _check_cosyvoice_dir(self, path: str):
@@ -701,7 +701,7 @@ class _TTSSettingsPage(QWidget):
             self.cosyvoice_dir_status.setText(_("✓ 유효한 CosyVoice 경로"))
             self.cosyvoice_dir_status.setStyleSheet("color: #27ae60;")
         else:
-            self.cosyvoice_dir_status.setText(_("⚠ pretrained_models 폴더가 없습니다. 경로를 확인하세요."))
+            self.cosyvoice_dir_status.setText(_("⚠ pretrained_models 폴더가 없습니다. 경로를 OK하세요."))
             self.cosyvoice_dir_status.setStyleSheet("color: #e67e22;")
 
     # ── 유틸리티 ──────────────────────────────────────────────────────────────
@@ -715,7 +715,7 @@ class _TTSSettingsPage(QWidget):
 
     @staticmethod
     def _select_or_add(combo: QComboBox, value: str):
-        """목록에 없는 저장 ID도 항목으로 추가해 선택을 유지한다."""
+        """목록에 없는 Save ID도 항목으로 추가해 선택을 유지한다."""
         if not value:
             return
         index = combo.findData(value)
@@ -726,7 +726,7 @@ class _TTSSettingsPage(QWidget):
 
     @staticmethod
     def _combo_id(combo: QComboBox) -> str:
-        """편집 가능 콤보에서 직접 입력한 ID를 선택 항목 데이터보다 우선한다."""
+        """편집 가능 콤보에서 직접 Input한 ID를 선택 항목 데이터보다 우선한다."""
         text = combo.currentText().strip()
         data = combo.currentData()
         if data and text == combo.itemText(combo.currentIndex()):
@@ -743,13 +743,13 @@ class _TTSSettingsPage(QWidget):
     # ── 공개 인터페이스 ────────────────────────────────────────────────────────
 
     def get_values(self) -> dict:
-        """현재 TTS 설정 값을 dict로 반환."""
+        """Current TTS settings 값을 dict로 반환."""
         return {
             "tts_mode": self.tts_mode_combo.currentData(),
             "tts_emotion_enabled": self.tts_emotion_checkbox.isChecked(),
             "fish_api_key": self.fish_key_input.text().strip(),
             "fish_reference_id": self.fish_ref_input.text().strip(),
-            # 편집 가능 콤보라 사용자가 직접 입력한 모델명도 그대로 받는다.
+            # 편집 가능 콤보라 사용자가 직접 Input한 모델명도 그대로 받는다.
             "fish_model": (self.fish_model_combo.currentText().strip()
                            or "s2.1-pro-free"),
             "cosyvoice_dir": self.cosyvoice_dir_input.text().strip(),

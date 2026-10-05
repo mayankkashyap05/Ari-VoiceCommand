@@ -1,4 +1,4 @@
-"""캐릭터의 기분을 감쇠하고 저장한다."""
+"""Character의 기분을 감쇠하고 Save한다."""
 
 import json
 import logging
@@ -34,7 +34,7 @@ class MoodState:
             try:
                 self._path = ResourceManager.get_writable_path("mood_state.json")
             except (OSError, TypeError, ValueError) as exc:
-                logging.warning("기분 상태 저장 경로를 사용할 수 없습니다: %s", exc)
+                logging.warning("Mood state Save 경로를 사용할 수 없습니다: %s", exc)
         self._load()
 
     def _load(self) -> None:
@@ -44,19 +44,19 @@ class MoodState:
             with open(self._path, "r", encoding="utf-8") as handle:
                 payload = json.load(handle)
             if not isinstance(payload, dict):
-                raise ValueError("기분 상태 형식이 올바르지 않습니다.")
+                raise ValueError("Mood state 형식is invalid.")
             values = (
                 payload.get("valence"),
                 payload.get("arousal"),
                 payload.get("updated_at"),
             )
             if any(isinstance(value, bool) for value in values):
-                raise ValueError("기분 상태 값이 올바르지 않습니다.")
+                raise ValueError("Mood state 값is invalid.")
             valence, arousal, updated_at = (float(value) for value in values)
             if not all(math.isfinite(value) for value in (valence, arousal, updated_at)):
-                raise ValueError("기분 상태 값이 유한하지 않습니다.")
+                raise ValueError("Mood state 값이 유한하지 않습니다.")
         except json.JSONDecodeError as exc:
-            logging.warning("손상된 기분 상태를 기본값으로 시작합니다: %s", exc)
+            logging.warning("손상된 Mood state를 Default값으로 시작합니다: %s", exc)
             self._backup_corrupt_state()
             return
         except (
@@ -65,7 +65,7 @@ class MoodState:
             TypeError,
             ValueError,
         ) as exc:
-            logging.warning("기분 상태를 읽지 못해 기본값으로 시작합니다: %s", exc)
+            logging.warning("Mood state를 읽지 못해 Default값으로 시작합니다: %s", exc)
             if not isinstance(exc, OSError):
                 self._backup_corrupt_state()
             return
@@ -80,7 +80,7 @@ class MoodState:
         try:
             backup_corrupt_file(self._path)
         except OSError as exc:
-            logging.warning("손상된 기분 상태 백업 실패: %s", exc)
+            logging.warning("손상된 Mood state 백업 실패: %s", exc)
 
     @staticmethod
     def _clamp(value: float, minimum: float, maximum: float) -> float:
@@ -118,7 +118,7 @@ class MoodState:
         late_night_long_use: bool = False,
         now: float | None = None,
     ) -> None:
-        """대화, 칭찬, 심야 장시간 사용을 반영한다."""
+        """대화, 칭찬, 심야 장시간 사용을 반zero한다."""
         valence_delta = 0.02
         arousal_delta = 0.03
         if praised:
@@ -141,13 +141,13 @@ class MoodState:
         away_seconds: int,
         now: float | None = None,
     ) -> None:
-        """긴 이탈 뒤 복귀를 반영한다."""
+        """긴 이탈 뒤 복귀를 반zero한다."""
         if away_seconds < _RETURN_THRESHOLD_SECONDS:
             return
         self._apply(0.1, 0.24, self._clock() if now is None else now)
 
     def record_task_result(self, achieved: bool, now: float | None = None) -> None:
-        """작업 성공이나 실패를 반영한다."""
+        """작업 성공이나 실패를 반zero한다."""
         if achieved:
             valence_delta, arousal_delta = 0.12, 0.08
         else:
@@ -159,11 +159,11 @@ class MoodState:
         )
 
     def record_ignored_suggestion(self, now: float | None = None) -> None:
-        """무시된 선제 발화를 약하게 반영한다."""
+        """무시된 선제 발화를 약하게 반zero한다."""
         self._apply(-0.03, -0.01, self._clock() if now is None else now)
 
     def claim_big_motion(self, now: float | None = None) -> bool:
-        """큰 기분 변화 직후 쿨다운을 지키며 한 번만 허용한다."""
+        """큰 기분 변화 직later 쿨다운을 지키며 한 번만 허용한다."""
         current = self._clock() if now is None else now
         with self._lock:
             if self._last_significant_change_at is None:
@@ -193,7 +193,7 @@ class MoodState:
                 indent=2,
             )
         except (OSError, TypeError, ValueError) as exc:
-            logging.warning("기분 상태 저장 실패: %s", exc)
+            logging.warning("Mood state Save 실패: %s", exc)
 
 
 _mood_state: MoodState | None = None
@@ -201,7 +201,7 @@ _mood_state_lock = threading.Lock()
 
 
 def initialize_mood_state() -> MoodState:
-    """앱 시작 시 저장된 기분 상태를 읽는다."""
+    """앱 시작 시 Save된 Mood state를 읽는다."""
     global _mood_state
     if _mood_state is None:
         with _mood_state_lock:
@@ -211,5 +211,5 @@ def initialize_mood_state() -> MoodState:
 
 
 def get_mood_state() -> MoodState | None:
-    """초기화된 기분 상태를 반환한다."""
+    """초기화된 Mood state를 반환한다."""
     return _mood_state

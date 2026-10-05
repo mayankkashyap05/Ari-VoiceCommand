@@ -1,4 +1,4 @@
-"""설정창용 로컬 설치 UI 컴포넌트."""
+"""Settings창용 로컬 설치 UI 컴포넌트."""
 from __future__ import annotations
 
 import logging
@@ -61,7 +61,7 @@ class OllamaInstallerThread(QThread):
                 models_dir=self.models_dir or None,
                 models=self.models,
             )
-            model_text = ", ".join(result.get("installed_models", [])) or _("모델 설치 없음")
+            model_text = ", ".join(result.get("installed_models", [])) or _("모델 설치 None")
             self.done.emit(True, _("✓ Ollama 설치 완료 ({models})").format(models=model_text), result)
         except Exception as exc:
             self.done.emit(False, _("✗ Ollama 설치 실패: {error}").format(error=exc), {})
@@ -103,7 +103,7 @@ class OllamaInstallDialog(QDialog):
         else:
             layout.addWidget(create_muted_label(
                 _("Ollama를 설치하고, 사용할 모델을 함께 받아옵니다. ") +
-                _("모델은 여러 개 선택할 수 있고, 설치 후 바로 설정값에 반영됩니다.")
+                _("모델은 여러 개 선택할 수 있고, 설치 later 바로 Settings값에 반zero됩니다.")
             ))
 
         layout.addWidget(QLabel(_("권장 모델 선택:")))
@@ -117,26 +117,26 @@ class OllamaInstallDialog(QDialog):
         self.model_list.setMinimumHeight(160)
         layout.addWidget(self.model_list)
 
-        layout.addWidget(QLabel(_("추가 모델명 (쉼표로 여러 개 입력 가능):")))
+        layout.addWidget(QLabel(_("추가 모델명 (쉼표로 여러 개 Input 가능):")))
         self.custom_models_input = QLineEdit()
         self.custom_models_input.setPlaceholderText(_("예: qwen2.5-coder:7b, mistral-small"))
         layout.addWidget(self.custom_models_input)
 
         if self._installed:
-            # 이미 설치돼 있으면 설치 단계를 건너뛰므로 설치 경로는 묻지 않는다.
+            # 이미 설치돼 있으면 설치 steps를 건너뛰므로 Install path는 묻지 않는다.
             self.install_dir_input = QLineEdit()
         else:
-            layout.addWidget(QLabel(_("Ollama 설치 경로 (선택):")))
+            layout.addWidget(QLabel(_("Ollama Install path (선택):")))
             self.install_dir_input = self._build_path_input(
                 layout,
-                placeholder=_("비워두면 Ollama 기본 경로 사용"),
+                placeholder=_("비워두면 Ollama Default 경로 사용"),
                 title=_("Ollama 설치 폴더 선택"),
             )
 
-        layout.addWidget(QLabel(_("모델 저장 경로 (선택):")))
+        layout.addWidget(QLabel(_("모델 Save 경로 (선택):")))
         self.models_dir_input = self._build_path_input(
             layout,
-            placeholder=_("비워두면 기본 모델 경로 사용"),
+            placeholder=_("비워두면 Default Model path 사용"),
             title=_("Ollama 모델 폴더 선택"),
         )
 
@@ -195,13 +195,13 @@ class LocalInstallDetectThread(QThread):
             if result["ollama_path"]:
                 result["ollama_models"] = list_installed_models()
         except Exception as exc:
-            logging.debug("Ollama 설치 확인 실패: %s", exc)
+            logging.debug("Ollama 설치 OK 실패: %s", exc)
         try:
             from core.cosyvoice_installer import find_cosyvoice_dir
 
             result["cosyvoice_dir"] = find_cosyvoice_dir(self.configured_cosyvoice_dir)
         except Exception as exc:
-            logging.debug("CosyVoice 설치 확인 실패: %s", exc)
+            logging.debug("CosyVoice 설치 OK 실패: %s", exc)
         self.done.emit(result)
 
 
@@ -222,7 +222,7 @@ class LocalInstallSection(QGroupBox):
     def _build_ui(self):
         layout = QVBoxLayout(self)
         layout.addWidget(create_muted_label(
-            _("로컬에서 직접 실행할 엔진을 먼저 설치한 뒤, 아래 설정에서 경로와 모델을 조정할 수 있습니다.")
+            _("로컬에서 직접 실행할 엔진을 먼저 설치한 뒤, 아래 Settings에서 경로와 모델을 조정할 수 있습니다.")
         ))
         self.redetect_btn = QPushButton(_("다시 찾기"))
         self.redetect_btn.clicked.connect(self.start_detection)
@@ -236,7 +236,7 @@ class LocalInstallSection(QGroupBox):
         ))
         layout.addWidget(self._build_card(
             title="CosyVoice3",
-            description=_("로컬 TTS 엔진과 기본 모델을 설치하고 설정 경로를 자동으로 맞춥니다."),
+            description=_("Local TTS 엔진과 Default 모델을 설치하고 Settings 경로를 자동으로 맞춥니다."),
             button_text=_("CosyVoice 설치"),
             click_handler=self.cosyvoice_install_requested.emit,
         ))
@@ -265,26 +265,26 @@ class LocalInstallSection(QGroupBox):
             self.cosyvoice_status = status
         return group
 
-    # ── 설치 상태 확인 ─────────────────────────────────────────────────────────
+    # ── 설치 상태 OK ─────────────────────────────────────────────────────────
 
     def showEvent(self, event):
         super().showEvent(event)
         self.start_detection()
 
     def start_detection(self):
-        """설치 상태를 백그라운드에서 다시 확인한다. 이미 확인 중이면 무시한다."""
+        """설치 상태를 백그라운드에서 다시 OK한다. 이미 OK 중이면 무시한다."""
         if self._detect_thread is not None:
             return
-        self.ollama_status.setText(_("확인 중..."))
+        self.ollama_status.setText(_("OK 중..."))
         self.ollama_models_label.setText("")
-        self.cosyvoice_status.setText(_("확인 중..."))
+        self.cosyvoice_status.setText(_("OK 중..."))
         self.redetect_btn.setEnabled(False)
         self._detect_thread = LocalInstallDetectThread(self._cosyvoice_dir_provider())
         self._detect_thread.done.connect(self._on_detected)
         self._detect_thread.start()
 
     def stop_detection(self):
-        """창이 닫힐 때 확인 스레드가 끝나기를 잠시 기다린다."""
+        """창이 닫힐 때 OK 스레드가 끝나기를 잠시 기다린다."""
         if self._detect_thread is not None and self._detect_thread.isRunning():
             self._detect_thread.wait(3000)
 
@@ -314,7 +314,7 @@ def _models_text(ollama_path: str, models: list[str] | None) -> str:
     if not ollama_path:
         return ""
     if models is None:
-        return _("Ollama 서버가 응답하지 않아 설치된 모델을 확인하지 못했습니다.")
+        return _("Ollama 서버가 응답하지 않아 Installed models을 OK하지 못했습니다.")
     if not models:
-        return _("설치된 모델이 없습니다.")
-    return _("설치된 모델: {models}", models=", ".join(models))
+        return _("Installed models이 없습니다.")
+    return _("Installed models: {models}", models=", ".join(models))

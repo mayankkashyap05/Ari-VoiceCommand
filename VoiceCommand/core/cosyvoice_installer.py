@@ -36,12 +36,12 @@ SUPPORTED_PYTHON_VERSIONS = ((3, 11), (3, 10))
 
 
 def is_valid_cosyvoice_dir(path: str) -> bool:
-    """모델 폴더(pretrained_models)가 있는 CosyVoice 설치 경로인지 확인한다."""
+    """모델 폴더(pretrained_models)가 있는 CosyVoice Install path인지 OK한다."""
     return bool(path) and os.path.isdir(os.path.join(path, "pretrained_models"))
 
 
 def find_cosyvoice_dir(configured: str = "") -> str:
-    """현재 설정, 자동 탐색 경로, 설치기 기본 경로 순으로 유효한 설치 경로를 찾는다. 없으면 빈 문자열."""
+    """현재 Settings, 자동 탐색 경로, 설치기 Default 경로 순으로 유효한 Install path를 찾는다. 없으면 빈 문자열."""
     candidates = [configured]
     try:
         from tts.cosyvoice_tts import _get_cosyvoice_dir
@@ -160,7 +160,7 @@ def _inspect_python(candidate: list[str]) -> tuple[str, tuple[int, int], bool] |
     env = os.environ.copy()
     env.pop("PYTHONHOME", None)
     env.pop("PYTHONPATH", None)
-    # 버전 확인만 하는 실행이 py 런처의 자동 설치를 시작하지 않게 한다.
+    # 버전 OK만 하는 실행이 py 런처의 자동 설치를 시작하지 않게 한다.
     env["PYTHON_MANAGER_AUTOMATIC_INSTALL"] = "false"
     env.pop("PYLAUNCHER_ALLOW_INSTALL", None)
     env.pop("PYLAUNCHER_ALWAYS_INSTALL", None)
@@ -240,7 +240,7 @@ def _create_tts_venv(venv_dir: str, base_python: str, logger: Callable[[str], No
 
     if result.returncode != 0:
         message = _(
-            "CosyVoice 전용 가상환경을 만들지 못했습니다 (종료 코드: {returncode})",
+            "CosyVoice 전용 가상환경을 만들지 못했습니다 (exit code: {returncode})",
             returncode=result.returncode,
         )
         logger(message)
@@ -284,7 +284,7 @@ def _run_checked(command: list[str], step: str, logger: Callable[[str], None]) -
         result = subprocess.run(command, check=False)
     except Exception as exc:
         message = _(
-            "CosyVoice 설치 단계에 실패했습니다: {step} ({error})",
+            "CosyVoice 설치 steps에 실패했습니다: {step} ({error})",
             step=step,
             error=exc,
         )
@@ -293,7 +293,7 @@ def _run_checked(command: list[str], step: str, logger: Callable[[str], None]) -
 
     if result.returncode != 0:
         message = _(
-            "CosyVoice 설치 단계에 실패했습니다: {step} (종료 코드: {returncode})",
+            "CosyVoice 설치 steps에 실패했습니다: {step} (exit code: {returncode})",
             step=step,
             returncode=result.returncode,
         )
@@ -363,27 +363,27 @@ def install_cosyvoice(
     target_dir = os.path.abspath(cosyvoice_dir)
     model_dir = os.path.join(target_dir, "pretrained_models", "Fun-CosyVoice3-0.5B")
 
-    logger(_("\n설치 경로: {path}\n", path=target_dir))
+    logger(_("\nInstall path: {path}\n", path=target_dir))
     mark_cosyvoice_install_started(target_dir)
 
     git_exe = _git_executable()
     python_exe = os.path.abspath(python_exe) if python_exe else _ensure_tts_venv()
 
     if not os.path.exists(target_dir):
-        logger(_("[1/4] 저장소 클론 중..."))
+        logger(_("[1/4] Save소 클론 중..."))
         os.makedirs(os.path.dirname(target_dir) or ".", exist_ok=True)
         _run_checked(
             [git_exe, "clone", "--recursive", REPO_URL, target_dir],
-            _("저장소 클론"),
+            _("Save소 클론"),
             logger,
         )  # nosec B603
     else:
-        logger(_("[1/4] 저장소 이미 존재: {path}", path=target_dir))
+        logger(_("[1/4] Save소 이미 존재: {path}", path=target_dir))
 
     req_file = os.path.join(target_dir, "requirements.txt")
     if not os.path.exists(req_file):
         message = _(
-            "CosyVoice 저장소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
+            "CosyVoice Save소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
         )
         logger(message)
         raise RuntimeError(message)
@@ -410,7 +410,7 @@ def install_cosyvoice(
             download_model(model_dir)
         except Exception as exc:
             message = _(
-                "CosyVoice 설치 단계에 실패했습니다: {step} ({error})",
+                "CosyVoice 설치 steps에 실패했습니다: {step} ({error})",
                 step=_("모델 다운로드"),
                 error=exc,
             )
@@ -427,18 +427,18 @@ def install_cosyvoice(
     )  # nosec B603
 
     logger("\n" + "=" * 60)
-    logger(_("✨ CosyVoice3 설치가 완료되었습니다!"))
+    logger(_("✨ CosyVoice3 Installation complete!"))
     logger(_("위치: {path}", path=target_dir))
     logger("")
-    logger(_("다음 단계:"))
-    logger(_("  1. 아리 설정 → TTS 모드 → 로컬 (CosyVoice3) 선택"))
+    logger(_("다음 steps:"))
+    logger(_("  1. 아리 Settings → TTS 모드 → 로컬 (CosyVoice3) 선택"))
     logger(
         _(
-            "  2. 설정 → CosyVoice 경로 → {path} 입력 (또는 자동 감지)",
+            "  2. Settings → CosyVoice 경로 → {path} Input (또는 자동 감지)",
             path=target_dir,
         )
     )
     logger("=" * 60)
     if not mark_cosyvoice_install_complete(target_dir):
-        raise RuntimeError(_("CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 확인해 주세요."))
+        raise RuntimeError(_("CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 OK해 주세요."))
     return target_dir

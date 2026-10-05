@@ -167,7 +167,7 @@ class ConfigManagerTests(unittest.TestCase):
                     self.assertTrue(ConfigManager.save_settings({**defaults, "stt_energy_threshold": 500}))
             finally:
                 ConfigManager._cached_settings = previous
-            # 기본값이 아니라 다시 읽은 사용자 설정 위에 바뀐 값만 얹어 저장한다.
+            # Default값이 아니라 다시 읽은 사용자 설정 위에 바뀐 값만 얹어 저장한다.
             saved = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(saved["llm_provider"], "openai")
             self.assertEqual(saved["stt_energy_threshold"], 500)
@@ -245,7 +245,7 @@ class ConfigManagerTests(unittest.TestCase):
                 write.assert_not_called()
             with open(path, encoding="utf-8") as handle:
                 saved = json.load(handle)
-            # 기본값 화면에서 추가한 제공자가 파일에 있던 제공자를 지우지 않는다.
+            # Default값 화면에서 추가한 제공자가 파일에 있던 제공자를 지우지 않는다.
             self.assertEqual(set(saved["custom_llm_providers"]), {existing, added})
 
     def test_removing_custom_provider_from_valid_settings_removes_its_secret(self):
@@ -297,7 +297,7 @@ class ConfigManagerTests(unittest.TestCase):
 
     def test_custom_provider_secret_survives_saves_when_its_provider_was_lost_not_removed(self):
         key = "custom_0123456789abcdef0123456789abcdef_api_key"
-        # 손상 복구 뒤의 저장(파일에 제공자가 없음)과 읽기 실패 뒤의 저장(기본값으로 실행 중)
+        # 손상 복구 뒤의 저장(파일에 제공자가 None)과 읽기 실패 뒤의 저장(Default값으로 실행 중)
         self.addCleanup(setattr, ConfigManager, "_cached_settings", ConfigManager._cached_settings)
         for content, read_failed in (('{"custom_llm_providers": {}}', False),
                                      ('{"custom_llm_providers": {"custom_0123456789abcdef0123456789abcdef": {"label": "x", "base_url": "https://example.com/v1", "default_model": "m"}}}', True)):

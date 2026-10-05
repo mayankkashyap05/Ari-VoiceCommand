@@ -171,12 +171,12 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장 열기", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장 열기", "제목 None - 메모장")
 
             reloaded = _TempAutomationHelpers(history_path)
             resolved = reloaded.resolve_window_target("메모장 열기", "메모장")
 
-            self.assertEqual(resolved, "제목 없음 - 메모장")
+            self.assertEqual(resolved, "제목 None - 메모장")
 
     def test_desktop_workflow_plan_persists(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -194,11 +194,11 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
 
             resolved = helper.resolve_window_target("메모장 저장 작업", "메모장")
 
-            self.assertEqual(resolved, "제목 없음 - 메모장")
+            self.assertEqual(resolved, "제목 None - 메모장")
 
     def test_desktop_workflow_plan_uses_similar_goal_hint_fallback(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -215,20 +215,20 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
             helper.get_browser_state = lambda: {
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
 
             learned = helper.get_learned_strategies("다운로드 전에 로그인", domain="example.com")
 
-            self.assertEqual(learned["browser_plan_key"], "로그인 후 다운로드")
+            self.assertEqual(learned["browser_plan_key"], "로그인 later 다운로드")
             self.assertEqual(len(learned["browser_actions"]), 1)
             self.assertEqual(learned["browser_actions"][0]["type"], "click")
             self.assertEqual(learned["window_target"], "")
@@ -251,42 +251,42 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
             helper.get_browser_state = lambda: {
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
 
-            summary = helper.get_learned_strategy_summary("로그인 후 다운로드", domain="example.com")
+            summary = helper.get_learned_strategy_summary("로그인 later 다운로드", domain="example.com")
 
             self.assertIn("domain=example.com", summary)
-            self.assertIn("browser_plan=로그인 후 다운로드", summary)
+            self.assertIn("browser_plan=로그인 later 다운로드", summary)
 
     def test_get_planning_snapshot_summary_includes_state_and_learned_strategy(self):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.get_active_window_title = lambda: "제목 없음 - 메모장"
-            helper.list_open_windows = lambda limit=12: ["제목 없음 - 메모장", "Chrome"]
+            helper.get_active_window_title = lambda: "제목 None - 메모장"
+            helper.list_open_windows = lambda limit=12: ["제목 None - 메모장", "Chrome"]
             helper.get_browser_state = lambda: {
                 "current_url": "https://example.com/dashboard",
                 "title": "Dashboard",
                 "last_action_summary": "성공: wait_url(https://example.com/dashboard)",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
 
-            summary = helper.get_planning_snapshot_summary("로그인 후 다운로드", domain="example.com")
+            summary = helper.get_planning_snapshot_summary("로그인 later 다운로드", domain="example.com")
 
-            self.assertIn("active_window=제목 없음 - 메모장", summary)
+            self.assertIn("active_window=제목 None - 메모장", summary)
             self.assertIn("browser_url=https://example.com/dashboard", summary)
             self.assertIn("learned=domain=example.com", summary)
             self.assertIn("policy=browser=adaptive", summary)
@@ -295,18 +295,18 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
             helper.get_browser_state = lambda: {
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
 
-            browser_policy = helper.get_execution_policy(goal_hint="로그인 후 다운로드", domain="example.com")
+            browser_policy = helper.get_execution_policy(goal_hint="로그인 later 다운로드", domain="example.com")
             desktop_policy = helper.get_execution_policy(goal_hint="메모장에 메모 저장", expected_window="메모장")
 
             self.assertEqual(browser_policy["recommended_browser_plan"]["plan_type"], "adaptive")
@@ -321,7 +321,7 @@ class AutomationHelpersTests(unittest.TestCase):
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
@@ -334,11 +334,11 @@ class AutomationHelpersTests(unittest.TestCase):
 
             result = helper.run_adaptive_browser_workflow(
                 "https://example.com/downloads",
-                goal_hint="로그인 후 다운로드",
+                goal_hint="로그인 later 다운로드",
                 fallback_actions=[{"type": "click", "selectors": ["#fallback"]}],
             )
 
-            self.assertEqual(captured["goal_hint"], "로그인 후 다운로드")
+            self.assertEqual(captured["goal_hint"], "로그인 later 다운로드")
             self.assertTrue(any(action.get("type") == "click" and action.get("selectors", [""])[0] == "#download" for action in captured["actions"]))
             self.assertIn("adaptive_plan", result)
             self.assertEqual(result["summary"], "ok")
@@ -351,7 +351,7 @@ class AutomationHelpersTests(unittest.TestCase):
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
@@ -367,7 +367,7 @@ class AutomationHelpersTests(unittest.TestCase):
 
             result = helper.run_resilient_browser_workflow(
                 "https://example.com/downloads",
-                goal_hint="로그인 후 다운로드",
+                goal_hint="로그인 later 다운로드",
                 fallback_actions=[{"type": "download_wait", "timeout": 10.0}],
             )
 
@@ -380,7 +380,7 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
             captured = {}
             helper.run_desktop_workflow = lambda goal_hint, app_target="", expected_window="", actions=None, timeout=10.0: captured.update({
@@ -397,7 +397,7 @@ class AutomationHelpersTests(unittest.TestCase):
                 fallback_actions=[{"type": "type", "text": "hello"}],
             )
 
-            self.assertEqual(captured["expected_window"], "제목 없음 - 메모장")
+            self.assertEqual(captured["expected_window"], "제목 None - 메모장")
             self.assertTrue(any(action.get("type") == "hotkey" for action in captured["actions"]))
             self.assertIn("adaptive_plan", result)
             self.assertEqual(result["opened"], "notepad")
@@ -406,7 +406,7 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
             attempts = []
 
@@ -438,7 +438,7 @@ class AutomationHelpersTests(unittest.TestCase):
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [
+                        "로그인 later 다운로드": [
                             {"type": "click", "selectors": ["#download"]},
                             {"type": "wait_url", "contains": "dashboard"},
                         ]
@@ -448,7 +448,7 @@ class AutomationHelpersTests(unittest.TestCase):
 
             plan = helper.build_adaptive_browser_plan(
                 url="https://example.com/downloads",
-                goal_hint="로그인 후 다운로드",
+                goal_hint="로그인 later 다운로드",
                 fallback_actions=[{"type": "download_wait", "timeout": 10.0}],
             )
 
@@ -467,14 +467,14 @@ class AutomationHelpersTests(unittest.TestCase):
                 "current_url": "https://example.com/dashboard",
                 "action_plan_strategies": {
                     "example.com": {
-                        "로그인 후 다운로드": [{"type": "click", "selectors": ["#download"]}]
+                        "로그인 later 다운로드": [{"type": "click", "selectors": ["#download"]}]
                     }
                 },
             }
 
             plans = helper.build_resilient_browser_plans(
                 url="https://example.com/downloads",
-                goal_hint="로그인 후 다운로드",
+                goal_hint="로그인 later 다운로드",
                 fallback_actions=[{"type": "download_wait", "timeout": 10.0}],
             )
 
@@ -486,7 +486,7 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
 
             plan = helper.build_adaptive_desktop_plan(
@@ -495,7 +495,7 @@ class AutomationHelpersTests(unittest.TestCase):
                 fallback_actions=[{"type": "type", "text": "hello"}],
             )
 
-            self.assertEqual(plan["expected_window"], "제목 없음 - 메모장")
+            self.assertEqual(plan["expected_window"], "제목 None - 메모장")
             self.assertEqual(plan["actions"][0]["type"], "wait_window")
             self.assertEqual(plan["actions"][1]["type"], "focus")
             self.assertEqual(plan["actions"][2]["type"], "hotkey")
@@ -507,7 +507,7 @@ class AutomationHelpersTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             history_path = os.path.join(tmp, "window_targets.json")
             helper = _TempAutomationHelpers(history_path)
-            helper.remember_window_target("메모장에 메모 저장", "제목 없음 - 메모장")
+            helper.remember_window_target("메모장에 메모 저장", "제목 None - 메모장")
             helper.remember_desktop_workflow_plan("메모장에 메모 저장", [{"type": "hotkey", "keys": ["ctrl", "s"]}])
 
             plans = helper.build_resilient_desktop_plans(
@@ -549,7 +549,7 @@ class AutomationHelpersTests(unittest.TestCase):
         )
 
         self.assertTrue(result["actions"])
-        self.assertIn("오류: setup", result["actions"][0])
+        self.assertIn("Error: setup", result["actions"][0])
         self.assertEqual(result["state"], {"state": "ok"})
 
 

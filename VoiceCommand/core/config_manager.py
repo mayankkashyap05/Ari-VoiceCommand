@@ -1,4 +1,4 @@
-"""설정 관리 통합 모듈."""
+"""Settings 관리 통합 모듈."""
 import copy
 import json
 import logging
@@ -36,7 +36,7 @@ _MISSING = object()
 
 
 class ConfigManager:
-    """설정 파일 관리 클래스"""
+    """Settings 파일 관리 클래스"""
 
     SettingsDict = dict[str, object]
 
@@ -53,23 +53,23 @@ class ConfigManager:
 
     @staticmethod
     def _backup_corrupt_settings(path: str) -> bool:
-        """손상된 설정 파일을 보존한다. 같은 내용의 백업이 이미 있으면 다시 만들지 않는다."""
+        """손상된 Settings 파일을 보존한다. 같은 내용의 백업이 이미 있으면 다시 만들지 않는다."""
         try:
             source = Path(path)
             corrupt = source.read_bytes()
             SecretStore(path).backup(corrupt)
             return True
         except Exception as exc:
-            logging.warning("손상된 설정 파일을 백업하지 못했습니다: %s", exc)
+            logging.warning("손상된 Settings 파일을 백업하지 못했습니다: %s", exc)
             return False
 
     @classmethod
     def load_settings(cls) -> SettingsDict:
-        """설정 파일 로드. 캐시 적중 시 락 없이 반환(읽기 전용 사용 권장)."""
+        """Settings 파일 로드. 캐시 적중 시 락 없이 반환(읽기 전용 사용 권장)."""
         if cls._cached_settings is not None and not cls._settings_read_failed:
             return cls._effective_settings()
         with cls._lock:
-            # 락 획득 후 재확인 (다른 스레드가 먼저 로드했을 수 있음)
+            # 락 획득 later 재OK (다른 스레드가 먼저 로드했을 수 있음)
             if cls._cached_settings is not None:
                 if not cls._settings_read_failed:
                     return cls._effective_settings()
@@ -83,14 +83,14 @@ class ConfigManager:
                 settings = json.loads(original.decode("utf-8"))
                 if not isinstance(settings, dict):
                     raise ValueError("Invalid settings object")
-                logging.info("설정 파일을 로드했습니다.")
+                logging.info("Settings 파일을 로드했습니다.")
             except FileNotFoundError:
                 cls._settings_read_failed = False
                 cls._settings_read_failure_logged = False
                 settings = cls._restore_default_settings(path)
                 original = b""
             except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
-                logging.error("설정 파일이 손상되어 기본값을 사용합니다.")
+                logging.error("Settings 파일이 손상되어 Default값을 사용합니다.")
                 cls._settings_read_failed = False
                 cls._settings_read_failure_logged = False
                 cls._backup_corrupt_settings(path)
@@ -98,7 +98,7 @@ class ConfigManager:
                 original = b""
             except OSError:
                 if not cls._settings_read_failure_logged:
-                    logging.error("설정 파일에 접근할 수 없어 기본값을 사용합니다.")
+                    logging.error("Settings 파일에 접근할 수 없어 Default값을 사용합니다.")
                     cls._settings_read_failure_logged = True
                 cls._settings_read_failed = True
                 settings = cls.DEFAULT_SETTINGS.copy()
@@ -134,12 +134,12 @@ class ConfigManager:
                 stored = merged
             cls._cached_settings = {**cls.DEFAULT_SETTINGS, **public, **stored}
             normalize_custom_provider_settings(cls._cached_settings)
-            # 예전 파일은 병합된 기본값이 아니라 파일 자체의 버전으로 구분한다.
+            # 예전 파일은 병합된 Default값이 아니라 파일 자체의 버전으로 구분한다.
             cls._cached_settings["local_decision_settings_version"] = public.get("local_decision_settings_version")
             cls._cached_settings["stt_settings_version"] = public.get("stt_settings_version")
-            # 인증값이 아직 파일에 남아 있거나 암호화 저장소를 읽을 수 없으면 파일을 그대로 둔다.
+            # 인증값이 아직 파일에 남아 있거나 암호화 Save소를 읽을 수 없으면 파일을 그대로 둔다.
             # 공개 사본에서 인증값이 빠질 수 있기 때문이다. 이때 변경은 이번 실행에만
-            # 적용된다.
+            # Apply된다.
             local_settings_migrated = migrate_local_decision_settings(cls._cached_settings)
             stt_settings_migrated = migrate_stt_settings(cls._cached_settings)
             if (
@@ -151,11 +151,11 @@ class ConfigManager:
                 try:
                     cls._write_public_settings(path, cls._cached_settings)
                     if local_settings_migrated:
-                        logging.info("로컬 판단 설정을 현재 기본 규칙으로 옮겼습니다.")
+                        logging.info("로컬 판단 Settings을 현재 Default 규칙으로 옮겼습니다.")
                     if stt_settings_migrated:
-                        logging.info("STT 설정을 현재 기본 규칙으로 옮겼습니다.")
+                        logging.info("STT Settings을 현재 Default 규칙으로 옮겼습니다.")
                 except Exception:
-                    logging.warning("설정 이전을 저장하지 못해 이번 실행에만 적용합니다.")
+                    logging.warning("Settings 이전을 Save하지 못해 이번 실행에만 Apply합니다.")
             return cls._effective_settings()
 
     @staticmethod
@@ -210,24 +210,24 @@ class ConfigManager:
                 cls._write_public_settings(dest_path, settings)
                 return settings
             except Exception:
-                logging.warning("설정 템플릿을 복원할 수 없습니다.")
+                logging.warning("Settings 템플릿을 복원할 수 없습니다.")
         return cls.DEFAULT_SETTINGS.copy()
 
     @classmethod
     def save_settings(cls, settings: SettingsDict) -> bool:
-        """설정 파일 저장"""
+        """Settings 파일 Save"""
         with cls._lock:
             path = _settings_path()
             try:
                 if cls._settings_read_failed:
-                    # 시작할 때 파일을 읽지 못해 기본값으로 실행 중이었다. 이제 읽히면 그 설정 위에
-                    # 이번에 바뀐 값만 얹어, 기본값이 사용자의 설정을 덮어쓰지 않게 한다.
+                    # 시작할 때 파일을 읽지 못해 Default값으로 실행 중이었다. 이제 읽히면 그 Settings 위에
+                    # 이번에 바뀐 값만 얹어, Default값이 사용자의 Settings을 덮어쓰지 않게 한다.
                     stale = cls._effective_settings()
                     cls._cached_settings = None
                     loaded = cls.load_settings()
                     if not cls._settings_read_failed:
                         settings = {**loaded, **{
-                            # 기본값 화면에는 보이지 않던 기존 항목(사용자 제공자 등)은 새 값과 합친다.
+                            # Default값 화면에는 보이지 않던 기존 항목(사용자 제공자 등)은 새 값과 합친다.
                             key: {**loaded[key], **value}
                             if isinstance(value, dict) and isinstance(loaded.get(key), dict) else value
                             for key, value in settings.items()
@@ -260,7 +260,7 @@ class ConfigManager:
                     corrupt = False
                     previous = {}
                 read_failed = cls._settings_read_failed and bool(original) and not corrupt
-                # 파일을 읽지 못해 기본값으로 실행 중이었다면 정상 파일을 덮어쓰기 전에 사본을 남긴다.
+                # 파일을 읽지 못해 Default값으로 실행 중이었다면 정상 파일을 덮어쓰기 전에 사본을 남긴다.
                 if read_failed and not cls._backup_corrupt_settings(path):
                     return False
                 legacy = cls._secret_values(previous)
@@ -273,7 +273,7 @@ class ConfigManager:
                     else:
                         updated.pop(key, None)
                 if "custom_llm_providers" in settings and not read_failed:
-                    # 이번 저장에서 지운 제공자의 키만 지운다. 설정 파일이 손상돼 제공자 목록을
+                    # 이번 Save에서 지운 제공자의 키만 지운다. Settings 파일이 손상돼 제공자 목록을
                     # 잃었을 때 남은 키까지 지우면 파일을 되살려도 키를 되찾을 수 없다.
                     removed = set(get_custom_providers(previous)) - set(get_custom_providers(normalized))
                     for key in tuple(updated):
@@ -288,11 +288,11 @@ class ConfigManager:
                 try:
                     cls._write_public_settings(path, public)
                 except Exception:
-                    # 공개 설정 기록이 실패하면 비밀 저장소도 이전 상태로 되돌린다.
+                    # 공개 Settings 기록이 실패하면 비밀 Save소도 이전 상태로 되돌린다.
                     if updated != stored:
                         store.restore(rollback)
                     raise
-                logging.info("설정을 저장했습니다.")
+                logging.info("Settings을 Save했습니다.")
                 cls._cached_settings = {**cls.DEFAULT_SETTINGS, **public, **updated}
                 cls._settings_read_failed = False
                 return True
@@ -344,7 +344,7 @@ class ConfigManager:
     @classmethod
     def _orphaned_custom_secret_keys(cls, stored: dict) -> set[str]:
         settings = cls.load_settings()
-        # 설정을 읽지 못해 기본값으로 실행 중이면 제공자 목록을 믿을 수 없다. 아무 키도 고르지 않는다.
+        # Settings을 읽지 못해 Default값으로 실행 중이면 제공자 목록을 믿을 수 없다. 아무 키도 고르지 않는다.
         if cls._settings_read_failed:
             return set()
         active_providers = set(get_custom_providers(settings))

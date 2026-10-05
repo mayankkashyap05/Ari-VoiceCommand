@@ -36,7 +36,7 @@ def _c(pattern: str, flags: int = 0) -> re.Pattern:
 
 
 _DANGEROUS_PYTHON: List[_CompiledRule] = [
-    # 문자열로 실행하는 코드(exec 등)와 구문 오류가 있는 코드는 AST로 잡히지 않아 본문 검색도 함께 한다.
+    # 문자열로 실행하는 코드(exec 등)와 구문 Error가 있는 코드는 AST로 잡히지 않아 본문 검색도 함께 한다.
     # 왼쪽 경계는 todos.remove(x) 같은 리스트 조작이 삭제로 오인되지 않게 한다.
     # 밑줄이나 점 뒤(self._os.remove)는 삭제일 수 있어 그대로 잡는다.
     (_c(r'(?<![A-Za-z0-9])os\s*\.\s*(remove|unlink|rmdir|removedirs)\s*\('), "파일/폴더 삭제"),
@@ -44,7 +44,7 @@ _DANGEROUS_PYTHON: List[_CompiledRule] = [
     (_c(r'ctypes\s*\.\s*(windll|cdll|CDLL|WinDLL)\s*[\.\(]'), "ctypes 저수준 DLL 로드"),
     (_c(r'ctypes\s*\.\s*cast\s*\('),                "ctypes 포인터 캐스팅"),
     (_c(r'win32api|win32con|winreg'),               "Windows API/레지스트리 접근"),
-    (_c(r'requests\s*\.\s*(post|put|delete)'),      "데이터 외부 전송/수정"),
+    (_c(r'requests\s*\.\s*(post|put|delete)'),      "데이터 외부 Send/수정"),
 ]
 
 _CAUTION_PYTHON: List[_CompiledRule] = [
@@ -54,25 +54,25 @@ _CAUTION_PYTHON: List[_CompiledRule] = [
 ]
 
 _DANGEROUS_SHELL: List[_CompiledRule] = [
-    (_c(r'\bshutdown\b',    re.I), "컴퓨터 종료"),
+    (_c(r'\bshutdown\b',    re.I), "computer shutdown"),
     (_c(r'\blogoff\b|\btsdiscon\b', re.I), "세션 종료"),
     (_c(r'\bshutdown\b.*\b/r\b', re.I), "컴퓨터 재시작"),
     (_c(r'\bformat\s+\w:',  re.I), "디스크 포맷"),
     (_c(r'del\s+/[fFsS]',   re.I), "강제 파일 삭제"),
     (_c(r'rd\s+/[sS]',      re.I), "폴더 강제 삭제"),
     (_c(r'reg\s+delete',    re.I), "레지스트리 삭제"),
-    (_c(r'netsh\s+.*firewall', re.I), "방화벽 설정 변경"),
-    (_c(r'\bbcdedit\b',     re.I), "부트 설정 변경"),
+    (_c(r'netsh\s+.*firewall', re.I), "방화벽 Settings 변경"),
+    (_c(r'\bbcdedit\b',     re.I), "부트 Settings 변경"),
     (_c(r'\bdiskpart\b',    re.I), "디스크 파티션 조작"),
-    # 셸 단계는 PowerShell로 실행되므로 PowerShell 명령과 삭제 별칭도 같은 기준으로 막는다.
+    # 셸 steps는 PowerShell로 실행되므로 PowerShell 명령과 삭제 별칭도 같은 기준으로 막는다.
     (_c(r'\b(?:Remove-Item|Clear-Content)\b|(?<![\w-])(?:rm|ri|rmdir|rd|del|erase)(?![\w-])', re.I), "파일/폴더 삭제"),
-    (_c(r'\bStop-Computer\b', re.I), "컴퓨터 종료"),
+    (_c(r'\bStop-Computer\b', re.I), "computer shutdown"),
     (_c(r'\bRestart-Computer\b', re.I), "컴퓨터 재시작"),
     (_c(r'\b(?:Format-Volume|Clear-Disk|Initialize-Disk|Remove-Partition)\b', re.I), "디스크 포맷"),
 ]
 
 _CAUTION_SHELL: List[_CompiledRule] = [
-    (_c(r'\bcurl\b.*(?:--data|-d\s|-X\s+(?:POST|PUT|DELETE|PATCH)|--upload-file)', re.I), "외부 데이터 전송"),
+    (_c(r'\bcurl\b.*(?:--data|-d\s|-X\s+(?:POST|PUT|DELETE|PATCH)|--upload-file)', re.I), "외부 데이터 Send"),
     (_c(r'\bcurl\b|\bwget\b', re.I), "외부 URL 요청"),
     (_c(r'\btaskkill\b|\bStop-Process\b', re.I), "프로세스 강제 종료"),
     (_c(r'\bnet\s+user\b',      re.I), "사용자 계정 변경"),
@@ -118,7 +118,7 @@ def _python_contains_delete_call(code: str) -> bool:
     try:
         tree = ast.parse(code)
     except (SyntaxError, TypeError, ValueError):
-        # 구문 오류 문자열(exec 인자 등)은 정규식 판정만 적용한다.
+        # 구문 Error 문자열(exec 인자 등)은 정규식 판정만 Apply한다.
         return any(pattern.search(code) for pattern, _desc in _DANGEROUS_PYTHON[:2])
 
     os_modules = {"os"}
@@ -327,7 +327,7 @@ class SafetyChecker:
         if any(token in code.lower() for token in _SENSITIVE_INPUT_KEYWORDS) and any(
             action in code for action in ("type_text", "write_clipboard", "press_keys")
         ):
-            matched.append("민감 정보 입력 자동화")
+            matched.append("민감 정보 Input 자동화")
         if matched:
             translated = _translate_matches(matched)
             report = SafetyReport(

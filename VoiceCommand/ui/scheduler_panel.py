@@ -133,7 +133,7 @@ class SchedulerPanel(FloatingPanel):
     # ── 콘텐츠 구성 ───────────────────────────────────────────────────────────
 
     def _build_content(self) -> None:
-        # 작업 목록 스크롤 영역
+        # 작업 목록 스크롤 zero역
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -165,7 +165,7 @@ class SchedulerPanel(FloatingPanel):
         form_lay.addWidget(add_title)
 
         self._name_input  = create_input_field(_("작업 이름 (예: 뉴스 요약)"))
-        self._goal_input  = create_input_field(_("목표 (예: 최신 뉴스를 요약해서 저장해줘)"))
+        self._goal_input  = create_input_field(_("목표 (예: 최신 뉴스를 요약해서 Save해줘)"))
         self._sched_input = create_input_field(_("스케줄 (예: 매일 09:00  /  매주 월요일 09:00  /  30분마다)"))
         for w in (self._name_input, self._goal_input, self._sched_input):
             form_lay.addWidget(w)
@@ -203,7 +203,7 @@ class SchedulerPanel(FloatingPanel):
         goal  = self._goal_input.text().strip()
         sched = self._sched_input.text().strip()
         if not (name and goal and sched):
-            show_temp_status(self._status_lbl, _("⚠️ 이름·목표·스케줄을 모두 입력해주세요."))
+            show_temp_status(self._status_lbl, _("⚠️ 이름·목표·스케줄을 모두 Input해주세요."))
             return
         if not self._scheduler:
             show_temp_status(self._status_lbl, _("⚠️ 스케줄러가 연결되지 않았습니다."))

@@ -1,6 +1,6 @@
 """
-실시간 테마 반영 유틸리티
-테마 JSON 저장 후 앱 전체 재시작 없이 열려 있는 UI를 새 테마 기준으로 재생성한다.
+실시간 Theme 반zero 유틸리티
+Theme JSON Save later 앱 전체 재시작 없이 열려 있는 UI를 새 Theme 기준으로 play성한다.
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ def apply_live_theme(tray_icon=None, character_widget=None):
         try:
             tray_icon._apply_menu_theme()
         except Exception as exc:
-            logging.debug(f"[ThemeRuntime] 트레이 메뉴 갱신 실패: {exc}")
+            logging.debug(f"[ThemeRuntime] Tray menu update failed: {exc}")
 
     text_interface = getattr(tray_icon, "text_interface", None) if tray_icon else None
     if text_interface is None and character_widget is not None:
@@ -38,10 +38,10 @@ def apply_live_theme(tray_icon=None, character_widget=None):
         try:
             text_interface.refresh_theme()
         except Exception as exc:
-            logging.debug(f"[ThemeRuntime] 텍스트 UI 갱신 실패: {exc}")
+            logging.debug(f"[ThemeRuntime] Text UI update failed: {exc}")
 
     if character_widget is not None and hasattr(character_widget, "refresh_theme"):
         try:
             character_widget.refresh_theme()
         except Exception as exc:
-            logging.debug(f"[ThemeRuntime] 캐릭터 갱신 실패: {exc}")
+            logging.debug(f"[ThemeRuntime] Character Update failed: {exc}")

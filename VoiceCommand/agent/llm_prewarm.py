@@ -40,7 +40,7 @@ def _warm_client(key, client):
 
 
 def prewarm_current_llm_connection() -> bool:
-    """설정과 잠금 상태를 확인한 뒤 예열 요청을 예약한다."""
+    """Settings과 잠금 상태를 OK한 뒤 예열 요청을 예약한다."""
     try:
         from core.config_manager import ConfigManager
 

@@ -1,6 +1,6 @@
 """
 날씨 조회 서비스 모듈
-Open-Meteo API 사용 (무료, API 키 불필요)
+Open-Meteo API 사용 (free, no API key required)
 """
 import logging
 import re
@@ -24,7 +24,7 @@ WMO_CODE = {
     95: "천둥번개", 96: "천둥번개(우박)", 99: "천둥번개(우박)",
 }
 
-# 영문 도시명 → 한국어 매핑
+# zero문 도시명 → 한국어 매핑
 CITY_NAME_MAP = {
     "Seoul": "서울", "Busan": "부산", "Incheon": "인천", "Daegu": "대구",
     "Daejeon": "대전", "Gwangju": "광주", "Ulsan": "울산", "Suwon": "수원",
@@ -69,7 +69,7 @@ class WeatherService:
         pass
 
     def get_current_location(self):
-        """IP 기반 현재 위치 조회. 실패 시 서울 기본값 반환."""
+        """IP 기반 현재 위치 조회. 실패 시 서울 Default값 반환."""
         now = time.time()
         with self._cache_lock:
             if self._location_cache and now - self._location_cache[0] < self._LOCATION_TTL_SECONDS:
@@ -196,12 +196,12 @@ class WeatherService:
                 temp = current["temperature_2m"]
                 humidity = current["relative_humidity_2m"]
                 rain = current["precipitation"]
-                status = _(WMO_CODE.get(current["weather_code"], "알 수 없음"))
+                status = _(WMO_CODE.get(current["weather_code"], "알 수 None"))
             else:
                 temp = (t_max + t_min) / 2
                 humidity = None
                 rain = 0
-                status = _(WMO_CODE.get(forecast_code, "알 수 없음"))
+                status = _(WMO_CODE.get(forecast_code, "알 수 None"))
 
             location = f"{city} " if city else ""
             day_label = _("현재") if day_offset == 0 else (_("내일") if day_offset == 1 else _("모레"))
@@ -222,8 +222,8 @@ class WeatherService:
             return info
 
         except requests.exceptions.RequestException as e:
-            logging.error(f"날씨 요청 오류: {e}")
+            logging.error(f"날씨 요청 Error: {e}")
             return _("날씨 정보를 가져오는 데 실패했습니다.")
         except Exception as e:
-            logging.error(f"날씨 처리 오류: {e}", exc_info=True)
-            return _("날씨 정보를 가져오는 중 오류가 발생했습니다.")
+            logging.error(f"날씨 처리 Error: {e}", exc_info=True)
+            return _("날씨 정보를 가져오는 중 Error가 발생했습니다.")

@@ -95,7 +95,7 @@ class WeeklyReport:
 
         suggestions = []
         if fail_count >= 3 and success_rate < 60:
-            suggestions.append(_("실패율이 높습니다. 복잡한 목표를 더 작은 단계로 나눠보세요."))
+            suggestions.append(_("실패율이 높습니다. 복잡한 목표를 더 작은 steps로 나눠보세요."))
         if low_confidence:
             suggestions.append(
                 _("신뢰도 낮은 스킬 {count}개 ({names})를 재학습하거나 비활성화하세요.").format(

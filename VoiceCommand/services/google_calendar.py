@@ -1,4 +1,4 @@
-﻿"""Google Calendar 서비스 통합 골격."""
+"""Google Calendar 서비스 통합 골격."""
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone

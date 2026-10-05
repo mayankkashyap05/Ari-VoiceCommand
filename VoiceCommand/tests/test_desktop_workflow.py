@@ -23,8 +23,8 @@ class _WorkflowHelper(AutomationHelpers):
 
     def wait_for_window(self, title_substring: str, timeout: float = 10.0, goal_hint: str = "") -> str:
         self.events.append(("wait", title_substring, goal_hint))
-        self.remember_window_target(goal_hint or title_substring, "제목 없음 - 메모장")
-        return "제목 없음 - 메모장"
+        self.remember_window_target(goal_hint or title_substring, "제목 None - 메모장")
+        return "제목 None - 메모장"
 
     def focus_window(self, title_substring: str, goal_hint: str = "") -> bool:
         self.events.append(("focus", title_substring, goal_hint))
@@ -68,7 +68,7 @@ class _WorkflowHelper(AutomationHelpers):
         return "copied text"
 
     def get_desktop_state(self) -> dict:
-        return {"active_window_title": "제목 없음 - 메모장"}
+        return {"active_window_title": "제목 None - 메모장"}
 
     def find_windows(self, title_substring: str, limit: int = 5):
         class _Window:
@@ -82,7 +82,7 @@ class _WorkflowHelper(AutomationHelpers):
             def restore(self):
                 return None
 
-        return [_Window("제목 없음 - 메모장"), _Window("메모장 - 보조")] if "메모장" in title_substring else []
+        return [_Window("제목 None - 메모장"), _Window("메모장 - 보조")] if "메모장" in title_substring else []
 
 
 class DesktopWorkflowTests(unittest.TestCase):
@@ -100,10 +100,10 @@ class DesktopWorkflowTests(unittest.TestCase):
         )
 
         self.assertEqual(result["opened"], "notepad")
-        self.assertEqual(result["window_title"], "제목 없음 - 메모장")
+        self.assertEqual(result["window_title"], "제목 None - 메모장")
         self.assertIn("성공: type", result["actions"][0])
         self.assertIn("성공: hotkey", result["actions"][1])
-        self.assertEqual(result["state"]["active_window_title"], "제목 없음 - 메모장")
+        self.assertEqual(result["state"]["active_window_title"], "제목 None - 메모장")
 
     def test_run_desktop_workflow_supports_richer_action_types(self):
         helper = _WorkflowHelper()
@@ -154,7 +154,7 @@ class DesktopWorkflowTests(unittest.TestCase):
 
         self.assertTrue(state["exists"])
         self.assertEqual(state["count"], 2)
-        self.assertIn("제목 없음 - 메모장", state["titles"])
+        self.assertIn("제목 None - 메모장", state["titles"])
 
     def test_run_desktop_workflow_supports_window_state_actions(self):
         helper = _WorkflowHelper()

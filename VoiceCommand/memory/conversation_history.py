@@ -1,4 +1,4 @@
-"""대화 기록 관리."""
+"""Conversation history 관리."""
 import atexit
 import json
 import logging
@@ -15,7 +15,7 @@ _INTERNAL_USER_PREFIXES = (
 
 
 def memory_text_matches(text: str, value: str) -> bool:
-    # 영문·숫자·밑줄로 시작하거나 끝나는 값은 그쪽이 단어 경계일 때만 맞춘다
+    # zero문·숫자·밑줄로 시작하거나 끝나는 값은 그쪽이 단어 경계일 때만 맞춘다
     # (tea가 steak·team에, AB12가 AB12_X에 걸리지 않게). 조사가 바로 붙는 한글 값은 포함 여부만 본다.
     needle = str(value or "").strip().casefold()
     if not needle:
@@ -315,7 +315,7 @@ class ConversationHistory:
             try:
                 write_json_atomic(self.file_path, payload, ensure_ascii=False, indent=2)
             except (OSError, TypeError, ValueError) as exc:
-                logging.error("대화 기록 저장 실패: %s", exc)
+                logging.error("Conversation history Save 실패: %s", exc)
                 if raise_on_error:
                     raise
                 return False
@@ -339,22 +339,22 @@ class ConversationHistory:
                 if len(self.active) > self.MAX_ACTIVE:
                     self._compress_oldest()
                 logging.info(
-                    "대화 기록 로드: active=%s, summaries=%s",
+                    "Conversation history 로드: active=%s, summaries=%s",
                     len(self.active),
                     len(self.summaries),
                 )
             except FileNotFoundError:
-                logging.info("새 대화 기록 시작")
+                logging.info("새 Conversation history 시작")
             except (json.JSONDecodeError, UnicodeDecodeError) as exc:
                 try:
                     backup_corrupt_file(self.file_path)
                 except OSError as backup_error:
-                    logging.error("손상된 대화 기록 백업 실패: %s", backup_error)
+                    logging.error("손상된 Conversation history 백업 실패: %s", backup_error)
                 self.active = []
                 self.summaries = []
-                logging.warning("대화 기록 JSON 로드 실패: %s", exc)
+                logging.warning("Conversation history JSON load failed: %s", exc)
             except (OSError, TypeError, ValueError, AttributeError) as exc:
-                logging.error("대화 기록 로드 실패: %s", exc)
+                logging.error("Conversation history 로드 실패: %s", exc)
 
     def _schedule_save(self) -> None:
         with self._lock:

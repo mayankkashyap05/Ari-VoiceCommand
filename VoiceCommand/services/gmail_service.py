@@ -1,4 +1,4 @@
-﻿"""Gmail 서비스 통합 골격."""
+"""Gmail 서비스 통합 골격."""
 from __future__ import annotations
 
 import base64

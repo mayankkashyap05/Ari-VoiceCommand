@@ -79,7 +79,7 @@ def is_custom_secret_key(key: object) -> bool:
 def normalize_custom_provider_settings(settings: dict[str, object]) -> None:
     """잘못되거나 삭제된 사용자 제공자 선택을 되돌린다.
 
-    기본 제공자는 groq로, 역할 제공자는 빈 값("기본 제공자와 동일")으로 돌린다.
+    Default 제공자는 groq로, 역할 제공자는 빈 값("Default 제공자와 동일")으로 돌린다.
     """
     providers = get_custom_providers(settings)
     if "custom_llm_providers" in settings:

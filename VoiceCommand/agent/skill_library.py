@@ -14,7 +14,7 @@ from agent.agent_math import cosine_similarity
 from agent.tag_keywords import TAG_KEYWORDS as _TAG_KEYWORDS
 
 _DEVELOPER_SCOPE_RE = re.compile(
-    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:저장소|repository|codebase|repo)\b)?|저장소|repository|codebase|\brepo\b|\bdocs\b)",
+    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:Save소|repository|codebase|repo)\b)?|Save소|repository|codebase|\brepo\b|\bdocs\b)",
     re.IGNORECASE,
 )
 _DEVELOPER_ACTION_RE = re.compile(
@@ -52,7 +52,7 @@ class SkillLibrary:
             from core.resource_manager import ResourceManager
             self.file_path = ResourceManager.get_writable_path("skill_library.json")
         except Exception as exc:
-            logging.debug("[SkillLibrary] 저장 경로 조회 실패, 로컬 파일 폴백 사용: %s", exc)
+            logging.debug("[SkillLibrary] Save 경로 조회 실패, 로컬 파일 폴백 사용: %s", exc)
             self.file_path = os.path.join(os.path.dirname(__file__), "skill_library.json")
         self.skills: List[Skill] = []
         self._save_lock = threading.RLock()
@@ -89,9 +89,9 @@ class SkillLibrary:
                 with open(self.file_path, "w", encoding="utf-8") as f:
                     json.dump([asdict(skill) for skill in self.skills], f, ensure_ascii=False, indent=2)
             except FileNotFoundError as e:
-                logging.debug("[SkillLibrary] 저장 생략: %s", e)
+                logging.debug("[SkillLibrary] Save 생략: %s", e)
             except Exception as e:
-                logging.warning("[SkillLibrary] 저장 실패: %s", e)
+                logging.warning("[SkillLibrary] Save 실패: %s", e)
 
     def list_skills(self) -> List[Skill]:
         return [skill for skill in self.skills if skill.enabled]
@@ -187,7 +187,7 @@ class SkillLibrary:
                     threading.Thread(
                         target=self._async_optimize, args=(skill, error), daemon=True
                     ).start()
-                # Direction 2: 컴파일 스킬 실패 시 코드 수정 (백그라운드)
+                # Direction 2: Compiled skill 실패 시 코드 수정 (백그라운드)
                 if skill.compiled and error:
                     threading.Thread(
                         target=self._async_repair_compiled, args=(skill, error), daemon=True
@@ -234,7 +234,7 @@ class SkillLibrary:
             logging.debug("[SkillLibrary] 스텝 수정 실패: %s", exc)
 
     def _async_condense(self, skill: Skill):
-        """Direction 1: 성공 반복 후 스텝 압축."""
+        """Direction 1: 성공 반복 later 스텝 압축."""
         try:
             from agent.skill_optimizer import get_skill_optimizer
             new_steps = get_skill_optimizer().condense_steps(skill)
@@ -266,7 +266,7 @@ class SkillLibrary:
             logging.debug("[SkillLibrary] Python 컴파일 실패: %s", exc)
 
     def _async_repair_compiled(self, skill: Skill, error: str):
-        """Direction 2: 컴파일 스킬 코드 LLM 수정."""
+        """Direction 2: Compiled skill 코드 LLM 수정."""
         try:
             from agent.skill_optimizer import get_skill_optimizer
             optimizer = get_skill_optimizer()
@@ -328,7 +328,7 @@ class SkillLibrary:
         ]
         if re.search(r"https?://", text):
             tags.append("웹")
-        return self._merge_tags([], tags or ["일반"])
+        return self._merge_tags([], tags or ["General"])
 
     def _merge_tags(self, current: List[str], new_tags: List[str]) -> List[str]:
         merged = []
@@ -337,7 +337,7 @@ class SkillLibrary:
             if not value or value in merged:
                 continue
             merged.append(value)
-        return merged or ["일반"]
+        return merged or ["General"]
 
     def _recalculate_confidence(self, skill: Skill) -> float:
         confidence = 0.35

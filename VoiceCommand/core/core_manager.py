@@ -180,16 +180,16 @@ class AriCore(QObject):
         self.voice_thread.result.connect(self.handle_voice_result)
 
     def init_microphone(self):
-        """마이크 초기화 (설정값 적용)"""
+        """Microphone 초기화 (Settings값 Apply)"""
         from core.config_manager import ConfigManager
         settings = ConfigManager.load_settings()
         selected_microphone = settings.get("microphone", "")
         
         if selected_microphone:
-            logging.info(f"설정된 마이크 사용: {selected_microphone}")
+            logging.info(f"Settings된 Microphone 사용: {selected_microphone}")
             self.voice_thread.set_microphone(selected_microphone)
         else:
-            logging.info("기본 마이크를 사용합니다.")
+            logging.info("Default Microphone를 사용합니다.")
 
     def handle_voice_result(self, text):
         if is_session_lock_blocked():
@@ -201,11 +201,11 @@ class AriCore(QObject):
     def cleanup(self):
         logging.info("=== AriCore cleanup 시작 ===")
 
-        # Step 1: 음성 인식 먼저 중지 (새 명령 차단)
-        logging.info("Step 1/7: 음성 인식 중지")
+        # Step 1: speech recognition 먼저 중지 (새 명령 차단)
+        logging.info("Step 1/7: speech recognition 중지")
         self.voice_thread.stop()
         if not self.voice_thread.wait(5000):
-            logging.warning("음성 인식 스레드 타임아웃")
+            logging.warning("speech recognition 스레드 타임아웃")
 
         # Step 2: 파일 감시자 중지
         logging.info("Step 2/7: 파일 감시자 중지")

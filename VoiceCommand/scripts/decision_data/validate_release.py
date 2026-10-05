@@ -48,7 +48,7 @@ def _load_json(path: Path) -> dict:
 
 
 def check_model(model_dir: Path, rows: list[dict], snapshot_path: Path) -> list[str]:
-    """가중치, 라벨, 학습 해시가 설정에 적힌 값과 일치해야 한다."""
+    """가중치, 라벨, 학습 해시가 Settings에 적힌 값과 일치해야 한다."""
     failures = []
     config = _load_json(model_dir / "config.json")
     weights_sha = hashlib.sha256((model_dir / "weights.npz").read_bytes()).hexdigest()
@@ -95,7 +95,7 @@ def check_metrics(
     *,
     strict_release: bool = False,
 ) -> list[str]:
-    """정밀도 회귀와 의미 해석기가 확인한 최소 표본 수를 검사한다.
+    """정밀도 회귀와 의미 해석기가 OK한 최소 표본 수를 검사한다.
 
     개발 하한은 빈 검사를 막는다. 배포 하한은 배포 준비 검사를 위한 더 강한 표본
     수 기준이지만, 어느 쪽도 실제 정밀도가 99% 이상이라는 근거는 아니다. 그
@@ -163,7 +163,7 @@ def check_metrics(
 
 
 def check_artifacts(result: dict, data_dir: Path, model_dir: Path = MODEL_DIR) -> list[str]:
-    """커밋된 측정값은 모델, 자료, 정책, 해석기 입력과 일치해야 한다."""
+    """커밋된 측정값은 모델, 자료, 정책, 해석기 Input과 일치해야 한다."""
     failures = []
     fingerprints = result["provenance"]
     for name in ARTIFACTS:
@@ -229,7 +229,7 @@ MIN_DIRECT_APPROVED_PER_TOOL_LANGUAGE = 45
 
 
 def check_review_corpora(strict_release: bool = False, loader=load_review_corpora) -> list[str]:
-    """사람 검수 코퍼스를 검증한다. 배포 빌드는 대부분의 행이 검수됐는지도 확인한다."""
+    """사람 검수 코퍼스를 검증한다. 배포 빌드는 대부분의 행이 검수됐는지도 OK한다."""
     try:
         release_rows, safety_rows = loader()
     except (OSError, ValueError, KeyError, TypeError) as exc:

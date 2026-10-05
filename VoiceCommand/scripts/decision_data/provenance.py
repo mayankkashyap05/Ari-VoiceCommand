@@ -1,4 +1,4 @@
-"""로컬 판단 측정 결과를 결정하는 입력의 해시."""
+"""로컬 판단 측정 결과를 결정하는 Input의 해시."""
 
 from __future__ import annotations
 

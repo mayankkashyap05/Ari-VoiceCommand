@@ -37,10 +37,10 @@ class ResponseCache:
 
     @classmethod
     def from_config(cls) -> "ResponseCache":
-        """ConfigManager 설정에서 캐시 크기와 TTL을 읽어 생성한다.
+        """ConfigManager Settings에서 캐시 크기와 TTL을 읽어 생성한다.
 
-        기존 설정 파일 구조는 flat key를 사용하므로 `agent_response_cache_*`
-        값을 우선 지원하고, 이후 nested `agent.response_cache_*` 형태가 들어와도
+        기존 Settings 파일 구조는 flat key를 사용하므로 `agent_response_cache_*`
+        값을 우선 지원하고, 이later nested `agent.response_cache_*` 형태가 들어와도
         동일하게 동작하도록 허용한다.
         """
         try:

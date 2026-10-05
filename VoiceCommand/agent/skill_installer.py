@@ -86,7 +86,7 @@ class SkillInstaller:
         was_enabled = bool(metadata.get("enabled", True))
         journal_path = os.path.join(self.skills_dir, _UPDATE_JOURNAL)
         if os.path.exists(journal_path):
-            # 이전 업데이트의 복구가 끝나지 않았다. 기록을 덮어쓰면 남은 백업을 되돌릴 수 없다.
+            # 이전 Update의 복구가 끝나지 않았다. 기록을 덮어쓰면 남은 백업을 되돌릴 수 없다.
             raise RuntimeError(_("skills.update_restore_failed").format(path=journal_path))
         self._update_backups = {}
         enabled_by_name = {}
@@ -107,9 +107,9 @@ class SkillInstaller:
                 enabled = was_enabled if name == folder_name else enabled_by_name.get(name, True)
                 self._write_metadata(os.path.join(self.skills_dir, name), source, enabled=enabled)
             # 기록을 먼저 지운다. 백업을 지우다 종료돼도 반쯤 지워진 백업으로 되돌리지 않는다.
-            # 기록을 지우지 못했으면 백업에 손대지 않고 업데이트를 되돌린다.
+            # 기록을 지우지 못했으면 백업에 손대지 않고 Update를 되돌린다.
             if not self._clear_update_journal():
-                raise OSError(_("스킬 업데이트 기록을 지우지 못해 업데이트를 되돌렸습니다."))
+                raise OSError(_("스킬 Update 기록을 지우지 못해 Update를 되돌렸습니다."))
             for backup in self._update_backups.values():
                 if backup:
                     shutil.rmtree(backup, ignore_errors=True)
@@ -143,7 +143,7 @@ class SkillInstaller:
             self._update_backups = None
 
     def _write_update_journal(self) -> None:
-        # 백업 폴더 이름 -> 원래 폴더 이름. 업데이트가 새로 만든 폴더는 이름 -> null로 적는다.
+        # 백업 폴더 이름 -> 원래 폴더 이름. Update가 새로 만든 폴더는 이름 -> null로 적는다.
         entries = {
             os.path.basename(backup or destination): os.path.basename(destination) if backup else None
             for destination, backup in (self._update_backups or {}).items()
@@ -158,7 +158,7 @@ class SkillInstaller:
         except FileNotFoundError:
             pass
         except OSError as exc:
-            logger.warning("스킬 업데이트 기록을 지우지 못했습니다: %s", exc)
+            logger.warning("스킬 Update 기록을 지우지 못했습니다: %s", exc)
             return False
         return True
 

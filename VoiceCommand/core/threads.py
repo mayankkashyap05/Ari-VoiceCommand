@@ -1,4 +1,4 @@
-"""음성 인식, TTS, 명령 실행을 담당하는 Qt 작업 스레드 모음."""
+"""speech recognition, TTS, 명령 실행을 담당하는 Qt 작업 스레드 모음."""
 
 import logging
 import time
@@ -31,13 +31,13 @@ def _wait_for_tts_playback_completion(
     timeout: float = 15.0,
     now_fn: Callable[[], float] = time.monotonic,
 ) -> bool:
-    """TTS 재생 완료 이벤트를 기다린다."""
+    """TTS play 완료 이벤트를 기다린다."""
     wait_start = now_fn()
     while is_tts_playing():
         elapsed = now_fn() - wait_start
         remaining = timeout - elapsed
         if remaining <= 0:
-            logging.warning("TTS 대기 타임아웃 (%.0f초 초과)", timeout)
+            logging.warning("TTS wait timeout (%.0f초 초과)", timeout)
             return False
         # 완료 신호가 누락돼도 오래 멈추지 않도록 짧게 나눠 기다린다.
         playback_finished.wait(min(remaining, 0.3))
@@ -49,7 +49,7 @@ def _wait_for_tts_playback_completion(
 # ───────────────────────────────────────────────────────────────────────────
 
 class VoiceRecognitionThread(QThread):
-    """음성 인식 스레드: 웨이크워드 감지 및 명령 처리"""
+    """speech recognition 스레드: Wake word 감지 및 명령 처리"""
     result = Signal(str)
     listening_state_changed = Signal(bool)
     microphone_unavailable = Signal()
@@ -88,7 +88,7 @@ class VoiceRecognitionThread(QThread):
             self.microphone_available = True
             self._microphone_active = True
         except Exception as exc:
-            logging.warning("마이크 초기화 실패: %s. 음성 인식을 사용할 수 없습니다.", exc)
+            logging.warning("Microphone initialization failed: %s. speech recognition을 사용할 수 없습니다.", exc)
             self.microphone_available = False
             self.microphone_unavailable.emit()
 
@@ -112,7 +112,7 @@ class VoiceRecognitionThread(QThread):
             self._voice_wakeup.set()
 
     def request_listening(self, push_to_talk=False) -> bool:
-        """음성 입력 시작을 대기 루프에 전달한다."""
+        """음성 Input 시작을 대기 루프에 전달한다."""
         if (
             not self.running
             or self.microphone is None
@@ -144,14 +144,14 @@ class VoiceRecognitionThread(QThread):
             logging.debug("LLM 연결 예열을 건너뜁니다: %s", exc)
 
     def release_listening(self) -> None:
-        """push-to-talk 입력 종료를 전달한다."""
+        """push-to-talk Input 종료를 전달한다."""
         with self._voice_activation_lock:
             request = self._active_voice_activation or self._pending_voice_activation
             if request and request["released"] is not None:
                 request["released"].set()
 
     def refresh_voice_settings(self) -> None:
-        """음성 설정 변경을 대기 루프에 알린다."""
+        """음성 Settings 변경을 대기 루프에 알린다."""
         self._voice_wakeup.set()
 
     def _take_voice_activation(self):
@@ -209,14 +209,14 @@ class VoiceRecognitionThread(QThread):
     def _microphone_source(self, microphone=None):
         microphone = microphone or self.microphone
         if microphone is None:
-            raise OSError("마이크를 사용할 수 없습니다.")
+            raise OSError("Microphone를 사용할 수 없습니다.")
         with _audio_lock:
             with microphone as source:
                 if source is None or getattr(microphone, "stream", None) is None:
-                    raise OSError("마이크 입력 스트림을 열 수 없습니다.")
+                    raise OSError("Microphone Input 스트림을 열 수 없습니다.")
                 yield source
 
-    def _disable_microphone(self, error, context="마이크 입력을 사용할 수 없습니다"):
+    def _disable_microphone(self, error, context="Microphone Input을 사용할 수 없습니다"):
         with self._microphone_request_lock:
             self.microphone = None
             self._microphone_active = False
@@ -241,9 +241,9 @@ class VoiceRecognitionThread(QThread):
                 self._probe_microphone(microphone)
         except Exception as exc:
             if previous_microphone is None:
-                self._disable_microphone(exc, "설정한 마이크를 사용할 수 없습니다")
+                self._disable_microphone(exc, "Settings한 Microphone를 사용할 수 없습니다")
             else:
-                logging.warning("설정한 마이크를 사용할 수 없어 현재 마이크를 유지합니다: %s", exc)
+                logging.warning("Settings한 Microphone를 사용할 수 없어 현재 Microphone를 유지합니다: %s", exc)
             return
 
         with self._microphone_request_lock:
@@ -256,7 +256,7 @@ class VoiceRecognitionThread(QThread):
         self._set_microphone_status(True)
 
     def _retry_microphone(self) -> bool:
-        """음성 스레드에서 저장된 마이크를 다시 연다."""
+        """음성 스레드에서 Save된 Microphone를 다시 연다."""
         from VoiceCommand import SharedMicrophone, get_microphone_index_helper
 
         try:
@@ -267,7 +267,7 @@ class VoiceRecognitionThread(QThread):
             if wake_word_enabled:
                 self._probe_microphone(microphone)
         except Exception as exc:
-            logging.debug("마이크 재연결 시도 실패: %s", exc)
+            logging.debug("Microphone 재연결 시도 실패: %s", exc)
             interval_index = _MICROPHONE_RETRY_INTERVALS.index(self._microphone_retry_interval)
             self._microphone_retry_interval = _MICROPHONE_RETRY_INTERVALS[
                 min(interval_index + 1, len(_MICROPHONE_RETRY_INTERVALS) - 1)
@@ -309,7 +309,7 @@ class VoiceRecognitionThread(QThread):
         except Exception as exc:
             self.wake_detector = None
             self._voice_setup_failed = True
-            logging.warning("음성 인식 기능 초기화 실패: %s", exc, exc_info=True)
+            logging.warning("speech recognition 기능 initialization failed: %s", exc, exc_info=True)
             return False
 
     def _apply_recognizer_settings(self):
@@ -347,7 +347,7 @@ class VoiceRecognitionThread(QThread):
 
     def run(self):
         try:
-            logging.info("음성 감지 루프 시작")
+            logging.info("Voice detection 루프 시작")
             while self.running:
                 self._apply_pending_microphone()
                 if not self.running:
@@ -376,7 +376,7 @@ class VoiceRecognitionThread(QThread):
                         self._refresh_stt_provider()
                     except Exception as exc:
                         self._voice_setup_failed = True
-                        logging.warning("음성 인식 설정을 적용하지 못했습니다: %s", exc, exc_info=True)
+                        logging.warning("speech recognition Settings을 Apply하지 못했습니다: %s", exc, exc_info=True)
                     continue
 
                 wake_word_enabled = bool(ConfigManager.get("wake_word_enabled", True))
@@ -393,7 +393,7 @@ class VoiceRecognitionThread(QThread):
                         self._microphone_probed = True
                         self._set_microphone_status(True)
                     except Exception as exc:
-                        self._disable_microphone(exc, "마이크 입력을 열 수 없습니다")
+                        self._disable_microphone(exc, "Microphone Input을 열 수 없습니다")
                         continue
 
                 if not self._initialize_voice_recognition():
@@ -404,7 +404,7 @@ class VoiceRecognitionThread(QThread):
                     self._refresh_stt_provider()
                 except Exception as exc:
                     self._voice_setup_failed = True
-                    logging.warning("음성 인식 설정을 적용하지 못했습니다: %s", exc, exc_info=True)
+                    logging.warning("speech recognition Settings을 Apply하지 못했습니다: %s", exc, exc_info=True)
                     continue
                 from VoiceCommand import is_session_lock_blocked, should_pause_wake_detection
                 request = self._take_voice_activation()
@@ -423,11 +423,11 @@ class VoiceRecognitionThread(QThread):
                             interrupt_event=self._voice_wakeup,
                         )
                 except (OSError, RuntimeError, AssertionError, AttributeError, ValueError) as exc:
-                    self._disable_microphone(exc, "마이크 입력 중 오류가 발생했습니다")
+                    self._disable_microphone(exc, "Microphone Input 중 Error가 발생했습니다")
                     continue
                 except Exception as exc:
                     self._voice_setup_failed = True
-                    logging.error("웨이크워드 처리 실패: %s", exc, exc_info=True)
+                    logging.error("Wake word 처리 실패: %s", exc, exc_info=True)
                     continue
 
                 try:
@@ -440,7 +440,7 @@ class VoiceRecognitionThread(QThread):
                         continue
 
                     if detected and should_pause_wake_detection():
-                        logging.info("TTS 보호 구간과 겹친 웨이크워드 감지를 무시합니다.")
+                        logging.info("TTS 보호 구간과 겹친 Wake word 감지를 무시합니다.")
                         with self._microphone_source() as source:
                             self.wake_detector.recalibrate(source)
                         time.sleep(0.05)
@@ -451,16 +451,16 @@ class VoiceRecognitionThread(QThread):
                             getattr(self.wake_detector, "detected_command", None)
                         )
                 except (OSError, RuntimeError, AssertionError, AttributeError, ValueError) as exc:
-                    self._disable_microphone(exc, "음성 인식 중 마이크 오류가 발생했습니다")
+                    self._disable_microphone(exc, "speech recognition 중 Microphone Error가 발생했습니다")
                     continue
                 except Exception as exc:
                     self._voice_setup_failed = True
-                    logging.error("음성 인식 처리 실패: %s", exc, exc_info=True)
+                    logging.error("speech recognition 처리 실패: %s", exc, exc_info=True)
                     continue
                 
                 time.sleep(0.1)
         except Exception as e:
-            logging.error("VoiceRecognitionThread 오류: %s", e, exc_info=True)
+            logging.error("VoiceRecognitionThread Error: %s", e, exc_info=True)
         finally:
             self.cleanup()
 
@@ -499,7 +499,7 @@ class VoiceRecognitionThread(QThread):
                     delay_ms = max(0, int(ConfigManager.get("post_tts_listen_delay_ms", 100)))
                     time.sleep(delay_ms / 1000)
                 except Exception as e:
-                    logging.error("TTS 대기 중 오류: %s", e)
+                    logging.error("TTS 대기 중 Error: %s", e)
                     time.sleep(0.5)
 
                 self._discard_pending_voice_activation()
@@ -512,7 +512,7 @@ class VoiceRecognitionThread(QThread):
 
         if is_session_lock_blocked():
             return
-        # 대화 후 재캘리브레이션
+        # 대화 later Recalibration
         from VoiceCommand import wake_detector_recalibrate_helper
         with self._microphone_source() as source:
             wake_detector_recalibrate_helper(self.wake_detector, source)
@@ -568,10 +568,10 @@ class VoiceRecognitionThread(QThread):
             if self.microphone is None or not self._microphone_active:
                 return
             if is_session_lock_blocked():
-                logging.info("잠금 상태에서 음성 입력 시작을 무시합니다.")
+                logging.info("잠금 상태에서 음성 Input 시작을 무시합니다.")
                 return
             if is_tts_playing():
-                logging.info("TTS 재생 중 음성 입력 시작을 무시합니다.")
+                logging.info("TTS play 중 음성 Input 시작을 무시합니다.")
                 return
             wake_word_enabled = bool(ConfigManager.get("wake_word_enabled", True))
             if not self._initialize_voice_recognition(wake_word_enabled):
@@ -584,9 +584,9 @@ class VoiceRecognitionThread(QThread):
                 with self._microphone_source() as source:
                     wake_detector_recalibrate_helper(self.wake_detector, source)
         except (OSError, RuntimeError, AssertionError, AttributeError, ValueError) as exc:
-            self._disable_microphone(exc, "음성 입력 중 마이크 오류가 발생했습니다")
+            self._disable_microphone(exc, "음성 Input 중 Microphone Error가 발생했습니다")
         except Exception as exc:
-            logging.error("단축키·클릭 음성 입력 실패: %s", exc, exc_info=True)
+            logging.error("단축키·클릭 음성 Input 실패: %s", exc, exc_info=True)
         finally:
             self._finish_voice_activation()
 
@@ -611,7 +611,7 @@ class VoiceRecognitionThread(QThread):
 # ───────────────────────────────────────────────────────────────────────────
 
 class TTSThread(QThread):
-    """TTS 전용 작업 스레드: 큐를 통해 순차 재생"""
+    """TTS 전용 작업 스레드: 큐를 통해 순차 play"""
     _MAX_QUEUE_SIZE = 32
     _COALESCE_WINDOW_SEC = 0.08
 
@@ -731,7 +731,7 @@ class TTSThread(QThread):
                     if tts_failure_pending:
                         if not tts_failure_notice_shown:
                             _show_tts_bubble(
-                                _("TTS 재생에 실패했습니다. 로그에서 자세한 내용을 확인하세요."),
+                                _("TTS play에 실패했습니다. 로그에서 자세한 내용을 OK하세요."),
                                 duration=3000,
                             )
                             tts_failure_notice_shown = True
@@ -757,7 +757,7 @@ class TTSThread(QThread):
                     return False
 
     def clear(self) -> int:
-        """대기 중인 말과 현재 묶음을 취소한다."""
+        """대기 중인 말과 현재 묶음을 Cancel한다."""
         removed = 0
         with self._batch_lock:
             if self._active_stop_event is not None:
@@ -792,7 +792,7 @@ class TTSThread(QThread):
                 TypeError,
                 ValueError,
             ) as exc:
-                logging.debug("현재 TTS 재생 중지 생략: %s", exc)
+                logging.debug("현재 TTS play 중지 생략: %s", exc)
 
             self.clear()
             with self._batch_lock:
@@ -825,7 +825,7 @@ class CommandExecutionThread(QThread):
             except queue.Empty:
                 continue
             except Exception as e:
-                logging.error("CommandExecutionThread 오류: %s", e)
+                logging.error("CommandExecutionThread Error: %s", e)
                 continue
 
     def execute(self, command):

@@ -1,5 +1,5 @@
 """
-화면 또는 지정 영역에서 텍스트를 추출하는 경량 OCR 헬퍼.
+화면 또는 지정 zero역에서 텍스트를 추출하는 경량 OCR 헬퍼.
 """
 
 from __future__ import annotations
@@ -89,9 +89,9 @@ def _ocr_pil_image(img) -> str:
     pytesseract = _try_import_pytesseract()
     if pytesseract is not None:
         try:
-            return str(pytesseract.image_to_string(img, lang="kor+eng") or "").strip()
+            return str(pytesseract.image_to_string(img, lang="eng+kor") or "").strip()
         except Exception as exc:
-            log.warning("[OCR] pytesseract 추출 실패: %s", exc)
+            log.warning("[OCR] pytesseract extraction failed: %s", exc)
 
     _warn_unavailable_once()
     return ""

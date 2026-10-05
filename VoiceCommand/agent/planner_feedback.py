@@ -35,7 +35,7 @@ class PlannerFeedbackLoop:
         try:
             write_json_atomic(self.file_path, self.stats, ensure_ascii=False, indent=2)
         except Exception as e:
-            logging.warning(f"[PlannerFeedback] 저장 실패: {e}")
+            logging.warning(f"[PlannerFeedback] Save 실패: {e}")
 
     def record(self, steps: List, success: bool, duration_ms: int, tags: List[str] | None = None):
         normalized_tags = self._normalize_tags(tags or self.infer_tags(steps=steps))
@@ -65,9 +65,9 @@ class PlannerFeedbackLoop:
                 continue
             success_rate = bucket.get("success", 0) / total
             if success_rate >= 0.7:
-                lines.append(f"{key} 단계 성공률 {success_rate * 100:.0f}%")
+                lines.append(f"{key} steps 성공률 {success_rate * 100:.0f}%")
             elif bucket.get("fail", 0) >= 2:
-                lines.append(f"{key} 단계 실패 빈도 높음, 대안 접근 권장")
+                lines.append(f"{key} steps 실패 빈도 높음, 대안 접근 권장")
         if not lines:
             return ""
         return "[플래너 힌트]\n" + "\n".join(f"- {line}" for line in lines[:4])
@@ -105,7 +105,7 @@ class PlannerFeedbackLoop:
         ]
         if re.search(r"https?://", text):
             tags.append("웹")
-        return self._normalize_tags(tags or ["일반"])
+        return self._normalize_tags(tags or ["General"])
 
     def _normalize_tags(self, tags: List[str]) -> List[str]:
         normalized = []
@@ -114,7 +114,7 @@ class PlannerFeedbackLoop:
             if not value or value in normalized:
                 continue
             normalized.append(value)
-        return normalized or ["일반"]
+        return normalized or ["General"]
 
 
 _feedback_loop: PlannerFeedbackLoop | None = None

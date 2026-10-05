@@ -1,4 +1,4 @@
-"""에이전트 실행 설정 페이지."""
+"""에이전트 실행 Settings 페이지."""
 
 from __future__ import annotations
 
@@ -140,14 +140,14 @@ class _AgentSettingsPage(QWidget):
         layout.addWidget(group)
         layout.addWidget(self._build_embedding_group(settings))
         layout.addWidget(self._build_learning_metrics_group())
-        developer_group = QGroupBox(_("개발자 설정"))
+        developer_group = QGroupBox(_("개발자 Settings"))
         developer_box = QVBoxLayout(developer_group)
-        self.plugin_hot_reload_checkbox = QCheckBox(_("플러그인 핫 리로드 사용"))
+        self.plugin_hot_reload_checkbox = QCheckBox(_("Plugins 핫 리로드 사용"))
         self.plugin_hot_reload_checkbox.setChecked(
             bool(settings.get("plugin_hot_reload_enabled", False))
         )
         developer_box.addWidget(self.plugin_hot_reload_checkbox)
-        note = QLabel(_("다음 앱 시작 때 적용됩니다."))
+        note = QLabel(_("다음 앱 시작 때 Apply됩니다."))
         note.setWordWrap(True)
         developer_box.addWidget(note)
         layout.addWidget(developer_group)
@@ -159,7 +159,7 @@ class _AgentSettingsPage(QWidget):
         group = QGroupBox(_("전략 검색"))
         box = QVBoxLayout(group)
         self.embedding_remote_checkbox = QCheckBox(
-            _("OpenAI 임베딩 사용 (전략 텍스트 외부 전송)")
+            _("OpenAI 임베딩 사용 (전략 텍스트 외부 Send)")
         )
         self.embedding_remote_checkbox.setChecked(
             settings.get("embedding_remote_enabled") is True
@@ -296,17 +296,17 @@ class _AgentSettingsPage(QWidget):
         self.local_decision_checkbox = QCheckBox(_("간단한 명령을 로컬에서 바로 처리"))
         self.local_decision_checkbox.setChecked(mode == "fast" and direct)
         box.addWidget(self.local_decision_checkbox)
-        note = QLabel(_("빠른 처리는 기본으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."))
+        note = QLabel(_("Fast processing는 Default으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."))
         note.setWordWrap(True)
         box.addWidget(note)
 
         box.addWidget(QLabel(_("고급: 동작 모드")))
         self.local_decision_mode = QComboBox()
-        for value, label in (("off", _("끄기")), ("shadow", _("기록만 (진단용)")), ("fast", _("빠른 처리"))):
+        for value, label in (("off", _("Off")), ("shadow", _("Log only (diagnostic)")), ("fast", _("Fast processing"))):
             self.local_decision_mode.addItem(label, value)
         self.local_decision_mode.setCurrentIndex(self.local_decision_mode.findData(mode))
         box.addWidget(self.local_decision_mode)
-        # 토글 하나가 저장값 두 개를 함께 쓰고, 고급 목록은 토글을 따른다.
+        # 토글 하나가 Save값 두 개를 함께 쓰고, 고급 목록은 토글을 따른다.
         self.local_decision_checkbox.toggled.connect(self._on_local_decision_toggled)
         self.local_decision_mode.currentIndexChanged.connect(
             lambda _index: self.local_decision_checkbox.setChecked(
@@ -337,11 +337,11 @@ class _AgentSettingsPage(QWidget):
         engine = _live_decision_engine()
         health = engine.health() if engine is not None else {"state": "not_loaded", "error_code": ""}
         if health.get("state") == "ready":
-            text = _("로컬 판단 모델: 준비됨")
+            text = _("Local decision model: 준비됨")
         elif health.get("state") == "error":
-            text = _("로컬 판단 모델: 오류 ({code})").format(code=health.get("error_code") or "-")
+            text = _("Local decision model: Error ({code})").format(code=health.get("error_code") or "-")
         else:
-            text = _("로컬 판단 모델: 아직 불러오지 않음 (첫 명령 때 불러옵니다)")
+            text = _("Local decision model: 아직 불러오지 않음 (첫 명령 때 불러옵니다)")
         self.local_decision_status.setText(text)
 
     def _reload_local_decision(self) -> None:
@@ -356,7 +356,7 @@ class _AgentSettingsPage(QWidget):
 
     def get_values(self) -> dict:
         mode = self.local_decision_mode.currentData() or "fast"
-        # 기준은 체크박스다. 저장된 fast + direct=false 조합이 다른 설정을 저장했다는
+        # 기준은 체크박스다. Save된 fast + direct=false 조합이 다른 Settings을 Save했다는
         # 이유만으로 직접 실행으로 바뀌면 안 된다.
         direct = mode == "fast" and self.local_decision_checkbox.isChecked()
         return {

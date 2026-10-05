@@ -4,7 +4,7 @@ import re
 
 
 EMOTION_CATALOG = {
-    "기쁨": {
+    "Joy": {
         "aliases": ("happy", "joy", "嬉しい", "喜び"),
         "emoji": "😊",
         "animations": ("walk", "idle"),
@@ -93,7 +93,7 @@ EMOTION_CATALOG = {
         "elevenlabs_tag": "[excited]",
         "elevenlabs": (-0.05, 0.08),
     },
-    "진지": {
+    "Serious": {
         "aliases": ("serious", "focused", "seriousness", "真剣"),
         "emoji": "🧐",
         "animations": ("sit",),
@@ -101,7 +101,7 @@ EMOTION_CATALOG = {
         "edge_rate": -3,
         "edge_pitch": 0,
         "openai": "Speak in a measured, serious tone.",
-        "instruction_ko": "차분하고 신중하며 진지한 목소리로 말하세요.",
+        "instruction_ko": "차분하고 신중하며 Serious한 목소리로 말하세요.",
         "elevenlabs_tag": "[thoughtful]",
         "elevenlabs": (0.06, 0.02),
     },
@@ -141,7 +141,7 @@ PET_EMOTIONS = tuple(
 
 _EMOTION_TAGS = " ".join(f"({name})" for name in EMOTION_NAMES)
 _EMOTION_INSTRUCTIONS = {
-    "ko": "[감정 표현]\n응답 맨 앞에 감정 태그를 자연스럽게 붙이세요: " + _EMOTION_TAGS,
+    "ko": "[Emotion expression]\n응답 맨 앞에 감정 태그를 자연스럽게 붙이세요: " + _EMOTION_TAGS,
     "en": "[Emotion Tags]\nStart your response with a Korean emotion tag: " + _EMOTION_TAGS,
     "ja": "[感情タグ]\n返答の先頭に韓国語の感情タグを付けてください: " + _EMOTION_TAGS,
 }
@@ -155,7 +155,7 @@ def normalize_emotion(emotion: str | None) -> str:
 
 
 def get_emotion_details(emotion: str | None) -> dict:
-    """표준 태그의 표현 설정을 반환한다."""
+    """표준 태그의 표현 Settings을 반환한다."""
     return EMOTION_CATALOG[normalize_emotion(emotion)]
 
 

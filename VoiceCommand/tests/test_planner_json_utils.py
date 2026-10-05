@@ -11,7 +11,7 @@ class PlannerJsonUtilsTests(unittest.TestCase):
   {
     "step_type": "python",
     "content": "print('ok')",
-    "description_kr": "첫 단계"
+    "description_kr": "첫 steps"
   },
   {
     "step_type": "python",
@@ -22,21 +22,21 @@ class PlannerJsonUtilsTests(unittest.TestCase):
 
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["step_type"], "python")
-        self.assertEqual(items[0]["description_kr"], "첫 단계")
+        self.assertEqual(items[0]["description_kr"], "첫 steps")
 
     def test_parse_json_object_strips_code_fence_before_parsing(self):
         raw = """```json
 {
   "step_type": "python",
   "content": "print('ok')",
-  "description_kr": "단계 설명"
+  "description_kr": "steps 설명"
 }
 ```"""
 
         data = parse_json_object(raw)
 
         self.assertEqual(data["step_type"], "python")
-        self.assertEqual(data["description_kr"], "단계 설명")
+        self.assertEqual(data["description_kr"], "steps 설명")
 
     def test_extract_balanced_ignores_brackets_inside_strings(self):
         raw = '{"message": "[] braces in string", "ok": true} trailing'

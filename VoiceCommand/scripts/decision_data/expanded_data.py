@@ -127,7 +127,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
     "get_current_time": {
         "normal": (
             ("지금 몇 시야", "What time is it now?", "今何時？"),
-            ("현재 시간을 확인해줘", "Check the current time", "現在時刻を確認して"),
+            ("현재 시간을 OK해줘", "Check the current time", "現在時刻を確認して"),
             ("시계를 보고 시간을 알려줘", "Look at the clock and tell me the time", "時計を見て時刻を教えて"),
         ),
         "conversational": (
@@ -145,7 +145,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "alias": (
             ("시계 정보 좀 말해줘", "Tell me the clock reading", "時計の表示を教えて"),
-            ("현재 시각을 확인해", "Check the time reading", "現在の時刻表示を確認して"),
+            ("현재 시각을 OK해", "Check the time reading", "現在の時刻表示を確認して"),
         ),
         "slang": (
             ("지금 몇 시냐", "What time is it?", "今何時だ"),
@@ -163,7 +163,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
     "get_weather": {
         "normal": (
             ("{place} 날씨를 알려줘", "Tell me the weather in {place}", "{place}の天気を教えて"),
-            ("{place}의 현재 날씨를 확인해줘", "Check the current weather in {place}", "{place}の現在の天気を確認して"),
+            ("{place}의 현재 날씨를 OK해줘", "Check the current weather in {place}", "{place}の現在の天気を確認して"),
         ),
         "conversational": (
             ("{place} 오늘 날씨 어때", "How is the weather in {place} today?", "今日の{place}の天気どう？"),
@@ -174,7 +174,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
             ("{place} 기온", "Temperature in {place}", "{place}の気温"),
         ),
         "polite": (
-            ("{place} 날씨를 확인해 주시겠어요", "Could you check the weather in {place}?", "{place}の天気を確認していただけますか"),
+            ("{place} 날씨를 OK해 주시겠어요", "Could you check the weather in {place}?", "{place}の天気を確認していただけますか"),
             ("{place}의 기온을 알려 주세요", "Please tell me the temperature in {place}", "{place}の気温を教えてください"),
         ),
         "alias": (
@@ -191,12 +191,12 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "stt_noise": (
             ("{place} 날씨 알려줘", "Tell me the weather in {place}", "{place}の天気教えてね"),
-            ("{place}의날씨 확인해줘", "Check the weather in {place}", "{place}の天気を確認して"),
+            ("{place}의날씨 OK해줘", "Check the weather in {place}", "{place}の天気を確認して"),
         ),
     },
     "adjust_volume": {
         "normal": (
-            ("볼륨을 {level}로 설정해줘", "Set the volume to {level}", "音量を{level}に設定して"),
+            ("볼륨을 {level}로 Settings해줘", "Set the volume to {level}", "音量を{level}に設定して"),
             ("소리를 {level} 정도로 맞춰줘", "Set the sound to about {level}", "音量を{level}くらいにして"),
         ),
         "conversational": (
@@ -214,7 +214,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "alias": (
             ("미디어 음량을 {level}로 맞춰줘", "Set the media volume to {level}", "メディア音量を{level}にして"),
-            ("재생 소리를 낮춰줘", "Turn down the playback sound", "再生音量を下げて"),
+            ("play 소리를 낮춰줘", "Turn down the playback sound", "再生音量を下げて"),
         ),
         "slang": (
             ("소리 좀 키워", "Crank the sound up", "音上げて"),
@@ -230,12 +230,12 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "verbose": (
             ("시스템 출력 음량을 지금 12퍼센트 낮춰줘", "Lower the system output volume by 12 percent now", "システム出力音量を今12パーセント下げて"),
-            ("영상 소리가 커서 스피커 재생 음량을 8퍼센트 줄여줘", "Reduce the speaker playback volume by 8 percent because the video is loud", "動画の音が大きいのでスピーカーの再生音量を8パーセント下げて"),
+            ("영상 소리가 커서 스피커 play 음량을 8퍼센트 줄여줘", "Reduce the speaker playback volume by 8 percent because the video is loud", "動画の音が大きいのでスピーカーの再生音量を8パーセント下げて"),
         ),
     },
     "set_timer": {
         "normal": (
-            ("{duration} 타이머를 설정해줘", "Set a {duration} timer", "{duration}のタイマーを設定して"),
+            ("{duration} 타이머를 Settings해줘", "Set a {duration} timer", "{duration}のタイマーを設定して"),
             ("{duration} 뒤에 알림을 맞춰줘", "Set an alert for {duration}", "{duration}後に通知を設定して"),
         ),
         "conversational": (
@@ -247,7 +247,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
             ("타이머 {duration}", "Timer for {duration}", "{duration}でタイマー"),
         ),
         "polite": (
-            ("{duration} 타이머를 설정해 주시겠어요", "Would you set a {duration} timer?", "{duration}のタイマーを設定していただけますか"),
+            ("{duration} 타이머를 Settings해 주시겠어요", "Would you set a {duration} timer?", "{duration}のタイマーを設定していただけますか"),
             ("{duration} 후에 알림을 보내 주세요", "Please alert me after {duration}", "{duration}後に通知してください"),
         ),
         "alias": (
@@ -263,13 +263,13 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
             ("공부 끝날 때까지 {duration} 타이머를 돌려줘", "Run a {duration} study timer", "勉強用に{duration}のタイマーを動かして"),
         ),
         "stt_noise": (
-            ("{duration}타이머 설정해줘", "Set a {duration} timer", "{duration}タイマー設定して"),
+            ("{duration}타이머 Settings해줘", "Set a {duration} timer", "{duration}タイマー設定して"),
             ("{duration} 뒤에 알려줘", "Alert me after {duration}", "{duration}後に知らせて"),
         ),
     },
     "cancel_timer": {
         "normal": (
-            ("{timer}를 취소해줘", "Cancel {timer}", "{timer}をキャンセルして"),
+            ("{timer}를 Cancel해줘", "Cancel {timer}", "{timer}をキャンセルして"),
             ("{timer} 알림을 지워줘", "Remove the {timer} alert", "{timer}の通知を消して"),
         ),
         "conversational": (
@@ -277,11 +277,11 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
             ("{timer} 알림을 멈춰줄래", "Could you stop the {timer} alert?", "{timer}の通知を止めてくれる？"),
         ),
         "short": (
-            ("{timer} 취소", "Cancel {timer}", "{timer}キャンセル"),
+            ("{timer} Cancel", "Cancel {timer}", "{timer}キャンセル"),
             ("타이머 멈춰", "Stop the timer", "タイマー停止"),
         ),
         "polite": (
-            ("{timer}를 취소해 주시겠어요", "Would you cancel {timer}?", "{timer}をキャンセルしていただけますか"),
+            ("{timer}를 Cancel해 주시겠어요", "Would you cancel {timer}?", "{timer}をキャンセルしていただけますか"),
             ("현재 타이머를 중지해 주세요", "Please stop the current timer", "現在のタイマーを止めてください"),
         ),
         "alias": (
@@ -293,12 +293,12 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
             ("알림 그만", "Stop the alert", "通知やめて"),
         ),
         "entity_replacement": (
-            ("{timer} 취소해줘", "Please cancel {timer} altogether", "{timer}をキャンセルして"),
-            ("{timer}만 취소하고 나머지는 남겨줘", "Cancel only {timer} and keep the rest", "{timer}だけキャンセルして他は残して"),
+            ("{timer} Cancel해줘", "Please cancel {timer} altogether", "{timer}をキャンセルして"),
+            ("{timer}만 Cancel하고 나머지는 남겨줘", "Cancel only {timer} and keep the rest", "{timer}だけキャンセルして他は残して"),
         ),
         "stt_noise": (
-            ("{timer} 취소해 줘", "Cancel {timer}", "{timer}キャンセルしてね"),
-            ("타이머를 취소 해줘", "Cancel the timer", "タイマーをキャンセルして"),
+            ("{timer} Cancel해 줘", "Cancel {timer}", "{timer}キャンセルしてね"),
+            ("타이머를 Cancel 해줘", "Cancel the timer", "タイマーをキャンセルして"),
         ),
     },
     "launch_app": {
@@ -376,7 +376,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "conversational": (
             ("지금 뭐가 켜져 있는지 볼 수 있을까", "Can I see what is running right now?", "今何が起動しているか見られる？"),
-            ("열린 앱을 같이 확인해줘", "Check the open apps with me", "開いているアプリを一緒に確認して"),
+            ("열린 앱을 같이 OK해줘", "Check the open apps with me", "開いているアプリを一緒に確認して"),
         ),
         "short": (
             ("실행 중인 앱", "Running apps", "起動中のアプリ"),
@@ -384,7 +384,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "polite": (
             ("현재 실행 중인 앱을 알려주시겠어요", "Would you tell me which apps are running?", "現在起動中のアプリを教えていただけますか"),
-            ("열려 있는 프로그램을 확인해 주세요", "Please check the open programs", "開いているプログラムを確認してください"),
+            ("열려 있는 프로그램을 OK해 주세요", "Please check the open programs", "開いているプログラムを確認してください"),
         ),
         "alias": (
             ("백그라운드에서 도는 앱을 나열해줘", "List the apps running in the background", "バックグラウンドで動くアプリを一覧にして"),
@@ -396,7 +396,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "entity_replacement": (
             ("지금 실행 중인 앱만 골라서 알려줘", "Tell me which apps are currently running", "今実行中のアプリだけ教えて"),
-            ("창이 있는 프로그램을 확인해줘", "Check the programs with windows", "ウィンドウのあるプログラムを確認して"),
+            ("창이 있는 프로그램을 OK해줘", "Check the programs with windows", "ウィンドウのあるプログラムを確認して"),
         ),
         "stt_noise": (
             ("실행중인 앱 보여줘", "Show running apps", "起動中アプリ見せて"),
@@ -405,41 +405,41 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
     },
     "play_youtube": {
         "normal": (
-            ("유튜브에서 {query} 재생해줘", "Play {query} on YouTube", "YouTubeで{query}を再生して"),
-            ("유튜브에서 {query} 찾아서 틀어줘", "Find {query} on YouTube and play it", "YouTubeで{query}を探して再生して"),
+            ("YouTube에서 {query} play해줘", "Play {query} on YouTube", "YouTubeで{query}を再生して"),
+            ("YouTube에서 {query} 찾아서 틀어줘", "Find {query} on YouTube and play it", "YouTubeで{query}を探して再生して"),
         ),
         "conversational": (
-            ("유튜브에서 {query} 좀 틀어줄래", "Could you play {query} on YouTube?", "YouTubeで{query}を流してくれる？"),
-            ("유튜브에서 {query} 재생하면서 쉬고 싶어", "I want to relax while playing {query} on YouTube", "YouTubeで{query}を再生しながら休みたい"),
+            ("YouTube에서 {query} 좀 틀어줄래", "Could you play {query} on YouTube?", "YouTubeで{query}を流してくれる？"),
+            ("YouTube에서 {query} play하면서 쉬고 싶어", "I want to relax while playing {query} on YouTube", "YouTubeで{query}を再生しながら休みたい"),
         ),
         "short": (
-            ("유튜브에서 {query} 틀어", "Play {query} on YouTube", "YouTubeで{query}を再生して"),
-            ("유튜브에서 {query} 재생", "Play {query} on YouTube", "YouTubeで{query}を再生して"),
+            ("YouTube에서 {query} 틀어", "Play {query} on YouTube", "YouTubeで{query}を再生して"),
+            ("YouTube에서 {query} play", "Play {query} on YouTube", "YouTubeで{query}を再生して"),
         ),
         "polite": (
-            ("유튜브에서 {query} 재생해 주시겠어요", "Would you play {query} on YouTube?", "YouTubeで{query}を再生していただけますか"),
-            ("유튜브에서 {query} 영상을 재생해 주시겠어요", "Would you play a {query} video on YouTube?", "YouTubeで{query}の動画を再生していただけますか"),
+            ("YouTube에서 {query} play해 주시겠어요", "Would you play {query} on YouTube?", "YouTubeで{query}を再生していただけますか"),
+            ("YouTube에서 {query} 영상을 play해 주시겠어요", "Would you play a {query} video on YouTube?", "YouTubeで{query}の動画を再生していただけますか"),
         ),
         "alias": (
-            ("유튜브에서 검색해서 {query} 틀어줘", "Search YouTube and play {query}", "YouTubeで検索して{query}を再生して"),
-            ("유튜브에서 {query} 영상 하나 골라 재생해줘", "Pick and play a {query} video on YouTube", "YouTubeで{query}の動画を一つ選んで再生して"),
+            ("YouTube에서 검색해서 {query} 틀어줘", "Search YouTube and play {query}", "YouTubeで検索して{query}を再生して"),
+            ("YouTube에서 {query} 영상 하나 골라 play해줘", "Pick and play a {query} video on YouTube", "YouTubeで{query}の動画を一つ選んで再生して"),
         ),
         "slang": (
-            ("유튜브로 {query} 틀자", "Let's play {query} on YouTube", "YouTubeで{query}を流そう"),
-            ("{query} 유튜브에 틀어", "Put on {query} from YouTube", "{query}をYouTubeで流して"),
+            ("YouTube로 {query} 틀자", "Let's play {query} on YouTube", "YouTubeで{query}を流そう"),
+            ("{query} YouTube에 틀어", "Put on {query} from YouTube", "{query}をYouTubeで流して"),
         ),
         "entity_replacement": (
-            ("다른 영상 말고 유튜브에서 {query} 재생해줘", "Play {query} on YouTube instead of another video", "他の動画ではなくYouTubeで{query}を再生して"),
-            ("지금 듣고 싶은 {query} 유튜브에서 찾아서 재생해줘", "Find and play the {query} I want to hear on YouTube", "今聴きたい{query}をYouTubeで探して再生して"),
+            ("다른 영상 말고 YouTube에서 {query} play해줘", "Play {query} on YouTube instead of another video", "他の動画ではなくYouTubeで{query}を再生して"),
+            ("지금 듣고 싶은 {query} YouTube에서 찾아서 play해줘", "Find and play the {query} I want to hear on YouTube", "今聴きたい{query}をYouTubeで探して再生して"),
         ),
         "stt_noise": (
-            ("유튜브에서 {query} 재생해줘", "Play {query} on YouTube", "YouTubeで{query}再生して"),
-            ("유튜브로{query} 틀어줘", "Play {query} on YouTube", "YouTubeで{query}を流してね"),
+            ("YouTube에서 {query} play해줘", "Play {query} on YouTube", "YouTubeで{query}再生して"),
+            ("YouTube로{query} 틀어줘", "Play {query} on YouTube", "YouTubeで{query}を流してね"),
         ),
     },
     "take_screenshot": {
         "normal": (
-            ("현재 화면을 캡처해서 저장해줘", "Capture and save the current screen", "現在の画面をキャプチャして保存して"),
+            ("현재 화면을 캡처해서 Save해줘", "Capture and save the current screen", "現在の画面をキャプチャして保存して"),
             ("스크린샷 파일을 만들어줘", "Create a screenshot file", "スクリーンショットファイルを作って"),
         ),
         "conversational": (
@@ -452,7 +452,7 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "polite": (
             ("현재 화면을 캡처해 주시겠어요", "Would you capture the current screen?", "現在の画面をキャプチャしていただけますか"),
-            ("화면을 파일로 저장해 주세요", "Please save the screen to a file", "画面をファイルに保存してください"),
+            ("화면을 파일로 Save해 주세요", "Please save the screen to a file", "画面をファイルに保存してください"),
         ),
         "alias": (
             ("디스플레이를 이미지로 기록해줘", "Record the display as an image", "ディスプレイを画像として記録して"),
@@ -464,10 +464,10 @@ FAST_TEXTS: dict[str, dict[str, tuple[LanguageText, ...]]] = {
         ),
         "entity_replacement": (
             ("분석하지 말고 화면만 캡처해줘", "Capture only the screen without analyzing it", "分析せず画面だけキャプチャして"),
-            ("전체 화면을 이미지로 저장해줘", "Save the full screen as an image", "全画面を画像として保存して"),
+            ("전체 화면을 이미지로 Save해줘", "Save the full screen as an image", "全画面を画像として保存して"),
         ),
         "stt_noise": (
-            ("화면캡처 저장해줘", "Save a screenshot", "画面キャプチャ保存して"),
+            ("화면캡처 Save해줘", "Save a screenshot", "画面キャプチャ保存して"),
             ("스크린샷 찍어 줘", "Take a screenshot", "スクショ撮ってね"),
         ),
     },
@@ -513,11 +513,11 @@ HARD_NEGATIVE_TEXTS: Mapping[tuple[str, str], tuple[LanguageText, LanguageText]]
     ),
     ("schedule_task", "set_timer"): (
         ("내일 오전 9시에 백업 작업을 실행하도록 예약해줘", "Schedule the backup task to run tomorrow at 9 AM", "明日の午前9時にバックアップ作業を実行するよう予約して"),
-        ("10분 뒤에 알림이 울리도록 타이머를 설정해줘", "Set a timer to alert me in ten minutes", "10分後に通知が鳴るようタイマーを設定して"),
+        ("10분 뒤에 알림이 울리도록 타이머를 Settings해줘", "Set a timer to alert me in ten minutes", "10分後に通知が鳴るようタイマーを設定して"),
     ),
     ("set_clipboard", "write_file"): (
         ("클립보드에 '오전 회의' 문구를 복사해줘", "Copy the phrase 'morning meeting' to the clipboard", "「朝の会議」という文言をクリップボードにコピーして"),
-        ("agenda.txt 파일에 '오전 회의' 문구를 저장해줘", "Save the phrase 'morning meeting' in agenda.txt", "「朝の会議」という文言をagenda.txtファイルに保存して"),
+        ("agenda.txt 파일에 '오전 회의' 문구를 Save해줘", "Save the phrase 'morning meeting' in agenda.txt", "「朝の会議」という文言をagenda.txtファイルに保存して"),
     ),
     ("get_weather", "get_calendar_events"): (
         ("제주도의 이번 주말 강수 예보를 알려줘", "Tell me Jeju's rain forecast for this weekend", "済州島の今週末の雨予報を教えて"),
@@ -528,15 +528,15 @@ HARD_NEGATIVE_TEXTS: Mapping[tuple[str, str], tuple[LanguageText, LanguageText]]
 
 UNKNOWN_TEXTS: Mapping[str, tuple[LanguageText, ...]] = {
     "multi_intent": (
-        ("유튜브를 열고 재즈를 검색해서 재생해줘", "Open YouTube, search for jazz, and play it", "YouTubeを開いてジャズを検索して再生して"),
-        ("내일 일정을 확인하고 회의 알림도 설정해줘", "Check tomorrow's calendar and set a meeting reminder", "明日の予定を確認して会議の通知も設定して"),
+        ("YouTube를 열고 재즈를 검색해서 play해줘", "Open YouTube, search for jazz, and play it", "YouTubeを開いてジャズを検索して再生して"),
+        ("내일 일정을 OK하고 회의 알림도 Settings해줘", "Check tomorrow's calendar and set a meeting reminder", "明日の予定を確認して会議の通知も設定して"),
         ("화면을 캡처하고 오류 원인도 분석해줘", "Capture the screen and analyze the cause of the error", "画面をキャプチャしてエラーの原因も分析して"),
         ("파일을 찾아 수정한 다음 이메일로 보내줘", "Find the file, edit it, and then send it by email", "ファイルを探して編集した後メールで送って"),
     ),
     "unknown_complex": (
         ("컴퓨터를 알아서 최적화하고 불필요한 건 정리해줘", "Optimize my computer and clean up anything unnecessary", "パソコンを自動で最適化して不要なものを整理して"),
         ("내가 하려는 일을 파악해서 필요한 작업을 순서대로 끝내줘", "Figure out what I am trying to do and finish the needed steps in order", "私のやりたいことを読み取って必要な作業を順番に終わらせて"),
-        ("관련된 자료를 모두 확인해서 가장 나은 선택을 하고 실행해줘", "Review all related material, choose the best option, and carry it out", "関連資料をすべて確認して最善の選択を実行して"),
+        ("관련된 자료를 모두 OK해서 가장 나은 선택을 하고 실행해줘", "Review all related material, choose the best option, and carry it out", "関連資料をすべて確認して最善の選択を実行して"),
         ("문제가 뭔지 진단하고 안전한 방법으로 전부 고쳐줘", "Diagnose the problem and fix everything safely", "問題を診断して安全な方法ですべて直して"),
     ),
     "conversation": (

@@ -1,4 +1,4 @@
-"""예약 작업 목록을 표 형태로 확인하고 취소하는 다이얼로그."""
+"""예약 작업 목록을 표 형태로 OK하고 Cancel하는 다이얼로그."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from i18n.translator import _
 
 
 class ScheduledTasksDialog(QDialog):
-    """예약 작업 목록 확인·취소 다이얼로그."""
+    """예약 작업 목록 OK·Cancel 다이얼로그."""
 
     def __init__(self, scheduler, parent=None):
         super().__init__(parent)
@@ -44,7 +44,7 @@ class ScheduledTasksDialog(QDialog):
         layout.addWidget(self._table)
 
         btn_layout = QHBoxLayout()
-        self._btn_cancel_task = QPushButton(_("선택 작업 취소"))
+        self._btn_cancel_task = QPushButton(_("선택 작업 Cancel"))
         self._btn_cancel_task.clicked.connect(self._cancel_selected)
         self._btn_refresh = QPushButton(_("새로 고침"))
         self._btn_refresh.clicked.connect(self._refresh)
@@ -81,8 +81,8 @@ class ScheduledTasksDialog(QDialog):
         task_desc = task_item.text()
         reply = QMessageBox.question(
             self,
-            _("작업 취소"),
-            _("'{task}' 작업을 취소하시겠습니까?").format(task=task_desc),
+            _("작업 Cancel"),
+            _("'{task}' 작업을 Cancel하시겠습니까?").format(task=task_desc),
             QMessageBox.Yes | QMessageBox.No,
         )
         if reply == QMessageBox.Yes and self._scheduler:
@@ -106,4 +106,4 @@ def _format_remaining(seconds: float) -> str:
         parts.append(_("{n}분").format(n=minutes))
     if secs:
         parts.append(_("{n}초").format(n=secs))
-    return " ".join(parts) + " " + _("후")
+    return " ".join(parts) + " " + _("later")

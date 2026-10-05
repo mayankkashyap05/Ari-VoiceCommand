@@ -69,7 +69,7 @@ class CustomLLMSettingsPageTests(unittest.TestCase):
         self.assertEqual(values["custom_llm_providers"], {})
         self.assertEqual(values["llm_provider"], "groq")
         self.assertEqual(values["llm_model"], "")
-        # 역할 제공자는 "기본 제공자와 동일"로 돌아간다.
+        # 역할 제공자는 "Default 제공자와 동일"로 돌아간다.
         self.assertEqual(values["llm_planner_provider"], "")
         self.assertEqual(values["llm_planner_model"], "")
         self.assertEqual(values["llm_execution_provider"], "")

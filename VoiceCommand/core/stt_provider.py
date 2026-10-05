@@ -1,4 +1,4 @@
-"""STT 백엔드 추상화 레이어."""
+"""STT backend abstraction layer."""
 from __future__ import annotations
 
 import base64
@@ -17,7 +17,7 @@ from core._whisper_worker import WORKER_ARGUMENT, bundled_executable_path, norma
 
 
 class STTProvider:
-    """STT 백엔드 공통 인터페이스."""
+    """STT backend common interface."""
 
     def transcribe(self, audio_data, mode: str | None = None) -> Optional[str]:
         raise NotImplementedError
@@ -27,9 +27,9 @@ class STTProvider:
 
 
 class GoogleSTTProvider(STTProvider):
-    """speech_recognition 기반 Google STT 래퍼."""
+    """speech_recognition-based Google STT wrapper."""
 
-    def __init__(self, language: str = "ko-KR"):
+    def __init__(self, language: str = "en-US"):
         import speech_recognition as sr
 
         self._language = language
@@ -50,11 +50,11 @@ class GoogleSTTProvider(STTProvider):
 
 
 class WhisperSTTProvider(STTProvider):
-    """faster-whisper 기반 오프라인 STT (서브프로세스 격리).
+    """faster-whisper-based offline STT (subprocess isolation).
 
-    CTranslate2(MKL)와 torch/numpy(MKL)의 DLL 충돌을 피하기 위해
-    Whisper 모델을 별도 프로세스(_whisper_worker.py)에서 실행한다.
-    메인 프로세스와 stdin/stdout JSON(base64 오디오)로 통신한다.
+    Runs the Whisper model in a separate process (_whisper_worker.py) to avoid
+    DLL conflicts between CTranslate2 (MKL) and torch/numpy (MKL).
+    Main process communicates via stdin/stdout JSON (base64 audio).
     """
 
     _WORKER = os.path.join(os.path.dirname(__file__), "_whisper_worker.py")
@@ -67,7 +67,7 @@ class WhisperSTTProvider(STTProvider):
         model_size: str = "small",
         device: str = "auto",
         compute_type: str = "int8",
-        language: str = "ko",
+        language: str = "en",
     ):
         self._model_size = model_size
         self._device = device
@@ -115,11 +115,11 @@ class WhisperSTTProvider(STTProvider):
             with self._lock:
                 self._terminate_worker_locked()
         except Exception as exc:
-            logging.debug("[WhisperSTT] 워커 종료 중 오류 (무시): %s", exc)
+            logging.debug("[WhisperSTT] worker shutdown error (ignored): %s", exc)
 
     def _start_worker(self) -> None:
         actual_device = _resolve_device(self._device)
-        logging.info("[WhisperSTT] 워커 시작: %s / %s / %s", self._model_size, actual_device, self._compute_type)
+        logging.info("[WhisperSTT] worker starting: %s / %s / %s", self._model_size, actual_device, self._compute_type)
         env = {**os.environ, "KMP_DUPLICATE_LIB_OK": "TRUE"}
         if getattr(sys, "frozen", False) or "__compiled__" in globals():
             worker_command = [
@@ -158,22 +158,22 @@ class WhisperSTTProvider(STTProvider):
             stderr_out = self._read_stderr_snapshot(failed_proc)
             reason = stderr_out or "Did not receive READY signal."
             raise RuntimeError(f"[WhisperSTT] worker initialization failed:\n{reason}")
-        logging.info("[WhisperSTT] 워커 준비 완료")
+        logging.info("[WhisperSTT] worker ready")
 
     def _ensure_worker_locked(self) -> bool:
         if self.is_healthy():
             return True
-        logging.warning("[WhisperSTT] 비정상 워커 감지 — 재시작합니다.")
+        logging.warning("[WhisperSTT] unhealthy worker detected — restarting.")
         return self._restart_worker_locked("worker unhealthy")
 
     def _restart_worker_locked(self, reason: str) -> bool:
-        logging.warning("[WhisperSTT] 워커 재시작: %s", reason)
+        logging.warning("[WhisperSTT] worker restarting: %s", reason)
         self._terminate_worker_locked()
         try:
             self._start_worker()
             return True
         except Exception as exc:
-            logging.error("[WhisperSTT] 워커 재시작 실패: %s", exc)
+            logging.error("[WhisperSTT] worker restart failed: %s", exc)
             return False
 
     def _terminate_worker_locked(self) -> None:
@@ -187,17 +187,17 @@ class WhisperSTTProvider(STTProvider):
                 proc.stdin.flush()
                 proc.wait(timeout=3)
         except Exception as exc:
-            logging.debug("[STT] 정상 종료 실패, terminate 시도: %s", exc)
+            logging.debug("[STT] graceful shutdown failed, trying terminate: %s", exc)
             try:
                 proc.terminate()
                 proc.wait(timeout=3)
             except Exception as terminate_exc:
-                logging.debug("[STT] terminate 실패, kill 시도: %s", terminate_exc)
+                logging.debug("[STT] terminate failed, trying kill: %s", terminate_exc)
                 try:
                     proc.kill()
                     proc.wait(timeout=3)
                 except Exception as kill_exc:
-                    logging.debug("[STT] kill도 실패: %s", kill_exc)
+                    logging.debug("[STT] kill also failed: %s", kill_exc)
 
     def _read_stderr_snapshot(self, proc=None) -> str:
         try:
@@ -279,6 +279,6 @@ def create_stt_provider(settings: dict) -> STTProvider:
             model_size=settings.get("whisper_model", "small"),
             device=settings.get("whisper_device", "auto"),
             compute_type=settings.get("whisper_compute_type", "int8"),
-            language=settings.get("speech_language", "ko-KR"),
+            language=settings.get("speech_language", "en"),
         )
-    return GoogleSTTProvider(language=settings.get("speech_language", "ko-KR"))
+    return GoogleSTTProvider(language=settings.get("speech_language", "en-US"))

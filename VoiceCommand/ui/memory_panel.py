@@ -4,8 +4,8 @@
 FloatingPanel 기반 클래스를 사용해 구조를 공유한다.
 
 탭 구성:
-  기본 정보  — 이름·위치·관심사·메모 편집
-  사실       — 저장된 Facts 목록 (신뢰도·만료일·삭제)
+  Default 정보  — 이름·위치·관심사·메모 편집
+  사실       — Save된 Facts 목록 (신뢰도·만료일·삭제)
   통계       — 명령 빈도·선호도·대화 주제 시각화
 """
 import html
@@ -82,7 +82,7 @@ class FactRow(QFrame):
         lay.addWidget(del_btn)
 
 
-# ── 탭: 기본 정보 ─────────────────────────────────────────────────────────────
+# ── 탭: Default 정보 ─────────────────────────────────────────────────────────────
 
 class _BioTab(QWidget):
     def __init__(self, ctx_manager, parent=None):
@@ -114,7 +114,7 @@ class _BioTab(QWidget):
             self._fields[field_key] = inp
 
         lay.addWidget(create_section_label(_("관심사 (쉼표로 구분)")))
-        self._interests = create_input_field(_("예: 음악, 영화, 독서"))
+        self._interests = create_input_field(_("예: 음악, zero화, 독서"))
         self._interests.setText(", ".join(bio.get("interests", [])))
         lay.addWidget(self._interests)
 
@@ -123,7 +123,7 @@ class _BioTab(QWidget):
         self._memos.setText(", ".join(bio.get("memos", [])))
         lay.addWidget(self._memos)
 
-        save_btn = QPushButton(_("저장"))
+        save_btn = QPushButton(_("Save"))
         save_btn.setFixedHeight(34)
         save_btn.setFont(QFont(FONT_KO, FONT_SIZE_NORMAL, QFont.Bold))
         save_btn.setCursor(Qt.PointingHandCursor)
@@ -136,7 +136,7 @@ class _BioTab(QWidget):
         self._status.setStyleSheet(f"color: {COLOR_MUTED};")
         lay.addWidget(self._status)
 
-        self._pending_title = create_section_label(_("확인 대기 중인 정보"))
+        self._pending_title = create_section_label(_("OK 대기 중인 정보"))
         lay.addWidget(self._pending_title)
         self._pending_layout = QVBoxLayout()
         self._pending_layout.setSpacing(6)
@@ -194,9 +194,9 @@ class _BioTab(QWidget):
             self._ctx.update_bio("interests", interests)
             self._ctx.update_bio("memos", memos)
             self._refresh_pending_bio()
-            show_temp_status(self._status, _("✅ 저장 완료"))
+            show_temp_status(self._status, _("✅ Save complete"))
         except Exception as e:
-            show_temp_status(self._status, _("⚠️ 저장 실패: {error}").format(error=e))
+            show_temp_status(self._status, _("⚠️ Save 실패: {error}").format(error=e))
 
     def refresh(self) -> None:
         self._refresh_pending_bio()
@@ -232,7 +232,7 @@ class _FactsTab(QWidget):
         clear_layout(self._inner)
         facts = self._ctx.context.get("facts", {}) if self._ctx else {}
         if not facts:
-            self._inner.addWidget(create_muted_label(_("아직 저장된 사실이 없습니다.")))
+            self._inner.addWidget(create_muted_label(_("아직 Save된 사실이 없습니다.")))
             return
         sorted_facts = sorted(
             facts.items(),
@@ -257,7 +257,7 @@ class _FactsTab(QWidget):
         dialog.setTextFormat(Qt.PlainText)
         dialog.setDefaultButton(QMessageBox.No)
         delete_conversations = QCheckBox(
-            _("이 사실이 언급된 대화 기록도 삭제"), dialog
+            _("이 사실이 언급된 Conversation history도 삭제"), dialog
         )
         dialog.setCheckBox(delete_conversations)
         if dialog.exec() == QMessageBox.Yes and self._ctx.delete_fact(
@@ -278,7 +278,7 @@ class _SuggestionsTab(QWidget):
         try:
             self._store = get_fact_suggestion_store()
         except (ImportError, OSError, RuntimeError, TypeError, ValueError) as exc:
-            logger.warning("기억 제안을 불러오지 못했습니다: %s", exc)
+            logger.warning("Failed to load memory suggestions: %s", exc)
             self._store = None
         self._build()
 
@@ -314,12 +314,12 @@ class _SuggestionsTab(QWidget):
                 rate=rate, approved=approved, total=total
             )
         else:
-            summary = _("승인·거절 기록 없음")
+            summary = _("승인·거절 기록 None")
         self._inner.addWidget(create_muted_label(summary))
 
         suggestions = self._store.get_suggestions()
         if not suggestions:
-            self._inner.addWidget(create_muted_label(_("저장된 제안이 없습니다.")))
+            self._inner.addWidget(create_muted_label(_("Save된 제안이 없습니다.")))
             return
         for suggestion in reversed(suggestions):
             self._add_suggestion(suggestion)
@@ -341,7 +341,7 @@ class _SuggestionsTab(QWidget):
         title.setTextFormat(Qt.PlainText)
         title.setWordWrap(True)
         layout.addWidget(title)
-        evidence = QLabel(_("근거: {evidence}").format(evidence=suggestion["evidence"]))
+        evidence = QLabel(_("Evidence: {evidence}").format(evidence=suggestion["evidence"]))
         evidence.setTextFormat(Qt.PlainText)
         evidence.setWordWrap(True)
         evidence.setStyleSheet(f"color: {COLOR_MUTED};")
@@ -372,7 +372,7 @@ class _SuggestionsTab(QWidget):
             if manager.approve_fact_suggestion(suggestion_id, self._ctx):
                 self._populate()
         except (OSError, RuntimeError, TypeError, ValueError, sqlite3.Error) as exc:
-            logger.warning("기억 제안을 승인하지 못했습니다: %s", exc)
+            logger.warning("Failed to approve memory suggestion: %s", exc)
 
     def _reject(self, suggestion_id: str) -> None:
         if self._store and self._store.resolve(suggestion_id, approved=False):
@@ -424,7 +424,7 @@ class _StatsTab(QWidget):
                 grid.addWidget(chip, i // 3, i % 3)
             lay.addLayout(grid)
         else:
-            lay.addWidget(create_muted_label(_("기록 없음")))
+            lay.addWidget(create_muted_label(_("기록 None")))
 
         # 대화 주제
         lay.addWidget(create_section_label(_("대화 주제")))
@@ -445,7 +445,7 @@ class _StatsTab(QWidget):
                 topic_grid.addWidget(chip, i // 2, i % 2)
             lay.addLayout(topic_grid)
         else:
-            lay.addWidget(create_muted_label(_("기록 없음")))
+            lay.addWidget(create_muted_label(_("기록 None")))
 
         # 선호도
         lay.addWidget(create_section_label(_("선호도")))
@@ -460,7 +460,7 @@ class _StatsTab(QWidget):
                 row_lbl.setStyleSheet("color: #444;")
                 lay.addWidget(row_lbl)
         else:
-            lay.addWidget(create_muted_label(_("기록 없음")))
+            lay.addWidget(create_muted_label(_("기록 None")))
 
         lay.addStretch()
 
@@ -485,7 +485,7 @@ class MemoryPanel(FloatingPanel):
         self._suggestions_tab = _SuggestionsTab(self._ctx)
         self._stats_tab = _StatsTab(self._ctx)
 
-        tabs.addTab(self._bio_tab,   _("기본 정보"))
+        tabs.addTab(self._bio_tab,   _("Default 정보"))
         tabs.addTab(self._facts_tab, _("사실 (Facts)"))
         tabs.addTab(self._suggestions_tab, _("제안"))
         tabs.addTab(self._stats_tab, _("통계"))

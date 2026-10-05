@@ -544,7 +544,7 @@ class DecisionEngineTests(unittest.TestCase):
             "get_current_time", {"get_current_time": 0.99}, 0.99, 0.80, "linear", 1.0
         )
 
-        # 진단·끄기 모드는 대화 경로를 유지하고, 설정 누락은 fast 기본값을 따른다.
+        # 진단·Off 모드는 대화 경로를 유지하고, 설정 누락은 fast Default값을 따른다.
         for mode_setting in ("shadow", "off", None):
             with self.subTest(mode_setting=mode_setting):
                 events = []

@@ -89,7 +89,7 @@ class FileToolsTests(unittest.TestCase):
 
             result = file_tools.merge_text_files([path], path)
 
-            self.assertTrue(result.startswith("오류:"))
+            self.assertTrue(result.startswith("Error:"))
             with open(path, encoding="utf-8") as handle:
                 self.assertEqual(handle.read(), "원본 내용")
 

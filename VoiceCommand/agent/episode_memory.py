@@ -1,6 +1,6 @@
 """
 목표 에피소드 기억 (Episode Memory)
-최근 자율 실행 에피소드의 요약을 저장하고 유사 목표 planning/replan에 재주입한다.
+최근 자율 실행 에피소드의 요약을 Save하고 유사 목표 planning/replan에 재주입한다.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from core.atomic_io import write_json_atomic
 from i18n.translator import _
 
 _DEVELOPER_SCOPE_RE = re.compile(
-    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:저장소|repository|codebase|repo)\b)?|저장소|repository|codebase|\brepo\b|\bdocs\b)",
+    r"(voicecommand(?:/(?:agent|core|ui|plugins|tests)\b|\s*(?:Save소|repository|codebase|repo)\b)?|Save소|repository|codebase|\brepo\b|\bdocs\b)",
     re.IGNORECASE,
 )
 _DEVELOPER_ACTION_RE = re.compile(
@@ -246,7 +246,7 @@ class EpisodeMemory:
                     indent=2,
                 )
             except Exception as exc:
-                logging.warning(f"[EpisodeMemory] 저장 실패: {exc}")
+                logging.warning(f"[EpisodeMemory] Save 실패: {exc}")
 
     def _build_similarity_text(
         self,
