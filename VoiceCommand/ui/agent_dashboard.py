@@ -1,4 +1,4 @@
-"""에이전트 실행 진행 상황 대시보드."""
+"""Agent execution progress dashboard."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ class AgentDashboard(QDialog):
     def __init__(self, orchestrator, goal: str, parent=None):
         super().__init__(parent)
         self.orchestrator = orchestrator
-        self.setWindowTitle(_("에이전트 대시보드"))
+        self.setWindowTitle(_("Agent Dashboard"))
         self.setMinimumSize(520, 420)
 
         layout = QVBoxLayout(self)
@@ -29,11 +29,9 @@ class AgentDashboard(QDialog):
         self.output.setReadOnly(True)
         layout.addWidget(self.output)
 
-        self.stop_btn = QPushButton(_("중지"))
+        self.stop_btn = QPushButton(_("Stop"))
         self.stop_btn.clicked.connect(self.orchestrator.interrupt)
         layout.addWidget(self.stop_btn)
-
-        # step_id → QListWidget 행 인덱스 매핑
         self._step_row: dict[str, int] = {}
 
     def handle_progress(self, event_type: str, **payload) -> None:

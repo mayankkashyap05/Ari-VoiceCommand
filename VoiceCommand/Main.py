@@ -1,7 +1,3 @@
-"""Ari 데스크톱 애플리케이션의 Qt 진입점."""
-
-# ruff: noqa: E402
-
 import importlib
 import json
 import sys
@@ -13,7 +9,6 @@ if _worker_exit_code is None:
 
     _worker_exit_code = dispatch_script_command(sys.argv)
 if _worker_exit_code is None and len(sys.argv) == 3 and sys.argv[1] == "--bundle-import-self-test":
-    # Deployment workflow가 required modules of the installation 포함 여부를 checks. Whisper 워커처럼 GUI 임포트 전에 실행한다.
     from core.bundle_import_self_test import run_bundle_import_self_test
 
     _worker_exit_code = run_bundle_import_self_test(sys.argv[2])
@@ -30,33 +25,15 @@ import faulthandler
 import time
 from datetime import datetime
 import warnings
-
-# i18n 최우선 초기화 — 다른 모듈이 _() 를 사용하기 전에 호출
 from i18n.translator import init as i18n_init, _, on_language_changed
 i18n_init()
-
-# torch + faster-whisper(CTranslate2/MKL)가 libiomp5md.dll을 중복 초기화하는
-# OMP Error #15를 억제한다. 두 라이브러리가 같은 프로세스에 공존하는 경우
-# 발생하는 알려진 Windows 환경 충돌이며, 이 플래그로 안전하게 계속 실행된다.
 os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
-
-# Qt의 비활성 포커스 요청 경고(qt.qpa.window)를 숨긴다.
-# Character 위젯은 WindowDoesNotAcceptFocus 플래그를 의도적으로 사용하므로,
-# 드래그 시 발생하는 requestActivate 경고는 기능상 무해한 노이즈다.
 _qt_logging_rules = os.environ.get("QT_LOGGING_RULES", "").strip()
 _suppress_rule = "qt.qpa.window.warning=false"
 if _suppress_rule not in _qt_logging_rules:
     os.environ["QT_LOGGING_RULES"] = (
         f"{_qt_logging_rules};{_suppress_rule}" if _qt_logging_rules else _suppress_rule
     )
-
-# Windows 콘솔 창 숨기기
-# ShowWindow(hwnd, SW_HIDE)만으로는 Windows Terminal에서 최소화 상태로만
-# 남고 완전히 사라지지 않는 경우가 있어(콘솔 창을 소유한 것이 conhost가 아니라
-# Windows Terminal 자체인 경우), 콘솔을 프로세스에서 완전히 분리하는
-# FreeConsole()을 우선 시도하고, 실패 시에만 ShowWindow로 대체한다.
-# pythonw.exe로 실행된 경우(콘솔 None)에는 두 호출 모두 조용히 실패해도 무해하다.
-# 분리 뒤 무효가 된 콘솔 스트림은 hide_console이 빈 출력으로 바꾼다.
 if sys.platform == "win32":
     import ctypes
     from core.console_streams import hide_console
@@ -64,10 +41,7 @@ if sys.platform == "win32":
     hide_console(ctypes.windll.kernel32, ctypes.windll.user32)
 
 if sys.stderr is not None:
-    faulthandler.enable()  # 네이티브 크래시(세그폴트 등) 발생 시 stderr에 스택 출력
-
-# Qt보다 먼저 torch와 onnxruntime을 불러 Windows DLL 초기화 경합을 피한다.
-# Qt가 먼저 올라오면 onnxruntime DLL 초기화가 실패해 로컬 임베더를 쓸 수 없다.
+    faulthandler.enable()
 try:
     importlib.import_module("torch")
 except (ImportError, OSError, RuntimeError) as exc:
@@ -76,8 +50,6 @@ try:
     importlib.import_module("onnxruntime")
 except (ImportError, OSError, RuntimeError) as exc:
     logging.debug("onnxruntime preload skipped: %s", exc)
-
-# single_instance는 PySide6.QtNetwork를 불러오므로 반드시 사전 로드 뒤에 둔다.
 from core.single_instance import ensure_single_instance, start_single_instance_server
 from PySide6.QtWidgets import QApplication, QSystemTrayIcon, QMessageBox, QProgressDialog
 from PySide6.QtGui import QIcon
@@ -119,8 +91,6 @@ from core.window_inspector import (
     get_foreground_fullscreen,
     get_foreground_process_name,
 )
-
-# 전역 변수 선언
 ai_assistant = None
 icon_path = None
 
@@ -140,9 +110,7 @@ def _resolve_icon_path(log_missing: bool = False):
 
 
 icon_path = _resolve_icon_path()
-
-# Log settings
-_MAX_LOG_FILES = 10  # Maximum log files to keep
+_MAX_LOG_FILES = 10
 
 def _cleanup_old_logs(log_dir: str) -> None:
     """Auto-delete old log files (max _MAX_LOG_FILES개 유지)."""
@@ -204,7 +172,7 @@ def check_cosyvoice_first_run(app):
     )
 
     if is_cosyvoice_install_recorded(FLAG_FILE, cosyvoice_dir):
-        return  # Already asked or installed (Only asks again if installation was interrupted)
+        return
 
     msg = QMessageBox()
     msg.setWindowTitle(_("CosyVoice3 Local TTS"))
@@ -355,12 +323,9 @@ def flush_runtime_state() -> None:
 
 
 def _setup_application():
-    # 리소스 추출
     from core.resource_manager import ResourceManager, is_bundled
     logging.info("Checking resource extraction...")
     ResourceManager.extract_resources()
-
-    # Mood state는 선택 기능이므로 Save소 초기화에 실패해도 앱을 시작한다.
     mood_state = None
     try:
         from core.mood_state import initialize_mood_state
@@ -370,7 +335,6 @@ def _setup_application():
         logging.warning("Failed to initialize mood state: %s", exc)
 
     if sys.platform == "win32" and not is_bundled():
-        # 소스 실행 시 작업 표시줄이 python.exe 아이콘으로 묶이지 않도록 앱 ID를 따로 둔다.
         import ctypes
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("DO0OG.Ari")
     return mood_state
@@ -469,7 +433,6 @@ def main():
         try:
             callback()
         except Exception:
-            # 한 steps의 종료 Error가 원래 Error와 나머지 정리를 덮지 않게 한다.
             log_exception("앱 정리 실패: %s", label)
             cleanup_failed = True
             exit_code = 1
@@ -522,8 +485,6 @@ def main():
             elif not should_enable and auto_game_mode_applied:
                 disable_game_mode()
                 auto_game_mode_applied = False
-
-        # Activity monitor는 선택 기능이므로 실패해도 앱 시작을 막지 않는다.
         try:
             activity_monitor = ActivityMonitor()
             if mood_state is not None:
@@ -554,14 +515,10 @@ def main():
         start_single_instance_server(_show_character)
         if icon_path:
             app.setWindowIcon(QIcon(icon_path))
-
-        # Check CosyVoice installation on first run
         try:
             check_cosyvoice_first_run(app)
         except Exception as exc:
             logging.warning("Skipping CosyVoice first-run check: %s", exc)
-
-        # AI assistant initialization
         ai_assistant = get_ai_assistant()
         set_ai_assistant(ai_assistant)
         start_performance_warmups()
@@ -592,12 +549,8 @@ def main():
             name="memory-fact-index-sync",
             daemon=True,
         ).start()
-
-        # Global audio 초기화는 선택 기능이므로 장치/권한 Error로 앱 시작을 중단하지 않는다.
         from audio.audio_manager import initialize_global_audio
         initialize_global_audio()
-
-        # TTS background initialization started (CosyVoice 모델 로드를 미리 시작)
         try:
             start_tts_background()
         except Exception as exc:
@@ -698,14 +651,11 @@ def main():
             logging.warning("Speech scheduler initialization failed; speech features will be unavailable: %s", exc)
 
         _setup_scheduler_activity(scheduler, activity_monitor)
-        # Running missed scheduled tasks — TTS/오디오 initialization complete later 실행
         if scheduler is not None:
             try:
                 scheduler.check_missed_tasks_on_startup()
             except Exception as exc:
                 logging.debug("Skipping missed task check: %s", exc)
-
-        # Character 위젯 생성
         logging.info("Character widget creation starting")
         character = CharacterWidget(activity_monitor=activity_monitor)
         logging.info("Character widget creation complete")
@@ -756,20 +706,15 @@ def main():
                 _show_microphone_unavailable()
             except Exception as exc:
                 logging.warning("Microphone status notification connection skipped: %s", exc)
-
-        # Text interface 생성 및 Settings
         try:
             text_interface = create_text_interface(ai_assistant, tts_wrapper)
             character.set_text_interface(text_interface)
         except Exception as exc:
             text_interface = None
             logging.error("Text interface initialization failed; text chat will be unavailable: %s", exc)
-
-        # 트레이 아이콘에 Character 참조 및 Text interface Settings
         if use_system_tray and tray_icon:
             tray_icon.set_character_widget(character)
             tray_icon.set_text_interface(text_interface)
-            # Character 우클릭 메뉴를 트레이 메뉴와 공유 (Plugins 액션 포함)
             character.set_tray_menu(tray_icon.menu)
 
         if is_release_build():
@@ -793,8 +738,6 @@ def main():
             character.set_update_checker(update_checker)
             update_checker.notify_installed_update()
             update_checker.start()
-
-        # Language 핫로드 콜백 등록 — Settings에서 Language 변경 시 UI 즉시 갱신
         _tray_ref = tray_icon
         _text_ref = text_interface
 
@@ -890,9 +833,7 @@ def main():
             smoke_started_at = time.monotonic()
             QTimer.singleShot(smoke_seconds * 1000, app.quit)
         gui_ready = True
-
-        # 메인 이벤트 루프 실행
-        exit_code = app.exec()  # Qt 표준 이벤트 루프 사용
+        exit_code = app.exec()
         logging.info("Application exited with code: %s", exit_code)
 
     except KeyboardInterrupt:
@@ -947,8 +888,6 @@ def main():
     return exit_code
 
 if __name__ == "__main__":
-    # 릴리스 워크플로는 묶음 결정 모델의 로드를 OK하려고 패키징된 실행 파일을 이 플래그와 함께 실행한다.
-    # 콘솔이 없는 실행 파일이므로 결과는 파일에 기록한다.
     if len(sys.argv) == 3 and sys.argv[1] == "--decision-self-test":
         from agent.decision.self_test import run_self_test
 

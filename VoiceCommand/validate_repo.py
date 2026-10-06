@@ -1,7 +1,3 @@
-"""
-개발/CI 공용 검증 스크립트.
-문법 검사, 유닛 테스트, 템플릿 플래너 스모크 테스트를 한 번에 수행한다.
-"""
 from __future__ import annotations
 
 import argparse
@@ -143,17 +139,17 @@ planner = AgentPlanner(LLMProvider(api_key=""))
 desktop_path = Path(os.environ.get("USERPROFILE", str(Path.home()))) / "Desktop"
 desktop_str = str(desktop_path)
 samples = [
-    "바탕화면에 샘플 폴더 만들어줘",
-    "시스템 정보 수집해서 md로 Save해줘",
+    "Create a sample folder on the desktop",
+    "Collect system information and save it as md",
     f"{desktop_str} Save folder listing",
-    "https://example.com 열어줘",
-    "https://example.com 에서 파일 다운로드해서 Save해줘",
-    '메모장 열고 "테스트 메모" Input해줘',
-    "크롬으로 https://example.com 열어줘",
-    "VSCode 열어줘",
-    "계산기 실행해줘",
-    os.path.join(desktop_str, "alpha.txt") + " 파일 이름을 beta.txt로 변경해줘",
-    os.path.join(desktop_str, "logs", "ari.log") + " 로그 리포트 Save해줘",
+    "Open https://example.com",
+    "Download the file from https://example.com and save it",
+    'Open Notepad and input "Test note"',
+    "Open https://example.com with Chrome",
+    "Open VSCode",
+    "Run Calculator",
+    os.path.join(desktop_str, "alpha.txt") + " Rename the file to beta.txt",
+    os.path.join(desktop_str, "logs", "ari.log") + " Save the log report",
 ]
 
 for sample in samples:
@@ -235,8 +231,8 @@ try:
                 [
                     {
                         "task_id": "legacy-task",
-                        "goal": "정리",
-                        "schedule_expr": "매일 9시 0",
+                        "goal": "Organize",
+                        "schedule_expr": "Every day at 9:00",
                         "next_run": "2026-04-01T09:00:00",
                     }
                 ],
@@ -374,15 +370,14 @@ def run(action, description: str) -> float:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Ari Save소 검증 스크립트")
-    parser.add_argument("--compile-only", action="store_true", help="문법 검사만 실행")
-    parser.add_argument("--tests-only", action="store_true", help="유닛 테스트만 실행")
-    parser.add_argument("--smoke-only", action="store_true", help="템플릿 스모크 테스트만 실행")
-    parser.add_argument("--no-smoke", action="store_true", help="템플릿 스모크 테스트 생략")
-    parser.add_argument("--list", action="store_true", help="검증 항목만 출력하고 종료")
-    parser.add_argument("--json", action="store_true", help="검증 계획을 JSON으로 출력")
+    parser = argparse.ArgumentParser(description="Ari Save Verification Script")
+    parser.add_argument("--compile-only", action="store_true", help="Run syntax checks only")
+    parser.add_argument("--tests-only", action="store_true", help="Run unit tests only")
+    parser.add_argument("--smoke-only", action="store_true", help="Run template smoke tests only")
+    parser.add_argument("--no-smoke", action="store_true", help="Skip template smoke tests")
+    parser.add_argument("--list", action="store_true", help="Print validation items only and exit")
+    parser.add_argument("--json", action="store_true", help="Output the validation plan as JSON")
     return parser.parse_args()
-
 
 def main() -> int:
     args = parse_args()
@@ -390,7 +385,7 @@ def main() -> int:
     if selected_modes > 1:
         raise SystemExit("compile/tests/smoke Only one dedicated option can be used.")
     if args.list and args.json:
-        raise SystemExit("--list 와 --json 은 Cannot be used together.")
+        raise SystemExit("--list and --json cannot be used together.")
 
     payload = {
         "compile_targets": COMPILE_TARGETS,

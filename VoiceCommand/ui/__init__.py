@@ -1,1 +1,1 @@
-"""UI 관련 모듈 패키지."""
+"""UI-related module package."""

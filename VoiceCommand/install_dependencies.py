@@ -1,8 +1,6 @@
 """Install Ari dependencies into project-local virtual environments."""
 from __future__ import annotations
 
-# This bootstrap runs before dependencies are installed, so importing Ari's
-# i18n package here could prevent setup from starting. Keep its messages local.
 import argparse
 import os
 import subprocess
@@ -29,7 +27,7 @@ def _venv_python_path(venv_dir: Path) -> Path:
 def _ensure_venv(venv_dir: Path) -> Path:
     python_exe = _venv_python_path(venv_dir)
     if python_exe.exists():
-        print(f"기존 Using existing virtual environment: {venv_dir}")
+        print(f"Using existing virtual environment: {venv_dir}")
         return python_exe
 
     print(f"Creating virtual environment: {venv_dir}")
@@ -44,7 +42,7 @@ def _run_pip(python_exe: Path, *arguments: str) -> None:
         [str(python_exe), "-m", "pip", *arguments],
         check=True,
         cwd=str(HERE),
-    )  # nosec B603
+    )
 
 
 def _install_main_dependencies(python_exe: Path) -> None:
@@ -55,29 +53,29 @@ def _install_main_dependencies(python_exe: Path) -> None:
 
 def _install_tts_dependencies() -> None:
     tts_python = _ensure_venv(TTS_VENV)
-    print("CosyVoice3 Installing dedicated dependencies...")
+    print("Installing CosyVoice3 dedicated dependencies...")
     _run_pip(tts_python, "install", "--upgrade", "pip")
     _run_pip(tts_python, "install", "--upgrade", *TTS_PACKAGES)
 
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Ari 의존성을 프로젝트 가상환경에 설치합니다."
+        description="Install Ari dependencies into project virtual environments."
     )
     parser.add_argument(
         "--with-tts",
         action="store_true",
-        help=".venv-tts를 만들고 CosyVoice3 핵심 의존성도 설치합니다.",
+        help="Create .venv-tts and install core CosyVoice3 dependencies.",
     )
     parser.add_argument(
         "--skip-validate",
         action="store_true",
-        help="설치 later Save소 검증을 실행하지 않습니다.",
+        help="Skip validation after installation.",
     )
     parser.add_argument(
         "--no-venv",
         action="store_true",
-        help=".venv 대신 현재 Python에 설치합니다(CI용).",
+        help="Install into the current Python environment instead of .venv (for CI).",
     )
     return parser
 
@@ -85,7 +83,7 @@ def _build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if not REQUIREMENTS.exists():
-        print(f"requirements.txtnot found: {REQUIREMENTS}")
+        print(f"requirements.txt not found: {REQUIREMENTS}")
         return 1
 
     try:
@@ -102,19 +100,19 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("All packages installed successfully.")
         if not args.skip_validate:
             if not VALIDATOR.exists():
-                raise RuntimeError(f"검증 스크립트not found: {VALIDATOR}")
-            print("Default 검증을 실행합니다...")
+                raise RuntimeError(f"Validation script not found: {VALIDATOR}")
+            print("Running default validation...")
             subprocess.run(
                 [str(main_python), str(VALIDATOR)],
                 check=True,
                 cwd=str(HERE),
-            )  # nosec B603
+            )
             print("Validation complete.")
     except subprocess.CalledProcessError as exc:
-        print(f"명령 실행 중 Error가 발생했습니다 (exit code {exc.returncode}).")
+        print(f"An error occurred while running a command (exit code {exc.returncode}).")
         return exc.returncode or 1
     except (OSError, RuntimeError) as exc:
-        print(f"설치 중 Error가 발생했습니다: {exc}")
+        print(f"An error occurred during installation: {exc}")
         return 1
 
     return 0

@@ -1,10 +1,3 @@
-"""Ollama 원스톱 설치 스크립트.
-
-사용법:
-  py install_ollama.py
-  py install_ollama.py --models llama3.2:3b qwen3:4b
-  py install_ollama.py --models-dir D:\Models\Ollama
-"""
 from __future__ import annotations
 
 import argparse
@@ -14,14 +7,14 @@ from core.ollama_installer import COMMON_OLLAMA_MODELS, install_ollama, normaliz
 
 
 def _parse_args():
-    parser = argparse.ArgumentParser(description="Ollama 로컬 LLM 설치 스크립트")
-    parser.add_argument("--install-dir", default="", help="Ollama Install path (선택)")
-    parser.add_argument("--models-dir", default="", help="모델 Save 경로 (선택)")
+    parser = argparse.ArgumentParser(description="Ollama local LLM installation script")
+    parser.add_argument("--install-dir", default="", help="Ollama install path (optional)")
+    parser.add_argument("--models-dir", default="", help="Model save path (optional)")
     parser.add_argument(
         "--models",
         nargs="*",
         default=None,
-        help="설치할 모델 목록 예: llama3.2:3b qwen3:4b",
+        help="List of models to install, e.g. llama3.2:3b qwen3:4b",
     )
     return parser.parse_args()
 
@@ -31,7 +24,7 @@ def _prompt_models() -> list[str]:
     for index, option in enumerate(COMMON_OLLAMA_MODELS, start=1):
         print(f"  {index}. {option.model:<18} - {option.summary}")
     print("  0. Skip model installation")
-    raw = input("번호 Input (예: 1,2) 또는 엔터 → 1: ").strip()
+    raw = input("Enter numbers (e.g. 1,2) or press Enter → 1: ").strip()
     if not raw:
         return [COMMON_OLLAMA_MODELS[0].model]
     if raw == "0":
@@ -49,7 +42,7 @@ def _prompt_models() -> list[str]:
         if 1 <= idx <= len(COMMON_OLLAMA_MODELS):
             selected.append(COMMON_OLLAMA_MODELS[idx - 1].model)
 
-    custom = input("추가 모델명 Input (없으면 엔터): ").strip()
+    custom = input("Enter additional model names (press Enter to skip): ").strip()
     if custom:
         selected.extend(part.strip() for part in custom.split(","))
     return normalize_models(selected)
@@ -60,7 +53,7 @@ def install() -> None:
     models = normalize_models(args.models) if args.models is not None else _prompt_models()
 
     print("=" * 60)
-    print("   Ollama Local LLM one-stop installer")
+    print("   Ollama Local LLM One-Stop Installer")
     print("=" * 60)
     if args.install_dir:
         print(f"Install path: {os.path.abspath(args.install_dir)}")
@@ -76,14 +69,14 @@ def install() -> None:
     )
 
     print("\n" + "=" * 60)
-    print("✨ Ollama Installation complete!")
-    print(f"Ollama 경로: {result['install_dir']}")
+    print("Ollama installation complete!")
+    print(f"Ollama path: {result['install_dir']}")
     print(f"Model path: {result['models_dir']}")
-    print(f"OpenAI Compatible address: {result['base_url']}")
+    print(f"OpenAI-compatible address: {result['base_url']}")
     if result["installed_models"]:
-        print(f"설치 모델: {', '.join(result['installed_models'])}")
+        print(f"Installed models: {', '.join(result['installed_models'])}")
     else:
-        print("설치 모델: None")
+        print("Installed models: None")
     print("=" * 60)
 
 
