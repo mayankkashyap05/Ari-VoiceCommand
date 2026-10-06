@@ -1,7 +1,7 @@
 """
-스케줄러 관리 패널 (Scheduler Panel)
-예약 작업 목록 조회, 추가, 삭제, 활성화 토글 UI이다.
-FloatingPanel 기반 클래스를 사용해 구조를 공유한다.
+Scheduler management panel (Scheduler Panel)
+UI for listing, adding, deleting, and toggling scheduled tasks.
+Shares its structure with the FloatingPanel base class.
 """
 import logging
 from datetime import datetime
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class TaskRow(QFrame):
-    """예약 작업 한 행 위젯."""
+    """Widget for a single scheduled task row."""
 
     toggle_requested  = Signal(str)
     delete_requested  = Signal(str)
@@ -51,7 +51,7 @@ class TaskRow(QFrame):
         outer.setContentsMargins(12, 10, 12, 10)
         outer.setSpacing(4)
 
-        # 이름 + 액션 버튼 행
+        # Name + action button row
         top = QHBoxLayout()
         display_name = task.name if getattr(task, "name", "") else task.goal[:30]
         name_lbl = QLabel(f"📋 {display_name}")
@@ -64,24 +64,24 @@ class TaskRow(QFrame):
         action_layout = QHBoxLayout()
         action_layout.setSpacing(6)
         action_layout.addWidget(create_icon_button(
-            "▶", _("지금 실행"), 28, COLOR_SUCCESS,
+            "▶", _("Run now"), 28, COLOR_SUCCESS,
             lambda: self.run_now_requested.emit(self.task_id)
         ))
         toggle_color = COLOR_PRIMARY if task.enabled else COLOR_MUTED
         toggle_icon  = "⏸" if task.enabled else "▷"
         action_layout.addWidget(create_icon_button(
-            toggle_icon, _("활성화/비활성화"), 28, toggle_color,
+            toggle_icon, _("Enable/disable"), 28, toggle_color,
             lambda: self.toggle_requested.emit(self.task_id)
         ))
         action_layout.addWidget(create_icon_button(
-            "✕", _("삭제"), 28, COLOR_DANGER,
+            "✕", _("Delete"), 28, COLOR_DANGER,
             lambda: self.delete_requested.emit(self.task_id)
         ))
         top.addStretch()
         top.addLayout(action_layout)
         outer.addLayout(top)
 
-        # 목표 텍스트 (축약)
+        # Goal text (abbreviated)
         goal_lbl = QLabel(task.goal[:60] + ("…" if len(task.goal) > 60 else ""))
         goal_lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL))
         goal_lbl.setStyleSheet("color: #555;")
@@ -90,13 +90,13 @@ class TaskRow(QFrame):
         goal_lbl.setMinimumWidth(0)
         outer.addWidget(goal_lbl)
 
-        # 스케줄 + 다음 실행 시각
+        # Schedule + next run time
         try:
             next_str = datetime.fromisoformat(task.next_run).strftime("%m/%d %H:%M")
         except Exception:
             next_str = task.next_run
         info_color = COLOR_PRIMARY if task.enabled else COLOR_MUTED
-        info_lbl = QLabel(_("🕐 {schedule}  →  다음 {next}").format(schedule=task.schedule_expr, next=next_str))
+        info_lbl = QLabel(_("🕐 {schedule}  →  next {next}").format(schedule=task.schedule_expr, next=next_str))
         info_lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL))
         info_lbl.setStyleSheet(f"color: {info_color};")
         info_lbl.setWordWrap(True)
@@ -104,14 +104,14 @@ class TaskRow(QFrame):
         info_lbl.setMinimumWidth(0)
         outer.addWidget(info_lbl)
 
-        # 마지막 실행 결과
+        # Last run result
         if task.last_run:
             try:
                 last_str = datetime.fromisoformat(task.last_run).strftime("%m/%d %H:%M")
             except Exception:
                 last_str = task.last_run
             snippet = task.last_result[:50] + ("…" if len(task.last_result) > 50 else "")
-            result_lbl = QLabel(_("✅ 마지막: {time}  |  {result}").format(time=last_str, result=snippet))
+            result_lbl = QLabel(_("✅ Last: {time}  |  {result}").format(time=last_str, result=snippet))
             result_lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL))
             result_lbl.setStyleSheet(f"color: {COLOR_SUCCESS};")
             result_lbl.setWordWrap(True)
@@ -121,19 +121,19 @@ class TaskRow(QFrame):
 
 
 class SchedulerPanel(FloatingPanel):
-    """예약 작업 관리 패널."""
+    """Scheduled task management panel."""
 
     def __init__(self, scheduler=None, parent=None):
-        super().__init__("📅  예약 작업 관리", WINDOW_W_SCHEDULER, WINDOW_H_SCHEDULER, parent)
+        super().__init__("📅  Scheduled task management", WINDOW_W_SCHEDULER, WINDOW_H_SCHEDULER, parent)
         self._scheduler = scheduler
         self._build_content()
         self._connect_signals()
         self._refresh_list()
 
-    # ── 콘텐츠 구성 ───────────────────────────────────────────────────────────
+    # ── Content layout ───────────────────────────────────────────────────────────
 
     def _build_content(self) -> None:
-        # 작업 목록 스크롤 zero역
+        # Task list scroll area
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -148,7 +148,7 @@ class SchedulerPanel(FloatingPanel):
         scroll.setWidget(self._list_widget)
         self.content_layout.addWidget(scroll)
 
-        # 작업 추가 폼
+        # Add-task form
         form = QFrame()
         form.setStyleSheet("""
             QFrame {{ background: white; border-top: 1px solid #eee;
@@ -159,18 +159,18 @@ class SchedulerPanel(FloatingPanel):
         form_lay.setContentsMargins(14, 12, 14, 14)
         form_lay.setSpacing(8)
 
-        add_title = QLabel(_("새 작업 추가"))
+        add_title = QLabel(_("Add a new task"))
         add_title.setFont(QFont(FONT_KO, FONT_SIZE_SMALL, QFont.Bold))
         add_title.setStyleSheet(f"color: {COLOR_PRIMARY};")
         form_lay.addWidget(add_title)
 
-        self._name_input  = create_input_field(_("작업 이름 (예: 뉴스 요약)"))
-        self._goal_input  = create_input_field(_("목표 (예: 최신 뉴스를 요약해서 Save해줘)"))
-        self._sched_input = create_input_field(_("스케줄 (예: 매일 09:00  /  매주 월요일 09:00  /  30분마다)"))
+        self._name_input  = create_input_field(_("Task name (e.g. News summary)"))
+        self._goal_input  = create_input_field(_("Goal (e.g. summarize the latest news and save it)"))
+        self._sched_input = create_input_field(_("Schedule (e.g. daily 09:00  /  Mondays 09:00  /  every 30 minutes)"))
         for w in (self._name_input, self._goal_input, self._sched_input):
             form_lay.addWidget(w)
 
-        add_btn = QPushButton(_("+ 작업 추가"))
+        add_btn = QPushButton(_("+ Add task"))
         add_btn.setFixedHeight(36)
         add_btn.setCursor(Qt.PointingHandCursor)
         add_btn.setFont(QFont(FONT_KO, FONT_SIZE_SMALL, QFont.Bold))
@@ -185,42 +185,42 @@ class SchedulerPanel(FloatingPanel):
 
         self.content_layout.addWidget(form)
 
-    # ── 시그널 연결 ───────────────────────────────────────────────────────────
+    # ── Signal connections ───────────────────────────────────────────────────────────
 
     def _connect_signals(self) -> None:
         if not self._scheduler:
             return
-        # ProactiveScheduler는 Qt 시그널 대신 QTimer 폴링 방식 사용
+        # ProactiveScheduler uses QTimer polling instead of Qt signals
         from PySide6.QtCore import QTimer
         self._refresh_timer = QTimer(self)
         self._refresh_timer.timeout.connect(self._refresh_list)
-        self._refresh_timer.start(5000)  # 5초마다 자동 갱신
+        self._refresh_timer.start(5000)  # Auto-refresh every 5 seconds
 
-    # ── 이벤트 핸들러 ────────────────────────────────────────────────────────
+    # ── Event handlers ────────────────────────────────────────────────────────
 
     def _on_add(self) -> None:
         name  = self._name_input.text().strip()
         goal  = self._goal_input.text().strip()
         sched = self._sched_input.text().strip()
         if not (name and goal and sched):
-            show_temp_status(self._status_lbl, _("⚠️ 이름·목표·스케줄을 모두 Input해주세요."))
+            show_temp_status(self._status_lbl, _("⚠️ Please enter a name, a goal, and a schedule."))
             return
         if not self._scheduler:
-            show_temp_status(self._status_lbl, _("⚠️ 스케줄러가 연결되지 않았습니다."))
+            show_temp_status(self._status_lbl, _("⚠️ The scheduler is not connected."))
             return
         try:
             self._scheduler.add_task(name, goal, sched)
             for w in (self._name_input, self._goal_input, self._sched_input):
                 w.clear()
-            show_temp_status(self._status_lbl, _("✅ '{name}' 등록 완료").format(name=name))
+            show_temp_status(self._status_lbl, _("✅ '{name}' registered").format(name=name))
         except Exception as e:
-            show_temp_status(self._status_lbl, _("⚠️ 등록 실패: {error}").format(error=e))
+            show_temp_status(self._status_lbl, _("⚠️ Registration failed: {error}").format(error=e))
 
     def _refresh_list(self) -> None:
         clear_layout(self._list_layout)
         tasks = self._scheduler.list_tasks() if self._scheduler else []
         if not tasks:
-            empty = QLabel(_("등록된 예약 작업이 없습니다."))
+            empty = QLabel(_("No scheduled tasks have been registered."))
             empty.setFont(QFont(FONT_KO, FONT_SIZE_NORMAL))
             empty.setStyleSheet(f"color: {COLOR_MUTED}; padding: 20px;")
             empty.setAlignment(Qt.AlignCenter)
@@ -235,7 +235,7 @@ class SchedulerPanel(FloatingPanel):
 
     def _on_run_now(self, task_id: str) -> None:
         if self._scheduler and self._scheduler.run_task_now(task_id):
-            show_temp_status(self._status_lbl, _("▶ 즉시 실행 요청됨"))
+            show_temp_status(self._status_lbl, _("▶ Immediate run requested"))
 
     def refresh_theme(self) -> None:
         name_text = self._name_input.text() if hasattr(self, "_name_input") else ""

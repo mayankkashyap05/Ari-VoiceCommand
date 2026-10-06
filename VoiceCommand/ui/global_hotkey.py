@@ -1,4 +1,4 @@
-"""Windows 전역 음성 Input 단축키."""
+"""Windows global voice input hotkey."""
 
 import ctypes
 import logging
@@ -61,7 +61,7 @@ _MOD_NOREPEAT = 0x4000
 
 
 def parse_global_hotkey(sequence: str) -> tuple[int, int]:
-    """단축키 문자열에서 Win32 수정 키와 키 코드를 얻는다."""
+    """Get the Win32 modifier keys and key code from the hotkey string."""
     parts = [part.strip() for part in str(sequence).split("+") if part.strip()]
     if len(parts) < 2:
         raise ValueError("modifier and key required")
@@ -91,7 +91,7 @@ def parse_global_hotkey(sequence: str) -> tuple[int, int]:
 
 
 class GlobalVoiceHotkey(QAbstractNativeEventFilter):
-    """Qt 네이티브 이벤트 필터로 Win32 Global hotkey를 받는다."""
+    """Receives Win32 global hotkeys through a Qt native event filter."""
 
     def __init__(self, voice_thread, api=None, platform=None):
         super().__init__()
@@ -111,7 +111,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         self._timer.timeout.connect(self._check_key_release)
 
     def install(self, app) -> bool:
-        """필터와 단축키를 설치한다."""
+        """Install the filter and the hotkey."""
         if self._platform != "win32":
             return False
         self._app = app
@@ -137,7 +137,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         return self._api
 
     def configure(self) -> bool:
-        """Save된 단축키 Settings을 Apply한다."""
+        """Applies the saved hotkey settings."""
         settings = ConfigManager.load_settings()
         sequence = str(settings.get("voice_activation_hotkey", "Ctrl+Alt+Space"))
         mode = settings.get("voice_activation_mode", "push_to_talk")
@@ -162,7 +162,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         if not api.RegisterHotKey(None, hotkey_id, modifiers | _MOD_NOREPEAT, key):
             get_last_error = getattr(ctypes, "get_last_error", lambda: 0)
             logging.warning(
-                "Global hotkey 등록 실패 (다른 앱이 사용 중일 수 있습니다, Error %d)",
+                "Failed to register the global hotkey (another app may be using it, error %d)",
                 get_last_error(),
             )
             return False
@@ -177,7 +177,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
         return True
 
     def nativeEventFilter(self, event_type, message):
-        """WM_HOTKEY만 처리한다."""
+        """Handles WM_HOTKEY only."""
         try:
             native_type = (
                 event_type.encode("ascii", "ignore")
@@ -213,8 +213,8 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
                 self.voice_thread.request_listening()
             return True, 0
         except Exception:
-            # 네이티브 이벤트 콜백에서 예외가 새면 앱이 종료될 수 있다.
-            log_exception("Global hotkey 네이티브 이벤트 처리 실패")
+            # An exception escaping the native event callback can terminate the app.
+            log_exception("Failed to handle the native global hotkey event")
             return False, 0
 
     def _check_key_release(self) -> None:
@@ -227,7 +227,7 @@ class GlobalVoiceHotkey(QAbstractNativeEventFilter):
             self.voice_thread.release_listening()
 
     def cleanup(self) -> None:
-        """단축키와 네이티브 필터를 해제한다."""
+        """Release the hotkey and the native filter."""
         self._timer.stop()
         if self._holding:
             self.voice_thread.release_listening()

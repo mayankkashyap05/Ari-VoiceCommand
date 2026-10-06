@@ -50,7 +50,7 @@ class TTSDiagnosticThread(QThread):
                 self.settings,
                 self.selected_mode,
                 self.output_device_name,
-                _("안녕하세요. 음성 출력 시험 중입니다."),
+                _("Hello. This is a voice output test."),
                 provider_factory=create_diagnostic_provider,
                 is_cancelled=self.isInterruptionRequested,
             )
@@ -73,13 +73,13 @@ class _DiagnosticProvider:
 
 class TTSDiagnosticPanel(QGroupBox):
     def __init__(self, values_provider: Callable, parent=None):
-        super().__init__(_("음성 출력 시험"), parent)
+        super().__init__(_("Voice output test"), parent)
         self._values_provider = values_provider
         self._thread: TTSDiagnosticThread | None = None
         self._closing = False
 
         layout = QHBoxLayout(self)
-        self.button = QPushButton(_("시험 play"))
+        self.button = QPushButton(_("Test playback"))
         self.button.setStyleSheet(secondary_btn_style())
         self.button.clicked.connect(self._start)
         layout.addWidget(self.button)
@@ -97,7 +97,7 @@ class TTSDiagnosticPanel(QGroupBox):
         settings, mode, output_device_name = self._values_provider()
         self._closing = False
         self.button.setEnabled(False)
-        self.status.setText(_("시험 play 중..."))
+        self.status.setText(_("Test playback in progress..."))
         self.status.setStyleSheet("color: #888;")
         thread = TTSDiagnosticThread(settings, mode, output_device_name)
         thread.done.connect(self._on_done)

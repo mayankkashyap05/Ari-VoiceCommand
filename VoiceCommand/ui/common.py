@@ -1,14 +1,14 @@
 """
-UI 공용 유틸리티 (UI Common Utilities)
-반복되는 위젯 생성·레이아웃 조작 패턴을 한 곳에 모은다.
+UI common utilities (UI Common Utilities)
+Collects the repeated widget-creation and layout-manipulation patterns in one place.
 
-주요 제공 요소:
-  - clear_layout()       레이아웃 내 위젯 일괄 제거
-  - apply_shadow()       QGraphicsDropShadowEffect Apply
-  - create_input_field() 스타일 통일된 QLineEdit
-  - create_icon_button() 아이콘 버튼 팩토리
-  - show_temp_status()   타이머 기반 일시 상태 메시지
-  - FloatingPanel        frames리스 플로팅 창 기반 클래스
+Main exports:
+  - clear_layout()       remove every widget in a layout at once
+  - apply_shadow()       apply a QGraphicsDropShadowEffect
+  - create_input_field() QLineEdit with unified styling
+  - create_icon_button() icon button factory
+  - show_temp_status()   timer-based temporary status message
+  - FloatingPanel        frameless floating window base class
 """
 from typing import Callable, Optional
 
@@ -23,26 +23,26 @@ from PySide6.QtWidgets import (
 from ui import theme as theme_module
 
 
-# ── 레이아웃 유틸 ─────────────────────────────────────────────────────────────
+# ── Layout utilities ─────────────────────────────────────────────────────────────
 
 def clear_layout(layout: QLayout) -> None:
-    """레이아웃 내 모든 위젯을 안전하게 제거하고 메모리를 해제한다."""
+    """Safely remove every widget in a layout and release its memory."""
     while layout.count():
         item = layout.takeAt(0)
         if item and item.widget():
-            # 삭제 전까지 이전 위젯이 겹쳐 그려지지 않도록 먼저 숨긴다.
+            # Hide first so the previous widget is not painted on top before it is deleted.
             item.widget().hide()
             item.widget().deleteLater()
 
 
-# ── 시각 효과 유틸 ────────────────────────────────────────────────────────────
+# ── Visual effect utilities ────────────────────────────────────────────────────────────
 
 def apply_shadow(
     widget: QWidget,
     blur_radius: int = theme_module.SHADOW_BLUR,
     offset_y: int = theme_module.SHADOW_OFFSET,
 ) -> None:
-    """위젯에 드롭 섀도우 효과를 Apply한다."""
+    """Apply a drop shadow effect to a widget."""
     shadow = QGraphicsDropShadowEffect(widget)
     shadow.setBlurRadius(blur_radius)
     shadow.setColor(Qt.black)
@@ -50,14 +50,14 @@ def apply_shadow(
     widget.setGraphicsEffect(shadow)
 
 
-# ── 위젯 팩토리 ───────────────────────────────────────────────────────────────
+# ── Widget factory ───────────────────────────────────────────────────────────────
 
 def create_input_field(
     placeholder: str = "",
     font_size: int = theme_module.FONT_SIZE_NORMAL,
     height: int = 32,
 ) -> QLineEdit:
-    """Theme 스타일이 Apply된 QLineEdit를 생성한다."""
+    """Create a QLineEdit with the theme style applied."""
     w = QLineEdit()
     w.setPlaceholderText(placeholder)
     w.setFont(QFont(theme_module.FONT_KO, font_size))
@@ -73,7 +73,7 @@ def create_icon_button(
     color: str,
     callback: Optional[Callable] = None,
 ) -> QPushButton:
-    """아이콘 버튼을 생성한다. callback이 주어지면 clicked에 연결한다."""
+    """Create an icon button. If a callback is given, connect it to clicked."""
     btn = QPushButton(icon)
     btn.setFixedSize(size, size)
     btn.setToolTip(tooltip)
@@ -85,7 +85,7 @@ def create_icon_button(
 
 
 def create_section_label(text: str, color: str = "") -> QLabel:
-    """섹션 헤더 레이블을 생성한다."""
+    """Create a section header label."""
     lbl = QLabel(text)
     lbl.setFont(QFont(theme_module.FONT_KO, theme_module.FONT_SIZE_NORMAL, QFont.Bold))
     lbl.setStyleSheet(f"color: {color or theme_module.COLOR_PRIMARY};")
@@ -93,32 +93,32 @@ def create_section_label(text: str, color: str = "") -> QLabel:
 
 
 def create_muted_label(text: str) -> QLabel:
-    """흐린 색 보조 텍스트 레이블을 생성한다."""
+    """Create a muted secondary text label."""
     lbl = QLabel(text)
     lbl.setFont(QFont(theme_module.FONT_KO, theme_module.FONT_SIZE_NORMAL))
     lbl.setStyleSheet(f"color: {theme_module.COLOR_MUTED};")
     return lbl
 
 
-# ── 상태 메시지 ───────────────────────────────────────────────────────────────
+# ── Status message ───────────────────────────────────────────────────────────────
 
 def show_temp_status(
     label: QLabel,
     msg: str,
     duration_ms: int = theme_module.TEMP_STATUS_DURATION,
 ) -> None:
-    """레이블에 메시지를 표시하고 duration_ms later 자동으로 지운다."""
+    """Show a message on the label and clear it automatically after duration_ms."""
     label.setText(msg)
     QTimer.singleShot(duration_ms, label, lambda: label.setText(""))
 
 
-# ── 공통 타이틀 바 ────────────────────────────────────────────────────────────
+# ── Common title bar ────────────────────────────────────────────────────────────
 
 class PanelTitleBar(QFrame):
-    """드래그 이동 + Close 버튼이 포함된 공통 타이틀 바.
+    """Common title bar with drag-to-move and a Close button.
 
-    FloatingPanel 기반 클래스에서 자동으로 사용된다.
-    추가 버튼이 필요하면 subclass에서 add_button()을 호출한다.
+    Used automatically by classes based on FloatingPanel.
+    Call add_button() from a subclass if you need extra buttons.
     """
 
     def __init__(self, title: str, parent: QMainWindow):
@@ -134,7 +134,7 @@ class PanelTitleBar(QFrame):
         self._lay.addWidget(self._title_lbl)
         self._lay.addStretch()
 
-        # Close 버튼은 항상 맨 오른쪽
+        # The Close button is always rightmost
         self._close_btn = QPushButton("✕")
         self._close_btn.setFixedSize(30, 30)
         self._close_btn.setCursor(Qt.PointingHandCursor)
@@ -149,7 +149,7 @@ class PanelTitleBar(QFrame):
         callback: Callable,
         size: int = theme_module.BUTTON_LG,
     ) -> QPushButton:
-        """Close 버튼 앞에 아이콘 버튼을 추가한다."""
+        """Add an icon button before the Close button."""
         btn = QPushButton(icon)
         btn.setFixedSize(size, size)
         btn.setToolTip(tooltip)
@@ -160,7 +160,7 @@ class PanelTitleBar(QFrame):
             QPushButton:hover { background: rgba(255,255,255,35); }
         """)
         btn.clicked.connect(callback)
-        # Close 버튼(index=-1) 직전에 삽입
+        # Insert right before the Close button (index=-1)
         count = self._lay.count()
         self._lay.insertWidget(count - 1, btn)
         return btn
@@ -188,21 +188,21 @@ class PanelTitleBar(QFrame):
         self._drag_pos = None
 
 
-# ── frames리스 플로팅 패널 기반 클래스 ───────────────────────────────────────
+# ── Frameless floating panel base class ───────────────────────────────────────
 
 class FloatingPanel(QMainWindow):
-    """frames리스·반투명 배경의 플로팅 패널 기반 클래스.
+    """Frameless floating panel base class with a translucent background.
 
-    상속해서 사용할 때:
+    When subclassing:
       1. super().__init__(title, width, height, parent)
-      2. self.content_layout 에 콘텐츠를 추가
-      3. 타이틀 바 버튼이 필요하면 self.title_bar.add_button(...) 사용
+      2. add content to self.content_layout
+      3. use self.title_bar.add_button(...) if you need title bar buttons
 
-    예시:
+    Example:
         class MyPanel(FloatingPanel):
             def __init__(self):
-                super().__init__("🔧 내 패널", 400, 500)
-                lbl = QLabel("내용")
+                super().__init__("🔧 My Panel", 400, 500)
+                lbl = QLabel("Content")
                 self.content_layout.addWidget(lbl)
     """
 
@@ -238,7 +238,7 @@ class FloatingPanel(QMainWindow):
         self.title_bar = PanelTitleBar(title, self)
         self._bg_layout.addWidget(self.title_bar)
 
-        # 서브 클래스가 위젯을 추가하는 레이아웃
+        # Layout that subclasses add widgets to
         content_widget = QWidget()
         content_widget.setObjectName("FloatingPanelContent")
         content_widget.setStyleSheet(f"#FloatingPanelContent {{ background: {theme_module.COLOR_BG_PANEL}; }}")
@@ -249,7 +249,7 @@ class FloatingPanel(QMainWindow):
         self.refresh_shell_theme()
 
     def show_near(self, x: int, y: int) -> None:
-        """지정 좌표 근처에 화면 경계를 벗어나지 않도록 표시한다."""
+        """Show near the given coordinates without leaving the screen bounds."""
         screen = QApplication.primaryScreen().geometry()
         fx = min(x + 10, screen.width() - self.width() - 10)
         fy = max(20, min(y, screen.height() - self.height() - 40))

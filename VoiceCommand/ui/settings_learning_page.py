@@ -1,4 +1,4 @@
-"""학습 상태와 Save된 교훈을 보여 주는 Settings 페이지."""
+"""Settings page that shows the learning status and the saved lessons."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -18,7 +18,7 @@ from i18n.translator import _
 
 
 def format_skill_row(skill, usage: dict) -> str:
-    """스킬 성공률과 최근 사용 시각을 표시할 문자열로 만든다."""
+    """Build the string that shows skill success rate and last-used time."""
     skill_usage = usage.get(skill.skill_id, {})
     total = int(skill_usage.get("total", 0) or 0)
     if total:
@@ -32,12 +32,12 @@ def format_skill_row(skill, usage: dict) -> str:
     rate_text = (
         _("{rate}%").format(rate=success_rate)
         if success_rate is not None
-        else _("표본 None")
+        else _("No samples")
     )
     last_used = _format_last_used(str(skill_usage.get("last_used", "") or ""))
-    status = _("사용 중") if skill.enabled else _("꺼짐")
+    status = _("In use") if skill.enabled else _("Disabled")
     return _(
-        "{name} · 성공률 {rate} · 마지막 사용: {last_used} · 상태: {status}"
+        "{name} · success rate {rate} · last used: {last_used} · status: {status}"
     ).format(
         name=skill.name,
         rate=rate_text,
@@ -48,7 +48,7 @@ def format_skill_row(skill, usage: dict) -> str:
 
 def _format_last_used(timestamp: str) -> str:
     if not timestamp:
-        return _("기록 None")
+        return _("No records")
     try:
         return datetime.fromisoformat(timestamp).strftime("%Y-%m-%d %H:%M")
     except ValueError:
@@ -60,33 +60,33 @@ class _LearningSettingsPage(QWidget):
         super().__init__(parent)
         layout = QVBoxLayout(self)
 
-        skills_group = QGroupBox(_("학습 스킬"))
+        skills_group = QGroupBox(_("Learned skills"))
         skills_layout = QVBoxLayout(skills_group)
         self.skill_list = QListWidget()
         self.skill_list.setMaximumHeight(150)
         skills_layout.addWidget(self.skill_list)
-        self.disable_skill_button = QPushButton(_("이 스킬 Off"))
+        self.disable_skill_button = QPushButton(_("Turn this skill off"))
         self.disable_skill_button.setEnabled(False)
         self.disable_skill_button.clicked.connect(self._disable_selected_skill)
         skills_layout.addWidget(self.disable_skill_button)
         layout.addWidget(skills_group)
 
-        lessons_group = QGroupBox(_("활성 교훈"))
+        lessons_group = QGroupBox(_("Active lessons"))
         lessons_layout = QVBoxLayout(lessons_group)
         self.lesson_list = QListWidget()
         self.lesson_list.setMaximumHeight(150)
         lessons_layout.addWidget(self.lesson_list)
-        self.delete_lesson_button = QPushButton(_("이 교훈 삭제"))
+        self.delete_lesson_button = QPushButton(_("Delete this lesson"))
         self.delete_lesson_button.setEnabled(False)
         self.delete_lesson_button.clicked.connect(self._delete_selected_lesson)
         lessons_layout.addWidget(self.delete_lesson_button)
         layout.addWidget(lessons_group)
 
-        self.policies_group = QGroupBox(_("최근 정책 기록"))
+        self.policies_group = QGroupBox(_("Recent policy records"))
         self.policies_layout = QVBoxLayout(self.policies_group)
         layout.addWidget(self.policies_group)
 
-        self.component_group = QGroupBox(_("컴포넌트 lift"))
+        self.component_group = QGroupBox(_("Component lift"))
         self.component_layout = QVBoxLayout(self.component_group)
         self.component_group.setVisible(False)
         layout.addWidget(self.component_group)
@@ -112,7 +112,7 @@ class _LearningSettingsPage(QWidget):
             item.setData(Qt.UserRole + 1, bool(skill.enabled))
             self.skill_list.addItem(item)
         if not skill_library.skills:
-            self.skill_list.addItem(QListWidgetItem(_("사용 스킬이 없습니다.")))
+            self.skill_list.addItem(QListWidgetItem(_("No skills used yet.")))
 
         lessons = strategy_memory.get_recent_lessons()
         self.lesson_list.clear()
@@ -121,7 +121,7 @@ class _LearningSettingsPage(QWidget):
             item.setData(Qt.UserRole, record.record_id)
             self.lesson_list.addItem(item)
         if not lessons:
-            self.lesson_list.addItem(QListWidgetItem(_("교훈이 없습니다.")))
+            self.lesson_list.addItem(QListWidgetItem(_("No lessons yet.")))
 
         self._refresh_policies(get_episode_memory().get_recent_episodes(10))
         self._refresh_component_lift(get_learning_metrics())

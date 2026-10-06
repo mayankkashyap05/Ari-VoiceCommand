@@ -3,7 +3,7 @@ from core.constants import IMAGE_CACHE_CAPACITY
 
 
 class LRUCache:
-    """LRU 캐시 구현"""
+    """LRU cache implementation"""
     def __init__(self, capacity=IMAGE_CACHE_CAPACITY):
         self.cache = OrderedDict()
         self.capacity = capacity

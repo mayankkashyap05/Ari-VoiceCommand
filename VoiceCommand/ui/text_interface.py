@@ -1,14 +1,14 @@
 """
-텍스트 채팅 인터페이스 (Text Interface)
+Text chat interface (Text Interface)
 
-v2.1 — theme.py / common.py 기반 리팩토링:
-  - 중복 색상·폰트 상수 제거, ui.theme 임포트로 통합
-  - TitleBar가 common.PanelTitleBar 사용
-  - runtime import → 모듈 상단 지연 임포트로 이동
-  - 창 숨겨질 때 제안 타이머 정지 (showEvent/hideEvent)
+v2.1 — refactoring on top of theme.py / common.py:
+  - removed duplicated color and font constants, consolidated through the ui.theme import
+  - TitleBar now uses common.PanelTitleBar
+  - moved runtime imports to lazy imports at the top of the module
+  - the suggestion timer stops while the window is hidden (showEvent/hideEvent)
 
-v2.0 — 실행 대시보드(ExecutionDashboardPanel), 선제적 제안 바(ProactiveSuggestionBar),
-        메모리 패널 버튼(🧠), 스케줄러 패널 버튼(📅) 추가.
+v2.0 — added the execution dashboard (ExecutionDashboardPanel), the proactive suggestion bar (ProactiveSuggestionBar),
+        the memory panel button (🧠), and the scheduler panel button (📅).
 """
 import logging
 from datetime import datetime
@@ -21,7 +21,7 @@ from PySide6.QtWidgets import (
     QMainWindow, QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
 )
 
-# ── 조건부 임포트 (런타임에 없을 수 있는 모듈) ────────────────────────────────
+# ── Conditional imports (modules that may be missing at runtime) ────────────────────────────────
 from ui.chat_widget import ChatWidget, parse_emotion_text, EMOTION_EMOJI
 
 try:
@@ -30,7 +30,7 @@ except Exception as _e:
     logging.debug("memory.user_context Import skipped: %s", _e)
     get_context_manager = None
 
-# UI 공용 모듈
+# Shared UI modules
 from ui.common import (
     apply_shadow, clear_layout,
     PanelTitleBar,
@@ -60,10 +60,10 @@ from ui.execution_dashboard_panel import ExecutionDashboardPanel, _STEP_ICON
 from ui.proactive_suggestion_bar import ProactiveSuggestionBar
 
 
-# ── AI 처리 스레드 ────────────────────────────────────────────────────────────
+# ── AI processing thread ────────────────────────────────────────────────────────────
 
 class TextInterfaceThread(QThread):
-    """비동기 AI 응답 + 에이전트 실행 스레드."""
+    """Thread for asynchronous AI responses and agent execution."""
 
     response_ready = Signal(str)
     progress_event = Signal(str, dict)   # event_type, kwargs_dict
@@ -80,13 +80,13 @@ class TextInterfaceThread(QThread):
             response = self._execute_query()
             self.response_ready.emit(str(response))
         except Exception as e:
-            logger.error("텍스트 처리 Error: %s", e)
-            self.response_ready.emit(_("Error가 발생했습니다: {error}").format(error=e))
+            logger.error("Text processing error: %s", e)
+            self.response_ready.emit(_("An error occurred: {error}").format(error=e))
         finally:
             self._detach_progress_callback()
 
     def _execute_query(self) -> str:
-        # AICommand 경로 우선 시도 (tool calling, agent 포함)
+        # Try the AICommand path first (includes tool calling and the agent)
         try:
             from core.VoiceCommand import _state
             _command_registry = _state.command_registry
@@ -100,7 +100,7 @@ class TextInterfaceThread(QThread):
         except Exception as e:
             logger.error("AICommand Path execution failed: %s", e)
 
-        # 폴백: ai_assistant 직접 호출
+        # Fallback: call ai_assistant directly
         if hasattr(self.ai_assistant, "chat_with_tools"):
             response, _meta = self._invoke_with_optional_stream(
                 self.ai_assistant.chat_with_tools,
@@ -113,21 +113,21 @@ class TextInterfaceThread(QThread):
             return response
         if hasattr(self.ai_assistant, "chat"):
             return self._invoke_with_optional_stream(self.ai_assistant.chat, self.query)
-        return _("죄송합니다. AI 응답 엔진을 초기화할 수 없습니다.")
+        return _("Sorry. The AI response engine could not be initialized.")
 
     def _attach_progress_callback(self) -> None:
         try:
             from agent.agent_orchestrator import get_orchestrator
             get_orchestrator().set_progress_callback(self._on_progress)
         except Exception as exc:
-            logger.debug("오케스트레이터 Progress connection skipped: %s", exc)
+            logger.debug("Orchestrator progress connection skipped: %s", exc)
 
     def _detach_progress_callback(self) -> None:
         try:
             from agent.agent_orchestrator import get_orchestrator
             get_orchestrator().set_progress_callback(None)
         except Exception as exc:
-            logger.debug("오케스트레이터 Progress release skipped: %s", exc)
+            logger.debug("Orchestrator progress release skipped: %s", exc)
 
     def _on_progress(self, event_type: str, **kwargs) -> None:
         self.progress_event.emit(event_type, kwargs)
@@ -146,19 +146,19 @@ class TextInterfaceThread(QThread):
             return func(*args, **kwargs)
 
 
-# ── 커스텀 타이틀 바 ──────────────────────────────────────────────────────────
+# ── Custom title bar ──────────────────────────────────────────────────────────
 
 class TitleBar(PanelTitleBar):
-    """채팅 창 타이틀 바. 공용 PanelTitleBar에 스케줄러/메모리 버튼 추가."""
+    """Chat window title bar. Adds scheduler and memory buttons to the shared PanelTitleBar."""
 
     scheduler_btn_clicked = Signal()
     memory_btn_clicked    = Signal()
 
     def __init__(self, parent: QMainWindow):
-        super().__init__(_("💬 아리와 대화하기"), parent)
-        # Close 버튼과 함께 타이틀 바에 포함될 아이콘 버튼
-        self.add_button("📅", _("예약 작업 관리"),    self.scheduler_btn_clicked.emit)
-        self.add_button("🧠", _("아리의 기억 보기"),  self.memory_btn_clicked.emit)
+        super().__init__(_("💬 Chat with Ari"), parent)
+        # Icon buttons included in the title bar alongside the Close button
+        self.add_button("📅", _("Scheduled task management"),    self.scheduler_btn_clicked.emit)
+        self.add_button("🧠", _("View Ari's memory"),  self.memory_btn_clicked.emit)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -175,10 +175,10 @@ class TitleBar(PanelTitleBar):
         super().refresh_theme()
 
 
-# ── 메인 Text interface 창 ────────────────────────────────────────────────
+# ── Main text interface window ────────────────────────────────────────────────
 
 class TextInterface(QMainWindow):
-    """말풍선 확장형 Text interface 메인 창."""
+    """Main speech-bubble-style text interface window."""
 
     def __init__(self, ai_assistant=None, tts_callback=None):
         super().__init__()
@@ -205,7 +205,7 @@ class TextInterface(QMainWindow):
         self._init_ui()
         self._init_animations()
 
-    # ── UI 구성 ───────────────────────────────────────────────────────────────
+    # ── UI layout ───────────────────────────────────────────────────────────────
 
     def _init_ui(self) -> None:
         self.resize(WINDOW_W_CHAT, WINDOW_H_CHAT)
@@ -229,13 +229,13 @@ class TextInterface(QMainWindow):
         bg_lay.setSpacing(0)
         outer.addWidget(self.bg_frame)
 
-        # 타이틀 바
+        # Title bar
         self.title_bar = TitleBar(self)
         self.title_bar.scheduler_btn_clicked.connect(self._open_scheduler_panel)
         self.title_bar.memory_btn_clicked.connect(self._open_memory_panel)
         bg_lay.addWidget(self.title_bar)
 
-        # 기억 상태 패널
+        # Memory status panel
         status_frame = QFrame()
         status_frame.setStyleSheet(f"""
             QFrame {{ background: {COLOR_BG_STATUS};
@@ -245,7 +245,7 @@ class TextInterface(QMainWindow):
         status_lay.setContentsMargins(16, 8, 16, 8)
         status_lay.setSpacing(3)
 
-        status_title = QLabel(_("기억 상태"))
+        status_title = QLabel(_("Memory status"))
         status_title.setFont(QFont(FONT_KO, FONT_SIZE_SMALL + 1, QFont.Bold))
         status_title.setStyleSheet("color: #375a7f;")
         status_lay.addWidget(status_title)
@@ -260,11 +260,11 @@ class TextInterface(QMainWindow):
         status_lay.addWidget(self.status_summary)
         bg_lay.addWidget(status_frame)
 
-        # 실행 대시보드 (에이전트 실행 시 표시)
+        # Execution dashboard (shown while the agent runs)
         self.dashboard = ExecutionDashboardPanel()
         bg_lay.addWidget(self.dashboard)
 
-        # 채팅 zero역
+        # Chat area
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -273,12 +273,12 @@ class TextInterface(QMainWindow):
         self.scroll_area.setWidget(self.chat_widget)
         bg_lay.addWidget(self.scroll_area)
 
-        # 선제적 제안 바
+        # Proactive suggestion bar
         self.suggestion_bar = ProactiveSuggestionBar(self.context_manager)
         self.suggestion_bar.suggestion_clicked.connect(self._send_suggestion)
         bg_lay.addWidget(self.suggestion_bar)
 
-        # Input zero역
+        # Input area
         input_frame = QFrame()
         input_frame.setFixedHeight(70)
         input_frame.setStyleSheet(f"""
@@ -292,7 +292,7 @@ class TextInterface(QMainWindow):
         input_lay.setSpacing(10)
 
         self.input_field = QLineEdit()
-        self.input_field.setPlaceholderText(_("메시지 Input..."))
+        self.input_field.setPlaceholderText(_("Type a message..."))
         self.input_field.setFont(QFont(FONT_KO, FONT_SIZE_LARGE))
         self.input_field.setStyleSheet(CHAT_INPUT_STYLE)
         self.input_field.returnPressed.connect(self.send_message)
@@ -311,8 +311,8 @@ class TextInterface(QMainWindow):
         input_lay.addWidget(self.send_btn)
         bg_lay.addWidget(input_frame)
 
-        # 초기 메시지 + 타이머
-        self.chat_widget.add_message(_("안녕하세요! 무엇을 도와드릴까요?"), is_user=False)
+        # Initial message + timer
+        self.chat_widget.add_message(_("Hello! How can I help you?"), is_user=False)
         self.refresh_status_panel()
 
         self._status_timer = QTimer(self)
@@ -326,7 +326,7 @@ class TextInterface(QMainWindow):
         self.opacity_anim = QPropertyAnimation(self, b"windowOpacity")
         self.opacity_anim.setDuration(ANIM_FAST)
 
-    # ── 창 표시/숨김 시 타이머 제어 ─────────────────────────────────────────
+    # ── Timer control on window show/hide ─────────────────────────────────────────
 
     def showEvent(self, event) -> None:
         super().showEvent(event)
@@ -336,7 +336,7 @@ class TextInterface(QMainWindow):
         super().hideEvent(event)
         self.suggestion_bar.stop_timer()
 
-    # ── 메시지 송수신 ─────────────────────────────────────────────────────────
+    # ── Message exchange ─────────────────────────────────────────────────────────
 
     def send_message(self) -> None:
         query = self.input_field.text().strip()
@@ -361,7 +361,7 @@ class TextInterface(QMainWindow):
             self._bind_processing_thread(self.processing_thread)
             self.processing_thread.start()
         else:
-            self._handle_response(_("AI 엔진이 연결되지 않았습니다."))
+            self._handle_response(_("The AI engine is not connected."))
             self._set_ui_enabled(True)
 
     def _bind_processing_thread(self, thread: TextInterfaceThread) -> None:
@@ -400,11 +400,11 @@ class TextInterface(QMainWindow):
 
     def _handle_response(self, response: str) -> None:
         final_response = response or self._stream_response_buffer
-        interrupted = _("(응답 중단)") in final_response
+        interrupted = _("(Response interrupted)") in final_response
         if self._stream_message_index is not None:
             self.chat_widget.update_message(self._stream_message_index, final_response)
         elif final_response:
-            # 첫 출력 전에 Cancel된 요청은 보여 줄 내용이 없다.
+            # A request cancelled before the first output has nothing to show.
             self.chat_widget.add_message(final_response, is_user=False)
         self._stream_message_index = None
         self._stream_response_buffer = ""
@@ -413,7 +413,7 @@ class TextInterface(QMainWindow):
         if self.tts_callback and final_response and not interrupted and not self._speech_stopped:
             from core.VoiceCommand import set_active_conversation_response
             set_active_conversation_response(final_response)
-            # 스트리밍 중 문장 단위 TTS가 이미 시작된 경우: 남은 버퍼만 처리
+            # When sentence-level TTS has already started during streaming: handle only the remaining buffer
             if self._stream_tts_spoken:
                 remaining = " ".join(
                     part for part in (
@@ -434,7 +434,7 @@ class TextInterface(QMainWindow):
         self._speech_stopped = False
 
     def stop_speaking(self) -> None:
-        """현재 음성 play이나 응답 생성을 중단한다."""
+        """Stop the current speech playback or response generation."""
         self._mark_speaking_stopped()
         from VoiceCommand import stop_speaking
         stop_speaking()
@@ -447,7 +447,7 @@ class TextInterface(QMainWindow):
         self._stream_tts_spoken = False
 
     def _on_progress_event(self, event_type: str, kwargs: dict) -> None:
-        """워커 스레드 progress 이벤트 → 메인 스레드 대시보드 Update."""
+        """Worker thread progress events → dashboard update on the main thread."""
         self.dashboard.on_progress(event_type, **kwargs)
         self.scroll_to_bottom()
 
@@ -475,11 +475,11 @@ class TextInterface(QMainWindow):
             from core.VoiceCommand import is_tts_playing
             return bool(is_tts_playing())
         except Exception as exc:
-            logger.debug("is_tts_playing OK 실패, considered idle: %s", exc)
+            logger.debug("is_tts_playing check failed, considered idle: %s", exc)
             return False
 
     def _try_stream_tts(self, chunk: str) -> None:
-        """스트리밍 청크에서 문장 경계 감지 시 TTS를 즉시 시작한다."""
+        """Start TTS immediately when a sentence boundary is detected in a streaming chunk."""
         self._stream_tts_buffer += chunk
         while True:
             idx = -1
@@ -528,7 +528,7 @@ class TextInterface(QMainWindow):
         self._stream_tts_spoken = True
         self.tts_callback(utterance)
 
-    # ── UI 헬퍼 ───────────────────────────────────────────────────────────────
+    # ── UI helpers ───────────────────────────────────────────────────────────────
 
     def _set_ui_enabled(self, enabled: bool) -> None:
         self.input_field.setEnabled(enabled)
@@ -543,7 +543,7 @@ class TextInterface(QMainWindow):
 
     def refresh_status_panel(self) -> None:
         if not self.context_manager:
-            text = _("기억 시스템을 불러오지 못했습니다.")
+            text = _("Could not load the memory system.")
             self.status_summary.setText(text)
             self.status_summary.setToolTip(text)
             return
@@ -556,20 +556,20 @@ class TextInterface(QMainWindow):
             prefs = self.context_manager.get_top_preferences(limit=2)
             lines = []
             if topics:
-                lines.append(_("주제 ") + " · ".join(t for t, _ in topics))
+                lines.append(_("Topic ") + " · ".join(t for t, _ in topics))
             if predictions:
-                lines.append(_("다음 추천 ") + " → ".join(predictions))
+                lines.append(_("Next up ") + " → ".join(predictions))
             if prefs:
-                lines.append(_("선호 ") + " · ".join(prefs[:2]))
+                lines.append(_("Preference ") + " · ".join(prefs[:2]))
             if not lines:
-                lines.append(_("대화를 이어가면 이곳에 요약이 표시됩니다."))
+                lines.append(_("Continue the conversation and a summary will appear here."))
             text = "\n".join(lines)
             self.status_summary.setText(text)
             self.status_summary.setToolTip(text)
         except Exception as e:
             logger.debug("Status panel update failed: %s", e)
 
-    # ── 사이드 패널 ───────────────────────────────────────────────────────────
+    # ── Side panels ───────────────────────────────────────────────────────────
 
     def _open_scheduler_panel(self) -> None:
         if self._scheduler_panel is None:
@@ -578,7 +578,7 @@ class TextInterface(QMainWindow):
                 from agent.proactive_scheduler import get_scheduler
                 self._scheduler_panel = SchedulerPanel(scheduler=get_scheduler())
             except Exception as e:
-                logger.error("스케줄러 Panel creation failed: %s", e)
+                logger.error("Scheduler panel creation failed: %s", e)
                 return
         geo = self.geometry()
         self._scheduler_panel.show_near(geo.right(), geo.top())
@@ -589,12 +589,12 @@ class TextInterface(QMainWindow):
                 from ui.memory_panel import MemoryPanel
                 self._memory_panel = MemoryPanel(ctx_manager=self.context_manager)
             except Exception as e:
-                logger.error("메모리 Panel creation failed: %s", e)
+                logger.error("Memory panel creation failed: %s", e)
                 return
         geo = self.geometry()
         self._memory_panel.show_near(geo.right(), geo.top())
 
-    # ── 애니메이션 & 위치 ────────────────────────────────────────────────────
+    # ── Animation & position ────────────────────────────────────────────────────
 
     def show_near(self, target_x: int, target_y: int, target_width: int = 0, target_height: int = 0) -> None:
         screen = QApplication.primaryScreen().geometry()
@@ -697,8 +697,8 @@ class TextInterface(QMainWindow):
         self.restore_state(state)
 
 
-# ── 팩토리 ───────────────────────────────────────────────────────────────────
+# ── Factory ───────────────────────────────────────────────────────────────────
 
 def create_text_interface(ai_assistant=None, tts_callback=None) -> TextInterface:
-    """TextInterface 인스턴스 생성 팩토리."""
+    """Factory that creates the TextInterface instance."""
     return TextInterface(ai_assistant, tts_callback)

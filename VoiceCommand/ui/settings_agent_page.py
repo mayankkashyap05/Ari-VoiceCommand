@@ -1,4 +1,4 @@
-"""에이전트 실행 Settings 페이지."""
+"""Agent execution settings page."""
 
 from __future__ import annotations
 
@@ -60,7 +60,7 @@ class _GoogleAuthThread(QThread):
 
 
 def _live_decision_engine():
-    """앱 핵심 모듈을 import하지 않고 실행 중인 로컬 판단 엔진을 반환한다."""
+    """Return the running local decision engine without importing the app core modules."""
     state = getattr(sys.modules.get("core.VoiceCommand"), "_state", None)
     registry = getattr(state, "command_registry", None)
     for command in getattr(registry, "commands", ()) or ():
@@ -76,7 +76,7 @@ class _AgentSettingsPage(QWidget):
         self._settings = settings
         layout = QVBoxLayout(self)
 
-        group = QGroupBox(_("에이전트 실행"))
+        group = QGroupBox(_("Agent execution"))
         box = QVBoxLayout(group)
 
         self.timeout_label = QLabel("")
@@ -86,19 +86,19 @@ class _AgentSettingsPage(QWidget):
         self.timeout_slider.setPageStep(30)
         self.timeout_slider.setValue(int(settings.get("agent_timeout_seconds", 120)))
         self.timeout_slider.valueChanged.connect(self._update_timeout_label)
-        box.addWidget(QLabel(_("전체 실행 타임아웃 (초)")))
+        box.addWidget(QLabel(_("Overall execution timeout (seconds)")))
         box.addWidget(self.timeout_slider)
         box.addWidget(self.timeout_label)
 
-        self.dashboard_checkbox = QCheckBox(_("에이전트 대시보드 사용"))
+        self.dashboard_checkbox = QCheckBox(_("Use the agent dashboard"))
         self.dashboard_checkbox.setChecked(bool(settings.get("agent_dashboard_enabled", True)))
         box.addWidget(self.dashboard_checkbox)
 
-        self.audit_checkbox = QCheckBox(_("도구 실행 감사 로그 기록"))
+        self.audit_checkbox = QCheckBox(_("Record a tool execution audit log"))
         self.audit_checkbox.setChecked(bool(settings.get("audit_log_enabled", True)))
         box.addWidget(self.audit_checkbox)
 
-        self.mcp_checkbox = QCheckBox(_("로컬 MCP 서버 사용"))
+        self.mcp_checkbox = QCheckBox(_("Use the local MCP server"))
         self.mcp_checkbox.setChecked(bool(settings.get("mcp_server_enabled", False)))
         box.addWidget(self.mcp_checkbox)
 
@@ -140,14 +140,14 @@ class _AgentSettingsPage(QWidget):
         layout.addWidget(group)
         layout.addWidget(self._build_embedding_group(settings))
         layout.addWidget(self._build_learning_metrics_group())
-        developer_group = QGroupBox(_("개발자 Settings"))
+        developer_group = QGroupBox(_("Developer settings"))
         developer_box = QVBoxLayout(developer_group)
-        self.plugin_hot_reload_checkbox = QCheckBox(_("Plugins 핫 리로드 사용"))
+        self.plugin_hot_reload_checkbox = QCheckBox(_("Use plugin hot reload"))
         self.plugin_hot_reload_checkbox.setChecked(
             bool(settings.get("plugin_hot_reload_enabled", False))
         )
         developer_box.addWidget(self.plugin_hot_reload_checkbox)
-        note = QLabel(_("다음 앱 시작 때 Apply됩니다."))
+        note = QLabel(_("Applied on the next app start."))
         note.setWordWrap(True)
         developer_box.addWidget(note)
         layout.addWidget(developer_group)
@@ -156,10 +156,10 @@ class _AgentSettingsPage(QWidget):
         self._update_timeout_label(self.timeout_slider.value())
 
     def _build_embedding_group(self, settings: dict) -> QGroupBox:
-        group = QGroupBox(_("전략 검색"))
+        group = QGroupBox(_("Strategy search"))
         box = QVBoxLayout(group)
         self.embedding_remote_checkbox = QCheckBox(
-            _("OpenAI 임베딩 사용 (전략 텍스트 외부 Send)")
+            _("Use OpenAI embeddings (sends strategy text externally)")
         )
         self.embedding_remote_checkbox.setChecked(
             settings.get("embedding_remote_enabled") is True
@@ -180,20 +180,20 @@ class _AgentSettingsPage(QWidget):
 
         embedder = get_embedder()
         if embedder.backend == "openai" and embedder.status == "remote":
-            text = _("원격 임베딩 사용 중")
+            text = _("Using remote embeddings")
         elif embedder.status == "ready":
-            text = _("로컬 임베딩 모델: 준비됨")
+            text = _("Local embedding model: ready")
         elif embedder.status == "downloading":
             progress = int(embedder.progress * 100)
-            text = _("로컬 임베딩 모델 다운로드 중: {progress}%").format(
+            text = _("Downloading the local embedding model: {progress}%").format(
                 progress=progress
             )
         elif embedder.status == "loading":
-            text = _("로컬 임베딩 모델 불러오는 중")
+            text = _("Loading the local embedding model")
         elif embedder.status == "failed":
-            text = _("임베딩을 사용할 수 없습니다. 어휘 점수만 사용합니다.")
+            text = _("Embeddings are unavailable. Using lexical scores only.")
         else:
-            text = _("로컬 임베딩 모델: 다운로드 대기")
+            text = _("Local embedding model: waiting to download")
         self.embedding_status.setText(text)
 
     def _refresh_google_status(self) -> None:
@@ -260,7 +260,7 @@ class _AgentSettingsPage(QWidget):
         self.google_connect_button.setEnabled(True)
 
     def _build_learning_metrics_group(self) -> QGroupBox:
-        group = QGroupBox(_("학습 기여도 진단"))
+        group = QGroupBox(_("Learning contribution diagnostics"))
         box = QVBoxLayout(group)
         self.learning_metrics_status = QLabel("")
         self.learning_metrics_status.setWordWrap(True)
@@ -270,9 +270,9 @@ class _AgentSettingsPage(QWidget):
 
     def _refresh_learning_metrics_status(self) -> None:
         labels = {
-            "pending": _("판정 보류(표본 부족)"),
-            "disabled": _("비활성화"),
-            "active": _("활성화"),
+            "pending": _("Decision pending (not enough samples)"),
+            "disabled": _("Disable"),
+            "active": _("Enable"),
         }
         rows = get_learning_metrics().get_component_diagnostics()
         self.learning_metrics_status.setText(
@@ -286,27 +286,27 @@ class _AgentSettingsPage(QWidget):
         )
 
     def _build_local_decision_group(self, settings: dict) -> QGroupBox:
-        group = QGroupBox(_("빠른 로컬 처리"))
+        group = QGroupBox(_("Fast local processing"))
         box = QVBoxLayout(group)
         mode = settings.get("local_decision_mode", "fast")
         if mode not in ("off", "shadow", "fast"):
             mode = "off"
         direct = settings.get("local_decision_direct_execution", mode == "fast") is True
 
-        self.local_decision_checkbox = QCheckBox(_("간단한 명령을 로컬에서 바로 처리"))
+        self.local_decision_checkbox = QCheckBox(_("Handle simple commands locally right away"))
         self.local_decision_checkbox.setChecked(mode == "fast" and direct)
         box.addWidget(self.local_decision_checkbox)
-        note = QLabel(_("Fast processing는 Default으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."))
+        note = QLabel(_("Fast processing is on by default. Diagnostic recording mode can be selected separately."))
         note.setWordWrap(True)
         box.addWidget(note)
 
-        box.addWidget(QLabel(_("고급: 동작 모드")))
+        box.addWidget(QLabel(_("Advanced: operation mode")))
         self.local_decision_mode = QComboBox()
         for value, label in (("off", _("Off")), ("shadow", _("Log only (diagnostic)")), ("fast", _("Fast processing"))):
             self.local_decision_mode.addItem(label, value)
         self.local_decision_mode.setCurrentIndex(self.local_decision_mode.findData(mode))
         box.addWidget(self.local_decision_mode)
-        # 토글 하나가 Save값 두 개를 함께 쓰고, 고급 목록은 토글을 따른다.
+        # A single toggle writes two saved values, and the advanced list follows the toggle.
         self.local_decision_checkbox.toggled.connect(self._on_local_decision_toggled)
         self.local_decision_mode.currentIndexChanged.connect(
             lambda _index: self.local_decision_checkbox.setChecked(
@@ -316,7 +316,7 @@ class _AgentSettingsPage(QWidget):
 
         self.local_decision_status = QLabel("")
         box.addWidget(self.local_decision_status)
-        reload_button = QPushButton(_("모델 다시 불러오기"))
+        reload_button = QPushButton(_("Reload the model"))
         reload_button.clicked.connect(self._reload_local_decision)
         box.addWidget(reload_button)
         self._refresh_local_decision_status()
@@ -324,7 +324,7 @@ class _AgentSettingsPage(QWidget):
 
     def _on_local_decision_toggled(self, checked: bool) -> None:
         current = self.local_decision_mode.currentData()
-        # 체크를 풀면 fast만 해제한다. 목록에서 진단용으로 고른 shadow는 유지한다.
+        # Unchecking clears fast only. A shadow mode chosen from the list for diagnostics is kept.
         if checked and current != "fast":
             target = "fast"
         elif not checked and current == "fast":
@@ -337,11 +337,11 @@ class _AgentSettingsPage(QWidget):
         engine = _live_decision_engine()
         health = engine.health() if engine is not None else {"state": "not_loaded", "error_code": ""}
         if health.get("state") == "ready":
-            text = _("Local decision model: 준비됨")
+            text = _("Local decision model: ready")
         elif health.get("state") == "error":
             text = _("Local decision model: Error ({code})").format(code=health.get("error_code") or "-")
         else:
-            text = _("Local decision model: 아직 불러오지 않음 (첫 명령 때 불러옵니다)")
+            text = _("Local decision model: not loaded yet (it loads on the first command)")
         self.local_decision_status.setText(text)
 
     def _reload_local_decision(self) -> None:
@@ -352,12 +352,12 @@ class _AgentSettingsPage(QWidget):
         self._refresh_local_decision_status()
 
     def _update_timeout_label(self, value: int) -> None:
-        self.timeout_label.setText(_("{seconds}초").format(seconds=int(value)))
+        self.timeout_label.setText(_("{seconds} s").format(seconds=int(value)))
 
     def get_values(self) -> dict:
         mode = self.local_decision_mode.currentData() or "fast"
-        # 기준은 체크박스다. Save된 fast + direct=false 조합이 다른 Settings을 Save했다는
-        # 이유만으로 직접 실행으로 바뀌면 안 된다.
+        # The checkbox is the source of truth. A stored fast + direct=false combination must not switch to direct execution
+        # merely because other settings were saved.
         direct = mode == "fast" and self.local_decision_checkbox.isChecked()
         return {
             "agent_timeout_seconds": int(self.timeout_slider.value()),

@@ -11,17 +11,17 @@ from ui import theme as theme_module
 from i18n.translator import _
 
 
-# steps 상태별 아이콘
+# Icon per step status
 _STEP_ICON = {
     "pending": "⏳", "running": "⚙️",
     "done": "✅", "failed": "❌", "fixed": "🔧",
 }
 
 
-# ── 실행 대시보드 패널 ───────────────────────────────────────────────────────
+# ── Execution dashboard panel ───────────────────────────────────────────────────────
 
 class ExecutionDashboardPanel(QFrame):
-    """에이전트 실행 중 step-by-step 진행 상황을 표시하는 접이식 패널."""
+    """Collapsible panel that shows step-by-step progress while the agent runs."""
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -39,7 +39,7 @@ class ExecutionDashboardPanel(QFrame):
         outer.setSpacing(4)
 
         header = QHBoxLayout()
-        self._title_lbl = QLabel(_("🤖 실행 중..."))
+        self._title_lbl = QLabel(_("🤖 Running..."))
         self._title_lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL + 1, QFont.Bold))
         self._title_lbl.setStyleSheet(f"color: {COLOR_PRIMARY};")
         header.addWidget(self._title_lbl)
@@ -63,18 +63,18 @@ class ExecutionDashboardPanel(QFrame):
         self._summary_lbl.setStyleSheet("color: #555;")
         outer.addWidget(self._summary_lbl)
 
-    # ── Progress 이벤트 처리 ──────────────────────────────────────────────────
+    # ── Progress event handling ──────────────────────────────────────────────────
 
     def on_progress(self, event_type: str, **kwargs) -> None:
-        """오케스트레이터 progress 이벤트 처리 (메인 스레드에서 호출)."""
+        """Handle orchestrator progress events (called on the main thread)."""
         if event_type == "plan_ready":
             self._steps.clear()
             steps     = kwargs.get("steps", [])
             iteration = kwargs.get("iteration", 0)
-            self._title_lbl.setText(_("🤖 계획 {count}steps").format(count=len(steps)))
-            self._iter_lbl.setText(_("시도 {count}회").format(count=iteration + 1))
+            self._title_lbl.setText(_("🤖 Plan: {count} steps").format(count=len(steps)))
+            self._iter_lbl.setText(_("Attempt {count}").format(count=iteration + 1))
             for s in steps:
-                # 오케스트레이터는 ActionStep을 asdict()로 넘긴다.
+                # The orchestrator passes the ActionStep through asdict().
                 self._steps[s["step_id"]] = {
                     "desc": s.get("description_kr", ""),
                     "type": s.get("step_type", ""),
@@ -100,12 +100,12 @@ class ExecutionDashboardPanel(QFrame):
                 self._rebuild_steps()
 
         elif event_type == "verify_start":
-            self._title_lbl.setText(_("🔍 검증 중..."))
+            self._title_lbl.setText(_("🔍 Verifying..."))
 
         elif event_type in ("achieved", "failed", "not_achieved"):
             summary = kwargs.get("summary", "")
             icon    = "✅" if event_type == "achieved" else "⚠️"
-            label   = _("완료") if event_type == "achieved" else _("미완료")
+            label   = _("Done") if event_type == "achieved" else _("Incomplete")
             self._title_lbl.setText(f"{icon} {label}")
             self._summary_lbl.setText(summary[:120])
             if event_type == "achieved":
@@ -114,7 +114,7 @@ class ExecutionDashboardPanel(QFrame):
         elif event_type == "replan":
             iteration = kwargs.get("iteration", 0)
             reason    = kwargs.get("reason", "")
-            self._iter_lbl.setText(_("재계획 (시도 {count}회)").format(count=iteration + 2))
+            self._iter_lbl.setText(_("Replanned (attempt {count})").format(count=iteration + 2))
             self._summary_lbl.setText(f"♻️ {reason[:80]}")
             self._steps.clear()
             self._rebuild_steps()
@@ -133,7 +133,7 @@ class ExecutionDashboardPanel(QFrame):
             lbl = QLabel(f"{icon} {info['desc'][:60]}")
             lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL))
             lbl.setStyleSheet(f"color: {color};")
-            # 긴 steps 설명이 채팅창의 최소 폭을 넓히지 않게 줄바꿈한다.
+            # Wrap long step descriptions so they do not widen the chat window minimum width.
             lbl.setWordWrap(True)
             lbl.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
             self._steps_lay.addWidget(lbl)
@@ -141,7 +141,7 @@ class ExecutionDashboardPanel(QFrame):
     def reset(self) -> None:
         self._steps.clear()
         self._rebuild_steps()
-        self._title_lbl.setText(_("🤖 실행 중..."))
+        self._title_lbl.setText(_("🤖 Running..."))
         self._iter_lbl.setText("")
         self._summary_lbl.setText("")
         self.hide()

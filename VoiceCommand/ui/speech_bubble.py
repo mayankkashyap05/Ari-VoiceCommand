@@ -1,5 +1,5 @@
 """
-말풍선 위젯 (원본 구현 기반)
+Speech bubble widget (based on the original implementation)
 """
 import os
 import logging
@@ -15,16 +15,16 @@ _MARKDOWN_MARKS = re.compile(r"\*\*|__|`+|^\s{0,3}#{1,6}\s+", re.MULTILINE)
 
 
 def _plain_bubble_text(text: str) -> str:
-    """말풍선에는 마크다운 강조·제목·코드 기호를 빼고 보여 준다."""
+    """The speech bubble strips markdown emphasis, headings, and code markers."""
     return _MARKDOWN_MARKS.sub("", text or "")
 
 
-_font_family = None  # 전역 폰트 패밀리 이름 캐시
+_font_family = None  # Global font family name cache
 _font_family_lock = threading.Lock()
 
 
 def register_fonts():
-    """애플리케이션 시작 시 폰트 등록 (메인 스레드에서 호출 권장)"""
+    """Register the font when the application starts (preferably called on the main thread)"""
     global _font_family
     if _font_family is not None:
         return _font_family
@@ -45,19 +45,19 @@ def register_fonts():
                 families = QFontDatabase.applicationFontFamilies(font_id)
                 if families:
                     _font_family = families[0]
-                    logging.info(f"말풍선 Font loading complete: {_font_family}")
+                    logging.info(f"Speech bubble font loaded: {_font_family}")
         else:
-            logging.warning(f"말풍선 Font file not found: {font_path}")
+            logging.warning(f"Speech bubble font file not found: {font_path}")
 
         if _font_family is None:
-            _font_family = "맑은 고딕"
-            logging.warning("말풍선 폰트를 Default값(맑은 고딕)으로 사용합니다.")
+            _font_family = "Malgun Gothic"
+            logging.warning("Falling back to the default speech bubble font (Malgun Gothic).")
 
     return _font_family
 
 
 class SpeechBubble(QWidget):
-    """말풍선 위젯"""
+    """Speech bubble widget"""
 
     MAX_LINES = 8
 
@@ -66,26 +66,26 @@ class SpeechBubble(QWidget):
         self.text = text
         self.parent_widget = parent
 
-        # 윈도우 Settings
+        # Window settings
         self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
 
-        # 폰트 Settings (이미 등록된 폰트 사용)
+        # Font settings (uses the already registered font)
         font_family = register_fonts()
         self.font = QFont(font_family, theme_module.FONT_SIZE_LARGE + 1)
         self.fm = QFontMetrics(self.font)
         self.padding = 12
 
         try:
-            # 크기 계산
+            # Size calculation
             self.calculate_size()
-            # 위치 계산
+            # Position calculation
             self.update_position()
         except Exception as e:
-            logging.error(f"SpeechBubble 초기화 중 Error: {e}")
+            logging.error(f"Error while initializing SpeechBubble: {e}")
 
     def _text_height(self, text: str, width: int) -> int:
-        # 그리기와 같은 폭·flags로 높이를 잰다
+        # Measure the height with the same width and flags used for painting
         return self.fm.boundingRect(
             QRect(0, 0, width, 100000),
             Qt.TextWordWrap | Qt.AlignCenter,
@@ -93,7 +93,7 @@ class SpeechBubble(QWidget):
         ).height()
 
     def _fit_tail(self, text: str, width: int, max_height: int) -> str:
-        """넘치는 긴 응답은 앞부분을 줄이고 최신 내용을 남긴다."""
+        """For long overflowing responses, trim the beginning and keep the newest content."""
         if self._text_height(text, width) <= max_height:
             return text
         low, high = 1, len(text)
@@ -106,10 +106,10 @@ class SpeechBubble(QWidget):
         return "…" + text[low:].lstrip()
 
     def calculate_size(self):
-        """말풍선 크기 계산"""
+        """Speech bubble size calculation"""
         max_width = 250
         plain_text = _plain_bubble_text(self.text)
-        # 개행이 있어도 가장 긴 줄 기준으로 폭을 정한다
+        # Even with line breaks, the width is based on the longest line
         text_width = max(
             (self.fm.horizontalAdvance(line) for line in plain_text.split("\n")),
             default=0,
@@ -122,35 +122,35 @@ class SpeechBubble(QWidget):
         text_height = self._text_height(self.display_text, inner_width)
         self.bubble_height = max(text_height, self.fm.height()) + self.padding * 2
 
-        # 꼬리 공간 추가
+        # Add tail space
         self.bubble_height += 15
 
         self.setFixedSize(self.bubble_width, self.bubble_height)
 
     def update_text(self, text: str) -> None:
-        """말풍선 텍스트를 갱신하고 크기를 재계산합니다."""
+        """Update the speech bubble text and recalculate the size."""
         self.text = text
         self.calculate_size()
         self.update_position()
         self.update()
 
     def update_position(self):
-        """말풍선 위치 Update"""
+        """Speech bubble position update"""
         if not self.parent_widget:
             return
 
-        # Character의 화면 좌표
+        # Character screen coordinates
         parent_rect = self.parent_widget.rect()
         parent_pos = self.parent_widget.mapToGlobal(parent_rect.topLeft())
 
-        # 가로 중앙 정렬
+        # Horizontally centered
         x = parent_pos.x() + (parent_rect.width() - self.bubble_width) // 2
 
         head_top_offset = getattr(self.parent_widget, "head_top_offset", None)
         head_top_offset = int(head_top_offset() or 0) if callable(head_top_offset) else 0
         y = parent_pos.y() + head_top_offset - self.bubble_height - 5
 
-        # Character가 있는 화면의 작업 zero역 안으로 제한 (머리 위 배치는 유지)
+        # Restrict to the work area of the screen the character is on (the above-head placement is kept)
         screen = self.parent_widget.screen()
         if screen is not None:
             area = screen.availableGeometry()
@@ -162,24 +162,24 @@ class SpeechBubble(QWidget):
         self.move(x, y)
 
     def paintEvent(self, event):
-        """말풍선 그리기"""
+        """Speech bubble painting"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        # 말풍선 zero역 (꼬리 제외)
+        # Speech bubble area (excluding the tail)
         bubble_rect = QRect(0, 0, self.bubble_width, self.bubble_height - 15)
 
-        # Theme 기반 색상
+        # Theme-based colors
         bg_color = QColor(theme_module.COLOR_BG_WHITE)
         bg_color.setAlpha(245)
         border_color = QColor(210, 210, 210)
 
-        # 배경 그리기
+        # Background painting
         painter.setBrush(bg_color)
         painter.setPen(border_color)
         painter.drawRoundedRect(bubble_rect, 10, 10)
 
-        # 꼬리 그리기
+        # Tail painting
         tail_x = self.bubble_width // 2
         tail_y = bubble_rect.bottom()
         tail_points = [
@@ -192,7 +192,7 @@ class SpeechBubble(QWidget):
         painter.setPen(border_color)
         painter.drawPolygon(polygon)
 
-        # 텍스트 그리기
+        # Text painting
         painter.setPen(QColor(theme_module.COLOR_TEXT_PRIMARY))
         painter.setFont(self.font)
         text_rect = bubble_rect.adjusted(self.padding, self.padding, -self.padding, -self.padding)

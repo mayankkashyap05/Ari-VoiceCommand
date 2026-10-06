@@ -9,6 +9,39 @@ import struct
 
 _BASE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "i18n", "locales")
 
+# .po 파일은 줄바꿈·탭 같은 제어 문자를 백슬래시 이스케이프로 적는다.
+# 이스케이프를 풀지 않으면 실제 msgid와 키가 어긋나 번역이 통째로 무시된다.
+_ESCAPES = {
+    "n": "\n",
+    "t": "\t",
+    "r": "\r",
+    "a": "\a",
+    "b": "\b",
+    "f": "\f",
+    "v": "\v",
+    "0": "\0",
+    '"': '"',
+    "'": "'",
+    "\\": "\\",
+}
+
+
+def _unescape(text: str) -> str:
+    """백슬래시 이스케이프를 실제 문자로 되돌린다."""
+    if "\\" not in text:
+        return text
+    out = []
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if ch == "\\" and i + 1 < len(text) and text[i + 1] in _ESCAPES:
+            out.append(_ESCAPES[text[i + 1]])
+            i += 2
+            continue
+        out.append(ch)
+        i += 1
+    return "".join(out)
+
 
 def compile_po(po_path: str, mo_path: str) -> None:
     messages: dict[str, str] = {}
@@ -27,14 +60,14 @@ def compile_po(po_path: str, mo_path: str) -> None:
                 continue
 
             if line.startswith("msgid "):
-                msgid = line[6:].strip('"')
+                msgid = _unescape(line[6:].strip('"'))
                 in_msgid, in_msgstr = True, False
             elif line.startswith("msgstr "):
-                msgstr = line[7:].strip('"')
+                msgstr = _unescape(line[7:].strip('"'))
                 in_msgid, in_msgstr = False, True
             elif line.startswith('"'):
                 # 멀티라인 처리
-                content = line.strip('"')
+                content = _unescape(line.strip('"'))
                 if in_msgid:
                     msgid = (msgid or "") + content
                 elif in_msgstr:

@@ -1,5 +1,5 @@
 """
-Plugins 관리 Settings 페이지 위젯 (확장 탭)
+Plugin management settings page widget (extensions tab)
 """
 import os
 
@@ -26,10 +26,10 @@ def _track_marketplace_thread(thread: QThread) -> None:
 
 
 class _PluginSettingsPage(QWidget):
-    """Plugins 관리 및 마켓플레이스 탭 위젯."""
+    """Plugin management and marketplace tab widget."""
 
     _ACTION_BUTTON_HEIGHT = BUTTON_LG + 6
-    # 창이 작아 탭이 스크롤될 때도 목록이 몇 줄은 보이게 한다.
+    # Keeps a few rows of the list visible even when the window is small and the tab scrolls.
     _LIST_MIN_HEIGHT = 96
 
     def __init__(self, parent=None):
@@ -41,23 +41,23 @@ class _PluginSettingsPage(QWidget):
         self._closed = False
         self._init_ui()
 
-    # ── UI 구성 ───────────────────────────────────────────────────────────────
+    # ── UI layout ───────────────────────────────────────────────────────────────
 
     def _init_ui(self):
         vbox = QVBoxLayout(self)
 
-        # 마켓플레이스 그룹
-        marketplace_group = QGroupBox(_("마켓플레이스"))
+        # Marketplace group
+        marketplace_group = QGroupBox(_("Marketplace"))
         mvbox = QVBoxLayout(marketplace_group)
         mvbox.addWidget(create_muted_label(
-            _("Settings창 안에서 Plugins을 검색하고 바로 설치할 수 있습니다.")
+            _("Search for and install plugins directly from the settings window.")
         ))
 
         search_row = QHBoxLayout()
         self.market_search_input = QLineEdit()
-        self.market_search_input.setPlaceholderText(_("Plugins 검색"))
+        self.market_search_input.setPlaceholderText(_("Search plugins"))
         search_row.addWidget(self.market_search_input)
-        market_search_btn = QPushButton(_("검색"))
+        market_search_btn = QPushButton(_("Search"))
         market_search_btn.setStyleSheet(secondary_btn_style())
         market_search_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         market_search_btn.clicked.connect(self._refresh_marketplace_list)
@@ -72,15 +72,15 @@ class _PluginSettingsPage(QWidget):
         mvbox.addWidget(self.marketplace_status_label)
 
         market_btn_row = QHBoxLayout()
-        self.market_install_btn = QPushButton(_("선택 Plugins 설치"))
+        self.market_install_btn = QPushButton(_("Install selected plugin"))
         self.market_install_btn.setStyleSheet(secondary_btn_style())
         self.market_install_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         self.market_install_btn.clicked.connect(self._install_selected_marketplace_plugin)
-        market_refresh_btn = QPushButton(_("목록 새로고침"))
+        market_refresh_btn = QPushButton(_("Refresh the list"))
         market_refresh_btn.setStyleSheet(secondary_btn_style())
         market_refresh_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         market_refresh_btn.clicked.connect(self._refresh_marketplace_list)
-        market_open_btn = QPushButton(_("웹 마켓플레이스 열기"))
+        market_open_btn = QPushButton(_("Open the web marketplace"))
         market_open_btn.setStyleSheet(secondary_btn_style())
         market_open_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         market_open_btn.clicked.connect(
@@ -93,8 +93,8 @@ class _PluginSettingsPage(QWidget):
 
         vbox.addWidget(marketplace_group)
 
-        # 사용자 Plugins 그룹
-        plugin_group = QGroupBox(_("사용자 Plugins"))
+        # User plugins group
+        plugin_group = QGroupBox(_("User plugins"))
         pvbox = QVBoxLayout(plugin_group)
 
         try:
@@ -103,7 +103,7 @@ class _PluginSettingsPage(QWidget):
         except Exception:
             plugin_dir = os.path.join(os.getcwd(), "plugins")
 
-        pvbox.addWidget(QLabel(_("Plugins 폴더:")))
+        pvbox.addWidget(QLabel(_("Plugins folder:")))
         self.plugin_dir_input = QLineEdit(plugin_dir)
         self.plugin_dir_input.setReadOnly(True)
         pvbox.addWidget(self.plugin_dir_input)
@@ -113,11 +113,11 @@ class _PluginSettingsPage(QWidget):
         pvbox.addWidget(self.plugin_list)
 
         btn_row = QHBoxLayout()
-        open_btn = QPushButton(_("Plugins 폴더 열기"))
+        open_btn = QPushButton(_("Open the plugins folder"))
         open_btn.setStyleSheet(secondary_btn_style())
         open_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         open_btn.clicked.connect(self._open_plugin_folder)
-        reload_btn = QPushButton(_("Plugins 목록 새로고침"))
+        reload_btn = QPushButton(_("Refresh the plugin list"))
         reload_btn.setStyleSheet(secondary_btn_style())
         reload_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         reload_btn.clicked.connect(self._refresh_plugin_list)
@@ -130,16 +130,16 @@ class _PluginSettingsPage(QWidget):
         skill_group = QGroupBox(_("Agent Skills"))
         svbox = QVBoxLayout(skill_group)
         svbox.addWidget(
-            create_muted_label(_("SKILL.md 포맷 스킬. Claude Code 등 다른 에이전트와 공유 가능."))
+            create_muted_label(_("SKILL.md format skill. Can be shared with other agents such as Claude Code."))
         )
 
         skill_row = QHBoxLayout()
         self.skill_source_input = QLineEdit()
         self.skill_source_input.setPlaceholderText(
-            _("GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로")
+            _("GitHub (e.g. NomaDamas/k-skill), URL, or local path")
         )
         skill_row.addWidget(self.skill_source_input, 1)
-        skill_install_btn = QPushButton(_("설치"))
+        skill_install_btn = QPushButton(_("Install"))
         skill_install_btn.setStyleSheet(secondary_btn_style())
         skill_install_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         skill_install_btn.clicked.connect(self._install_skill)
@@ -152,12 +152,12 @@ class _PluginSettingsPage(QWidget):
         svbox.addWidget(self.skill_list_widget)
 
         skill_btn_row = QHBoxLayout()
-        manage_btn = QPushButton(_("스킬 관리 창 열기"))
+        manage_btn = QPushButton(_("Open the skill management window"))
         manage_btn.setStyleSheet(secondary_btn_style())
         manage_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         manage_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         manage_btn.clicked.connect(self._open_skill_manager)
-        refresh_btn = QPushButton(_("목록 새로고침"))
+        refresh_btn = QPushButton(_("Refresh the list"))
         refresh_btn.setStyleSheet(secondary_btn_style())
         refresh_btn.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         refresh_btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -173,7 +173,7 @@ class _PluginSettingsPage(QWidget):
         self._refresh_marketplace_list()
         self._refresh_skill_list()
 
-    # ── Plugins 목록 ──────────────────────────────────────────────────────────
+    # ── Plugin list ──────────────────────────────────────────────────────────
 
     def _refresh_plugin_list(self):
         self.plugin_list.clear()
@@ -181,20 +181,20 @@ class _PluginSettingsPage(QWidget):
             from core.plugin_loader import get_plugin_manager
             plugins = get_plugin_manager().discover_plugins()
         except Exception as exc:
-            item = QListWidgetItem(_("Plugins 목록 로드 실패: {error}").format(error=exc))
+            item = QListWidgetItem(_("Failed to load the plugin list: {error}").format(error=exc))
             self.plugin_list.addItem(item)
             return
 
         if not plugins:
             self.plugin_list.addItem(
-                QListWidgetItem(_("Plugins이 없습니다. sample_plugin.py를 복사해 시작할 수 있습니다."))
+                QListWidgetItem(_("No plugins found. You can start by copying sample_plugin.py."))
             )
             return
         for plugin in plugins:
             label = _("{name} ({version}) - {description}").format(
                 name=plugin.name,
                 version=plugin.version,
-                description=plugin.description or _("설명 None")
+                description=plugin.description or _("No description")
             )
             self.plugin_list.addItem(QListWidgetItem(label))
 
@@ -214,15 +214,15 @@ class _PluginSettingsPage(QWidget):
             if not opened:
                 raise RuntimeError("Failed to open folder")
         except Exception:
-            QMessageBox.information(self, _("Plugins 폴더"), path)
+            QMessageBox.information(self, _("Plugins folder"), path)
 
-    # ── 마켓플레이스 ──────────────────────────────────────────────────────────
+    # ── Marketplace ──────────────────────────────────────────────────────────
 
     def _refresh_marketplace_list(self):
         if self._market_fetch_thread and self._market_fetch_thread.isRunning():
             return
 
-        self.marketplace_status_label.setText(_("마켓플레이스 목록을 불러오는 중..."))
+        self.marketplace_status_label.setText(_("Loading the marketplace list..."))
         self.marketplace_status_label.setStyleSheet("color: #888;")
         self.market_install_btn.setEnabled(False)
         self.marketplace_list.clear()
@@ -242,18 +242,18 @@ class _PluginSettingsPage(QWidget):
         self._market_items = list(items) if isinstance(items, list) else []
 
         if not success:
-            self.marketplace_status_label.setText(_("목록 로드 실패: {message}").format(message=message))
+            self.marketplace_status_label.setText(_("Failed to load the list: {message}").format(message=message))
             self.marketplace_status_label.setStyleSheet("color: #e74c3c;")
             self.market_install_btn.setEnabled(False)
             return
 
         installed_names = self._installed_plugin_names()
         for item in self._market_items:
-            name = str(item.get("name", _("이름 None")))
+            name = str(item.get("name", _("No name")))
             version = str(item.get("version", "0.0.0"))
             install_count = int(item.get("install_count", 0) or 0)
-            desc = str(item.get("description", "") or _("설명 None"))
-            status = _("설치됨") if name in installed_names else _("설치 가능")
+            desc = str(item.get("description", "") or _("No description"))
+            status = _("Installed") if name in installed_names else _("Available to install")
             label = _("{name} v{version} [{status}] ({count} installs)\n{desc}").format(
                 name=name, version=version, status=status, count=install_count, desc=desc
             )
@@ -262,31 +262,31 @@ class _PluginSettingsPage(QWidget):
             self.marketplace_list.addItem(list_item)
 
         if self._market_items:
-            self.marketplace_status_label.setText(_("{count}개 Plugins을 불러왔습니다.").format(count=len(self._market_items)))
+            self.marketplace_status_label.setText(_("Loaded {count} plugins.").format(count=len(self._market_items)))
             self.marketplace_status_label.setStyleSheet("color: #27ae60;")
             self.market_install_btn.setEnabled(True)
         else:
-            self.marketplace_status_label.setText(_("표시할 Plugins이 없습니다."))
+            self.marketplace_status_label.setText(_("No plugins to display."))
             self.marketplace_status_label.setStyleSheet("color: #888;")
             self.market_install_btn.setEnabled(False)
 
     def _install_selected_marketplace_plugin(self):
         item = self.marketplace_list.currentItem()
         if item is None:
-            QMessageBox.information(self, _("마켓플레이스"), _("설치할 Plugins을 먼저 선택하세요."))
+            QMessageBox.information(self, _("Marketplace"), _("Select a plugin to install first."))
             return
 
         payload = item.data(Qt.UserRole) or {}
         plugin_id = str(payload.get("id", "") or "")
         plugin_name = str(payload.get("name", "") or _("Plugins"))
         if not plugin_id:
-            QMessageBox.warning(self, _("마켓플레이스"), _("선택한 Plugins의 ID를 찾지 못했습니다."))
+            QMessageBox.warning(self, _("Marketplace"), _("Could not find the ID of the selected plugin."))
             return
 
         confirm = QMessageBox.question(
             self,
-            _("Plugins 설치"),
-            _("{name} Plugins을 설치할까요?").format(name=plugin_name),
+            _("Install plugin"),
+            _("Install the plugin {name}?").format(name=plugin_name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.Yes,
         )
@@ -294,7 +294,7 @@ class _PluginSettingsPage(QWidget):
             return
 
         self.market_install_btn.setEnabled(False)
-        self.marketplace_status_label.setText(_("{name} 설치 중...").format(name=plugin_name))
+        self.marketplace_status_label.setText(_("Installing {name}...").format(name=plugin_name))
         self.marketplace_status_label.setStyleSheet("color: #888;")
 
         self._market_installing_plugin_name = plugin_name
@@ -316,7 +316,7 @@ class _PluginSettingsPage(QWidget):
             except Exception as exc:
                 success = False
                 message = _(
-                    "Plugins 파일은 Save되었지만 활성화에 실패했습니다: {error}"
+                    "The plugin file was saved, but enabling it failed: {error}"
                 ).format(error=exc)
 
         if success:
@@ -324,12 +324,12 @@ class _PluginSettingsPage(QWidget):
             self.marketplace_status_label.setStyleSheet("color: #27ae60;")
             self._refresh_plugin_list()
             self._refresh_marketplace_list()
-            QMessageBox.information(self, _("마켓플레이스"), message)
+            QMessageBox.information(self, _("Marketplace"), message)
         else:
             self.market_install_btn.setEnabled(True)
             self.marketplace_status_label.setText(message)
             self.marketplace_status_label.setStyleSheet("color: #e74c3c;")
-            QMessageBox.warning(self, _("마켓플레이스"), message)
+            QMessageBox.warning(self, _("Marketplace"), message)
         self._market_installing_plugin_name = ""
 
     def _activate_installed_marketplace_plugin(self) -> None:
@@ -342,7 +342,7 @@ class _PluginSettingsPage(QWidget):
             _plugin_target_filename(self._market_installing_plugin_name),
         )
         if not os.path.isfile(plugin_path):
-            raise RuntimeError(_("설치된 Plugins을 찾지 못했습니다."))
+            raise RuntimeError(_("No installed plugins were found."))
         loaded = manager.load_plugin(plugin_path)
         if not loaded.loaded:
             raise RuntimeError(loaded.error)
@@ -370,10 +370,10 @@ class _PluginSettingsPage(QWidget):
         SkillsDialog(parent=self).exec()
         self._refresh_skill_list()
 
-    # ── 공개 인터페이스 ────────────────────────────────────────────────────────
+    # ── Public interface ────────────────────────────────────────────────────────
 
     def cleanup_threads(self):
-        """다이얼로그 닫힐 때 실행 중인 스레드 정리."""
+        """Clean up the running thread when the dialog closes."""
         self._closed = True
         for thread in (self._market_fetch_thread, self._market_install_thread):
             if thread and thread.isRunning():

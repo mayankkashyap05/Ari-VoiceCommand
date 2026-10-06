@@ -1,5 +1,5 @@
 """
-LLM 제공자 Settings 페이지 위젯
+LLM provider settings page widget
 """
 import importlib
 import uuid
@@ -24,23 +24,23 @@ from ui.common import create_muted_label
 
 _live_validator_threads: set[QThread] = set()
 
-# ── 제공자 정의 ────────────────────────────────────────────────────────────────
+# ── Provider definitions ────────────────────────────────────────────────────────────────
 
 def _llm_providers():
-    # (표시 이름, data 키, settings 키, placeholder)
+    # (display name, data key, settings key, placeholder)
     return [
-        (_("Groq"),                   "groq",       "groq_api_key",       _("https://console.groq.com 에서 무료 발급")),
+        (_("Groq"),                   "groq",       "groq_api_key",       _("Get one for free at https://console.groq.com")),
         (_("OpenAI"),                 "openai",     "openai_api_key",     _("https://platform.openai.com/api-keys")),
         (_("Anthropic"),              "anthropic",  "anthropic_api_key",  _("https://console.anthropic.com")),
         (_("Mistral AI"),             "mistral",    "mistral_api_key",    _("https://console.mistral.ai")),
         (_("Google Gemini"),          "gemini",     "gemini_api_key",     _("https://aistudio.google.com/app/apikey")),
-        (_("OpenRouter (멀티모델)"),   "openrouter",   "openrouter_api_key",  _("https://openrouter.ai/keys")),
-        (_("NVIDIA NIM"),             "nvidia_nim",   "nvidia_nim_api_key",  _("https://build.nvidia.com 에서 nvapi- 키 발급")),
-        (_("Ollama (로컬 LLM)"),      "ollama",       "",                    _("Ollama 설치 later 사용 가능 — API 키 불필요")),
+        (_("OpenRouter (multi-model)"),   "openrouter",   "openrouter_api_key",  _("https://openrouter.ai/keys")),
+        (_("NVIDIA NIM"),             "nvidia_nim",   "nvidia_nim_api_key",  _("Get an nvapi- key at https://build.nvidia.com")),
+        (_("Ollama (local LLM)"),      "ollama",       "",                    _("Available after installing Ollama — no API key needed")),
     ]
 
 
-# ── 사용자 지정 제공자 Input ────────────────────────────────────────────────────
+# ── Custom provider input ────────────────────────────────────────────────────
 
 def _valid_custom_base_url(value: str) -> bool:
     key = "custom_" + "0" * 32
@@ -51,19 +51,19 @@ def _valid_custom_base_url(value: str) -> bool:
 class _CustomProviderDialog(QDialog):
     def __init__(self, provider: dict | None = None, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(_("사용자 지정 제공자 Settings"))
+        self.setWindowTitle(_("Custom provider settings"))
         self._provider = provider or {}
 
         layout = QVBoxLayout(self)
         form = QFormLayout()
         self.label_input = QLineEdit(self._provider.get("label", ""))
-        self.label_input.setPlaceholderText(_("예: My LLM"))
+        self.label_input.setPlaceholderText(_("e.g. My LLM"))
         self.base_url_input = QLineEdit(self._provider.get("base_url", ""))
         self.base_url_input.setPlaceholderText("https://example.com/v1")
-        form.addRow(_("표시 이름"), self.label_input)
+        form.addRow(_("Display name"), self.label_input)
         form.addRow(_("Default URL"), self.base_url_input)
         layout.addLayout(form)
-        layout.addWidget(QLabel(_("API 키와 Default 모델은 제공자별 Settings 목록에서 수정할 수 있습니다.")))
+        layout.addWidget(QLabel(_("API keys and default models can be edited in the per-provider settings list.")))
 
         self.error_label = QLabel("")
         self.error_label.setWordWrap(True)
@@ -79,10 +79,10 @@ class _CustomProviderDialog(QDialog):
 
     def _accept_if_valid(self):
         if not self.label_input.text().strip():
-            self.error_label.setText(_("표시 이름을 Please enter."))
+            self.error_label.setText(_("Please enter a display name."))
             return
         if not _valid_custom_base_url(self.base_url_input.text()):
-            self.error_label.setText(_("Default URL은 사용자 정보, 쿼리 또는 프래그먼트가 없는 http 또는 https 주소여야 합니다."))
+            self.error_label.setText(_("The default URL must be an http or https address without user info, query, or fragment."))
             return
         self.accept()
 
@@ -93,10 +93,10 @@ class _CustomProviderDialog(QDialog):
         }
 
 
-# ── API 검증 스레드 ────────────────────────────────────────────────────────────
+# ── API validation thread ────────────────────────────────────────────────────────────
 
 class _ValidatorThread(QThread):
-    """LLM API 키 + 모델 검증을 백그라운드에서 실행하는 스레드."""
+    """Thread that validates the LLM API key and model in the background."""
     done = Signal(bool, str)  # (success, message)
 
     def __init__(self, provider: str, api_key: str, model: str, *, base_url: str = "", custom: bool = False):
@@ -133,7 +133,7 @@ class _ValidatorThread(QThread):
             cfg = {} if self.custom else _PROVIDER_CONFIG.get(self.provider, _PROVIDER_CONFIG["groq"])
             model = self.model.strip() or cfg.get("default_model", "")
             if not model:
-                self.done.emit(False, _("Default 모델을 Please enter."))
+                self.done.emit(False, _("Please enter the default model."))
                 return
 
             if self.provider == "anthropic":
@@ -158,14 +158,14 @@ class _ValidatorThread(QThread):
                     }
                 client = openai_module.OpenAI(**kwargs)
                 self._validate_openai_client(client, model)
-            message = _("✓ {model} 연결 성공").format(model=model)
+            message = _("✓ Connected to {model}").format(model=model)
             self.done.emit(True, message)
         except Exception as e:
             if self.custom:
-                self.done.emit(False, _("연결에 실패했습니다. URL, 모델, API 키를 OK해 주세요."))
+                self.done.emit(False, _("The connection failed. Please check the URL, model, and API key."))
                 return
             if self.provider == "ollama":
-                self.done.emit(False, _("✗ Ollama 서버에 연결할 수 없어요. Ollama 실행 여부를 OK하세요."))
+                self.done.emit(False, _("✗ Could not connect to the Ollama server. Please check whether Ollama is running."))
                 return
             msg = str(e)
             status_code = getattr(e, "status_code", None)
@@ -173,11 +173,11 @@ class _ValidatorThread(QThread):
                 label = cfg.get("label", self.provider)
                 self.done.emit(
                     False,
-                    _("✗ 모델 '{model}'을(를) {label}에서 찾을 수 없습니다. 모델명을 OK해 주세요.").format(model=model, label=label),
+                    _("✗ The model '{model}' was not found in {label}. Please check the model name.").format(model=model, label=label),
                 )
                 return
             if status_code == 401 or "401" in msg or "Unauthorized" in msg:
-                self.done.emit(False, _("✗ API Key가 유효하지 않습니다. 키를 OK해 주세요."))
+                self.done.emit(False, _("✗ The API key is not valid. Please check the key."))
                 return
             for marker in ("Error code:", "status code", "error_code"):
                 if marker in msg:
@@ -186,10 +186,10 @@ class _ValidatorThread(QThread):
             self.done.emit(False, f"✗ {msg[:100]}")
 
 
-# ── LLM Settings 페이지 ────────────────────────────────────────────────────────────
+# ── LLM settings page ────────────────────────────────────────────────────────────
 
 class _LLMSettingsPage(QWidget):
-    """LLM 제공자 Settings 탭 위젯."""
+    """LLM provider settings tab widget."""
 
     def __init__(self, settings: dict, parent=None):
         super().__init__(parent)
@@ -215,7 +215,7 @@ class _LLMSettingsPage(QWidget):
 
     def _provider_options(self):
         return _llm_providers() + [
-            (provider.get("label", provider_id), provider_id, custom_api_key_name(provider_id), _("선택 사항"))
+            (provider.get("label", provider_id), provider_id, custom_api_key_name(provider_id), _("Optional"))
             for provider_id, provider in self._custom_providers.items()
         ]
 
@@ -225,7 +225,7 @@ class _LLMSettingsPage(QWidget):
         from agent.llm_provider import _PROVIDER_CONFIG
         return _PROVIDER_CONFIG.get(provider, {})
 
-    # ── UI 구성 ───────────────────────────────────────────────────────────────
+    # ── UI layout ───────────────────────────────────────────────────────────────
 
     def _init_ui(self):
         scroll = QScrollArea()
@@ -237,11 +237,11 @@ class _LLMSettingsPage(QWidget):
         vbox = QVBoxLayout(container)
         vbox.setSpacing(15)
 
-        # AI (LLM) Settings 그룹
-        llm_group = QGroupBox(_("AI (LLM) 엔진 Settings"))
+        # AI (LLM) settings group
+        llm_group = QGroupBox(_("AI (LLM) engine settings"))
         llm_vbox = QVBoxLayout(llm_group)
 
-        llm_vbox.addWidget(QLabel(_("제공자 선택:")))
+        llm_vbox.addWidget(QLabel(_("Provider:")))
         self.llm_provider_combo = QComboBox()
         for label, data, _key, _ph in self._provider_options():
             self.llm_provider_combo.addItem(label, data)
@@ -250,7 +250,7 @@ class _LLMSettingsPage(QWidget):
         llm_vbox.addWidget(self.llm_provider_combo)
 
         diagnostic_row = QHBoxLayout()
-        self.llm_diagnostic_button = QPushButton(_("선택한 LLM 연결 OK"))
+        self.llm_diagnostic_button = QPushButton(_("Check the connection to the selected LLM"))
         self.llm_diagnostic_button.setStyleSheet(secondary_btn_style())
         self.llm_diagnostic_button.clicked.connect(self._validate_selected_provider)
         diagnostic_row.addWidget(self.llm_diagnostic_button)
@@ -259,58 +259,58 @@ class _LLMSettingsPage(QWidget):
         diagnostic_row.addWidget(self.llm_diagnostic_status, 1)
         llm_vbox.addLayout(diagnostic_row)
 
-        llm_vbox.addWidget(QLabel(_("모델 이름 (비워두면 Default값):")))
+        llm_vbox.addWidget(QLabel(_("Model name (leave empty for the default):")))
         self.llm_model_input = QLineEdit(self._settings.get("llm_model", ""))
-        self.llm_model_input.setPlaceholderText(_("예: gpt-4o, llama-3.3-70b-versatile..."))
+        self.llm_model_input.setPlaceholderText(_("e.g. gpt-4o, llama-3.3-70b-versatile..."))
         llm_vbox.addWidget(self.llm_model_input)
 
         self.ollama_hint_label = create_muted_label(
-            _("Ollama 사용 시 API 키는 필요 없습니다. 서버 주소는 Default적으로 ") +
-            "http://localhost:11434/v1 " + _("를 사용합니다.")
+            _("No API key is needed when using Ollama. The server address defaults to ") +
+            "http://localhost:11434/v1 " + _(" is used.")
         )
         llm_vbox.addWidget(self.ollama_hint_label)
-        llm_vbox.addWidget(QLabel(_("Ollama 서버 주소:")))
+        llm_vbox.addWidget(QLabel(_("Ollama server address:")))
         self.ollama_url_input = QLineEdit(self._settings.get("ollama_base_url", "http://localhost:11434/v1"))
         self.ollama_url_input.setPlaceholderText("http://localhost:11434/v1")
         llm_vbox.addWidget(self.ollama_url_input)
 
-        self.llm_router_checkbox = QCheckBox(_("Build type별 자동 라우팅 사용"))
+        self.llm_router_checkbox = QCheckBox(_("Use automatic routing per build type"))
         self.llm_router_checkbox.setChecked(bool(self._settings.get("llm_router_enabled", True)))
         self.llm_router_checkbox.setToolTip(
-            _("분석/계획과 실행/수정 요청을 구분해 역할별 제공자·모델 Settings을 우선 사용합니다.")
+            _("Distinguishes analysis/planning from execution/modification requests and prefers the per-role provider and model settings.")
         )
         llm_vbox.addWidget(self.llm_router_checkbox)
         self.fact_suggestions_checkbox = QCheckBox(
-            _("사용자 발화에서 기억 제안 추출")
+            _("Extract memory suggestions from user utterances")
         )
         self.fact_suggestions_checkbox.setChecked(
             bool(self._settings.get("fact_extraction_suggestions_enabled", True))
         )
         llm_vbox.addWidget(self.fact_suggestions_checkbox)
 
-        llm_vbox.addWidget(QLabel(_("플래너 제공자 (선택):")))
+        llm_vbox.addWidget(QLabel(_("Planner provider (optional):")))
         self._role_provider_combos["llm_planner_provider"] = self._make_role_provider_combo(
             self._settings.get("llm_planner_provider", "")
         )
         llm_vbox.addWidget(self._role_provider_combos["llm_planner_provider"])
 
-        llm_vbox.addWidget(QLabel(_("플래너 모델 (선택):")))
+        llm_vbox.addWidget(QLabel(_("Planner model (optional):")))
         self.llm_planner_model_input = QLineEdit(self._settings.get("llm_planner_model", ""))
-        self.llm_planner_model_input.setPlaceholderText(_("비워두면 Default 모델과 동일"))
+        self.llm_planner_model_input.setPlaceholderText(_("Leave empty to use the same as the default model"))
         llm_vbox.addWidget(self.llm_planner_model_input)
 
-        llm_vbox.addWidget(QLabel(_("실행/수정 제공자 (선택):")))
+        llm_vbox.addWidget(QLabel(_("Execution/modification provider (optional):")))
         self._role_provider_combos["llm_execution_provider"] = self._make_role_provider_combo(
             self._settings.get("llm_execution_provider", "")
         )
         llm_vbox.addWidget(self._role_provider_combos["llm_execution_provider"])
 
-        llm_vbox.addWidget(QLabel(_("실행/수정 모델 (선택):")))
+        llm_vbox.addWidget(QLabel(_("Execution/modification model (optional):")))
         self.llm_execution_model_input = QLineEdit(self._settings.get("llm_execution_model", ""))
-        self.llm_execution_model_input.setPlaceholderText(_("비워두면 Default 모델과 동일"))
+        self.llm_execution_model_input.setPlaceholderText(_("Leave empty to use the same as the default model"))
         llm_vbox.addWidget(self.llm_execution_model_input)
 
-        llm_vbox.addWidget(QLabel(_("기억 추출 제공자 (선택):")))
+        llm_vbox.addWidget(QLabel(_("Memory extraction provider (optional):")))
         self._role_provider_combos["llm_memory_extractor_provider"] = (
             self._make_role_provider_combo(
                 self._settings.get("llm_memory_extractor_provider", "")
@@ -320,25 +320,25 @@ class _LLMSettingsPage(QWidget):
             self._role_provider_combos["llm_memory_extractor_provider"]
         )
 
-        llm_vbox.addWidget(QLabel(_("기억 추출 모델 (선택):")))
+        llm_vbox.addWidget(QLabel(_("Memory extraction model (optional):")))
         self.llm_memory_extractor_model_input = QLineEdit(
             self._settings.get("llm_memory_extractor_model", "")
         )
         self.llm_memory_extractor_model_input.setPlaceholderText(
-            _("비워두면 실행 모델과 동일")
+            _("Leave empty to use the same as the execution model")
         )
         llm_vbox.addWidget(self.llm_memory_extractor_model_input)
 
         vbox.addWidget(llm_group)
 
-        custom_group = QGroupBox(_("사용자 지정 OpenAI 호환 제공자"))
+        custom_group = QGroupBox(_("Custom OpenAI-compatible provider"))
         custom_vbox = QVBoxLayout(custom_group)
         custom_vbox.addWidget(create_muted_label(
-            _("OpenAI 호환 서버의 이름과 Default URL을 등록합니다. API 키와 Default 모델은 아래에서 Settings합니다.")
+            _("Register the name and default URL of an OpenAI-compatible server. The API key and default model are configured below.")
         ))
         self._custom_provider_list_layout = QVBoxLayout()
         custom_vbox.addLayout(self._custom_provider_list_layout)
-        add_custom_btn = QPushButton(_("제공자 추가"))
+        add_custom_btn = QPushButton(_("Add provider"))
         add_custom_btn.setStyleSheet(secondary_btn_style())
         add_custom_btn.clicked.connect(self._add_custom_provider)
         custom_vbox.addWidget(add_custom_btn)
@@ -349,12 +349,12 @@ class _LLMSettingsPage(QWidget):
         self._refresh_custom_provider_list()
         vbox.addWidget(custom_group)
 
-        # 제공자별 API Key 그룹
-        api_group = QGroupBox(_("제공자별 API Key"))
-        # 사용자 지정 제공자를 추가·삭제할 때 이 목록에 행을 넣고 뺀다.
+        # Per-provider API key group
+        api_group = QGroupBox(_("API key per provider"))
+        # Rows are added to and removed from this list when custom providers are added or deleted.
         self._api_vbox = api_vbox = QVBoxLayout(api_group)
         api_vbox.addWidget(create_muted_label(
-            _("사용할 제공자의 API Key와 모델명을 Input한 뒤 [검증]으로 연결을 OK하세요.")
+            _("Enter the API key and model name of the provider you want to use, then click [Verify] to check the connection.")
         ))
         for label, data, key, placeholder in self._provider_options():
             self._add_provider_settings_row(api_vbox, label, data, key, placeholder)
@@ -382,7 +382,7 @@ class _LLMSettingsPage(QWidget):
         key_input.setPlaceholderText(placeholder)
         key_input.setEchoMode(QLineEdit.EchoMode.Password)
         key_row.addWidget(key_input)
-        validate_btn = QPushButton(_("검증"))
+        validate_btn = QPushButton(_("Verify"))
         validate_btn.setFixedWidth(54)
         validate_btn.setStyleSheet(secondary_btn_style())
         key_row.addWidget(validate_btn)
@@ -395,7 +395,7 @@ class _LLMSettingsPage(QWidget):
         else:
             prefilled_model = self._get_model_for_provider(provider)
         model_input = QLineEdit(prefilled_model)
-        model_input.setPlaceholderText(_("모델명 (Default: {model})").format(model=config.get("default_model", "")))
+        model_input.setPlaceholderText(_("Model name (default: {model})").format(model=config.get("default_model", "")))
         model_row.addWidget(model_input)
         status = QLabel("")
         status.setWordWrap(True)
@@ -415,7 +415,7 @@ class _LLMSettingsPage(QWidget):
         orphaned_keys = ConfigManager.get_orphaned_custom_secret_keys()
         if self._orphaned_keys_button:
             self._orphaned_keys_button.setText(
-                _("쓰지 않는 API 키 {count}개 삭제").format(count=len(orphaned_keys))
+                _("Delete {count} unused API keys").format(count=len(orphaned_keys))
             )
             self._orphaned_keys_button.setVisible(bool(orphaned_keys))
         for widget in self._custom_list_widgets:
@@ -429,12 +429,12 @@ class _LLMSettingsPage(QWidget):
             label = QLabel(provider.get("label", provider_id))
             label.setTextFormat(Qt.TextFormat.PlainText)
             layout.addWidget(label, 1)
-            edit_btn = QPushButton(_("수정"))
+            edit_btn = QPushButton(_("Edit"))
             edit_btn.setStyleSheet(secondary_btn_style())
             edit_btn.setMinimumSize(64, 30)
             edit_btn.clicked.connect(lambda checked=False, p=provider_id: self._edit_custom_provider(p))
             layout.addWidget(edit_btn)
-            delete_btn = QPushButton(_("삭제"))
+            delete_btn = QPushButton(_("Delete"))
             delete_btn.setStyleSheet(secondary_btn_style())
             delete_btn.setMinimumSize(64, 30)
             delete_btn.clicked.connect(lambda checked=False, p=provider_id: self._confirm_delete_custom_provider(p))
@@ -449,8 +449,8 @@ class _LLMSettingsPage(QWidget):
             return
         if QMessageBox.question(
             self,
-            _("쓰지 않는 API 키 삭제"),
-            _("쓰지 않는 API 키 {count}개를 삭제할까요? 삭제한 키는 되돌릴 수 없습니다.").format(count=count),
+            _("Delete unused API keys"),
+            _("Delete {count} unused API keys? Deleted keys cannot be recovered.").format(count=count),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
         ) == QMessageBox.StandardButton.Yes:
@@ -468,7 +468,7 @@ class _LLMSettingsPage(QWidget):
             self._custom_providers[provider_id]["label"],
             provider_id,
             custom_api_key_name(provider_id),
-            _("API 키 (선택 사항)"),
+            _("API key (optional)"),
         )
         self._refresh_custom_provider_list()
         self._refresh_provider_combos()
@@ -494,7 +494,7 @@ class _LLMSettingsPage(QWidget):
             return
         if QMessageBox.question(
             self,
-            _("제공자 삭제"),
+            _("Delete provider"),
             _("'{name}' Delete this provider?? Saved API keys will also be deleted.").format(name=provider.get("label", provider_id)),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No,
@@ -543,7 +543,7 @@ class _LLMSettingsPage(QWidget):
             combo.blockSignals(True)
             combo.clear()
             if is_role:
-                combo.addItem(_("(Default 제공자와 동일)"), "")
+                combo.addItem(_("(same as the default provider)"), "")
             for label, provider_id, _key, _placeholder in options:
                 combo.addItem(label, provider_id)
             values = {combo.itemData(i) for i in range(combo.count())}
@@ -551,11 +551,11 @@ class _LLMSettingsPage(QWidget):
             combo.blockSignals(False)
         self._on_llm_changed()
 
-    # ── 유틸리티 ──────────────────────────────────────────────────────────────
+    # ── Utilities ──────────────────────────────────────────────────────────────
 
     def _make_role_provider_combo(self, current_value: str) -> QComboBox:
         combo = QComboBox()
-        combo.addItem(_("(Default 제공자와 동일)"), "")
+        combo.addItem(_("(same as the default provider)"), "")
         for label, data, _key, _ph in self._provider_options():
             combo.addItem(label, data)
         self._set_combo(combo, current_value)
@@ -605,7 +605,7 @@ class _LLMSettingsPage(QWidget):
         lbl = self._validate_labels[provider]
         custom = provider in self._custom_providers
         if provider != "ollama" and not custom and not api_key:
-            message = _("⚠ API Key를 Please enter.")
+            message = _("⚠ Please enter the API key.")
             lbl.setText(message)
             lbl.setStyleSheet("color: #e67e22;")
             if diagnostic:
@@ -619,7 +619,7 @@ class _LLMSettingsPage(QWidget):
         model = model_input.text().strip()
         if not model:
             if custom:
-                message = _("Default 모델을 Please enter.")
+                message = _("Please enter the default model.")
                 lbl.setText(message)
                 lbl.setStyleSheet("color: #e67e22;")
                 if diagnostic:
@@ -627,9 +627,9 @@ class _LLMSettingsPage(QWidget):
                     self.llm_diagnostic_status.setStyleSheet("color: #e67e22;")
                 return
             model = self._provider_config(provider).get("default_model", "")
-            lbl.setText(_("검증 중... (Default 모델: {model})").format(model=model))
+            lbl.setText(_("Verifying... (default model: {model})").format(model=model))
         else:
-            lbl.setText(_("검증 중..."))
+            lbl.setText(_("Verifying..."))
         lbl.setStyleSheet("color: #888;")
 
         generation = self._validation_generation.get(provider, 0) + 1
@@ -637,7 +637,7 @@ class _LLMSettingsPage(QWidget):
         if diagnostic:
             self._diagnostic_validation_generation[provider] = generation
             self._diagnostic_status_provider = provider
-            self.llm_diagnostic_status.setText(_("검증 중..."))
+            self.llm_diagnostic_status.setText(_("Verifying..."))
             self.llm_diagnostic_status.setStyleSheet("color: #888;")
         old = self._validator_threads.get(provider)
         if old and old.isRunning():
@@ -718,10 +718,10 @@ class _LLMSettingsPage(QWidget):
                 f"color: {'#27ae60' if success else '#e74c3c'}; font-weight: bold;"
             )
 
-    # ── 공개 인터페이스 ────────────────────────────────────────────────────────
+    # ── Public interface ────────────────────────────────────────────────────────
 
     def get_values(self) -> dict:
-        """현재 LLM Settings 값을 dict로 반환."""
+        """Return the current LLM settings as a dict."""
         llm_keys = {}
         for _label, data, settings_key, _ph in _llm_providers():
             inp = self._llm_key_inputs.get(data)
@@ -760,7 +760,7 @@ class _LLMSettingsPage(QWidget):
         }
 
     def cleanup_threads(self):
-        """다이얼로그 닫힐 때 실행 중인 검증 스레드 정리."""
+        """Clean up the running validation thread when the dialog closes."""
         threads = set(self._validator_threads.values()) | self._retired_validator_threads
         for provider in self._validation_generation:
             self._validation_generation[provider] += 1

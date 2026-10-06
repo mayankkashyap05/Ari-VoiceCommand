@@ -1,12 +1,12 @@
 """
-메모리 시각화 & 편집 패널 (Memory Panel)
-아리가 기억하는 사용자 정보를 실시간으로 보여주고 직접 편집·삭제할 수 있다.
-FloatingPanel 기반 클래스를 사용해 구조를 공유한다.
+Memory visualization & editing panel (Memory Panel)
+Shows the user information Ari remembers in real time and lets you edit or delete it directly.
+Shares its structure with the FloatingPanel base class.
 
-탭 구성:
-  Default 정보  — 이름·위치·관심사·메모 편집
-  사실       — Save된 Facts 목록 (신뢰도·만료일·삭제)
-  통계       — 명령 빈도·선호도·대화 주제 시각화
+Tabs:
+  Default info  — edit name, location, interests, notes
+  Facts         — saved facts list (confidence, expiry, delete)
+  Statistics    — command frequency, preferences, conversation topics
 """
 import html
 import logging
@@ -36,10 +36,10 @@ from ui.theme import (
 logger = logging.getLogger(__name__)
 
 
-# ── 사실(Fact) 행 ─────────────────────────────────────────────────────────────
+# ── Fact row ─────────────────────────────────────────────────────────────
 
 class FactRow(QFrame):
-    """Facts 탭에서 하나의 fact 항목을 표시하는 행."""
+    """Row that displays a single fact entry in the Facts tab."""
 
     delete_requested = Signal(str)  # key
 
@@ -82,7 +82,7 @@ class FactRow(QFrame):
         lay.addWidget(del_btn)
 
 
-# ── 탭: Default 정보 ─────────────────────────────────────────────────────────────
+# ── Tab: default info ─────────────────────────────────────────────────────────────
 
 class _BioTab(QWidget):
     def __init__(self, ctx_manager, parent=None):
@@ -99,8 +99,8 @@ class _BioTab(QWidget):
         self._fields: dict = {}
 
         for label, field_key, placeholder in [
-            (_("이름"), "name", _("사용자 이름")),
-            (_("위치"), "location", _("도시 또는 지역")),
+            (_("Name"), "name", _("User name")),
+            (_("Location"), "location", _("City or region")),
         ]:
             row = QHBoxLayout()
             lbl = QLabel(label)
@@ -113,13 +113,13 @@ class _BioTab(QWidget):
             lay.addLayout(row)
             self._fields[field_key] = inp
 
-        lay.addWidget(create_section_label(_("관심사 (쉼표로 구분)")))
-        self._interests = create_input_field(_("예: 음악, zero화, 독서"))
+        lay.addWidget(create_section_label(_("Interests (comma-separated)")))
+        self._interests = create_input_field(_("e.g. music, movies, reading"))
         self._interests.setText(", ".join(bio.get("interests", [])))
         lay.addWidget(self._interests)
 
-        lay.addWidget(create_section_label(_("메모 (쉼표로 구분)")))
-        self._memos = create_input_field(_("예: 고양이 좋아함, 야행성"))
+        lay.addWidget(create_section_label(_("Notes (comma-separated)")))
+        self._memos = create_input_field(_("e.g. likes cats, nocturnal"))
         self._memos.setText(", ".join(bio.get("memos", [])))
         lay.addWidget(self._memos)
 
@@ -136,7 +136,7 @@ class _BioTab(QWidget):
         self._status.setStyleSheet(f"color: {COLOR_MUTED};")
         lay.addWidget(self._status)
 
-        self._pending_title = create_section_label(_("OK 대기 중인 정보"))
+        self._pending_title = create_section_label(_("Information awaiting confirmation"))
         lay.addWidget(self._pending_title)
         self._pending_layout = QVBoxLayout()
         self._pending_layout.setSpacing(6)
@@ -152,10 +152,10 @@ class _BioTab(QWidget):
             field = item["field"]
             value = item["value"]
             field_label = {
-                "name": _("이름"),
-                "location": _("위치"),
-                "interests": _("관심사"),
-                "memos": _("메모"),
+                "name": _("Name"),
+                "location": _("Location"),
+                "interests": _("Interests"),
+                "memos": _("Notes"),
             }.get(field, field)
             row = QHBoxLayout()
             pending_label = QLabel(
@@ -163,7 +163,7 @@ class _BioTab(QWidget):
             )
             pending_label.setTextFormat(Qt.PlainText)
             row.addWidget(pending_label, 1)
-            approve_btn = QPushButton(_("승인"))
+            approve_btn = QPushButton(_("Approve"))
             approve_btn.clicked.connect(
                 lambda checked=False, target=field, candidate=value:
                 self._approve_pending_bio(target, candidate)
@@ -196,13 +196,13 @@ class _BioTab(QWidget):
             self._refresh_pending_bio()
             show_temp_status(self._status, _("✅ Save complete"))
         except Exception as e:
-            show_temp_status(self._status, _("⚠️ Save 실패: {error}").format(error=e))
+            show_temp_status(self._status, _("⚠️ Saving failed: {error}").format(error=e))
 
     def refresh(self) -> None:
         self._refresh_pending_bio()
 
 
-# ── 탭: 사실 (Facts) ─────────────────────────────────────────────────────────
+# ── Tab: facts ─────────────────────────────────────────────────────────
 
 class _FactsTab(QWidget):
     def __init__(self, ctx_manager, parent=None):
@@ -232,7 +232,7 @@ class _FactsTab(QWidget):
         clear_layout(self._inner)
         facts = self._ctx.context.get("facts", {}) if self._ctx else {}
         if not facts:
-            self._inner.addWidget(create_muted_label(_("아직 Save된 사실이 없습니다.")))
+            self._inner.addWidget(create_muted_label(_("No facts saved yet.")))
             return
         sorted_facts = sorted(
             facts.items(),
@@ -249,15 +249,15 @@ class _FactsTab(QWidget):
             return
         dialog = QMessageBox(
             QMessageBox.Question,
-            _("사실 삭제"),
-            _("'{key}' 사실을 삭제할까요?").format(key=key),
+            _("Delete fact"),
+            _("Delete the fact '{key}'?").format(key=key),
             QMessageBox.Yes | QMessageBox.No,
             self,
         )
         dialog.setTextFormat(Qt.PlainText)
         dialog.setDefaultButton(QMessageBox.No)
         delete_conversations = QCheckBox(
-            _("이 사실이 언급된 Conversation history도 삭제"), dialog
+            _("Also delete conversation history that mentions this fact"), dialog
         )
         dialog.setCheckBox(delete_conversations)
         if dialog.exec() == QMessageBox.Yes and self._ctx.delete_fact(
@@ -269,7 +269,7 @@ class _FactsTab(QWidget):
         self._populate()
 
 
-# ── 탭: 기억 제안 ─────────────────────────────────────────────────────────────
+# ── Tab: memory suggestions ─────────────────────────────────────────────────────────────
 
 class _SuggestionsTab(QWidget):
     def __init__(self, ctx_manager, parent=None):
@@ -301,7 +301,7 @@ class _SuggestionsTab(QWidget):
     def _populate(self) -> None:
         clear_layout(self._inner)
         if not self._store:
-            self._inner.addWidget(create_muted_label(_("제안을 불러오지 못했습니다.")))
+            self._inner.addWidget(create_muted_label(_("Could not load the suggestions.")))
             return
 
         stats = self._store.get_stats()
@@ -310,16 +310,16 @@ class _SuggestionsTab(QWidget):
         total = approved + rejected
         if total:
             rate = round(approved * 100 / total)
-            summary = _("승인률 {rate}% ({approved}/{total})").format(
+            summary = _("Approval rate {rate}% ({approved}/{total})").format(
                 rate=rate, approved=approved, total=total
             )
         else:
-            summary = _("승인·거절 기록 None")
+            summary = _("No approve/reject records")
         self._inner.addWidget(create_muted_label(summary))
 
         suggestions = self._store.get_suggestions()
         if not suggestions:
-            self._inner.addWidget(create_muted_label(_("Save된 제안이 없습니다.")))
+            self._inner.addWidget(create_muted_label(_("No saved suggestions.")))
             return
         for suggestion in reversed(suggestions):
             self._add_suggestion(suggestion)
@@ -333,9 +333,9 @@ class _SuggestionsTab(QWidget):
         layout = QVBoxLayout(card)
         layout.setContentsMargins(10, 8, 10, 8)
         heading = (
-            _("선호: {key} = {value}")
+            _("Preference: {key} = {value}")
             if suggestion["type"] == "preference"
-            else _("사실: {key} = {value}")
+            else _("Fact: {key} = {value}")
         )
         title = QLabel(heading.format(**suggestion))
         title.setTextFormat(Qt.PlainText)
@@ -349,11 +349,11 @@ class _SuggestionsTab(QWidget):
 
         actions = QHBoxLayout()
         actions.addStretch()
-        approve_btn = QPushButton(_("승인"))
+        approve_btn = QPushButton(_("Approve"))
         approve_btn.clicked.connect(
             lambda checked=False, item_id=suggestion["id"]: self._approve(item_id)
         )
-        reject_btn = QPushButton(_("거절"))
+        reject_btn = QPushButton(_("Reject"))
         reject_btn.clicked.connect(
             lambda checked=False, item_id=suggestion["id"]: self._reject(item_id)
         )
@@ -382,7 +382,7 @@ class _SuggestionsTab(QWidget):
         self._populate()
 
 
-# ── 탭: 통계 ──────────────────────────────────────────────────────────────────
+# ── Tab: statistics ──────────────────────────────────────────────────────────────────
 
 class _StatsTab(QWidget):
     def __init__(self, ctx_manager, parent=None):
@@ -407,8 +407,8 @@ class _StatsTab(QWidget):
 
         ctx = self._ctx.context if self._ctx else {}
 
-        # 자주 쓰는 명령어
-        lay.addWidget(create_section_label(_("자주 쓰는 명령어")))
+        # Frequently used commands
+        lay.addWidget(create_section_label(_("Frequently used commands")))
         cmd_freq = sorted(ctx.get("command_frequency", {}).items(), key=lambda x: x[1], reverse=True)[:8]
         if cmd_freq:
             grid = QGridLayout()
@@ -424,10 +424,10 @@ class _StatsTab(QWidget):
                 grid.addWidget(chip, i // 3, i % 3)
             lay.addLayout(grid)
         else:
-            lay.addWidget(create_muted_label(_("기록 None")))
+            lay.addWidget(create_muted_label(_("No records")))
 
-        # 대화 주제
-        lay.addWidget(create_section_label(_("대화 주제")))
+        # Conversation topics
+        lay.addWidget(create_section_label(_("Conversation topics")))
         topics = sorted(ctx.get("conversation_topics", {}).items(), key=lambda x: x[1], reverse=True)[:10]
         if topics:
             topic_grid = QGridLayout()
@@ -445,10 +445,10 @@ class _StatsTab(QWidget):
                 topic_grid.addWidget(chip, i // 2, i % 2)
             lay.addLayout(topic_grid)
         else:
-            lay.addWidget(create_muted_label(_("기록 None")))
+            lay.addWidget(create_muted_label(_("No records")))
 
-        # 선호도
-        lay.addWidget(create_section_label(_("선호도")))
+        # Preferences
+        lay.addWidget(create_section_label(_("Preferences")))
         prefs = ctx.get("preferences", {})
         if prefs:
             for cat, vals in list(prefs.items())[:6]:
@@ -460,18 +460,18 @@ class _StatsTab(QWidget):
                 row_lbl.setStyleSheet("color: #444;")
                 lay.addWidget(row_lbl)
         else:
-            lay.addWidget(create_muted_label(_("기록 None")))
+            lay.addWidget(create_muted_label(_("No records")))
 
         lay.addStretch()
 
 
-# ── 메인 패널 ─────────────────────────────────────────────────────────────────
+# ── Main panel ─────────────────────────────────────────────────────────────────
 
 class MemoryPanel(FloatingPanel):
-    """아리 메모리 시각화 & 편집 패널."""
+    """Ari memory visualization & editing panel."""
 
     def __init__(self, ctx_manager=None, parent=None):
-        super().__init__("🧠  아리의 기억", WINDOW_W_MEMORY, WINDOW_H_MEMORY, parent)
+        super().__init__("🧠  Ari's memory", WINDOW_W_MEMORY, WINDOW_H_MEMORY, parent)
         self._ctx = ctx_manager
         self._build_content()
 
@@ -485,15 +485,15 @@ class MemoryPanel(FloatingPanel):
         self._suggestions_tab = _SuggestionsTab(self._ctx)
         self._stats_tab = _StatsTab(self._ctx)
 
-        tabs.addTab(self._bio_tab,   _("Default 정보"))
-        tabs.addTab(self._facts_tab, _("사실 (Facts)"))
-        tabs.addTab(self._suggestions_tab, _("제안"))
-        tabs.addTab(self._stats_tab, _("통계"))
+        tabs.addTab(self._bio_tab,   _("Default info"))
+        tabs.addTab(self._facts_tab, _("Facts"))
+        tabs.addTab(self._suggestions_tab, _("Suggestions"))
+        tabs.addTab(self._stats_tab, _("Statistics"))
 
         self.content_layout.addWidget(tabs)
 
     def refresh(self) -> None:
-        """외부에서 데이터 갱신 요청 시 호출."""
+        """Called when a data refresh is requested from outside."""
         self._bio_tab.refresh()
         self._facts_tab.refresh()
         self._suggestions_tab.refresh()

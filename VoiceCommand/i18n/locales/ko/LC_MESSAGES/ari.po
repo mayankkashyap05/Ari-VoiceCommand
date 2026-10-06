@@ -5,278 +5,44 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ko\n"
 
-msgid "말하기 중단"
-msgstr "말하기 중단"
+msgid "\n(교훈: {lesson})"
+msgstr "\n(교훈: {lesson})"
 
-msgid "(응답 중단)"
-msgstr "(응답 중단)"
+msgid "\n--- 원본 파일: {filename} ---\n"
+msgstr "\n--- 원본 파일: {filename} ---\n"
 
-msgid "아리 설정"
-msgstr "아리 설정"
+msgid "\nInstall path: {path}\n"
+msgstr "\nInstall path: {path}\n"
 
-msgid "말씀해주세요"
-msgstr "말씀해주세요"
+msgid "\n[2/4] 핵심 의존성 설치 중..."
+msgstr "\n[2/4] 핵심 의존성 설치 중..."
 
-msgid "로딩이 완료되었습니다. 이제 대화할 수 있어요!"
-msgstr "로딩이 완료되었습니다. 이제 대화할 수 있어요!"
+msgid "\n[3/4] 모델 다운로드 중 (Fun-CosyVoice3-0.5B, 약 2GB)..."
+msgstr "\n[3/4] 모델 다운로드 중 (Fun-CosyVoice3-0.5B, 약 2GB)..."
 
-msgid "볼륨을 {volume}%로 조절했습니다."
-msgstr "볼륨을 {volume}%로 조절했습니다."
+msgid "\n[3/4] 모델 이미 존재: {path}"
+msgstr "\n[3/4] 모델 이미 존재: {path}"
 
-msgid "볼륨 조절 실패"
-msgstr "볼륨 조절 실패"
+msgid "\n[4/4] 세부 의존성 설치 중 (시간이 다소 소요될 수 있습니다)..."
+msgstr "\n[4/4] 세부 의존성 설치 중 (시간이 다소 소요될 수 있습니다)..."
 
-msgid "볼륨을 조절했습니다."
-msgstr "볼륨을 조절했습니다."
+msgid "\n※ 위 사례를 참고하여 동일한 실수를 피하고 검증된 방식을 사용하세요."
+msgstr "\n※ 위 사례를 참고하여 동일한 실수를 피하고 검증된 방식을 사용하세요."
 
-msgid "음소거했습니다."
-msgstr "음소거했습니다."
+msgid "  1. 아리 Settings → TTS 모드 → 로컬 (CosyVoice3) 선택"
+msgstr "  1. 아리 Settings → TTS 모드 → 로컬 (CosyVoice3) 선택"
 
-msgid "음소거를 해제했습니다."
-msgstr "음소거를 해제했습니다."
+msgid "  1. 아리 설정 → TTS 모드 → 로컬 (CosyVoice3) 선택"
+msgstr "  1. 아리 설정 → TTS 모드 → 로컬 (CosyVoice3) 선택"
 
-msgid "실행 중인 앱 목록입니다.\n{apps}"
-msgstr "실행 중인 앱 목록입니다.\n{apps}"
+msgid "  2. Settings → CosyVoice 경로 → {path} Input (또는 자동 감지)"
+msgstr "  2. Settings → CosyVoice 경로 → {path} Input (또는 자동 감지)"
 
-msgid "실행 중인 앱이 {count}개 있어요: {apps}"
-msgstr "실행 중인 앱이 {count}개 있어요: {apps}"
+msgid "  2. 설정 → CosyVoice 경로 → {path} 입력 (또는 자동 감지)"
+msgstr "  2. 설정 → CosyVoice 경로 → {path} 입력 (또는 자동 감지)"
 
-msgid "스크린샷을 저장했습니다: {path}"
-msgstr "스크린샷을 저장했습니다: {path}"
-
-msgid "요청을 처리했습니다."
-msgstr "요청을 처리했습니다."
-
-msgid "앱을 실행했습니다."
-msgstr "앱을 실행했습니다."
-
-msgid "기본 브라우저로 웹사이트를 열었습니다: {url}"
-msgstr "기본 브라우저로 웹사이트를 열었습니다: {url}"
-
-msgid "앱을 종료했습니다."
-msgstr "앱을 종료했습니다."
-
-msgid "창을 활성화했습니다."
-msgstr "창을 활성화했습니다."
-
-msgid "날씨를 확인했습니다. {result}"
-msgstr "날씨를 확인했습니다. {result}"
-
-msgid "게임 모드 ON. GPU 메모리 해제했습니다."
-msgstr "게임 모드 ON. GPU 메모리 해제했습니다."
-
-msgid "게임 모드 OFF. TTS 복원 중..."
-msgstr "게임 모드 OFF. TTS 복원 중..."
-
-msgid "유튜브를 열게요."
-msgstr "유튜브를 열게요."
-
-msgid "{query} 유튜브에서 검색할게요."
-msgstr "{query} 유튜브에서 검색할게요."
-
-msgid "현재 시간은 {time}입니다."
-msgstr "현재 시간은 {time}입니다."
-
-msgid "오전"
-msgstr "오전"
-
-msgid "오후"
-msgstr "오후"
-
-msgid "{am_pm} {hour}시 {minute}분"
-msgstr "{am_pm} {hour}시 {minute}분"
-
-msgid "{am_pm} {hour}시"
-msgstr "{am_pm} {hour}시"
-
-msgid "타이머"
-msgstr "타이머"
-
-msgid "알람"
-msgstr "알람"
-
-msgid "취소"
-msgstr "취소"
-
-msgid "끄기"
-msgstr "끄기"
-
-msgid "중지"
-msgstr "중지"
-
-msgid "남은"
-msgstr "남은"
-
-msgid "얼마"
-msgstr "얼마"
-
-msgid "확인"
-msgstr "확인"
-
-msgid "현재 실행 중인 타이머가 없습니다."
-msgstr "현재 실행 중인 타이머가 없습니다."
-
-msgid "타이머 시간을 정확히 말씀해 주세요."
-msgstr "타이머 시간을 정확히 말씀해 주세요."
-
-msgid "{prefix} {mins}분 {secs}초 남았습니다."
-msgstr "{prefix} {mins}분 {secs}초 남았습니다."
-
-msgid "{prefix} {mins}분 남았습니다."
-msgstr "{prefix} {mins}분 남았습니다."
-
-msgid "{prefix} {secs}초 남았습니다."
-msgstr "{prefix} {secs}초 남았습니다."
-
-msgid "컴퓨터 꺼줘"
-msgstr "컴퓨터 꺼줘"
-
-msgid "{time}에 컴퓨터를 종료할게요."
-msgstr "{time}에 컴퓨터를 종료할게요."
-
-msgid "컴퓨터를 종료합니다. 잠시만 기다려 주세요."
-msgstr "컴퓨터를 종료합니다. 잠시만 기다려 주세요."
-
-msgid "종료 예약을 취소했습니다."
-msgstr "종료 예약을 취소했습니다."
-
-msgid "팔레트 편집"
-msgstr "팔레트 편집"
-
-msgid "선택"
-msgstr "선택"
-
-msgid "테마 이름"
-msgstr "테마 이름"
-
-msgid "테마로 저장"
-msgstr "테마로 저장"
-
-msgid "프리셋 초기화"
-msgstr "프리셋 초기화"
-
-msgid "JSON 직접 편집"
-msgstr "JSON 직접 편집"
-
-msgid "JSON 적용"
-msgstr "JSON 적용"
-
-msgid "복사"
-msgstr "복사"
-
-msgid "닫기"
-msgstr "닫기"
-
-msgid "주요 색상"
-msgstr "주요 색상"
-
-msgid "텍스트"
-msgstr "텍스트"
-
-msgid "배경"
-msgstr "배경"
-
-msgid "테두리"
-msgstr "테두리"
-
-msgid "기타"
-msgstr "기타"
-
-msgid "이번 주 자기개선 리포트예요!"
-msgstr "이번 주 자기개선 리포트예요!"
-
-msgid "완료 작업 {total}건 (성공 {success}건, 성공률 {rate}%, 실패 {fail}건)"
-msgstr "완료 작업 {total}건 (성공 {success}건, 성공률 {rate}%, 실패 {fail}건)"
-
-msgid "활성 스킬 {total}개 (컴파일 완료 {compiled}개)"
-msgstr "활성 스킬 {total}개 (컴파일 완료 {compiled}개)"
-
-msgid "기억 중인 사실 {count}개"
-msgstr "기억 중인 사실 {count}개"
-
-msgid "예약 작업 {total}건 처리 (성공 {success}건, 실패 {fail}건)"
-msgstr "예약 작업 {total}건 처리 (성공 {success}건, 실패 {fail}건)"
-
-msgid "반복 실패 패턴: "
-msgstr "반복 실패 패턴: "
-
-msgid "{kind} {count}회"
-msgstr "{kind} {count}회"
-
-msgid "학습 기여도: "
-msgstr "학습 기여도: "
-
-msgid "회귀 경고: "
-msgstr "회귀 경고: "
-
-msgid "개선 제안: "
-msgstr "개선 제안: "
-
-msgid "실패율이 높습니다. 복잡한 목표를 더 작은 단계로 나눠보세요."
-msgstr "실패율이 높습니다. 복잡한 목표를 더 작은 단계로 나눠보세요."
-
-msgid "신뢰도 낮은 스킬 {count}개 ({names})를 재학습하거나 비활성화하세요."
-msgstr "신뢰도 낮은 스킬 {count}개 ({names})를 재학습하거나 비활성화하세요."
-
-msgid "반복 스킬이 아직 컴파일되지 않았습니다. 자주 쓰는 작업을 반복해 최적화를 유도하세요."
-msgstr "반복 스킬이 아직 컴파일되지 않았습니다. 자주 쓰는 작업을 반복해 최적화를 유도하세요."
-
-msgid "예약 작업 실패가 누적되고 있습니다. next_run과 실패 원인을 함께 점검하세요."
-msgstr "예약 작업 실패가 누적되고 있습니다. next_run과 실패 원인을 함께 점검하세요."
-
-msgid "현재 사용자의 화면 상태(작업표시줄 위치, 전체화면 모드 여부 등)를 확인합니다."
-msgstr "현재 사용자의 화면 상태(작업표시줄 위치, 전체화면 모드 여부 등)를 확인합니다."
-
-msgid "유튜브에서 음악이나 영상을 검색하여 재생합니다."
-msgstr "유튜브에서 음악이나 영상을 검색하여 재생합니다."
-
-msgid "알림용 카운트다운 타이머를 설정합니다. 이름을 지정하면 여러 타이머를 동시에 관리할 수 있습니다. 타이머 종료 시 알림만 울리며 추가 동작은 없습니다. 컴퓨터 종료·파일 저장 등 지연 실행은 schedule_task를 사용하세요."
-msgstr "알림용 카운트다운 타이머를 설정합니다. 이름을 지정하면 여러 타이머를 동시에 관리할 수 있습니다. 타이머 종료 시 알림만 울리며 추가 동작은 없습니다. 컴퓨터 종료·파일 저장 등 지연 실행은 schedule_task를 사용하세요."
-
-msgid "진행 중인 타이머를 취소합니다. 이름이 없으면 가장 최근 타이머를 취소합니다."
-msgstr "진행 중인 타이머를 취소합니다. 이름이 없으면 가장 최근 타이머를 취소합니다."
-
-msgid "현재 날씨 정보를 조회합니다."
-msgstr "현재 날씨 정보를 조회합니다."
-
-msgid "시스템 볼륨을 조절합니다."
-msgstr "시스템 볼륨을 조절합니다."
-
-msgid "현재 시간을 알려줍니다."
-msgstr "현재 시간을 알려줍니다."
-
-msgid "파이썬 코드로 자율 처리합니다."
-msgstr "파이썬 코드로 자율 처리합니다."
-
-msgid "CMD 명령어로 자율 처리합니다."
-msgstr "CMD 명령어로 자율 처리합니다."
-
-msgid "복합 목표를 자율 에이전트 루프로 처리합니다."
-msgstr "복합 목표를 자율 에이전트 루프로 처리합니다."
-
-msgid "인터넷 정보를 검색합니다."
-msgstr "인터넷 정보를 검색합니다."
-
-msgid "웹 페이지 내용을 가져옵니다."
-msgstr "웹 페이지 내용을 가져옵니다."
-
-msgid "특정 시간에 작업을 예약 실행합니다. 'N분/시간 뒤', 'N시에' 등 시간 표현과 함께 컴퓨터 종료·파일 저장 등 지연 실행 요청에 사용합니다."
-msgstr "특정 시간에 작업을 예약 실행합니다. 'N분/시간 뒤', 'N시에' 등 시간 표현과 함께 컴퓨터 종료·파일 저장 등 지연 실행 요청에 사용합니다."
-
-msgid "컴퓨터를 즉시 종료합니다. 시간 표현(예: '15분 뒤', '오후 11시')이 포함된 경우에는 schedule_task를 사용하세요."
-msgstr "컴퓨터를 즉시 종료합니다. 시간 표현(예: '15분 뒤', '오후 11시')이 포함된 경우에는 schedule_task를 사용하세요."
-
-msgid "현재 예약된 작업 목록을 조회합니다. '예약된 작업 뭐 있어?', '스케줄 확인해줘' 등의 요청에 사용합니다."
-msgstr "현재 예약된 작업 목록을 조회합니다. '예약된 작업 뭐 있어?', '스케줄 확인해줘' 등의 요청에 사용합니다."
-
-msgid "예약된 작업을 ID로 취소합니다."
-msgstr "예약된 작업을 ID로 취소합니다."
-
-msgid "## 과거 유사 사례 및 교훈 (Planning Guide):"
-msgstr "## 과거 유사 사례 및 교훈 (Planning Guide):"
-
-msgid "  💡 교훈: {lesson}"
-msgstr "  💡 교훈: {lesson}"
+msgid "  [{task_id}] {time}{repeat} — {goal}"
+msgstr "  [{task_id}] {time}{repeat} — {goal}"
 
 msgid "  ⚠️ 실패 이유: {error}"
 msgstr "  ⚠️ 실패 이유: {error}"
@@ -284,39 +50,224 @@ msgstr "  ⚠️ 실패 이유: {error}"
 msgid "  ✅ 추천 접근: {steps}"
 msgstr "  ✅ 추천 접근: {steps}"
 
-msgid "  🧭 재사용 힌트: {hints}"
-msgstr "  🧭 재사용 힌트: {hints}"
+msgid "  💡 교훈: {lesson}"
+msgstr "  💡 교훈: {lesson}"
 
 msgid "  🔎 실패 유형: {kind}"
 msgstr "  🔎 실패 유형: {kind}"
 
-msgid "\n※ 위 사례를 참고하여 동일한 실수를 피하고 검증된 방식을 사용하세요."
-msgstr "\n※ 위 사례를 참고하여 동일한 실수를 피하고 검증된 방식을 사용하세요."
+msgid "  🧭 재사용 힌트: {hints}"
+msgstr "  🧭 재사용 힌트: {hints}"
 
-msgid "실패 기록"
-msgstr "실패 기록"
+msgid " (반복)"
+msgstr " (반복)"
 
+msgid " [반복]"
+msgstr " [반복]"
+
+msgid " is used."
+msgstr "를 사용합니다."
+
+msgid " · 기분 {mood}"
+msgstr " · 기분 {mood}"
+
+msgid " · 전체 화면: {fullscreen}"
+msgstr " · 전체 화면: {fullscreen}"
+
+msgid " 알림 사운드: {alarm_sound}"
+msgstr " 알림 사운드: {alarm_sound}"
+
+msgid "## 과거 유사 사례 및 교훈 (Planning Guide):"
+msgstr "## 과거 유사 사례 및 교훈 (Planning Guide):"
+
+msgid "## 자기개선 루프 활동 (최근 {days}일)"
+msgstr "## 자기개선 루프 활동 (최근 {days}일)"
+
+msgid "'{key}' 사실을 삭제할까요?"
+msgstr "'{key}' 사실을 삭제할까요?"
 
 msgid "'{model}' 모델 준비가 완료되었습니다."
 msgstr "'{model}' 모델 준비가 완료되었습니다."
 
+msgid "'{name}' Delete this provider?? Saved API keys will also be deleted."
+msgstr "'{name}' Delete this provider?? Saved API keys will also be deleted."
+
+msgid "'{name}' saved"
+msgstr "'{name}' Save됨"
+
 msgid "'{name}' 저장됨"
 msgstr "'{name}' 저장됨"
+
+msgid "'{name}' 제공자를 삭제할까요? 저장된 API 키도 함께 삭제됩니다."
+msgstr "'{name}' 제공자를 삭제할까요? 저장된 API 키도 함께 삭제됩니다."
 
 msgid "'{name}' 타이머"
 msgstr "'{name}' 타이머"
 
+msgid "'{name}' 타이머가 완료되었습니다."
+msgstr "'{name}' 타이머가 완료되었습니다."
+
+msgid "'{name}' 타이머를 Cancel했습니다."
+msgstr "'{name}' 타이머를 Cancel했습니다."
+
+msgid "'{name}' 타이머를 Settings했습니다. ({label})"
+msgstr "'{name}' 타이머를 Settings했습니다. ({label})"
+
+msgid "'{name}' 타이머를 설정했습니다. ({label})"
+msgstr "'{name}' 타이머를 설정했습니다. ({label})"
+
+msgid "'{name}' 타이머를 찾지 못했습니다."
+msgstr "'{name}' 타이머를 찾지 못했습니다."
+
+msgid "'{name}' 타이머를 취소했습니다."
+msgstr "'{name}' 타이머를 취소했습니다."
+
 msgid "'{task}' 작업을 취소하시겠습니까?"
 msgstr "'{task}' 작업을 취소하시겠습니까?"
+
+msgid "'{when}' 시간 표현을 이해하지 못했어요. '5분 뒤', '11시 30분에', '매일 오전 9시' 형식으로 말씀해 주세요."
+msgstr "'{when}' 시간 표현을 이해하지 못했어요. '5분 뒤', '11시 30분에', '매일 오전 9시' 형식으로 말씀해 주세요."
+
+msgid "(Joy) 알람 시간이에요! 요청하신 '{goal}' 시각입니다."
+msgstr "(Joy) 알람 시간이에요! 요청하신 '{goal}' 시각입니다."
+
+msgid "(Response interrupted)"
+msgstr "(응답 중단)"
+
+msgid "(Serious) 예약된 작업을 시작할게요: {goal}"
+msgstr "(Serious) 예약된 작업을 시작할게요: {goal}"
+
+msgid "(same as the default provider)"
+msgstr "(Default 제공자와 동일)"
+
+msgid "(걱정) 서버 Error로 요청을 처리하지 못했어요. 잠시 later 다시 시도해주세요."
+msgstr "(걱정) 서버 Error로 요청을 처리하지 못했어요. 잠시 later 다시 시도해주세요."
+
+msgid "(걱정) 서버 오류로 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
+msgstr "(걱정) 서버 오류로 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
+
+msgid "(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 OK해주세요."
+msgstr "(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 OK해주세요."
+
+msgid "(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 확인해주세요."
+msgstr "(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 확인해주세요."
+
+msgid "(걱정) 연결 Settings을 OK해주세요. Default 명령은 그대로 쓸 수 있어요."
+msgstr "(걱정) 연결 Settings을 OK해주세요. Default 명령은 그대로 쓸 수 있어요."
+
+msgid "(걱정) 연결 설정을 확인해주세요. 기본 명령은 그대로 쓸 수 있어요."
+msgstr "(걱정) 연결 설정을 확인해주세요. 기본 명령은 그대로 쓸 수 있어요."
+
+msgid "(걱정) 요청 한도를 초과했어요. 잠시 later 다시 시도해주세요."
+msgstr "(걱정) 요청 한도를 초과했어요. 잠시 later 다시 시도해주세요."
+
+msgid "(걱정) 요청 한도를 초과했어요. 잠시 후 다시 시도해주세요."
+msgstr "(걱정) 요청 한도를 초과했어요. 잠시 후 다시 시도해주세요."
+
+msgid "(걱정) 요청을 처리하지 못했어요. 잠시 later 다시 시도해주세요."
+msgstr "(걱정) 요청을 처리하지 못했어요. 잠시 later 다시 시도해주세요."
+
+msgid "(걱정) 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
+msgstr "(걱정) 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
+
+msgid "(걱정) 인증에 실패했어요. Settings에서 인증 정보를 OK해주세요."
+msgstr "(걱정) 인증에 실패했어요. Settings에서 인증 정보를 OK해주세요."
+
+msgid "(걱정) 인증에 실패했어요. 설정에서 인증 정보를 확인해주세요."
+msgstr "(걱정) 인증에 실패했어요. 설정에서 인증 정보를 확인해주세요."
 
 msgid "(기본 제공자와 동일)"
 msgstr "(기본 제공자와 동일)"
 
+msgid "(기쁨) 알람 시간이에요! 요청하신 '{goal}' 시각입니다."
+msgstr "(기쁨) 알람 시간이에요! 요청하신 '{goal}' 시각입니다."
+
+msgid "(응답 중단)"
+msgstr "(응답 중단)"
+
+msgid "(진지) 예약된 작업을 시작할게요: {goal}"
+msgstr "(진지) 예약된 작업을 시작할게요: {goal}"
+
+msgid "*생성 일시: {timestamp}*\n\n"
+msgstr "*생성 일시: {timestamp}*\n\n"
+
+msgid "*생성 일시: {timestamp}*\n\n"
+msgstr "*생성 일시: {timestamp}*\n\n"
+
+msgid "+ Add task"
+msgstr "+ 작업 추가"
+
 msgid "+ 작업 추가"
 msgstr "+ 작업 추가"
 
+msgid ", 강수 확률은 {pop}%"
+msgstr ", 강수 확률은 {pop}%"
+
+msgid ", 강수량은 {rain:.1f}밀리미터"
+msgstr ", 강수량은 {rain:.1f}밀리미터"
+
+msgid ", 습도는 {humidity}%"
+msgstr ", 습도는 {humidity}%"
+
+msgid "- Available screen size: {width}x{height}\n"
+msgstr "- Available screen size: {width}x{height}\n"
+
+msgid "- Total monitor size: {width}x{height}\n"
+msgstr "- Total monitor size: {width}x{height}\n"
+
+msgid "- 가용 화면 크기: {width}x{height}\n"
+msgstr "- 가용 화면 크기: {width}x{height}\n"
+
+msgid "- 전체 모니터 크기: {width}x{height}\n"
+msgstr "- 전체 모니터 크기: {width}x{height}\n"
+
+msgid "- 현재 게임이나 zero상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다."
+msgstr "- 현재 게임이나 zero상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다."
+
+msgid "- 현재 게임이나 영상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다."
+msgstr "- 현재 게임이나 영상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다."
+
+msgid "- 현재 작업표시줄이 화면의 일부를 차지하고 있어, 저는 작업표시줄 바로 위에 서 있습니다."
+msgstr "- 현재 작업표시줄이 화면의 일부를 차지하고 있어, 저는 작업표시줄 바로 위에 서 있습니다."
+
+msgid "...All right."
+msgstr "...알겠어요."
+
+msgid "...알겠어요."
+msgstr "...알겠어요."
+
+msgid "3초 녹음 후 재생"
+msgstr "3초 녹음 후 재생"
+
+msgid "3초 동안 녹음하고 있습니다. 잠시 말씀해 주세요..."
+msgstr "3초 동안 녹음하고 있습니다. 잠시 말씀해 주세요..."
+
+msgid "<b>감지된 위험 항목:</b><br>{patterns_html}"
+msgstr "<b>감지된 위험 항목:</b><br>{patterns_html}"
+
+msgid "<b>요청된 작업:</b><br>{action_desc}"
+msgstr "<b>요청된 작업:</b><br>{action_desc}"
+
+msgid "A dict is required"
+msgstr "dict 형식 필요"
+
+msgid "A previously started installation is still running. Please try again once it finishes."
+msgstr "이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."
+
+msgid "A short click on the character detects the end of speech; holding it down listens while pressed."
+msgstr "Character를 짧게 클릭하면 발화 끝을 감지하고, 길게 누르면 누르는 동안 듣습니다."
+
+msgid "AI (LLM) engine settings"
+msgstr "AI (LLM) 엔진 Settings"
+
 msgid "AI (LLM) 엔진 설정"
 msgstr "AI (LLM) 엔진 설정"
+
+msgid "AI Settings"
+msgstr "AI Settings"
+
+msgid "AI 기능을 사용할 수 없습니다."
+msgstr "AI 기능을 사용할 수 없습니다."
 
 msgid "AI 설정"
 msgstr "AI 설정"
@@ -333,17 +284,335 @@ msgstr "API Key (선택):"
 msgid "API Key:"
 msgstr "API Key:"
 
+msgid "API Key를 입력하세요."
+msgstr "API Key를 입력하세요."
+
+msgid "API key (optional)"
+msgstr "API 키 (선택 사항)"
+
+msgid "API key (optional):"
+msgstr "API Key (선택):"
+
+msgid "API key per provider"
+msgstr "제공자별 API Key"
+
+msgid "API keys and default models can be edited in the per-provider settings list."
+msgstr "API 키와 Default 모델은 제공자별 Settings 목록에서 수정할 수 있습니다."
+
+msgid "API 키 (선택 사항)"
+msgstr "API 키 (선택 사항)"
+
+msgid "API 키와 기본 모델은 제공자별 설정 목록에서 수정할 수 있습니다."
+msgstr "API 키와 기본 모델은 제공자별 설정 목록에서 수정할 수 있습니다."
+
+msgid "About & updates"
+msgstr "정보·Update"
+
+msgid "Active lessons"
+msgstr "활성 교훈"
+
+msgid "Activity information includes only the app category and elapsed time; window titles and process names are never sent."
+msgstr "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 Send하지 않습니다."
+
+msgid "Activity reactions"
+msgstr "활동 반응"
+
+msgid "Add"
+msgstr "추가"
+
+msgid "Add a new task"
+msgstr "새 작업 추가"
+
+msgid "Add provider"
+msgstr "제공자 추가"
+
+msgid "Add wake word"
+msgstr "Wake word 추가"
+
+msgid "Additional model names (comma-separated):"
+msgstr "추가 모델명 (쉼표로 여러 개 Input 가능):"
+
+msgid "Advanced: operation mode"
+msgstr "고급: 동작 모드"
+
+msgid "Agent"
+msgstr "에이전트"
+
+msgid "Agent Dashboard"
+msgstr "Agent Dashboard"
+
+msgid "Agent Skills"
+msgstr "에이전트 스킬"
+
+msgid "Agent execution"
+msgstr "에이전트 실행"
+
+msgid "Also delete conversation history that mentions this fact"
+msgstr "이 사실이 언급된 Conversation history도 삭제"
+
+msgid "An error occurred: {error}"
+msgstr "Error가 발생했습니다: {error}"
+
+msgid "An update to Ari {version} is available."
+msgstr "Ari {version} Update를 사용할 수 있습니다."
+
 msgid "Anthropic"
 msgstr "Anthropic"
+
+msgid "App category reactions (off by default)"
+msgstr "앱 카테고리 반응 (Default 꺼짐)"
+
+msgid "Applied on the next app start."
+msgstr "다음 앱 시작 때 Apply됩니다."
+
+msgid "Approval rate {rate}% ({approved}/{total})"
+msgstr "승인률 {rate}% ({approved}/{total})"
+
+msgid "Approve"
+msgstr "승인"
+
+msgid "Ari"
+msgstr "아리"
+
+msgid "Ari Settings"
+msgstr "아리 Settings"
+
+msgid "Ari {version} must be installed manually."
+msgstr "Ari {version}은 직접 설치해야 합니다."
+
+msgid "Ari {version} 업데이트를 사용할 수 있습니다."
+msgstr "Ari {version} 업데이트를 사용할 수 있습니다."
+
+msgid "Ari {version}으로 Update됐어요."
+msgstr "Ari {version}으로 Update됐어요."
+
+msgid "Ari {version}으로 업데이트됐어요."
+msgstr "Ari {version}으로 업데이트됐어요."
+
+msgid "Ari {version}은 직접 설치해야 합니다."
+msgstr "Ari {version}은 직접 설치해야 합니다."
+
+msgid "Ari {version}을 사용할 수 있어요."
+msgstr "Ari {version}을 사용할 수 있어요."
+
+msgid "At least one wake word is required."
+msgstr "Wake word는 최소 1개 이상 필요합니다."
+
+msgid "Attempt {count}"
+msgstr "시도 {count}회"
+
+msgid "Attitude when referring to earlier conversations"
+msgstr "이전 대화를 참고할 때의 태도"
+
+msgid "Audio device settings"
+msgstr "오디오 장치 Settings"
+
+msgid "Auto-detect"
+msgstr "자동 감지"
+
+msgid "Automatic checks fetch only version information from GitHub and send no personally identifying information."
+msgstr "자동 OK은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다."
+
+msgid "Automatically apply game mode for games and video apps"
+msgstr "게임·zero상 앱에서 게임 모드 자동 Apply"
+
+msgid "Automatically check for new versions"
+msgstr "새 버전을 자동으로 OK합니다"
+
+msgid "Available after installing Ollama — no API key needed"
+msgstr "Ollama 설치 later 사용 가능 — API 키 불필요"
+
+msgid "Available to approved organizations only: custom voice ID (voice_...):"
+msgstr "승인된 조직만 사용 가능: 커스텀 보이스 ID (voice_...):"
+
+msgid "Available to install"
+msgstr "설치 가능"
+
+msgid "Away and return reactions"
+msgstr "자리 비움·복귀 반응"
+
+msgid "Away threshold (minutes)"
+msgstr "자리 비움 기준 (분)"
+
+msgid "BOO! 깜짝이야~"
+msgstr "BOO! 깜짝이야~"
+
+msgid "Background"
+msgstr "배경"
+
+msgid "Border"
+msgstr "테두리"
+
+msgid "Browse"
+msgstr "찾아보기"
+
+msgid "CMD 명령어로 자율 처리합니다."
+msgstr "CMD 명령어로 자율 처리합니다."
+
+msgid "CPU가 너무 바빠요! 좀 쉬게 해줘요!"
+msgstr "CPU가 너무 바빠요! 좀 쉬게 해줘요!"
+
+msgid "CPU가 힘들어하고 있어요!"
+msgstr "CPU가 힘들어하고 있어요!"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Cancel selected task"
+msgstr "선택 작업 Cancel"
+
+msgid "Cancel task"
+msgstr "작업 Cancel"
+
+msgid "Cancel the task '{task}'?"
+msgstr "'{task}' 작업을 Cancel하시겠습니까?"
+
+msgid "Cancel할 작업 ID (list_scheduled_tasks로 OK)"
+msgstr "Cancel할 작업 ID (list_scheduled_tasks로 OK)"
+
+msgid "Cancel할 작업 ID를 알려주세요."
+msgstr "Cancel할 작업 ID를 알려주세요."
+
+msgid "Cancel할 타이머 이름 (선택)"
+msgstr "Cancel할 타이머 이름 (선택)"
+
+msgid "Changelog"
+msgstr "변경 사항"
+
+msgid "Character display settings"
+msgstr "Character 표시 Settings"
+
+msgid "Character persona settings"
+msgstr "Character 페르소나 Settings"
+
+msgid "Character 위젯이 아직 초기화되지 않았습니다."
+msgstr "Character 위젯이 아직 초기화되지 않았습니다."
+
+msgid "Chatty"
+msgstr "수다스럽게"
+
+msgid "Check now"
+msgstr "지금 OK"
+
+msgid "Check the connection to the selected LLM"
+msgstr "선택한 LLM 연결 OK"
+
+msgid "Checking for a new version."
+msgstr "새 버전을 OK하고 있습니다."
+
+msgid "Checking microphone input..."
+msgstr "Checking microphone input..."
+
+msgid "Checking..."
+msgstr "OK 중..."
+
+msgid "Choose location"
+msgstr "위치 지정"
+
+msgid "City or region"
+msgstr "도시 또는 지역"
+
+msgid "Clone voice"
+msgstr "음성 복제"
+
+msgid "Cloning:"
+msgstr "클로닝:"
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Common TTS settings"
+msgstr "공통 TTS Settings"
+
+msgid "Component lift"
+msgstr "컴포넌트 lift"
+
+msgid "Concise (one or two sentences)"
+msgstr "간결하게 (한두 문장)"
+
+msgid "Configure the STT engine, Whisper settings, microphone sensitivity, and wake words."
+msgstr "STT 엔진, Whisper Settings, Microphone 감도, Wake word를 Settings합니다."
+
+msgid "Continue the conversation and a summary will appear here."
+msgstr "대화를 이어가면 이곳에 요약이 표시됩니다."
+
+msgid "Conversation guidance:"
+msgstr "대화 지침:"
+
+msgid "Conversation topics"
+msgstr "대화 주제"
+
+msgid "Copy"
+msgstr "복사"
+
+msgid "CosyVoice Save소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
+msgstr "CosyVoice Save소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
+
+msgid "CosyVoice install path (leave empty to auto-detect):"
+msgstr "CosyVoice Install path (비워두면 자동 감지):"
+
+msgid "CosyVoice 다시 설치"
+msgstr "CosyVoice 다시 설치"
+
+msgid "CosyVoice 모델 파일이 모두 다운로드되지 않았습니다. 다시 설치해 주세요."
+msgstr "CosyVoice 모델 파일이 모두 다운로드되지 않았습니다. 다시 설치해 주세요."
 
 msgid "CosyVoice 설치"
 msgstr "CosyVoice 설치"
 
+msgid "CosyVoice 설치 steps에 실패했습니다: {step} (exit code: {returncode})"
+msgstr "CosyVoice 설치 steps에 실패했습니다: {step} (exit code: {returncode})"
+
+msgid "CosyVoice 설치 steps에 실패했습니다: {step} ({error})"
+msgstr "CosyVoice 설치 steps에 실패했습니다: {step} ({error})"
+
 msgid "CosyVoice 설치 경로 (비워두면 자동 감지):"
 msgstr "CosyVoice 설치 경로 (비워두면 자동 감지):"
 
+msgid "CosyVoice 설치 단계에 실패했습니다: {step} ({error})"
+msgstr "CosyVoice 설치 단계에 실패했습니다: {step} ({error})"
+
+msgid "CosyVoice 설치 단계에 실패했습니다: {step} (종료 코드: {returncode})"
+msgstr "CosyVoice 설치 단계에 실패했습니다: {step} (종료 코드: {returncode})"
+
 msgid "CosyVoice 설치 폴더 선택"
 msgstr "CosyVoice 설치 폴더 선택"
+
+msgid "CosyVoice 설치가 감지되지 않았습니다. 설치하거나 폴더를 지정해 주세요."
+msgstr "CosyVoice 설치가 감지되지 않았습니다. 설치하거나 폴더를 지정해 주세요."
+
+msgid "CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 OK해 주세요."
+msgstr "CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 OK해 주세요."
+
+msgid "CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 확인해 주세요."
+msgstr "CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 확인해 주세요."
+
+msgid "CosyVoice 저장소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
+msgstr "CosyVoice 저장소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
+
+msgid "CosyVoice 전용 가상환경 Python을 찾지 못했습니다: {python_exe}"
+msgstr "CosyVoice 전용 가상환경 Python을 찾지 못했습니다: {python_exe}"
+
+msgid "CosyVoice 전용 가상환경을 만드는 중입니다..."
+msgstr "CosyVoice 전용 가상환경을 만드는 중입니다..."
+
+msgid "CosyVoice 전용 가상환경을 만들지 못했습니다 (exit code: {returncode})"
+msgstr "CosyVoice 전용 가상환경을 만들지 못했습니다 (exit code: {returncode})"
+
+msgid "CosyVoice 전용 가상환경을 만들지 못했습니다 (종료 코드: {returncode})"
+msgstr "CosyVoice 전용 가상환경을 만들지 못했습니다 (종료 코드: {returncode})"
+
+msgid "CosyVoice 전용 가상환경을 만들지 못했습니다: {error}"
+msgstr "CosyVoice 전용 가상환경을 만들지 못했습니다: {error}"
+
+msgid "CosyVoice3 installation is in progress.\nDownloading dependencies and models may take a little while."
+msgstr "CosyVoice3 설치를 진행 중입니다.\n의존성 및 모델 다운로드로 시간이 조금 걸릴 수 있습니다."
+
+msgid "CosyVoice3 is already installed.\n\n{path}\n\nReinstall it?"
+msgstr "CosyVoice3가 이미 설치되어 있습니다.\n\n{path}\n\n다시 설치할까요?"
+
+msgid "CosyVoice3 settings (local GPU)"
+msgstr "CosyVoice3 Settings (로컬 GPU)"
 
 msgid "CosyVoice3 로컬 TTS"
 msgstr "CosyVoice3 로컬 TTS"
@@ -366,53 +635,803 @@ msgstr "CosyVoice3 설치가 완료되었습니다.\n설정에서 TTS 모드를 
 msgid "CosyVoice3 설치를 진행 중입니다.\n의존성 및 모델 다운로드로 시간이 조금 걸릴 수 있습니다."
 msgstr "CosyVoice3 설치를 진행 중입니다.\n의존성 및 모델 다운로드로 시간이 조금 걸릴 수 있습니다."
 
+msgid "CosyVoice3가 이미 설치되어 있습니다.\n\n{path}\n\n다시 설치할까요?"
+msgstr "CosyVoice3가 이미 설치되어 있습니다.\n\n{path}\n\n다시 설치할까요?"
+
+msgid "Could not find Ari data in the selected folder.\nSelect the .ari_runtime folder, or the folder that contains it."
+msgstr "Could not find Ari data in the selected folder.\nSelect the .ari_runtime folder, or the folder that contains it."
+
+msgid "Could not find the ID of the selected plugin."
+msgstr "선택한 Plugins의 ID를 찾지 못했습니다."
+
+msgid "Could not import the data: {error}"
+msgstr "데이터를 가져오지 못했습니다: {error}"
+
+msgid "Could not load the memory system."
+msgstr "기억 시스템을 불러오지 못했습니다."
+
+msgid "Could not load the suggestions."
+msgstr "제안을 불러오지 못했습니다."
+
+msgid "Could not open the speaker output device: {error}"
+msgstr "스피커 출력 장치를 열지 못했습니다: {error}"
+
+msgid "Create a daily digest for {date} in UI language {language}. Write 3-5 sentences, then a keyword line labeled {keywords_label}. Use only the records below."
+msgstr "{date}의 기록만 사용해 UI 언어({language})로 3~5문장 요약을 작성하고, 마지막에 {keywords_label}를 붙이세요."
+
+msgid "Create my voice from a reference voice"
+msgstr "참조 음성으로 내 음성 만들기"
+
+msgid "Ctrl+Alt+Space처럼 수정 키와 기본 키를 함께 지정하세요."
+msgstr "Ctrl+Alt+Space처럼 수정 키와 기본 키를 함께 지정하세요."
+
+msgid "Current screen state: {mode}\n"
+msgstr "Current screen state: {mode}\n"
+
+msgid "Current sensitivity: {value}"
+msgstr "현재 감도: {value}"
+
+msgid "Custom OpenAI-compatible provider"
+msgstr "사용자 지정 OpenAI 호환 제공자"
+
+msgid "Custom provider settings"
+msgstr "사용자 지정 제공자 Settings"
+
+msgid "DOM 에러 상태 감지"
+msgstr "DOM 에러 상태 감지"
+
+msgid "Decision pending (not enough samples)"
+msgstr "판정 보류(표본 부족)"
+
+msgid "Default URL"
+msgstr "Default URL"
+
+msgid "Default info"
+msgstr "Default 정보"
+
+msgid "Default overwrite"
+msgstr "Default overwrite"
+
+msgid "Default voice"
+msgstr "Default 음성"
+
+msgid "Default 브라우저로 웹사이트를 열었습니다: {url}"
+msgstr "Default 브라우저로 웹사이트를 열었습니다: {url}"
+
+msgid "Delete"
+msgstr "삭제"
+
+msgid "Delete fact"
+msgstr "사실 삭제"
+
+msgid "Delete provider"
+msgstr "제공자 삭제"
+
+msgid "Delete skill"
+msgstr "스킬 삭제"
+
+msgid "Delete the fact '{key}'?"
+msgstr "'{key}' 사실을 삭제할까요?"
+
+msgid "Delete the skill {name}?"
+msgstr "{name} 스킬을 삭제할까요?"
+
+msgid "Delete this lesson"
+msgstr "이 교훈 삭제"
+
+msgid "Delete unused API keys"
+msgstr "쓰지 않는 API 키 삭제"
+
+msgid "Delete {count} unused API keys"
+msgstr "쓰지 않는 API 키 {count}개 삭제"
+
+msgid "Delete {count} unused API keys? Deleted keys cannot be recovered."
+msgstr "쓰지 않는 API 키 {count}개를 삭제할까요? 삭제한 키는 되돌릴 수 없습니다."
+
+msgid "Developer settings"
+msgstr "개발자 Settings"
+
+msgid "Device settings"
+msgstr "장치 Settings"
+
+msgid "Disable"
+msgstr "비활성화"
+
+msgid "Disabled"
+msgstr "꺼짐"
+
+msgid "Display name"
+msgstr "표시 이름"
+
+msgid "Distinguishes analysis/planning from execution/modification requests and prefers the per-role provider and model settings."
+msgstr "분석/계획과 실행/수정 요청을 구분해 역할별 제공자·모델 Settings을 우선 사용합니다."
+
+msgid "Do Not Disturb and fullscreen reactions"
+msgstr "방해 금지·전체 화면 반응"
+
+msgid "Don't pet me."
+msgstr "쓰다듬지 마세요."
+
+msgid "Done"
+msgstr "완료"
+
+msgid "Download Ollama models"
+msgstr "Ollama 모델 받기"
+
+msgid "Download Whisper"
+msgstr "Whisper 다운로드"
+
+msgid "Download model"
+msgstr "모델 다운로드"
+
+msgid "Download models"
+msgstr "모델 받기"
+
+msgid "Downloading Ollama models.\nThe model download continues in the background without a console."
+msgstr "Ollama 모델을 받는 중입니다.\n모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
+
+msgid "Downloading the local embedding model: {progress}%"
+msgstr "로컬 임베딩 모델 다운로드 중: {progress}%"
+
+msgid "Downloading..."
+msgstr "다운로드 중..."
+
+msgid "Edge TTS (free)"
+msgstr "Edge TTS (무료)"
+
 msgid "Edge TTS (무료)"
 msgstr "Edge TTS (무료)"
+
+msgid "Edge TTS settings (free)"
+msgstr "Edge TTS Settings (무료)"
 
 msgid "Edge TTS 설정 (무료)"
 msgstr "Edge TTS 설정 (무료)"
 
+msgid "Edit"
+msgstr "수정"
+
+msgid "Edit JSON directly"
+msgstr "JSON 직접 편집"
+
+msgid "Edit palette"
+msgstr "팔레트 편집"
+
 msgid "ElevenLabs"
 msgstr "ElevenLabs"
+
+msgid "ElevenLabs Settings"
+msgstr "ElevenLabs Settings"
 
 msgid "ElevenLabs 설정"
 msgstr "ElevenLabs 설정"
 
+msgid "ElevenLabs에서 추가 인증을 마쳐야 이 음성을 쓸 수 있습니다."
+msgstr "ElevenLabs에서 추가 인증을 마쳐야 이 음성을 쓸 수 있습니다."
+
+msgid "Embeddings are unavailable. Using lexical scores only."
+msgstr "임베딩을 사용할 수 없습니다. 어휘 점수만 사용합니다."
+
+msgid "Emotion:"
+msgstr "감정:"
+
+msgid "Enable"
+msgstr "활성화"
+
+msgid "Enable/disable"
+msgstr "활성화/비활성화"
+
+msgid "Enter the API key and model name of the provider you want to use, then click [Verify] to check the connection."
+msgstr "사용할 제공자의 API Key와 모델명을 Input한 뒤 [검증]으로 연결을 OK하세요."
+
+msgid "Episode ({outcome}): {content}"
+msgstr "에피소드 ({outcome}): {content}"
+
+msgid "Error: {error}"
+msgstr "Error: {error}"
+
+msgid "Evidence: {evidence}"
+msgstr "Evidence: {evidence}"
+
+msgid "Example English dialogue:"
+msgstr "zero어 예시 대사:"
+
+msgid "Example Japanese dialogue:"
+msgstr "일본어 예시 대사:"
+
+msgid "Execution/modification model (optional):"
+msgstr "실행/수정 모델 (선택):"
+
+msgid "Execution/modification provider (optional):"
+msgstr "실행/수정 제공자 (선택):"
+
+msgid "Extensions"
+msgstr "확장"
+
+msgid "Extract memory suggestions from user utterances"
+msgstr "사용자 발화에서 기억 제안 추출"
+
+msgid "Fact: {key} = {value}"
+msgstr "사실: {key} = {value}"
+
+msgid "Facts"
+msgstr "사실 (Facts)"
+
+msgid "Failed to install the plugin."
+msgstr "Plugins 설치에 실패했습니다."
+
+msgid "Failed to load models"
+msgstr "모델 불러오기 실패"
+
+msgid "Failed to load the list: {message}"
+msgstr "목록 로드 실패: {message}"
+
+msgid "Failed to load the plugin list: {error}"
+msgstr "Plugins 목록 로드 실패: {error}"
+
+msgid "Failed to load voices"
+msgstr "음성 불러오기 실패"
+
+msgid "Failed to prepare the model.\n{error}"
+msgstr "모델 준비에 실패했습니다.\n{error}"
+
+msgid "Failed to save the theme"
+msgstr "Theme Save 실패"
+
+msgid "Fast local processing"
+msgstr "빠른 로컬 처리"
+
+msgid "Fast processing"
+msgstr "Fast processing"
+
+msgid "Fast processing is on by default. Diagnostic recording mode can be selected separately."
+msgstr "Fast processing는 Default으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."
+
 msgid "Fish Audio (API)"
 msgstr "Fish Audio (API)"
+
+msgid "Fish Audio Settings"
+msgstr "Fish Audio Settings"
 
 msgid "Fish Audio 설정"
 msgstr "Fish Audio 설정"
 
+msgid "Font scale (0.9 ~ 1.35):"
+msgstr "글꼴 배율 (0.9 ~ 1.35):"
+
+msgid "Frequently used commands"
+msgstr "자주 쓰는 명령어"
+
+msgid "GUI 직접 제어"
+msgstr "GUI 직접 제어"
+
+msgid "Game mode off. Restoring TTS..."
+msgstr "게임 모드 OFF. TTS 복원 중..."
+
+msgid "Game mode on. GPU memory released."
+msgstr "게임 모드 ON. GPU 메모리 해제했습니다."
+
+msgid "Get an nvapi- key at https://build.nvidia.com"
+msgstr "https://build.nvidia.com 에서 nvapi- 키 발급"
+
+msgid "Get one for free at https://console.groq.com"
+msgstr "https://console.groq.com 에서 무료 발급"
+
+msgid "GitHub (e.g. NomaDamas/k-skill), URL, or local path"
+msgstr "GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로"
+
+msgid "GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로"
+msgstr "GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로"
+
+msgid "Git이 설치되어 있지 않습니다. (https://git-scm.com)"
+msgstr "Git이 설치되어 있지 않습니다. (https://git-scm.com)"
+
+msgid "Global hotkey:"
+msgstr "Global hotkey:"
+
+msgid "Goal (e.g. summarize the latest news and save it)"
+msgstr "목표 (예: 최신 뉴스를 요약해서 Save해줘)"
+
 msgid "Google Gemini"
 msgstr "Google Gemini"
+
+msgid "Google STT (online)"
+msgstr "Google STT (온라인)"
 
 msgid "Google STT (온라인)"
 msgstr "Google STT (온라인)"
 
+msgid "Google 인증 브라우저를 열 수 없습니다."
+msgstr "Google 인증 브라우저를 열 수 없습니다."
+
+msgid "Google 인증 시간이 초과되었습니다."
+msgstr "Google 인증 시간이 초과되었습니다."
+
+msgid "Google 인증 코드가 없습니다."
+msgstr "Google 인증 코드가 없습니다."
+
+msgid "Google 인증이 Cancel되었습니다."
+msgstr "Google 인증이 Cancel되었습니다."
+
+msgid "Google 인증이 완료되었습니다. 이 창을 닫아도 됩니다."
+msgstr "Google 인증이 완료되었습니다. 이 창을 닫아도 됩니다."
+
+msgid "Google 인증이 취소되었습니다."
+msgstr "Google 인증이 취소되었습니다."
+
 msgid "Groq"
 msgstr "Groq"
+
+msgid "Ground offset"
+msgstr "바닥 위치"
+
+msgid "Handle simple commands locally right away"
+msgstr "간단한 명령을 로컬에서 바로 처리"
+
+msgid "Hello! How can I help you?"
+msgstr "안녕하세요! 무엇을 도와드릴까요?"
+
+msgid "Hello. This is a voice output test."
+msgstr "안녕하세요. 음성 출력 시험 중입니다."
+
+msgid "Hide character"
+msgstr "Character 숨기기"
+
+msgid "Hide the character when the screen is locked"
+msgstr "화면 잠금 시 Character 숨기기"
+
+msgid "Hnn... my eyes are closing."
+msgstr "으으... 눈이 감겨요."
+
+msgid "Hotkey and click to listen"
+msgstr "단축키·클릭으로 듣기"
+
+msgid "Hotkey settings"
+msgstr "단축키 Settings"
+
+msgid "How can I help?"
+msgstr "How can I help?"
+
+msgid "Huh?"
+msgstr "네?"
+
+msgid "Hyunsu (Male)"
+msgstr "Hyunsu (Male)"
 
 msgid "Hyunsu (남성)"
 msgstr "Hyunsu (남성)"
 
+msgid "ID '{task_id}'에 해당하는 작업을 찾을 수 없어요."
+msgstr "ID '{task_id}'에 해당하는 작업을 찾을 수 없어요."
+
+msgid "IDE 3시간 연속 사용 알림"
+msgstr "IDE 3시간 연속 사용 알림"
+
+msgid "If another app is using the hotkey it will not be registered. The app keeps running."
+msgstr "단축키가 다른 앱에서 사용 중이면 등록되지 않습니다. 앱은 계속 실행됩니다."
+
+msgid "Image analysis failed: {error}"
+msgstr "Image analysis failed: {error}"
+
+msgid "Import data from an older version"
+msgstr "이전 버전 데이터 가져오기"
+
+msgid "Imported {count} files. Existing files were left untouched.\nRestart Ari to apply the imported data."
+msgstr "Imported {count} files. Existing files were left untouched.\nRestart Ari to apply the imported data."
+
+msgid "In use"
+msgstr "사용 중"
+
+msgid "InJoon (Male)"
+msgstr "InJoon (Male)"
+
 msgid "InJoon (남성)"
 msgstr "InJoon (남성)"
+
+msgid "Incomplete"
+msgstr "미완료"
+
+msgid "Information awaiting confirmation"
+msgstr "OK 대기 중인 정보"
+
+msgid "Install"
+msgstr "설치"
+
+msgid "Install CosyVoice"
+msgstr "CosyVoice 설치"
+
+msgid "Install CosyVoice3"
+msgstr "CosyVoice3 설치"
+
+msgid "Install CosyVoice3 to the path below?\n\n{path}"
+msgstr "아래 경로에 CosyVoice3를 설치할까요?\n\n{path}"
+
+msgid "Install Ollama"
+msgstr "Ollama 설치"
+
+msgid "Install Ollama / download models"
+msgstr "Ollama 설치/모델 받기"
+
+msgid "Install plugin"
+msgstr "Plugins 설치"
+
+msgid "Install selected plugin"
+msgstr "선택 Plugins 설치"
+
+msgid "Install the engine you want to run locally first, then adjust the paths and models in the settings below."
+msgstr "로컬에서 직접 실행할 엔진을 먼저 설치한 뒤, 아래 Settings에서 경로와 모델을 조정할 수 있습니다."
+
+msgid "Install the plugin {name}?"
+msgstr "{name} Plugins을 설치할까요?"
+
+msgid "Install without models"
+msgstr "모델 없이 설치"
+
+msgid "Installation complete"
+msgstr "설치 완료"
+
+msgid "Installation failed"
+msgstr "설치 실패"
+
+msgid "Installed"
+msgstr "설치됨"
+
+msgid "Installed models: {models}"
+msgstr "Installed models: {models}"
+
+msgid "Installed skills: {names}"
+msgstr "Installed skills: {names}"
+
+msgid "Installed: {path}"
+msgstr "설치됨: {path}"
+
+msgid "Installing"
+msgstr "설치 중"
+
+msgid "Installing skill..."
+msgstr "스킬 설치 중..."
+
+msgid "Installing {name}..."
+msgstr "{name} 설치 중..."
+
+msgid "Installs Ollama and downloads the models to use. "
+msgstr "Ollama를 설치하고, 사용할 모델을 함께 받아옵니다. "
+
+msgid "Installs the local LLM engine and downloads models in one step."
+msgstr "로컬 LLM 엔진 설치와 모델 다운로드를 한 번에 진행합니다."
+
+msgid "Installs the local TTS engine and the default model and configures the settings paths automatically."
+msgstr "Local TTS 엔진과 Default 모델을 설치하고 Settings 경로를 자동으로 맞춥니다."
+
+msgid "Interests"
+msgstr "관심사"
+
+msgid "Interests (comma-separated)"
+msgstr "관심사 (쉼표로 구분)"
+
+msgid "Interface language:"
+msgstr "인터페이스 Language:"
+
+msgid "JSON Apply"
+msgstr "JSON Apply"
+
+msgid "JSON format error"
+msgstr "JSON 형식 Error"
+
+msgid "JSON 적용"
+msgstr "JSON 적용"
+
+msgid "JSON 직접 편집"
+msgstr "JSON 직접 편집"
 
 msgid "JSON 형식 오류"
 msgstr "JSON 형식 오류"
 
+msgid "Just leave me alone."
+msgstr "그냥 두세요."
+
+msgid "Keywords:"
+msgstr "키워드:"
+
+msgid "LLM 검증 실패"
+msgstr "LLM 검증 실패"
+
+msgid "Language Settings"
+msgstr "Language Settings"
+
+msgid "Learned skills"
+msgstr "학습 스킬"
+
+msgid "Learning"
+msgstr "학습"
+
+msgid "Learning contribution diagnostics"
+msgstr "학습 기여도 진단"
+
+msgid "Leave empty to follow the AI settings."
+msgstr "비워두면 AI Settings을 따릅니다."
+
+msgid "Leave empty to send not-needed."
+msgstr "비워두면 not-needed를 보냅니다."
+
+msgid "Leave empty to use the default Ollama path"
+msgstr "비워두면 Ollama Default 경로 사용"
+
+msgid "Leave empty to use the default model path"
+msgstr "비워두면 Default Model path 사용"
+
+msgid "Leave empty to use the same as the default model"
+msgstr "비워두면 Default 모델과 동일"
+
+msgid "Leave empty to use the same as the execution model"
+msgstr "비워두면 실행 모델과 동일"
+
+msgid "Leave empty to use the theme default font"
+msgstr "비워두면 Theme Default 글꼴 사용"
+
+msgid "Left moves up, right moves down. Adjust this when a custom image floats above the ground or sinks into it."
+msgstr "왼쪽은 위로, 오른쪽은 아래로 내려갑니다. 직접 만든 이미지의 발이 바닥에서 뜨거나 파묻힐 때 맞추세요."
+
+msgid "Listen while held (push-to-talk)"
+msgstr "누르고 있는 동안 듣기 (push-to-talk)"
+
+msgid "Listening mode:"
+msgstr "듣기 방식:"
+
+msgid "Load models"
+msgstr "모델 불러오기"
+
+msgid "Load voices"
+msgstr "음성 불러오기"
+
+msgid "Loaded {count} plugins."
+msgstr "{count}개 Plugins을 불러왔습니다."
+
+msgid "Loading the local embedding model"
+msgstr "로컬 임베딩 모델 불러오는 중"
+
+msgid "Loading the marketplace list..."
+msgstr "마켓플레이스 목록을 불러오는 중..."
+
+msgid "Local (CosyVoice3)"
+msgstr "로컬 (CosyVoice3)"
+
+msgid "Local command: {content}"
+msgstr "로컬 명령: {content}"
+
+msgid "Local decision model: Error ({code})"
+msgstr "Local decision model: Error ({code})"
+
+msgid "Local decision model: not loaded yet (it loads on the first command)"
+msgstr "Local decision model: 아직 불러오지 않음 (첫 명령 때 불러옵니다)"
+
+msgid "Local decision model: ready"
+msgstr "Local decision model: 준비됨"
+
+msgid "Local embedding model: ready"
+msgstr "로컬 임베딩 모델: 준비됨"
+
+msgid "Local embedding model: waiting to download"
+msgstr "로컬 임베딩 모델: 다운로드 대기"
+
+msgid "Local installation"
+msgstr "로컬 설치"
+
+msgid "Location"
+msgstr "위치"
+
+msgid "Log only (diagnostic)"
+msgstr "Log only (diagnostic)"
+
+msgid "MCP 도구 호출 중 Error가 발생했습니다: {error}"
+msgstr "MCP 도구 호출 중 Error가 발생했습니다: {error}"
+
+msgid "MCP 도구 호출 중 오류가 발생했습니다: {error}"
+msgstr "MCP 도구 호출 중 오류가 발생했습니다: {error}"
+
+msgid "MCP 서버 엔드포인트 URL (예: https://yuju777-coupang-mcp.hf.space/mcp)"
+msgstr "MCP 서버 엔드포인트 URL (예: https://yuju777-coupang-mcp.hf.space/mcp)"
+
+msgid "MCP 스킬 도구를 호출합니다. MCP 엔드포인트 URL, 도구명, 파라미터를 지정하세요."
+msgstr "MCP 스킬 도구를 호출합니다. MCP 엔드포인트 URL, 도구명, 파라미터를 지정하세요."
+
+msgid "MCP 실행 안내"
+msgstr "MCP 실행 안내"
+
+msgid "MCP 호출 실패: endpoint와 tool이 필요합니다."
+msgstr "MCP 호출 실패: endpoint와 tool이 필요합니다."
+
+msgid "Marketplace"
+msgstr "마켓플레이스"
+
+msgid "May I rest for a moment..."
+msgstr "잠깐 쉬어도 될까요..."
+
+msgid "Me"
+msgstr "나"
+
+msgid "Memory extraction model (optional):"
+msgstr "기억 추출 모델 (선택):"
+
+msgid "Memory extraction provider (optional):"
+msgstr "기억 추출 제공자 (선택):"
+
+msgid "Memory status"
+msgstr "기억 상태"
+
+msgid "Microphone Input Level:"
+msgstr "Microphone Input Level:"
+
+msgid "Microphone Level Check"
+msgstr "Microphone Level Check"
+
+msgid "Microphone and Speaker Diagnostics"
+msgstr "Microphone and Speaker Diagnostics"
+
+msgid "Microphone sensitivity"
+msgstr "Microphone 감도"
+
 msgid "Mistral AI"
 msgstr "Mistral AI"
+
+msgid "Model name (default: {model})"
+msgstr "모델명 (Default: {model})"
+
+msgid "Model name (leave empty for the default):"
+msgstr "모델 이름 (비워두면 Default값):"
+
+msgid "Model size:"
+msgstr "모델 크기:"
+
+msgid "Model storage path (optional):"
+msgstr "모델 Save 경로 (선택):"
+
+msgid "Model:"
+msgstr "모델:"
+
+msgid "Mouse reactions"
+msgstr "마우스 반응"
+
+msgid "Moving the sliders updates Ari on screen immediately. Cancel restores the original values."
+msgstr "슬라이더를 움직이면 화면의 아리에게 바로 반zero됩니다. Cancel하면 원래대로 돌아갑니다."
 
 msgid "NVIDIA NIM"
 msgstr "NVIDIA NIM"
 
+msgid "Name"
+msgstr "이름"
+
+msgid "Next up "
+msgstr "다음 추천 "
+
+msgid "No API key is needed when using Ollama. The server address defaults to "
+msgstr "Ollama 사용 시 API 키는 필요 없습니다. 서버 주소는 Default적으로 "
+
+msgid "No CosyVoice installation was detected. Install it or specify the folder."
+msgstr "CosyVoice 설치가 감지되지 않았습니다. 설치하거나 폴더를 지정해 주세요."
+
+msgid "No approve/reject records"
+msgstr "승인·거절 기록 None"
+
+msgid "No description"
+msgstr "설명 None"
+
+msgid "No facts saved yet."
+msgstr "아직 Save된 사실이 없습니다."
+
+msgid "No installed plugins were found."
+msgstr "설치된 Plugins을 찾지 못했습니다."
+
+msgid "No lessons yet."
+msgstr "교훈이 없습니다."
+
+msgid "No models are installed."
+msgstr "Installed models이 없습니다."
+
+msgid "No models are selected."
+msgstr "선택한 모델이 없습니다."
+
+msgid "No models are selected. Install only the Ollama program?"
+msgstr "선택한 모델이 없습니다. Ollama 프로그램만 설치할까요?"
+
+msgid "No models installed"
+msgstr "모델 설치 None"
+
+msgid "No name"
+msgstr "이름 None"
+
+msgid "No new update is available."
+msgstr "새 Update가 없습니다."
+
+msgid "No plugins found. You can start by copying sample_plugin.py."
+msgstr "Plugins이 없습니다. sample_plugin.py를 복사해 시작할 수 있습니다."
+
+msgid "No plugins to display."
+msgstr "표시할 Plugins이 없습니다."
+
+msgid "No records"
+msgstr "기록 None"
+
+msgid "No samples"
+msgstr "표본 None"
+
+msgid "No saved suggestions."
+msgstr "Save된 제안이 없습니다."
+
+msgid "No scheduled tasks have been registered."
+msgstr "등록된 예약 작업이 없습니다."
+
+msgid "No skills used yet."
+msgstr "사용 스킬이 없습니다."
+
+msgid "No source information is available for this installation."
+msgstr "설치 원본 정보가 없습니다."
+
+msgid "No speech was detected. Please try the test again."
+msgstr "음성을 듣지 못했습니다. 다시 시험해 주세요."
+
+msgid "No update checks recorded yet."
+msgstr "아직 Update OK 기록이 없습니다."
+
+msgid "Nodding off..."
+msgstr "꾸벅..."
+
+msgid "None"
+msgstr "None"
+
+msgid "Normal"
+msgstr "보통"
+
+msgid "Not installed"
+msgstr "설치되지 않음"
+
+msgid "Not used"
+msgstr "사용 안 함"
+
+msgid "Notes"
+msgstr "메모"
+
+msgid "Notes (comma-separated)"
+msgstr "메모 (쉼표로 구분)"
+
+msgid "Notify after 3 hours of continuous IDE use"
+msgstr "IDE 3시간 연속 사용 알림"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "OK 없이 파괴적 작업 실행"
+msgstr "OK 없이 파괴적 작업 실행"
+
+msgid "OK해줘"
+msgstr "OK해줘"
+
+msgid "Off"
+msgstr "Off"
+
+msgid "Ollama (local LLM)"
+msgstr "Ollama (로컬 LLM)"
+
 msgid "Ollama (로컬 LLM)"
 msgstr "Ollama (로컬 LLM)"
 
+msgid "Ollama install path (optional):"
+msgstr "Ollama Install path (선택):"
+
+msgid "Ollama is already installed. Choose the models to download."
+msgstr "Ollama가 이미 설치되어 있습니다. 받을 모델을 선택하세요."
+
+msgid "Ollama server address:"
+msgstr "Ollama 서버 주소:"
+
+msgid "Ollama 모델 받기"
+msgstr "Ollama 모델 받기"
+
 msgid "Ollama 모델 폴더 선택"
 msgstr "Ollama 모델 폴더 선택"
+
+msgid "Ollama 모델을 받는 중입니다.\n모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
+msgstr "Ollama 모델을 받는 중입니다.\n모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
 
 msgid "Ollama 사용 시 API 키는 필요 없습니다. 서버 주소는 기본적으로 "
 msgstr "Ollama 사용 시 API 키는 필요 없습니다. 서버 주소는 기본적으로 "
@@ -420,14 +1439,35 @@ msgstr "Ollama 사용 시 API 키는 필요 없습니다. 서버 주소는 기�
 msgid "Ollama 서버 주소:"
 msgstr "Ollama 서버 주소:"
 
+msgid "Ollama 서버가 30초 내에 시작되지 않았습니다."
+msgstr "Ollama 서버가 30초 내에 시작되지 않았습니다."
+
+msgid "Ollama 서버가 응답하지 않아 설치된 모델을 확인하지 못했습니다."
+msgstr "Ollama 서버가 응답하지 않아 설치된 모델을 확인하지 못했습니다."
+
+msgid "Ollama 서버를 시작합니다..."
+msgstr "Ollama 서버를 시작합니다..."
+
 msgid "Ollama 설치"
 msgstr "Ollama 설치"
 
 msgid "Ollama 설치 경로 (선택):"
 msgstr "Ollama 설치 경로 (선택):"
 
+msgid "Ollama 설치 작업이 완료되었습니다."
+msgstr "Ollama 설치 작업이 완료되었습니다."
+
+msgid "Ollama 설치 파일 다운로드 중..."
+msgstr "Ollama 설치 파일 다운로드 중..."
+
 msgid "Ollama 설치 폴더 선택"
 msgstr "Ollama 설치 폴더 선택"
+
+msgid "Ollama 설치 프로그램 실행 실패: {result}"
+msgstr "Ollama 설치 프로그램 실행 실패: {result}"
+
+msgid "Ollama 설치 프로그램을 실행합니다. 설치 창이 뜨면 계속 진행하세요."
+msgstr "Ollama 설치 프로그램을 실행합니다. 설치 창이 뜨면 계속 진행하세요."
 
 msgid "Ollama 설치 후 사용 가능 — API 키 불필요"
 msgstr "Ollama 설치 후 사용 가능 — API 키 불필요"
@@ -438,8 +1478,32 @@ msgstr "Ollama 설치/모델 받기"
 msgid "Ollama 설치를 준비 중입니다.\n설치 창이 뜨면 진행하고, 모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
 msgstr "Ollama 설치를 준비 중입니다.\n설치 창이 뜨면 진행하고, 모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
 
+msgid "Ollama 자동 설치는 현재 Windows만 지원합니다."
+msgstr "Ollama 자동 설치는 현재 Windows만 지원합니다."
+
+msgid "Ollama가 이미 설치되어 있습니다. 받을 모델을 선택하세요."
+msgstr "Ollama가 이미 설치되어 있습니다. 받을 모델을 선택하세요."
+
+msgid "Ollama가 이미 설치되어 있어 설치 steps는 건너뜁니다."
+msgstr "Ollama가 이미 설치되어 있어 설치 steps는 건너뜁니다."
+
+msgid "Ollama가 이미 설치되어 있어 설치 단계는 건너뜁니다."
+msgstr "Ollama가 이미 설치되어 있어 설치 단계는 건너뜁니다."
+
 msgid "Ollama를 설치하고, 사용할 모델을 함께 받아옵니다. "
 msgstr "Ollama를 설치하고, 사용할 모델을 함께 받아옵니다. "
+
+msgid "Open the log file folder"
+msgstr "로그 파일 폴더 열기"
+
+msgid "Open the plugins folder"
+msgstr "Plugins 폴더 열기"
+
+msgid "Open the skill management window"
+msgstr "스킬 관리 창 열기"
+
+msgid "Open the web marketplace"
+msgstr "웹 마켓플레이스 열기"
 
 msgid "OpenAI"
 msgstr "OpenAI"
@@ -447,17 +1511,227 @@ msgstr "OpenAI"
 msgid "OpenAI TTS"
 msgstr "OpenAI TTS"
 
+msgid "OpenAI TTS Settings"
+msgstr "OpenAI TTS Settings"
+
 msgid "OpenAI TTS 설정"
 msgstr "OpenAI TTS 설정"
+
+msgid "OpenAI 임베딩 사용 (전략 텍스트 외부 전송)"
+msgstr "OpenAI 임베딩 사용 (전략 텍스트 외부 전송)"
+
+msgid "OpenAI 호환 TTS"
+msgstr "OpenAI 호환 TTS"
+
+msgid "OpenAI 호환 TTS 설정"
+msgstr "OpenAI 호환 TTS 설정"
+
+msgid "OpenAI 호환 서버의 이름과 기본 URL을 등록합니다. API 키와 기본 모델은 아래에서 설정합니다."
+msgstr "OpenAI 호환 서버의 이름과 기본 URL을 등록합니다. API 키와 기본 모델은 아래에서 설정합니다."
+
+msgid "OpenAI-compatible TTS"
+msgstr "OpenAI 호환 TTS"
+
+msgid "OpenAI-compatible TTS settings"
+msgstr "OpenAI 호환 TTS Settings"
+
+msgid "OpenRouter (multi-model)"
+msgstr "OpenRouter (멀티모델)"
 
 msgid "OpenRouter (멀티모델)"
 msgstr "OpenRouter (멀티모델)"
 
+msgid "Optional"
+msgstr "선택 사항"
+
+msgid "Other"
+msgstr "기타"
+
+msgid "Overall execution timeout (seconds)"
+msgstr "전체 실행 타임아웃 (초)"
+
+msgid "Override the font family (optional):"
+msgstr "글꼴 패밀리 재정의 (선택):"
+
+msgid "Personality:"
+msgstr "성격:"
+
+msgid "Plan established에 실패했습니다."
+msgstr "Plan established에 실패했습니다."
+
+msgid "Planner model (optional):"
+msgstr "플래너 모델 (선택):"
+
+msgid "Planner provider (optional):"
+msgstr "플래너 제공자 (선택):"
+
+msgid "Playback volume scale (0.0 ~ 2.0, 1.0 = original):"
+msgstr "play 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):"
+
+msgid "Played the recording through the selected speaker."
+msgstr "녹음한 소리를 선택한 스피커로 play했습니다."
+
+msgid "Please enter a display name."
+msgstr "표시 이름을 Please enter."
+
+msgid "Please enter a new wake word:"
+msgstr "새 Wake word를 Please enter:"
+
+msgid "Please enter the API key."
+msgstr "API Key를 Please enter."
+
+msgid "Please enter the default model."
+msgstr "Default 모델을 Please enter."
+
+msgid "Please say a short sentence now."
+msgstr "지금 짧은 문장을 말씀해 주세요."
+
+msgid "Please select the ollama.exe file."
+msgstr "ollama.exe 파일을 선택하세요."
+
+msgid "Plugins"
+msgstr "Plugins"
+
+msgid "Plugins Installation complete."
+msgstr "Plugins Installation complete."
+
+msgid "Plugins folder"
+msgstr "Plugins 폴더"
+
+msgid "Plugins folder:"
+msgstr "Plugins 폴더:"
+
+msgid "Plugins 로드가 거부되었습니다."
+msgstr "Plugins 로드가 거부되었습니다."
+
+msgid "Plugins 파일은 Save되었지만 활성화에 실패했습니다: {error}"
+msgstr "Plugins 파일은 Save되었지만 활성화에 실패했습니다: {error}"
+
+msgid "Plugins 파일이 승인 later 변경되었습니다."
+msgstr "Plugins 파일이 승인 later 변경되었습니다."
+
+msgid "Preference "
+msgstr "선호 "
+
+msgid "Preference: {key} = {value}"
+msgstr "선호: {key} = {value}"
+
+msgid "Preferences"
+msgstr "선호도"
+
+msgid "Preparing the Ollama installation.\nProceed in the installer window that appears; the model download continues in the background without a console."
+msgstr "Ollama 설치를 준비 중입니다.\n설치 창이 뜨면 진행하고, 모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
+
+msgid "Preparing the microphone..."
+msgstr "Microphone를 준비하고 있습니다..."
+
+msgid "Press once to start (toggle)"
+msgstr "한 번 눌러 시작 (toggle)"
+
+msgid "Primary colors"
+msgstr "주요 색상"
+
+msgid "Provider:"
+msgstr "제공자 선택:"
+
+msgid "Python을 찾지 못했습니다. Python 3.10 또는 3.11(64비트)을 설치한 뒤 다시 시도해 주세요."
+msgstr "Python을 찾지 못했습니다. Python 3.10 또는 3.11(64비트)을 설치한 뒤 다시 시도해 주세요."
+
+msgid "Quit"
+msgstr "종료"
+
+msgid "RP Settings"
+msgstr "RP Settings"
+
 msgid "RP 설정"
 msgstr "RP 설정"
 
+msgid "Rate (e.g. +0%, -10%):"
+msgstr "속도 (예: +0%, -10%):"
+
+msgid "Recent policy records"
+msgstr "최근 정책 기록"
+
+msgid "Recognition result: {text}"
+msgstr "인식 결과: {text}"
+
+msgid "Recognizing speech..."
+msgstr "음성을 인식하고 있습니다..."
+
+msgid "Recommended models:"
+msgstr "권장 모델 선택:"
+
+msgid "Record a tool execution audit log"
+msgstr "도구 실행 감사 로그 기록"
+
+msgid "Record for 3 seconds, then play"
+msgstr "Record for 3 seconds, then play"
+
+msgid "Recording for 3 seconds. Please speak for a moment..."
+msgstr "Recording for 3 seconds. Please speak for a moment..."
+
 msgid "Reference ID:"
 msgstr "Reference ID:"
+
+msgid "Reference WAV file (leave empty to use the default reference.wav):"
+msgstr "참조 WAV 파일 (비워두면 Default reference.wav 사용):"
+
+msgid "Reference WAV transcript:"
+msgstr "참조 WAV 대본:"
+
+msgid "Reference voice clone"
+msgstr "참조 음성 복제"
+
+msgid "Refresh"
+msgstr "새로 고침"
+
+msgid "Refresh the list"
+msgstr "목록 새로고침"
+
+msgid "Refresh the plugin list"
+msgstr "Plugins 목록 새로고침"
+
+msgid "Register the name and default URL of an OpenAI-compatible server. The API key and default model are configured below."
+msgstr "OpenAI 호환 서버의 이름과 Default URL을 등록합니다. API 키와 Default 모델은 아래에서 Settings합니다."
+
+msgid "Reinstall CosyVoice"
+msgstr "CosyVoice 다시 설치"
+
+msgid "Reject"
+msgstr "거절"
+
+msgid "Reload the model"
+msgstr "모델 다시 불러오기"
+
+msgid "Replanned (attempt {count})"
+msgstr "재계획 (시도 {count}회)"
+
+msgid "Reset preset"
+msgstr "프리셋 초기화"
+
+msgid "Reset to defaults"
+msgstr "Default값으로 되돌리기"
+
+msgid "Respond only with a speech bubble during Do Not Disturb"
+msgstr "방해 금지 중 말풍선으로만 응답"
+
+msgid "Response length:"
+msgstr "응답 말수:"
+
+msgid "Run now"
+msgstr "지금 실행"
+
+msgid "Runs soon"
+msgstr "곧 실행"
+
+msgid "SKILL.md format skill. Can be shared with other agents such as Claude Code."
+msgstr "SKILL.md 포맷 스킬. Claude Code 등 다른 에이전트와 공유 가능."
+
+msgid "SKILL.md 포맷 스킬. Claude Code 등 다른 에이전트와 공유 가능."
+msgstr "SKILL.md 포맷 스킬. Claude Code 등 다른 에이전트와 공유 가능."
+
+msgid "STT engine"
+msgstr "STT 엔진"
 
 msgid "STT 엔진"
 msgstr "STT 엔진"
@@ -465,14 +1739,335 @@ msgstr "STT 엔진"
 msgid "STT 엔진, Whisper 설정, 마이크 감도, 웨이크워드를 설정합니다."
 msgstr "STT 엔진, Whisper 설정, 마이크 감도, 웨이크워드를 설정합니다."
 
+msgid "Save"
+msgstr "Save"
+
+msgid "Save as theme"
+msgstr "Theme로 Save"
+
+msgid "Save소 클론"
+msgstr "Save소 클론"
+
+msgid "Scenario:"
+msgstr "시나리오:"
+
+msgid "Schedule (e.g. daily 09:00  /  Mondays 09:00  /  every 30 minutes)"
+msgstr "스케줄 (예: 매일 09:00  /  매주 월요일 09:00  /  30분마다)"
+
+msgid "Scheduled run ({outcome}): {content}"
+msgstr "예약 실행 ({outcome}): {content}"
+
+msgid "Scheduled task management"
+msgstr "예약 작업 관리"
+
+msgid "Scheduled time"
+msgstr "실행 예정 시각"
+
+msgid "Screenshot analysis failed: {error}"
+msgstr "Screenshot analysis failed: {error}"
+
+msgid "Search"
+msgstr "검색"
+
+msgid "Search again"
+msgstr "다시 찾기"
+
+msgid "Search for and install plugins directly from the settings window."
+msgstr "Settings창 안에서 Plugins을 검색하고 바로 설치할 수 있습니다."
+
+msgid "Search plugins"
+msgstr "Plugins 검색"
+
+msgid "Select"
+msgstr "선택"
+
+msgid "Select a plugin to install first."
+msgstr "설치할 Plugins을 먼저 선택하세요."
+
+msgid "Select a skill to see its SKILL.md contents."
+msgstr "스킬을 선택하면 SKILL.md 내용이 표시됩니다."
+
+msgid "Select reference WAV"
+msgstr "참조 WAV 선택"
+
+msgid "Select the .ari_runtime folder from an older version"
+msgstr "이전 버전의 .ari_runtime 폴더 선택"
+
+msgid "Select the CosyVoice installation folder"
+msgstr "CosyVoice 설치 폴더 선택"
+
+msgid "Select the Ollama installation folder"
+msgstr "Ollama 설치 폴더 선택"
+
+msgid "Select the Ollama model folder"
+msgstr "Ollama 모델 폴더 선택"
+
+msgid "Select the location of ollama.exe"
+msgstr "ollama.exe 위치 선택"
+
+msgid "Select the microphone input device:"
+msgstr "Microphone Input 장치 선택:"
+
+msgid "Select the speaker output device:"
+msgstr "스피커 출력 장치 선택:"
+
+msgid "Server URL (e.g. http://127.0.0.1:8880/v1):"
+msgstr "서버 URL (예: http://127.0.0.1:8880/v1):"
+
+msgid "Settings"
+msgstr "Settings"
+
+msgid "Short sentence recognition"
+msgstr "짧은 문장 인식"
+
+msgid "Show character"
+msgstr "Character 표시"
+
+msgid "Size"
+msgstr "크기"
+
+msgid "Skip this version"
+msgstr "이 버전 건너뛰기"
+
+msgid "Small 30% ↔ large 300% (default 100%)"
+msgstr "작게 30% ↔ 크게 300% (Default 100%)"
+
+msgid "Smart assistant mode"
+msgstr "Smart assistant mode"
+
+msgid "Smart assistant mode has been {status}."
+msgstr "Smart assistant mode가 {status}되었습니다."
+
+msgid "Smart assistant mode가 비활성화되었습니다."
+msgstr "Smart assistant mode가 비활성화되었습니다."
+
+msgid "Smart assistant mode가 활성화되었습니다. 이제 제가 명령어를 자동으로 실행하고 주인님의 패턴을 학습하겠습니다."
+msgstr "Smart assistant mode가 활성화되었습니다. 이제 제가 명령어를 자동으로 실행하고 주인님의 패턴을 학습하겠습니다."
+
+msgid "Sorry. The AI response engine could not be initialized."
+msgstr "죄송합니다. AI 응답 엔진을 초기화할 수 없습니다."
+
+msgid "Speaking rate (0.7 ~ 1.2):"
+msgstr "말하기 속도 (0.7 ~ 1.2):"
+
+msgid "Specify a modifier together with a default key, such as Ctrl+Alt+Space."
+msgstr "Ctrl+Alt+Space처럼 수정 키와 Default 키를 함께 지정하세요."
+
+msgid "Speech recognition engine:"
+msgstr "speech recognition 엔진:"
+
+msgid "Speech recognition test"
+msgstr "speech recognition 시험"
+
+msgid "Speech synthesis (TTS) settings"
+msgstr "음성 합성 (TTS) Settings"
+
+msgid "Speech was not recognized. Please say it again."
+msgstr "음성을 인식하지 못했습니다. 다시 말씀해 주세요."
+
+msgid "Statistics"
+msgstr "통계"
+
+msgid "Stop"
+msgstr "Stop"
+
+msgid "Stop speaking"
+msgstr "말하기 중단"
+
+msgid "Stop that."
+msgstr "그만해요."
+
+msgid "Stopping microphone level check..."
+msgstr "Stopping microphone level check..."
+
+msgid "Strategy search"
+msgstr "전략 검색"
+
+msgid "Suggestions"
+msgstr "제안"
+
+msgid "SunHi (female)"
+msgstr "SunHi (여성)"
+
 msgid "SunHi (여성)"
 msgstr "SunHi (여성)"
+
+msgid "System default microphone"
+msgstr "시스템 Default Microphone"
+
+msgid "System default speaker"
+msgstr "시스템 Default 스피커"
+
+msgid "System instructions passed directly to the AI"
+msgstr "AI에게 직접 전달할 시스템 지시문"
+
+msgid "System prompt:"
+msgstr "시스템 프롬프트:"
+
+msgid "System restart command executed에 실패했습니다."
+msgstr "System restart command executed에 실패했습니다."
+
+msgid "System restart scheduled에 실패했습니다."
+msgstr "System restart scheduled에 실패했습니다."
+
+msgid "System shutdown command executed에 실패했습니다."
+msgstr "System shutdown command executed에 실패했습니다."
+
+msgid "System shutdown scheduled에 실패했습니다."
+msgstr "System shutdown scheduled에 실패했습니다."
+
+msgid "TTS Settings"
+msgstr "TTS Settings"
+
+msgid "TTS emotion control"
+msgstr "TTS 감정 조절"
+
+msgid "TTS engine:"
+msgstr "TTS 엔진 선택:"
+
+msgid "TTS play에 실패했습니다. 로그에서 자세한 내용을 OK하세요."
+msgstr "TTS play에 실패했습니다. 로그에서 자세한 내용을 OK하세요."
+
+msgid "TTS 감정 조절"
+msgstr "TTS 감정 조절"
 
 msgid "TTS 설정"
 msgstr "TTS 설정"
 
+msgid "TTS 시험 재생에 실패했습니다. 설정과 출력 장치를 확인해 주세요."
+msgstr "TTS 시험 재생에 실패했습니다. 설정과 출력 장치를 확인해 주세요."
+
+msgid "TTS 시험 재생에 실패했습니다: {error}"
+msgstr "TTS 시험 재생에 실패했습니다: {error}"
+
 msgid "TTS 엔진 선택:"
 msgstr "TTS 엔진 선택:"
+
+msgid "TTS 재생에 실패했습니다. 로그에서 자세한 내용을 확인하세요."
+msgstr "TTS 재생에 실패했습니다. 로그에서 자세한 내용을 확인하세요."
+
+msgid "Task details"
+msgstr "작업 내용"
+
+msgid "Task name (e.g. News summary)"
+msgstr "작업 이름 (예: 뉴스 요약)"
+
+msgid "Test playback"
+msgstr "시험 play"
+
+msgid "Test playback in progress..."
+msgstr "시험 play 중..."
+
+msgid "Test playback with the currently selected TTS engine finished."
+msgstr "현재 선택한 TTS 엔진의 시험 play이 완료되었습니다."
+
+msgid "Text"
+msgstr "텍스트"
+
+msgid "That is enough."
+msgstr "적당히 해요."
+
+msgid "That tickles."
+msgstr "좀 간지럽네요."
+
+msgid "The '{model}' model is ready."
+msgstr "'{model}' 모델 준비가 완료되었습니다."
+
+msgid "The AI engine is not connected."
+msgstr "AI 엔진이 연결되지 않았습니다."
+
+msgid "The Ollama server did not respond, so the installed models could not be checked."
+msgstr "Ollama 서버가 응답하지 않아 Installed models을 OK하지 못했습니다."
+
+msgid "The TTS test playback failed. Please check the settings and the output device."
+msgstr "TTS 시험 play에 실패했습니다. Settings과 출력 장치를 OK해 주세요."
+
+msgid "The TTS test playback failed: {error}"
+msgstr "TTS 시험 play에 실패했습니다: {error}"
+
+msgid "The connection failed. Please check the URL, model, and API key."
+msgstr "연결에 실패했습니다. URL, 모델, API 키를 OK해 주세요."
+
+msgid "The default URL must be an http or https address without user info, query, or fragment."
+msgstr "Default URL은 사용자 정보, 쿼리 또는 프래그먼트가 없는 http 또는 https 주소여야 합니다."
+
+msgid "The microphone is in use by another task. Please try again in a moment."
+msgstr "Microphone가 다른 작업에서 사용 중입니다. 잠시 later 다시 시도해 주세요."
+
+msgid "The plugin file was saved, but enabling it failed: {error}"
+msgstr "Plugins 파일은 Save되었지만 활성화에 실패했습니다: {error}"
+
+msgid "The reference WAV file could not be found."
+msgstr "참조 WAV 파일을 찾을 수 없습니다."
+
+msgid "The screen was unlocked."
+msgstr "잠금이 풀렸어요."
+
+msgid "The selected TTS engine could not be initialized, so another engine was used instead. Please check the settings."
+msgstr "선택한 TTS 엔진을 초기화하지 못해 다른 엔진으로 전환되었습니다. Settings을 OK해 주세요."
+
+msgid "The selected microphone could not be found. Please choose the device again."
+msgstr "선택한 Microphonenot found. 장치를 다시 선택해 주세요."
+
+msgid "The selected speaker could not be found. Please choose the device again."
+msgstr "선택한 스피커not found. 장치를 다시 선택해 주세요."
+
+msgid "The skill could not be installed."
+msgstr "스킬을 설치할 수 없었습니다."
+
+msgid "The speaker is in use by another task. Please try again in a moment."
+msgstr "스피커가 다른 작업에서 사용 중입니다. 잠시 later 다시 시도해 주세요."
+
+msgid "The speech recognition test failed: {error}"
+msgstr "speech recognition 시험에 실패했습니다: {error}"
+
+msgid "Theme JSON files can be edited directly in the folder below.\n\n{path}\n\nAfter saving, re-applying in the settings window updates the open UI immediately."
+msgstr "Theme JSON 파일은 아래 폴더에서 직접 수정할 수 있습니다.\n\n{path}\n\nSave later Settings창에서 다시 Apply하면 열린 UI에 즉시 반zero됩니다."
+
+msgid "Theme Save"
+msgstr "Theme Save"
+
+msgid "Theme Save complete"
+msgstr "Theme Save complete"
+
+msgid "Theme folder"
+msgstr "Theme 폴더"
+
+msgid "Theme folder guide"
+msgstr "Theme 폴더 안내"
+
+msgid "Theme name"
+msgstr "Theme 이름"
+
+msgid "Theme preset:"
+msgstr "Theme 프리셋:"
+
+msgid "Theme preview"
+msgstr "Theme 미리보기"
+
+msgid "Theme settings saved.\nThe open UI updates immediately; TTS and workers are not restarted."
+msgstr "Theme Settings이 Save되었습니다.\n열려 있는 UI에는 즉시 반zero되며, TTS나 워커는 다시 시작하지 않습니다."
+
+msgid "Thinking..."
+msgstr "생각 중..."
+
+msgid "This version was skipped."
+msgstr "이 버전을 건너뛰었습니다."
+
+msgid "Time left"
+msgstr "남은 시간"
+
+msgid "Topic "
+msgstr "주제 "
+
+msgid "Turn this skill off"
+msgstr "이 스킬 Off"
+
+msgid "Type a message..."
+msgstr "메시지 Input..."
+
+msgid "UI Theme Settings"
+msgstr "UI Theme Settings"
 
 msgid "UI 테마 설정"
 msgstr "UI 테마 설정"
@@ -480,8 +2075,119 @@ msgstr "UI 테마 설정"
 msgid "URL"
 msgstr "URL"
 
+msgid "Um... this is embarrassing."
+msgstr "으... 쑥스러워요."
+
+msgid "Update"
+msgstr "Update"
+
+msgid "Update OK"
+msgstr "Update OK"
+
+msgid "Update failed"
+msgstr "Update 실패"
+
+msgid "Update 완료"
+msgstr "Update 완료"
+
+msgid "Updating skill..."
+msgstr "스킬 Update 중..."
+
+msgid "Use OpenAI embeddings (sends strategy text externally)"
+msgstr "OpenAI 임베딩 사용 (전략 텍스트 외부 Send)"
+
+msgid "Use an emotion instruction"
+msgstr "감정 지시문 사용"
+
+msgid "Use automatic routing per build type"
+msgstr "Build type별 자동 라우팅 사용"
+
+msgid "Use automatic sensitivity adjustment"
+msgstr "자동 감도 조정 사용"
+
+msgid "Use plugin hot reload"
+msgstr "Plugins 핫 리로드 사용"
+
+msgid "Use the agent dashboard"
+msgstr "에이전트 대시보드 사용"
+
+msgid "Use the local MCP server"
+msgstr "로컬 MCP 서버 사용"
+
+msgid "Use wake words"
+msgstr "Wake word 사용"
+
+msgid "User name"
+msgstr "사용자 이름"
+
+msgid "User plugins"
+msgstr "사용자 Plugins"
+
+msgid "Using remote embeddings"
+msgstr "원격 임베딩 사용 중"
+
+msgid "Verify"
+msgstr "검증"
+
+msgid "Verifying..."
+msgstr "검증 중..."
+
+msgid "Verifying... (default model: {model})"
+msgstr "검증 중... (Default 모델: {model})"
+
+msgid "Version: {version} · Commit: {commit}"
+msgstr "버전 {version} · 커밋 {commit}"
+
+msgid "View Ari's memory"
+msgstr "아리의 기억 보기"
+
+msgid "Voice cloning"
+msgstr "보이스 클로닝"
+
+msgid "Voice cloning failed"
+msgstr "음성 복제 실패"
+
+msgid "Voice name:"
+msgstr "음성:"
+
+msgid "Voice output test"
+msgstr "음성 출력 시험"
+
+msgid "Voice selection:"
+msgstr "목소리 선택:"
+
+msgid "Voice:"
+msgstr "목소리:"
+
+msgid "WAV files (*.wav)"
+msgstr "WAV 파일 (*.wav)"
+
+msgid "WAV 파일 (*.wav)"
+msgstr "WAV 파일 (*.wav)"
+
+msgid "Wake detection is always paused while the screen is locked."
+msgstr "잠금 중 웨이크 감지는 항상 정지됩니다."
+
+msgid "Wake word"
+msgstr "Wake word"
+
+msgid "Wake word list"
+msgstr "Wake word 목록"
+
+msgid "What do you want."
+msgstr "왜 그러세요."
+
+msgid "What is it?"
+msgstr "뭐예요?"
+
+msgid "Whisper (offline)"
+msgstr "Whisper (오프라인)"
+
 msgid "Whisper (오프라인)"
 msgstr "Whisper (오프라인)"
+
+msgid "Whisper Settings"
+msgstr "Whisper Settings"
 
 msgid "Whisper 다운로드"
 msgstr "Whisper 다운로드"
@@ -489,8 +2195,197 @@ msgstr "Whisper 다운로드"
 msgid "Whisper 설정"
 msgstr "Whisper 설정"
 
+msgid "Why?"
+msgstr "왜요?"
+
+msgid "Windows API/레지스트리 접근"
+msgstr "Windows API/레지스트리 접근"
+
+msgid "Yaaawn... it is time for bed."
+msgstr "하아암... 주무실 시간이에요."
+
+msgid "Yaawn~... I am sleepy."
+msgstr "하암~... 졸려요."
+
+msgid "Yes?"
+msgstr "Yes?"
+
+msgid "You can select several models; they are applied to the settings right after installation."
+msgstr "모델은 여러 개 선택할 수 있고, 설치 later 바로 Settings값에 반zero됩니다."
+
+msgid "You must complete additional verification in ElevenLabs to use this voice."
+msgstr "ElevenLabs에서 추가 인증을 마쳐야 이 음성을 쓸 수 있습니다."
+
+msgid "YouTube를 열게요."
+msgstr "YouTube를 열게요."
+
+msgid "YouTube에서 음악이나 zero상을 검색하여 play합니다."
+msgstr "YouTube에서 음악이나 zero상을 검색하여 play합니다."
+
+msgid "[1/4] Save소 이미 존재: {path}"
+msgstr "[1/4] Save소 이미 존재: {path}"
+
+msgid "[1/4] Save소 클론 중..."
+msgstr "[1/4] Save소 클론 중..."
+
+msgid "[1/4] 저장소 이미 존재: {path}"
+msgstr "[1/4] 저장소 이미 존재: {path}"
+
+msgid "[1/4] 저장소 클론 중..."
+msgstr "[1/4] 저장소 클론 중..."
+
+msgid "[Character 성격]"
+msgstr "[Character 성격]"
+
+msgid "[General 모드]"
+msgstr "[General 모드]"
+
+msgid "[Serious] 목표를 아직 달성하지 못했어요. 다시 시도합니다."
+msgstr "[Serious] 목표를 아직 달성하지 못했어요. 다시 시도합니다."
+
+msgid "[Serious] 접근 방법을 바꿔서 다시 시도합니다."
+msgstr "[Serious] 접근 방법을 바꿔서 다시 시도합니다."
+
+msgid "[{cause}] {goal}: {failure}"
+msgstr "[{cause}] {goal}: {failure}"
+
+msgid "[걱정] Error 발생, 수정 중입니다. ({att}/{max})"
+msgstr "[걱정] Error 발생, 수정 중입니다. ({att}/{max})"
+
+msgid "[걱정] 오류 발생, 수정 중입니다. ({att}/{max})"
+msgstr "[걱정] 오류 발생, 수정 중입니다. ({att}/{max})"
+
+msgid "[기억하고 있는 사실]"
+msgstr "[기억하고 있는 사실]"
+
+msgid "[대화 방식]"
+msgstr "[대화 방식]"
+
+msgid "[사용 가능한 스킬]"
+msgstr "[사용 가능한 스킬]"
+
+msgid "[상황] 전{elapsed} · 오늘{today}회 · 연속{continuous} · 시각{time} · 칭찬24h {praise}회"
+msgstr "[상황] 전{elapsed} · 오늘{today}회 · 연속{continuous} · 시각{time} · 칭찬24h {praise}회"
+
+msgid "[실시간 데이터 응답 지침]\n- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n- 정보가 없으면 '검색 결과에서 OK하지 못했습니다'라고 솔직하게 말하세요.\n- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
+msgstr "[실시간 데이터 응답 지침]\n- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n- 정보가 없으면 '검색 결과에서 OK하지 못했습니다'라고 솔직하게 말하세요.\n- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
+
+msgid "[실시간 데이터 응답 지침]\n- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n- 정보가 없으면 '검색 결과에서 확인하지 못했습니다'라고 솔직하게 말하세요.\n- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
+msgstr "[실시간 데이터 응답 지침]\n- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n- 정보가 없으면 '검색 결과에서 확인하지 못했습니다'라고 솔직하게 말하세요.\n- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
+
+msgid "[예시 대사]"
+msgstr "[예시 대사]"
+
+msgid "[일반 모드]"
+msgstr "[일반 모드]"
+
+msgid "[전체화면 모드]"
+msgstr "[전체화면 모드]"
+
+msgid "[진지] 목표를 아직 달성하지 못했어요. 다시 시도합니다."
+msgstr "[진지] 목표를 아직 달성하지 못했어요. 다시 시도합니다."
+
+msgid "[진지] 접근 방법을 바꿔서 다시 시도합니다."
+msgstr "[진지] 접근 방법을 바꿔서 다시 시도합니다."
+
+msgid "[캐릭터 성격]"
+msgstr "[캐릭터 성격]"
+
+msgid "[현재 상황]"
+msgstr "[현재 상황]"
+
+msgid "\n(교훈: {lesson})"
+msgstr "\n(교훈: {lesson})"
+
+msgid "\n--- 원본 파일: {filename} ---\n"
+msgstr "\n--- 원본 파일: {filename} ---\n"
+
+msgid "\n[2/4] 핵심 의존성 설치 중..."
+msgstr "\n[2/4] 핵심 의존성 설치 중..."
+
+msgid "\n[3/4] 모델 다운로드 중 (Fun-CosyVoice3-0.5B, 약 2GB)..."
+msgstr "\n[3/4] 모델 다운로드 중 (Fun-CosyVoice3-0.5B, 약 2GB)..."
+
+msgid "\n[3/4] 모델 이미 존재: {path}"
+msgstr "\n[3/4] 모델 이미 존재: {path}"
+
+msgid "\n[4/4] 세부 의존성 설치 중 (시간이 다소 소요될 수 있습니다)..."
+msgstr "\n[4/4] 세부 의존성 설치 중 (시간이 다소 소요될 수 있습니다)..."
+
+msgid "\n※ 위 사례를 참고하여 동일한 실수를 피하고 검증된 방식을 사용하세요."
+msgstr "\n※ 위 사례를 참고하여 동일한 실수를 피하고 검증된 방식을 사용하세요."
+
+msgid "\n설치 경로: {path}\n"
+msgstr "\n설치 경로: {path}\n"
+
+msgid "api_call.failed"
+msgstr "API 호출 실패: {error}"
+
+msgid "blocking I/O 루프 없는 대기"
+msgstr "blocking I/O 루프 없는 대기"
+
+msgid "calendar.create.failed"
+msgstr "캘린더 생성 실패: {error}"
+
+msgid "calendar.events.failed"
+msgstr "캘린더 조회 실패: {error}"
+
+msgid "computer shutdown"
+msgstr "computer shutdown"
+
+msgid "computer shutdown해줘"
+msgstr "computer shutdown해줘"
+
+msgid "ctypes 저수준 DLL 로드"
+msgstr "ctypes 저수준 DLL 로드"
+
+msgid "ctypes 포인터 캐스팅"
+msgstr "ctypes 포인터 캐스팅"
+
+msgid "curl 명령 대신 mcp_call 도구를 사용하세요."
+msgstr "curl 명령 대신 mcp_call 도구를 사용하세요."
+
 msgid "dict 형식 필요"
 msgstr "dict 형식 필요"
+
+msgid "e.g. 1.0"
+msgstr "예: 1.0"
+
+msgid "e.g. C:/CosyVoice"
+msgstr "예: C:/CosyVoice"
+
+msgid "e.g. My LLM"
+msgstr "예: My LLM"
+
+msgid "e.g. a kind and cute AI assistant"
+msgstr "예) 상냥하고 귀여운 AI 비서"
+
+msgid "e.g. a roleplay where she serves her master"
+msgstr "예) 주인님을 보좌하는 역할극"
+
+msgid "e.g. gpt-4o, llama-3.3-70b-versatile..."
+msgstr "예: gpt-4o, llama-3.3-70b-versatile..."
+
+msgid "e.g. likes cats, nocturnal"
+msgstr "예: 고양이 좋아함, 야행성"
+
+msgid "e.g. music, movies, reading"
+msgstr "예: 음악, zero화, 독서"
+
+msgid "e.g. qwen2.5-coder:7b, mistral-small"
+msgstr "예: qwen2.5-coder:7b, mistral-small"
+
+msgid "email.read.failed"
+msgstr "이메일 조회 실패: {error}"
+
+msgid "email.send.failed"
+msgstr "이메일 발송 실패: {error}"
+
+msgid "failure"
+msgstr "실패"
+
+msgid "glob 패턴 (선택, 예: *.py)"
+msgstr "glob 패턴 (선택, 예: *.py)"
 
 msgid "https://aistudio.google.com/app/apikey"
 msgstr "https://aistudio.google.com/app/apikey"
@@ -513,20 +2408,260 @@ msgstr "https://openrouter.ai/keys"
 msgid "https://platform.openai.com/api-keys"
 msgstr "https://platform.openai.com/api-keys"
 
+msgid "image.generate.failed"
+msgstr "이미지 생성 실패: {error}"
+
+msgid "later"
+msgstr "later"
+
+msgid "old_string은 파일 내 정확히 1회 등장해야 합니다. 현재 {count}회"
+msgstr "old_string은 파일 내 정확히 1회 등장해야 합니다. 현재 {count}회"
+
+msgid "old_string이 비어 있습니다."
+msgstr "old_string이 비어 있습니다."
+
+msgid "ollama.exe 위치 선택"
+msgstr "ollama.exe 위치 선택"
+
+msgid "ollama.exe 파일을 선택하세요."
+msgstr "ollama.exe 파일을 선택하세요."
+
+msgid "path가 비어 있습니다."
+msgstr "path가 비어 있습니다."
+
+msgid "settings.agent.google_auth_cancelled"
+msgstr "연결을 취소했습니다."
+
+msgid "settings.agent.google_auth_failed"
+msgstr "Google 계정 연결 실패: {error}"
+
+msgid "settings.agent.google_auth_success"
+msgstr "Google 계정 인증 완료"
+
+msgid "settings.agent.google_cancel"
+msgstr "취소"
+
+msgid "settings.agent.google_client_id"
+msgstr "Google OAuth Client ID"
+
+msgid "settings.agent.google_client_secret"
+msgstr "Google OAuth Client Secret"
+
+msgid "settings.agent.google_connect"
+msgstr "Google 계정 연결"
+
+msgid "settings.agent.google_connected"
+msgstr "Google 계정 연결됨"
+
+msgid "settings.agent.google_connecting"
+msgstr "Google 계정 연결 중..."
+
+msgid "settings.agent.google_credentials_required"
+msgstr "Client ID와 Client Secret을 입력해 주세요."
+
+msgid "settings.agent.google_disconnect"
+msgstr "연결 해제"
+
+msgid "settings.agent.google_disconnected"
+msgstr "Google 계정 연결 해제 완료"
+
+msgid "settings.agent.google_disconnecting"
+msgstr "Google 계정 연결 해제 중..."
+
+msgid "settings.agent.google_not_connected"
+msgstr "Google 계정 연결 안 됨"
+
+msgid "settings.agent.google_tools"
+msgstr "Google Calendar/Gmail 도구 사용"
+
+msgid "settings.agent.image_generation"
+msgstr "이미지 생성 도구 사용"
+
+msgid "settings.agent.max_subagents"
+msgstr "최대 하위 에이전트 수"
+
+msgid "settings.save_failed"
+msgstr "설정을 저장하지 못했습니다"
+
+msgid "settings.secret_save_failed"
+msgstr "파일 쓰기 권한과 암호화 저장소를 확인해 주세요. 암호화 저장을 지원하지 않는 환경에서는 환경변수 또는 런타임 폴더의 .env로 키를 설정하세요. 입력한 내용은 이 창에 남아 있습니다."
+
+msgid "skills.update_missing_existing"
+msgstr "기존 스킬이 업데이트 결과에 포함되지 않았습니다."
+
+msgid "skills.update_restore_failed"
+msgstr "스킬 복구에 실패했습니다. 보존된 경로를 확인하세요: {path}"
+
+msgid "speech recognition"
+msgstr "speech recognition"
+
+msgid "speech recognition Settings"
+msgstr "speech recognition Settings"
+
+msgid "speech recognition Settings..."
+msgstr "speech recognition Settings..."
+
+msgid "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). steps를 더 작게 분할하거나 비동기 방식을 고려하세요."
+msgstr "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). steps를 더 작게 분할하거나 비동기 방식을 고려하세요."
+
+msgid "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). 단계를 더 작게 분할하거나 비동기 방식을 고려하세요."
+msgstr "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). 단계를 더 작게 분할하거나 비동기 방식을 고려하세요."
+
+msgid "steps를 더 작게 나누고, 각 steps의 사전 조건을 검증하는 로직을 추가하세요."
+msgstr "steps를 더 작게 나누고, 각 steps의 사전 조건을 검증하는 로직을 추가하세요."
+
+msgid "subagent.failed"
+msgstr "하위 에이전트 오류: {error}"
+
+msgid "subagent.goal_required"
+msgstr "하위 목표가 필요합니다."
+
+msgid "subagent.timeout"
+msgstr "하위 에이전트 실행 시간 초과"
+
+msgid "success"
+msgstr "성공"
+
+msgid "thinking"
+msgstr "생각 중..."
+
+msgid "tool.api_call.description"
+msgstr "등록된 외부 REST API를 호출합니다."
+
+msgid "tool.api_call.operation"
+msgstr "작업명"
+
+msgid "tool.api_call.params"
+msgstr "호출 파라미터"
+
+msgid "tool.api_call.service"
+msgstr "서비스명"
+
+msgid "tool.calendar.days"
+msgstr "조회할 일수"
+
+msgid "tool.calendar.id"
+msgstr "캘린더 ID"
+
+msgid "tool.create_calendar_event.description"
+msgstr "Google Calendar에 일정을 생성합니다."
+
+msgid "tool.delegate_to_subagent.description"
+msgstr "독립적인 하위 목표를 별도 에이전트에 위임합니다. 병렬 작업에 유리합니다."
+
+msgid "tool.generate_image.description"
+msgstr "프롬프트로 이미지를 생성하고 파일 경로를 반환합니다."
+
+msgid "tool.get_calendar_events.description"
+msgstr "Google Calendar에서 일정 목록을 가져옵니다."
+
+msgid "tool.image.size_example"
+msgstr "예: 1024x1024"
+
+msgid "tool.max_results"
+msgstr "최대 결과 수"
+
+msgid "tool.read_emails.description"
+msgstr "Gmail 받은 편지함의 최근 메일을 조회합니다."
+
+msgid "tool.send_email.description"
+msgstr "Gmail로 이메일을 발송합니다."
+
+msgid "tool.subagent.context"
+msgstr "하위 에이전트에게 전달할 배경 정보"
+
+msgid "tool.subagent.goal"
+msgstr "하위 목표"
+
+msgid "tool.timeout_seconds"
+msgstr "최대 실행 시간(초)"
+
+msgid "{am_pm} {hour}시"
+msgstr "{am_pm} {hour}시"
+
+msgid "{am_pm} {hour}시 {minute}분"
+msgstr "{am_pm} {hour}시 {minute}분"
+
 msgid "{ampm} {hour}시"
 msgstr "{ampm} {hour}시"
 
 msgid "{ampm} {hour}시 {minute}분"
 msgstr "{ampm} {hour}시 {minute}분"
 
+msgid "{component}: {count}회 활성화, 성공률 {rate}%"
+msgstr "{component}: {count}회 활성화, 성공률 {rate}%"
+
+msgid "{component}: {lift:+d}%p"
+msgstr "{component}: {lift:+d}%p"
+
+msgid "{component}: {status}"
+msgstr "{component}: {status}"
+
 msgid "{count}개 플러그인을 불러왔습니다."
 msgstr "{count}개 플러그인을 불러왔습니다."
+
+msgid "{day_label} 최고 {t_max:.0f}도, 최저 {t_min:.0f}도"
+msgstr "{day_label} 최고 {t_max:.0f}도, 최저 {t_min:.0f}도"
+
+msgid "{field}: {value}"
+msgstr "{field}: {value}"
+
+msgid "{folder} 폴더의 {file}"
+msgstr "{folder} 폴더의 {file}"
+
+msgid "{goal} 작업 실패. {fix}"
+msgstr "{goal} 작업 실패. {fix}"
+
+msgid "{hours}시간"
+msgstr "{hours}시간"
+
+msgid "{kind} {count}회"
+msgstr "{kind} {count}회"
+
+msgid "{label} 타이머가 완료되었습니다."
+msgstr "{label} 타이머가 완료되었습니다."
+
+msgid "{label} 타이머를 Settings했습니다."
+msgstr "{label} 타이머를 Settings했습니다."
+
+msgid "{label} 타이머를 설정했습니다."
+msgstr "{label} 타이머를 설정했습니다."
+
+msgid "{location}{day_label} 날씨는 {status}입니다. "
+msgstr "{location}{day_label} 날씨는 {status}입니다. "
+
+msgid "{mins}분"
+msgstr "{mins}분"
+
+msgid "{mins}분 {secs}초"
+msgstr "{mins}분 {secs}초"
+
+msgid "{minutes}분"
+msgstr "{minutes}분"
+
+msgid "{month}월 {day}일 {time}"
+msgstr "{month}월 {day}일 {time}"
 
 msgid "{name} ({version}) - {description}"
 msgstr "{name} ({version}) - {description}"
 
+msgid "{name} preview"
+msgstr "{name} 미리보기"
+
+msgid "{name} updated"
+msgstr "{name} Update 완료"
+
 msgid "{name} v{version} [{status}] ({count} installs)\n{desc}"
 msgstr "{name} v{version} [{status}] ({count} installs)\n{desc}"
+
+msgid "{name} v{version} [{status}] ({count} installs)\n{desc}"
+msgstr "{name} v{version} [{status}] ({count} installs)\n{desc}"
+
+msgid "{name} · success rate {rate} · last used: {last_used} · status: {status}"
+msgstr "{name} · 성공률 {rate} · 마지막 사용: {last_used} · 상태: {status}"
+
+msgid "{name} · 성공률 {rate} · 마지막 사용: {last_used} · 상태: {status}"
+msgstr "{name} · 성공률 {rate} · 마지막 사용: {last_used} · 상태: {status}"
 
 msgid "{name} 미리보기"
 msgstr "{name} 미리보기"
@@ -534,8 +2669,29 @@ msgstr "{name} 미리보기"
 msgid "{name} 설치 중..."
 msgstr "{name} 설치 중..."
 
+msgid "{name} 스킬 실행을 위해 에이전트 모드로 전환합니다."
+msgstr "{name} 스킬 실행을 위해 에이전트 모드로 전환합니다."
+
+msgid "{name} 스킬을 비활성화했어요."
+msgstr "{name} 스킬을 비활성화했어요."
+
+msgid "{name} 스킬을 삭제할까요?"
+msgstr "{name} 스킬을 삭제할까요?"
+
+msgid "{name} 업데이트 완료"
+msgstr "{name} 업데이트 완료"
+
 msgid "{name} 플러그인을 설치할까요?"
 msgstr "{name} 플러그인을 설치할까요?"
+
+msgid "{n} h"
+msgstr "{n}시간"
+
+msgid "{n} min"
+msgstr "{n}분"
+
+msgid "{n} s"
+msgstr "{n}초"
 
 msgid "{n}분"
 msgstr "{n}분"
@@ -546,8 +2702,53 @@ msgstr "{n}시간"
 msgid "{n}초"
 msgstr "{n}초"
 
+msgid "{prefix} {mins}분 {secs}초 남았습니다."
+msgstr "{prefix} {mins}분 {secs}초 남았습니다."
+
+msgid "{prefix} {mins}분 남았습니다."
+msgstr "{prefix} {mins}분 남았습니다."
+
+msgid "{prefix} {secs}초 남았습니다."
+msgstr "{prefix} {secs}초 남았습니다."
+
+msgid "{query} YouTube에서 검색할게요."
+msgstr "{query} YouTube에서 검색할게요."
+
+msgid "{query} 유튜브에서 검색할게요."
+msgstr "{query} 유튜브에서 검색할게요."
+
+msgid "{rate}%"
+msgstr "{rate}%"
+
+msgid "{seconds} s"
+msgstr "{seconds}초"
+
+msgid "{seconds}초"
+msgstr "{seconds}초"
+
+msgid "{secs}초"
+msgstr "{secs}초"
+
 msgid "{time}에 컴퓨터를 재시작할게요."
 msgstr "{time}에 컴퓨터를 재시작할게요."
+
+msgid "{time}에 컴퓨터를 종료할게요."
+msgstr "{time}에 컴퓨터를 종료할게요."
+
+msgid "{when}에 컴퓨터 꺼줘"
+msgstr "{when}에 컴퓨터 꺼줘"
+
+msgid "{when}에 컴퓨터 재시작해줘"
+msgstr "{when}에 컴퓨터 재시작해줘"
+
+msgid "→ {command}"
+msgstr "→ {command}"
+
+msgid "⏰ {command}"
+msgstr "⏰ {command}"
+
+msgid "▶ Immediate run requested"
+msgstr "▶ 즉시 실행 요청됨"
 
 msgid "▶ 즉시 실행 요청됨"
 msgstr "▶ 즉시 실행 요청됨"
@@ -555,8 +2756,29 @@ msgstr "▶ 즉시 실행 요청됨"
 msgid "⚠ API Key를 입력하세요."
 msgstr "⚠ API Key를 입력하세요."
 
+msgid "⚠ Please enter the API key."
+msgstr "⚠ API Key를 Please enter."
+
+msgid "⚠ The pretrained_models folder is missing. Please check the path."
+msgstr "⚠ pretrained_models 폴더가 없습니다. 경로를 OK하세요."
+
 msgid "⚠ pretrained_models 폴더가 없습니다. 경로를 확인하세요."
 msgstr "⚠ pretrained_models 폴더가 없습니다. 경로를 확인하세요."
+
+msgid "⚠️  위험한 작업이 감지되었습니다"
+msgstr "⚠️  위험한 작업이 감지되었습니다"
+
+msgid "⚠️ Please enter a name, a goal, and a schedule."
+msgstr "⚠️ 이름·목표·스케줄을 모두 Input해주세요."
+
+msgid "⚠️ Registration failed: {error}"
+msgstr "⚠️ 등록 실패: {error}"
+
+msgid "⚠️ Saving failed: {error}"
+msgstr "⚠️ Save 실패: {error}"
+
+msgid "⚠️ The scheduler is not connected."
+msgstr "⚠️ 스케줄러가 연결되지 않았습니다."
 
 msgid "⚠️ 등록 실패: {error}"
 msgstr "⚠️ 등록 실패: {error}"
@@ -564,14 +2786,29 @@ msgstr "⚠️ 등록 실패: {error}"
 msgid "⚠️ 스케줄러가 연결되지 않았습니다."
 msgstr "⚠️ 스케줄러가 연결되지 않았습니다."
 
+msgid "⚠️ 위험한 작업 OK"
+msgstr "⚠️ 위험한 작업 OK"
+
+msgid "⚠️ 위험한 작업 확인"
+msgstr "⚠️ 위험한 작업 확인"
+
 msgid "⚠️ 이름·목표·스케줄을 모두 입력해주세요."
 msgstr "⚠️ 이름·목표·스케줄을 모두 입력해주세요."
 
 msgid "⚠️ 저장 실패: {error}"
 msgstr "⚠️ 저장 실패: {error}"
 
+msgid "✅ '{name}' registered"
+msgstr "✅ '{name}' 등록 완료"
+
 msgid "✅ '{name}' 등록 완료"
 msgstr "✅ '{name}' 등록 완료"
+
+msgid "✅ Last: {time}  |  {result}"
+msgstr "✅ 마지막: {time}  |  {result}"
+
+msgid "✅ Save complete"
+msgstr "✅ Save complete"
 
 msgid "✅ 마지막: {time}  |  {result}"
 msgstr "✅ 마지막: {time}  |  {result}"
@@ -579,11 +2816,32 @@ msgstr "✅ 마지막: {time}  |  {result}"
 msgid "✅ 저장 완료"
 msgstr "✅ 저장 완료"
 
+msgid "✏️ 커스텀 메시지 관리"
+msgstr "✏️ 커스텀 메시지 관리"
+
+msgid "✓ Connected to {model}"
+msgstr "✓ {model} 연결 성공"
+
+msgid "✓ CosyVoice3 installed"
+msgstr "✓ CosyVoice3 설치 완료"
+
 msgid "✓ CosyVoice3 설치 완료"
 msgstr "✓ CosyVoice3 설치 완료"
 
+msgid "✓ Detected: {path}"
+msgstr "✓ 감지됨: {path}"
+
+msgid "✓ Ollama installed ({models})"
+msgstr "✓ Ollama 설치 완료 ({models})"
+
 msgid "✓ Ollama 설치 완료 ({models})"
 msgstr "✓ Ollama 설치 완료 ({models})"
+
+msgid "✓ Valid CosyVoice path"
+msgstr "✓ 유효한 CosyVoice 경로"
+
+msgid "✓ {model} 연결 성공"
+msgstr "✓ {model} 연결 성공"
 
 msgid "✓ 감지됨: {path}"
 msgstr "✓ 감지됨: {path}"
@@ -591,20 +2849,134 @@ msgstr "✓ 감지됨: {path}"
 msgid "✓ 유효한 CosyVoice 경로"
 msgstr "✓ 유효한 CosyVoice 경로"
 
+msgid "✗ API Key가 유효하지 않습니다. 키를 확인해 주세요."
+msgstr "✗ API Key가 유효하지 않습니다. 키를 확인해 주세요."
+
+msgid "✗ Auto-detection failed — please enter the path manually."
+msgstr "✗ 자동 감지 실패 — 경로를 직접 Please enter."
+
+msgid "✗ CosyVoice3 installation failed: {error}"
+msgstr "✗ CosyVoice3 설치 실패: {error}"
+
 msgid "✗ CosyVoice3 설치 실패: {error}"
 msgstr "✗ CosyVoice3 설치 실패: {error}"
+
+msgid "✗ Could not connect to the Ollama server. Please check whether Ollama is running."
+msgstr "✗ Ollama 서버에 연결할 수 없어요. Ollama 실행 여부를 OK하세요."
+
+msgid "✗ Ollama installation failed: {error}"
+msgstr "✗ Ollama 설치 실패: {error}"
+
+msgid "✗ Ollama 서버에 연결할 수 없어요. Ollama 실행 여부를 확인하세요."
+msgstr "✗ Ollama 서버에 연결할 수 없어요. Ollama 실행 여부를 확인하세요."
 
 msgid "✗ Ollama 설치 실패: {error}"
 msgstr "✗ Ollama 설치 실패: {error}"
 
+msgid "✗ The API key is not valid. Please check the key."
+msgstr "✗ API Key가 유효하지 않습니다. 키를 OK해 주세요."
+
+msgid "✗ The model '{model}' was not found in {label}. Please check the model name."
+msgstr "✗ 모델 '{model}'을(를) {label}에서 찾을 수 없습니다. 모델명을 OK해 주세요."
+
+msgid "✗ 모델 '{model}'을(를) {label}에서 찾을 수 없습니다. 모델명을 확인해 주세요."
+msgstr "✗ 모델 '{model}'을(를) {label}에서 찾을 수 없습니다. 모델명을 확인해 주세요."
+
 msgid "✗ 자동 감지 실패 — 경로를 직접 입력하세요."
 msgstr "✗ 자동 감지 실패 — 경로를 직접 입력하세요."
+
+msgid "✨ CosyVoice3 Installation complete!"
+msgstr "✨ CosyVoice3 Installation complete!"
+
+msgid "✨ CosyVoice3 설치가 완료되었습니다!"
+msgstr "✨ CosyVoice3 설치가 완료되었습니다!"
+
+msgid "가라앉음"
+msgstr "가라앉음"
+
+msgid "간결하게 (한두 문장)"
+msgstr "간결하게 (한두 문장)"
+
+msgid "간단한 명령을 로컬에서 바로 처리"
+msgstr "간단한 명령을 로컬에서 바로 처리"
+
+msgid "감정 지시문 사용"
+msgstr "감정 지시문 사용"
+
+msgid "감정:"
+msgstr "감정:"
+
+msgid "강제 파일 삭제"
+msgstr "강제 파일 삭제"
+
+msgid "강한 눈"
+msgstr "강한 눈"
+
+msgid "강한 비"
+msgstr "강한 비"
+
+msgid "강한 소나기"
+msgstr "강한 소나기"
+
+msgid "같은 명령을 방금 들어서 무시했어요."
+msgstr "같은 명령을 방금 들어서 무시했어요."
+
+msgid "개발자 설정"
+msgstr "개발자 설정"
+
+msgid "개선 제안: "
+msgstr "개선 제안: "
+
+msgid "개천절이에요!"
+msgstr "개천절이에요!"
+
+msgid "거절"
+msgstr "거절"
+
+msgid "걱정 마세요!"
+msgstr "걱정 마세요!"
 
 msgid "검색"
 msgstr "검색"
 
+msgid "검색 Error: {error}"
+msgstr "검색 Error: {error}"
+
+msgid "검색 types (선택)"
+msgstr "검색 types (선택)"
+
+msgid "검색 결과가 없습니다."
+msgstr "검색 결과가 없습니다."
+
+msgid "검색 날짜 형식은 ISO 8601이어야 해요."
+msgstr "검색 날짜 형식은 ISO 8601이어야 해요."
+
+msgid "검색 시작일 또는 시각 (ISO 8601, 선택)"
+msgstr "검색 시작일 또는 시각 (ISO 8601, 선택)"
+
+msgid "검색 오류: {error}"
+msgstr "검색 오류: {error}"
+
+msgid "검색 종류 (선택)"
+msgstr "검색 종류 (선택)"
+
+msgid "검색 중 Error 발생: {error}"
+msgstr "검색 중 Error 발생: {error}"
+
+msgid "검색 중 오류 발생: {error}"
+msgstr "검색 중 오류 발생: {error}"
+
 msgid "검색어"
 msgstr "검색어"
+
+msgid "검색어를 Input해 주세요."
+msgstr "검색어를 Input해 주세요."
+
+msgid "검색어를 입력해 주세요."
+msgstr "검색어를 입력해 주세요."
+
+msgid "검색할 정규식"
+msgstr "검색할 정규식"
 
 msgid "검색할 제목"
 msgstr "검색할 제목"
@@ -612,23 +2984,122 @@ msgstr "검색할 제목"
 msgid "검증"
 msgstr "검증"
 
+msgid "검증 steps가 실패하여 Save소 작업을 완료하지 못했습니다."
+msgstr "검증 steps가 실패하여 Save소 작업을 완료하지 못했습니다."
+
+msgid "검증 steps는 있었지만 성공 신호가 명확하지 않아 Save소 작업을 완료로 볼 수 없습니다."
+msgstr "검증 steps는 있었지만 성공 신호가 명확하지 않아 Save소 작업을 완료로 볼 수 없습니다."
+
+msgid "검증 단계가 실패하여 저장소 작업을 완료하지 못했습니다."
+msgstr "검증 단계가 실패하여 저장소 작업을 완료하지 못했습니다."
+
+msgid "검증 단계는 있었지만 성공 신호가 명확하지 않아 저장소 작업을 완료로 볼 수 없습니다."
+msgstr "검증 단계는 있었지만 성공 신호가 명확하지 않아 저장소 작업을 완료로 볼 수 없습니다."
+
+msgid "검증 로그에 실패 신호가 남아 있어 Save소 작업이 완료되지 않았습니다."
+msgstr "검증 로그에 실패 신호가 남아 있어 Save소 작업이 완료되지 않았습니다."
+
+msgid "검증 로그에 실패 신호가 남아 있어 저장소 작업이 완료되지 않았습니다."
+msgstr "검증 로그에 실패 신호가 남아 있어 저장소 작업이 완료되지 않았습니다."
+
 msgid "검증 중..."
 msgstr "검증 중..."
 
 msgid "검증 중... (기본 모델: {model})"
 msgstr "검증 중... (기본 모델: {model})"
 
+msgid "검증할 실행 결과가 없습니다."
+msgstr "검증할 실행 결과가 없습니다."
+
+msgid "게임 모드 OFF. TTS 복원 중..."
+msgstr "게임 모드 OFF. TTS 복원 중..."
+
+msgid "게임 모드 ON. GPU 메모리 해제했습니다."
+msgstr "게임 모드 ON. GPU 메모리 해제했습니다."
+
+msgid "게임 모드 해제. 원래 TTS로 복원되었습니다."
+msgstr "게임 모드 해제. 원래 TTS로 복원되었습니다."
+
+msgid "게임 하세요? 저도 보고 싶어요!"
+msgstr "게임 하세요? 저도 보고 싶어요!"
+
+msgid "게임·영상 앱에서 게임 모드 자동 적용"
+msgstr "게임·영상 앱에서 게임 모드 자동 적용"
+
 msgid "결과 수"
 msgstr "결과 수"
+
+msgid "계속 집중하고 계시네요. 잠깐 쉬어 가는 건 어때요?||오래 일하셨네요. 잠깐 몸을 풀어봐요."
+msgstr "계속 집중하고 계시네요. 잠깐 쉬어 가는 건 어때요?||오래 일하셨네요. 잠깐 몸을 풀어봐요."
+
+msgid "계속 칭찬해 주셔서 기분이 좋아요.||칭찬을 들으니 더 힘이 나요."
+msgstr "계속 칭찬해 주셔서 기분이 좋아요.||칭찬을 들으니 더 힘이 나요."
+
+msgid "계획 수립에 실패했습니다."
+msgstr "계획 수립에 실패했습니다."
+
+msgid "고급: 동작 모드"
+msgstr "고급: 동작 모드"
 
 msgid "곧 실행"
 msgstr "곧 실행"
 
+msgid "곧 확인하겠습니다."
+msgstr "곧 확인하겠습니다."
+
+msgid "공통 TTS 설정"
+msgstr "공통 TTS 설정"
+
+msgid "과부하예요, 조심해요!"
+msgstr "과부하예요, 조심해요!"
+
+msgid "관리자 권한 검증 없이 레지스트리 접근"
+msgstr "관리자 권한 검증 없이 레지스트리 접근"
+
+msgid "관리자 권한 없이 접근 가능한 경로를 먼저 OK하거나, 권한 요청 steps를 선행하세요."
+msgstr "관리자 권한 없이 접근 가능한 경로를 먼저 OK하거나, 권한 요청 steps를 선행하세요."
+
+msgid "관리자 권한 없이 접근 가능한 경로를 먼저 확인하거나, 권한 요청 단계를 선행하세요."
+msgstr "관리자 권한 없이 접근 가능한 경로를 먼저 확인하거나, 권한 요청 단계를 선행하세요."
+
+msgid "관심사"
+msgstr "관심사"
+
 msgid "관심사 (쉼표로 구분)"
 msgstr "관심사 (쉼표로 구분)"
 
+msgid "광복절이에요! 대한민국 만세~"
+msgstr "광복절이에요! 대한민국 만세~"
+
+msgid "괜찮습니다!"
+msgstr "괜찮습니다!"
+
+msgid "교체할 원본 텍스트 (파일 내 고유해야 함)"
+msgstr "교체할 원본 텍스트 (파일 내 고유해야 함)"
+
+msgid "교훈이 없습니다."
+msgstr "교훈이 없습니다."
+
+msgid "구름 많음"
+msgstr "구름 많음"
+
+msgid "권장 검색어: {query}"
+msgstr "권장 검색어: {query}"
+
 msgid "권장 모델 선택:"
 msgstr "권장 모델 선택:"
+
+msgid "권한 없는 시스템 경로 직접 쓰기"
+msgstr "권한 없는 시스템 경로 직접 쓰기"
+
+msgid "그냥 두세요."
+msgstr "그냥 두세요."
+
+msgid "그만해요."
+msgstr "그만해요."
+
+msgid "근거: {evidence}"
+msgstr "근거: {evidence}"
 
 msgid "글꼴 배율 (0.9 ~ 1.35):"
 msgstr "글꼴 배율 (0.9 ~ 1.35):"
@@ -639,8 +3110,50 @@ msgstr "글꼴 패밀리 재정의 (선택):"
 msgid "기록 없음"
 msgstr "기록 없음"
 
+msgid "기록만 (진단용)"
+msgstr "기록만 (진단용)"
+
+msgid "기본 URL"
+msgstr "기본 URL"
+
+msgid "기본 URL은 사용자 정보, 쿼리 또는 프래그먼트가 없는 http 또는 https 주소여야 합니다."
+msgstr "기본 URL은 사용자 정보, 쿼리 또는 프래그먼트가 없는 http 또는 https 주소여야 합니다."
+
+msgid "기본 overwrite"
+msgstr "기본 overwrite"
+
+msgid "기본 모델을 입력하세요."
+msgstr "기본 모델을 입력하세요."
+
+msgid "기본 브라우저로 웹사이트를 열었습니다: {url}"
+msgstr "기본 브라우저로 웹사이트를 열었습니다: {url}"
+
+msgid "기본 음성"
+msgstr "기본 음성"
+
 msgid "기본 정보"
 msgstr "기본 정보"
+
+msgid "기본값으로 되돌리기"
+msgstr "기본값으로 되돌리기"
+
+msgid "기억 검색 types가 올바르지 않아요."
+msgstr "기억 검색 types가 올바르지 않아요."
+
+msgid "기억 검색 결과:\n{results}"
+msgstr "기억 검색 결과:\n{results}"
+
+msgid "기억 검색 결과:\n{results}"
+msgstr "기억 검색 결과:\n{results}"
+
+msgid "기억 검색 결과가 없어요."
+msgstr "기억 검색 결과가 없어요."
+
+msgid "기억 검색 종류가 올바르지 않아요."
+msgstr "기억 검색 종류가 올바르지 않아요."
+
+msgid "기억 삭제"
+msgstr "기억 삭제"
 
 msgid "기억 상태"
 msgstr "기억 상태"
@@ -648,14 +3161,98 @@ msgstr "기억 상태"
 msgid "기억 시스템을 불러오지 못했습니다."
 msgstr "기억 시스템을 불러오지 못했습니다."
 
+msgid "기억 중인 사실 {count}개"
+msgstr "기억 중인 사실 {count}개"
+
+msgid "기억 추출 모델 (선택):"
+msgstr "기억 추출 모델 (선택):"
+
+msgid "기억 추출 제공자 (선택):"
+msgstr "기억 추출 제공자 (선택):"
+
+msgid "기억 항목 이름"
+msgstr "기억 항목 이름"
+
+msgid "기억 항목 이름과 내용을 Input해 주세요."
+msgstr "기억 항목 이름과 내용을 Input해 주세요."
+
+msgid "기억 항목 이름과 내용을 입력해 주세요."
+msgstr "기억 항목 이름과 내용을 입력해 주세요."
+
+msgid "기억, 관련 Conversation history, 맞는 선호를 삭제합니다."
+msgstr "기억, 관련 Conversation history, 맞는 선호를 삭제합니다."
+
+msgid "기억, 관련 대화 기록, 맞는 선호를 삭제합니다."
+msgstr "기억, 관련 대화 기록, 맞는 선호를 삭제합니다."
+
+msgid "기억·관련 Conversation history·맞는 선호 삭제: {fact}"
+msgstr "기억·관련 Conversation history·맞는 선호 삭제: {fact}"
+
+msgid "기억·관련 대화 기록·맞는 선호 삭제: {fact}"
+msgstr "기억·관련 대화 기록·맞는 선호 삭제: {fact}"
+
+msgid "기억나는 최근 기록은 {records}"
+msgstr "기억나는 최근 기록은 {records}"
+
+msgid "기억을 Save하지 못했어요."
+msgstr "기억을 Save하지 못했어요."
+
+msgid "기억을 삭제하지 못했어요."
+msgstr "기억을 삭제하지 못했어요."
+
+msgid "기억을 잊었어요: {key}"
+msgstr "기억을 잊었어요: {key}"
+
+msgid "기억을 저장하지 못했어요."
+msgstr "기억을 저장하지 못했어요."
+
+msgid "기억한 사실, 대화, 일일 요약을 검색합니다."
+msgstr "기억한 사실, 대화, 일일 요약을 검색합니다."
+
+msgid "기억할 내용"
+msgstr "기억할 내용"
+
+msgid "기억했어요: {value}"
+msgstr "기억했어요: {value}"
+
+msgid "기온은 {temp:.0f}도"
+msgstr "기온은 {temp:.0f}도"
+
+msgid "기타"
+msgstr "기타"
+
+msgid "깔끔하게요~"
+msgstr "깔끔하게요~"
+
 msgid "꺼"
 msgstr "꺼"
+
+msgid "꺼지기 전에 충전해요!"
+msgstr "꺼지기 전에 충전해요!"
+
+msgid "꺼짐"
+msgstr "꺼짐"
+
+msgid "꾸벅..."
+msgstr "꾸벅..."
 
 msgid "끄"
 msgstr "끄"
 
+msgid "끄기"
+msgstr "끄기"
+
+msgid "끝"
+msgstr "끝"
+
+msgid "끝 줄 (선택)"
+msgstr "끝 줄 (선택)"
+
 msgid "나"
 msgstr "나"
+
+msgid "나무 심어요~"
+msgstr "나무 심어요~"
 
 msgid "나중에"
 msgstr "나중에"
@@ -663,14 +3260,131 @@ msgstr "나중에"
 msgid "날씨 정보를 가져오는 데 실패했습니다."
 msgstr "날씨 정보를 가져오는 데 실패했습니다."
 
+msgid "날씨 정보를 가져오는 중 Error가 발생했습니다."
+msgstr "날씨 정보를 가져오는 중 Error가 발생했습니다."
+
+msgid "날씨 정보를 가져오는 중 오류가 발생했습니다."
+msgstr "날씨 정보를 가져오는 중 오류가 발생했습니다."
+
+msgid "날씨를 OK했습니다. {result}"
+msgstr "날씨를 OK했습니다. {result}"
+
+msgid "날씨를 확인했습니다. {result}"
+msgstr "날씨를 확인했습니다. {result}"
+
+msgid "남은"
+msgstr "남은"
+
 msgid "남은 시간"
 msgstr "남은 시간"
+
+msgid "내일"
+msgstr "내일"
+
+msgid "내일은 크리스마스예요!"
+msgstr "내일은 크리스마스예요!"
+
+msgid "너무 오래 붙잡고 계셨어요. 조금 쉬어요.||잠깐 쉬어도 괜찮아요. 몸을 돌봐주세요."
+msgstr "너무 오래 붙잡고 계셨어요. 조금 쉬어요.||잠깐 쉬어도 괜찮아요. 몸을 돌봐주세요."
+
+msgid "네, 무엇을 도와드릴까요?"
+msgstr "네, 무엇을 도와드릴까요?"
+
+msgid "네, 주인님?"
+msgstr "네, 주인님?"
+
+msgid "네?"
+msgstr "네?"
+
+msgid "녹음한 소리를 선택한 스피커로 재생했습니다."
+msgstr "녹음한 소리를 선택한 스피커로 재생했습니다."
+
+msgid "누구랑 얘기 중이에요?"
+msgstr "누구랑 얘기 중이에요?"
+
+msgid "누르고 있는 동안 듣기 (push-to-talk)"
+msgstr "누르고 있는 동안 듣기 (push-to-talk)"
+
+msgid "눈"
+msgstr "눈"
+
+msgid "늦은 시간까지 수고 많으셨어요. 이제 쉬어도 좋아요.||오늘은 여기까지 하고 푹 쉬어요."
+msgstr "늦은 시간까지 수고 많으셨어요. 이제 쉬어도 좋아요.||오늘은 여기까지 하고 푹 쉬어요."
+
+msgid "다른 작업이 진행 중입니다."
+msgstr "다른 작업이 진행 중입니다."
+
+msgid "다시 오셨네요, 반가워요.||돌아오셔서 기뻐요. 같이 이어서 해봐요."
+msgstr "다시 오셨네요, 반가워요.||돌아오셔서 기뻐요. 같이 이어서 해봐요."
+
+msgid "다시 오셨네요.||돌아오셨군요. 어디부터 이어갈까요?"
+msgstr "다시 오셨네요.||돌아오셨군요. 어디부터 이어갈까요?"
+
+msgid "다시 찾기"
+msgstr "다시 찾기"
+
+msgid "다시 한번 말씀해 주시겠어요?"
+msgstr "다시 한번 말씀해 주시겠어요?"
+
+msgid "다운로드 완료 파일을 찾지 못했습니다."
+msgstr "다운로드 완료 파일을 찾지 못했습니다."
 
 msgid "다운로드 중..."
 msgstr "다운로드 중..."
 
+msgid "다음 steps:"
+msgstr "다음 steps:"
+
+msgid "다음 단계:"
+msgstr "다음 단계:"
+
+msgid "다음 앱 시작 때 적용됩니다."
+msgstr "다음 앱 시작 때 적용됩니다."
+
+msgid "다음 일정은 {next_task}예요."
+msgstr "다음 일정은 {next_task}예요."
+
 msgid "다음 추천 "
 msgstr "다음 추천 "
+
+msgid "다음 코드가 실패했습니다:\n{content}\nError: {error}\n기능을 유지하되 max한 단순하게 다시 작성하세요. 표준 라이브러리만 사용하고, try/except 추가 금지."
+msgstr "다음 코드가 실패했습니다:\n{content}\nError: {error}\n기능을 유지하되 max한 단순하게 다시 작성하세요. 표준 라이브러리만 사용하고, try/except 추가 금지."
+
+msgid "다음 코드가 실패했습니다:\n{content}\n오류: {error}\n기능을 유지하되 최대한 단순하게 다시 작성하세요. 표준 라이브러리만 사용하고, try/except 추가 금지."
+msgstr "다음 코드가 실패했습니다:\n{content}\n오류: {error}\n기능을 유지하되 최대한 단순하게 다시 작성하세요. 표준 라이브러리만 사용하고, try/except 추가 금지."
+
+msgid "다정하게 말해 주셔서 고마워요.||칭찬해 주셔서 힘이 나요."
+msgstr "다정하게 말해 주셔서 고마워요.||칭찬해 주셔서 힘이 나요."
+
+msgid "단계를 더 작게 나누고, 각 단계의 사전 조건을 검증하는 로직을 추가하세요."
+msgstr "단계를 더 작게 나누고, 각 단계의 사전 조건을 검증하는 로직을 추가하세요."
+
+msgid "단축키 설정"
+msgstr "단축키 설정"
+
+msgid "단축키·클릭으로 듣기"
+msgstr "단축키·클릭으로 듣기"
+
+msgid "단축키가 다른 앱에서 사용 중이면 등록되지 않습니다. 앱은 계속 실행됩니다."
+msgstr "단축키가 다른 앱에서 사용 중이면 등록되지 않습니다. 앱은 계속 실행됩니다."
+
+msgid "닫기"
+msgstr "닫기"
+
+msgid "대기 시간을 늘리거나 비동기 폴링 방식으로 전환하고, 재시도 횟수를 명시하세요."
+msgstr "대기 시간을 늘리거나 비동기 폴링 방식으로 전환하고, 재시도 횟수를 명시하세요."
+
+msgid "대상 경로가 존재하지 않습니다."
+msgstr "대상 경로가 존재하지 않습니다."
+
+msgid "대상 파일 glob (예: *.py)"
+msgstr "대상 파일 glob (예: *.py)"
+
+msgid "대체로 맑음"
+msgstr "대체로 맑음"
+
+msgid "대화 검색"
+msgstr "대화 검색"
 
 msgid "대화 주제"
 msgstr "대화 주제"
@@ -681,23 +3395,98 @@ msgstr "대화 지침:"
 msgid "대화를 이어가면 이곳에 요약이 표시됩니다."
 msgstr "대화를 이어가면 이곳에 요약이 표시됩니다."
 
+msgid "데이터 외부 전송/수정"
+msgstr "데이터 외부 전송/수정"
+
+msgid "데이터를 가져오지 못했습니다: {error}"
+msgstr "데이터를 가져오지 못했습니다: {error}"
+
+msgid "도구 실행 감사 로그 기록"
+msgstr "도구 실행 감사 로그 기록"
+
+msgid "도구가 완료됐지만 반환값이 없습니다."
+msgstr "도구가 완료됐지만 반환값이 없습니다."
+
+msgid "도구에 전달할 파라미터 (JSON 객체)"
+msgstr "도구에 전달할 파라미터 (JSON 객체)"
+
 msgid "도시 또는 지역"
 msgstr "도시 또는 지역"
+
+msgid "도움이 되었다니 기쁩니다!"
+msgstr "도움이 되었다니 기쁩니다!"
+
+msgid "돌아오셨네요! 부재 중 완료 {completed}건, 대기 {waiting}건이에요."
+msgstr "돌아오셨네요! 부재 중 완료 {completed}건, 대기 {waiting}건이에요."
+
+msgid "돌아오셨네요! 부재 중 완료된 작업은 없어요."
+msgstr "돌아오셨네요! 부재 중 완료된 작업은 없어요."
+
+msgid "돌아오셨네요. 천천히 다시 시작해요.||기다리고 있었어요. 무리하지 말고 해봐요."
+msgstr "돌아오셨네요. 천천히 다시 시작해요.||기다리고 있었어요. 무리하지 말고 해봐요."
+
+msgid "동일 실패 패턴 조건 변경 없이 반복"
+msgstr "동일 실패 패턴 조건 변경 없이 반복"
+
+msgid "동일한 대기 시간 단순 재시도"
+msgstr "동일한 대기 시간 단순 재시도"
 
 msgid "뒤"
 msgstr "뒤"
 
+msgid "듣기 방식:"
+msgstr "듣기 방식:"
+
+msgid "등록되지 않은 도구라 실행하지 못했습니다."
+msgstr "등록되지 않은 도구라 실행하지 못했습니다."
+
+msgid "등록된 메시지 목록"
+msgstr "등록된 메시지 목록"
+
 msgid "등록된 예약 작업이 없습니다."
 msgstr "등록된 예약 작업이 없습니다."
 
+msgid "디렉터리가 아닙니다."
+msgstr "디렉터리가 아닙니다."
+
+msgid "디렉토리 내 파일/폴더 목록을 반환합니다."
+msgstr "디렉토리 내 파일/폴더 목록을 반환합니다."
+
+msgid "디스크 파티션 조작"
+msgstr "디스크 파티션 조작"
+
+msgid "디스크 포맷"
+msgstr "디스크 포맷"
+
+msgid "따뜻한 말씀 고마워요.||계속 응원해 주셔서 고마워요."
+msgstr "따뜻한 말씀 고마워요.||계속 응원해 주셔서 고마워요."
+
+msgid "램이 부족해요!"
+msgstr "램이 부족해요!"
+
+msgid "레지스트리 삭제"
+msgstr "레지스트리 삭제"
+
 msgid "로그 파일 폴더 열기"
 msgstr "로그 파일 폴더 열기"
+
+msgid "로그인 완료를 감지하지 못했습니다."
+msgstr "로그인 완료를 감지하지 못했습니다."
+
+msgid "로그인 자동화"
+msgstr "로그인 자동화"
+
+msgid "로딩이 완료되었습니다. 이제 대화할 수 있어요!"
+msgstr "로딩이 완료되었습니다. 이제 대화할 수 있어요!"
 
 msgid "로컬 (CosyVoice3)"
 msgstr "로컬 (CosyVoice3)"
 
 msgid "로컬 LLM 엔진 설치와 모델 다운로드를 한 번에 진행합니다."
 msgstr "로컬 LLM 엔진 설치와 모델 다운로드를 한 번에 진행합니다."
+
+msgid "로컬 MCP 서버 사용"
+msgstr "로컬 MCP 서버 사용"
 
 msgid "로컬 TTS 엔진 CosyVoice3를 설치하시겠습니까?\n\n• 설치 시: 고품질 한국어 TTS 사용 가능 (GPU 권장, 약 2~5GB)\n• 미설치 시: Fish Audio API TTS 사용 (인터넷 필요)\n\n나중에 설치하려면 설정의 TTS 페이지에서 설치할 수 있습니다."
 msgstr "로컬 TTS 엔진 CosyVoice3를 설치하시겠습니까?\n\n• 설치 시: 고품질 한국어 TTS 사용 가능 (GPU 권장, 약 2~5GB)\n• 미설치 시: Fish Audio API TTS 사용 (인터넷 필요)\n\n나중에 설치하려면 설정의 TTS 페이지에서 설치할 수 있습니다."
@@ -707,6 +3496,27 @@ msgstr "로컬 TTS 엔진과 기본 모델을 설치하고 설정 경로를 자�
 
 msgid "로컬 설치"
 msgstr "로컬 설치"
+
+msgid "로컬 임베딩 모델 다운로드 중: {progress}%"
+msgstr "로컬 임베딩 모델 다운로드 중: {progress}%"
+
+msgid "로컬 임베딩 모델 불러오는 중"
+msgstr "로컬 임베딩 모델 불러오는 중"
+
+msgid "로컬 임베딩 모델: 다운로드 대기"
+msgstr "로컬 임베딩 모델: 다운로드 대기"
+
+msgid "로컬 임베딩 모델: 준비됨"
+msgstr "로컬 임베딩 모델: 준비됨"
+
+msgid "로컬 판단 모델: 아직 불러오지 않음 (첫 명령 때 불러옵니다)"
+msgstr "로컬 판단 모델: 아직 불러오지 않음 (첫 명령 때 불러옵니다)"
+
+msgid "로컬 판단 모델: 오류 ({code})"
+msgstr "로컬 판단 모델: 오류 ({code})"
+
+msgid "로컬 판단 모델: 준비됨"
+msgstr "로컬 판단 모델: 준비됨"
 
 msgid "로컬에서 직접 실행할 엔진을 먼저 설치한 뒤, 아래 설정에서 경로와 모델을 조정할 수 있습니다."
 msgstr "로컬에서 직접 실행할 엔진을 먼저 설치한 뒤, 아래 설정에서 경로와 모델을 조정할 수 있습니다."
@@ -720,8 +3530,32 @@ msgstr "마우스 반응"
 msgid "마이크 감도"
 msgstr "마이크 감도"
 
+msgid "마이크 레벨 확인"
+msgstr "마이크 레벨 확인"
+
+msgid "마이크 및 스피커 진단"
+msgstr "마이크 및 스피커 진단"
+
+msgid "마이크 입력 레벨:"
+msgstr "마이크 입력 레벨:"
+
 msgid "마이크 입력 장치 선택:"
 msgstr "마이크 입력 장치 선택:"
+
+msgid "마이크 입력을 확인하고 있습니다..."
+msgstr "마이크 입력을 확인하고 있습니다..."
+
+msgid "마이크 확인을 중지하고 있습니다..."
+msgstr "마이크 확인을 중지하고 있습니다..."
+
+msgid "마이크가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
+msgstr "마이크가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
+
+msgid "마이크를 준비하고 있습니다..."
+msgstr "마이크를 준비하고 있습니다..."
+
+msgid "마이크를 찾을 수 없어 음성 인식을 사용할 수 없습니다. 설정에서 마이크를 지정해 주세요."
+msgstr "마이크를 찾을 수 없어 음성 인식을 사용할 수 없습니다. 설정에서 마이크를 지정해 주세요."
 
 msgid "마켓플레이스"
 msgstr "마켓플레이스"
@@ -729,11 +3563,56 @@ msgstr "마켓플레이스"
 msgid "마켓플레이스 목록을 불러오는 중..."
 msgstr "마켓플레이스 목록을 불러오는 중..."
 
+msgid "많이 친해졌네요."
+msgstr "많이 친해졌네요."
+
+msgid "말씀해주세요"
+msgstr "말씀해주세요"
+
+msgid "말풍선 히스토리"
+msgstr "말풍선 히스토리"
+
 msgid "말하기 속도 (0.7 ~ 1.2):"
 msgstr "말하기 속도 (0.7 ~ 1.2):"
 
+msgid "말하기 중단"
+msgstr "말하기 중단"
+
+msgid "맑음"
+msgstr "맑음"
+
+msgid "매시간"
+msgstr "매시간"
+
+msgid "매일"
+msgstr "매일"
+
+msgid "매주"
+msgstr "매주"
+
+msgid "메리 크리스마스!"
+msgstr "메리 크리스마스!"
+
+msgid "메모"
+msgstr "메모"
+
 msgid "메모 (쉼표로 구분)"
 msgstr "메모 (쉼표로 구분)"
+
+msgid "메모리 정리 실패"
+msgstr "메모리 정리 실패"
+
+msgid "메모리 정리 완료: 사실 {facts}개, 전략 {strategies}개, 대화 {conversations}건 정리"
+msgstr "메모리 정리 완료: 사실 {facts}개, 전략 {strategies}개, 대화 {conversations}건 정리"
+
+msgid "메모리 정리를 마쳤어요. 사실 {facts}개, 전략 {strategies}개가 현재 유지 중이에요."
+msgstr "메모리 정리를 마쳤어요. 사실 {facts}개, 전략 {strategies}개가 현재 유지 중이에요."
+
+msgid "메모리가 꽉 찼어요..."
+msgstr "메모리가 꽉 찼어요..."
+
+msgid "메모리가 위험해요!"
+msgstr "메모리가 위험해요!"
 
 msgid "메시지 입력..."
 msgstr "메시지 입력..."
@@ -741,11 +3620,38 @@ msgstr "메시지 입력..."
 msgid "명령"
 msgstr "명령"
 
+msgid "명령어 실행 시간이 너무 길어 중단했습니다."
+msgstr "명령어 실행 시간이 너무 길어 중단했습니다."
+
+msgid "명시적 삭제 요청을 OK later 기억에서 삭제합니다."
+msgstr "명시적 삭제 요청을 OK later 기억에서 삭제합니다."
+
+msgid "명시적 삭제 요청을 확인 후 기억에서 삭제합니다."
+msgstr "명시적 삭제 요청을 확인 후 기억에서 삭제합니다."
+
 msgid "몇 시야"
 msgstr "몇 시야"
 
+msgid "모델 Save 경로 Settings: {models_dir}"
+msgstr "모델 Save 경로 Settings: {models_dir}"
+
+msgid "모델 다시 불러오기"
+msgstr "모델 다시 불러오기"
+
 msgid "모델 다운로드"
 msgstr "모델 다운로드"
+
+msgid "모델 다운로드 중: {safe_model}"
+msgstr "모델 다운로드 중: {safe_model}"
+
+msgid "모델 받기"
+msgstr "모델 받기"
+
+msgid "모델 불러오기"
+msgstr "모델 불러오기"
+
+msgid "모델 불러오기 실패"
+msgstr "모델 불러오기 실패"
 
 msgid "모델 설치 없음"
 msgstr "모델 설치 없음"
@@ -758,6 +3664,9 @@ msgstr "모델 이름 (비워두면 기본값):"
 
 msgid "모델 저장 경로 (선택):"
 msgstr "모델 저장 경로 (선택):"
+
+msgid "모델 저장 경로 설정: {models_dir}"
+msgstr "모델 저장 경로 설정: {models_dir}"
 
 msgid "모델 준비에 실패했습니다.\n{error}"
 msgstr "모델 준비에 실패했습니다.\n{error}"
@@ -773,6 +3682,9 @@ msgstr "모델명 (기본: {model})"
 
 msgid "모델은 여러 개 선택할 수 있고, 설치 후 바로 설정값에 반영됩니다."
 msgstr "모델은 여러 개 선택할 수 있고, 설치 후 바로 설정값에 반영됩니다."
+
+msgid "모레"
+msgstr "모레"
 
 msgid "목록 로드 실패: {message}"
 msgstr "목록 로드 실패: {message}"
@@ -792,14 +3704,170 @@ msgstr "목표"
 msgid "목표 (예: 최신 뉴스를 요약해서 저장해줘)"
 msgstr "목표 (예: 최신 뉴스를 요약해서 저장해줘)"
 
+msgid "무엇을 기억할까요?"
+msgstr "무엇을 기억할까요?"
+
+msgid "무엇을 잊을까요?"
+msgstr "무엇을 잊을까요?"
+
+msgid "문서 Save 실패: {error}"
+msgstr "문서 Save 실패: {error}"
+
+msgid "문서 저장 실패: {error}"
+msgstr "문서 저장 실패: {error}"
+
+msgid "뭐 보세요?"
+msgstr "뭐 보세요?"
+
+msgid "뭐 찾고 계세요?"
+msgstr "뭐 찾고 계세요?"
+
+msgid "뭐예요?"
+msgstr "뭐예요?"
+
+msgid "미OK 모듈명 직접 사용"
+msgstr "미OK 모듈명 직접 사용"
+
+msgid "미달성"
+msgstr "미달성"
+
 msgid "미완료"
 msgstr "미완료"
+
+msgid "미확인 모듈명 직접 사용"
+msgstr "미확인 모듈명 직접 사용"
+
+msgid "민감 정보 입력 자동화"
+msgstr "민감 정보 입력 자동화"
+
+msgid "민감 정보는 Save하지 않아요."
+msgstr "민감 정보는 Save하지 않아요."
+
+msgid "민감 정보는 저장하지 않아요."
+msgstr "민감 정보는 저장하지 않아요."
+
+msgid "민감하거나 파괴적인 웹 작업 가능성이 있는 주소입니다 ({blocked})."
+msgstr "민감하거나 파괴적인 웹 작업 가능성이 있는 주소입니다 ({blocked})."
+
+msgid "민감한 페이지 접근 감지 ({matched}). 자동화 시 보안 위험이 있습니다."
+msgstr "민감한 페이지 접근 감지 ({matched}). 자동화 시 보안 위험이 있습니다."
+
+msgid "바닥 위치"
+msgstr "바닥 위치"
+
+msgid "바로 살펴보겠습니다."
+msgstr "바로 살펴보겠습니다."
+
+msgid "반갑습니다!"
+msgstr "반갑습니다!"
+
+msgid "반복"
+msgstr "반복"
+
+msgid "반복 스킬이 아직 컴파일되지 않았습니다. 자주 쓰는 작업을 반복해 최적화를 유도하세요."
+msgstr "반복 스킬이 아직 컴파일되지 않았습니다. 자주 쓰는 작업을 반복해 최적화를 유도하세요."
+
+msgid "반복 실패 패턴 감지: {reason}"
+msgstr "반복 실패 패턴 감지: {reason}"
+
+msgid "반복 실패 패턴: "
+msgstr "반복 실패 패턴: "
+
+msgid "밤이 꽤 깊었어요. 무리하지 말고 쉬어요.||오늘은 일찍 마무리해도 괜찮아요."
+msgstr "밤이 꽤 깊었어요. 무리하지 말고 쉬어요.||오늘은 일찍 마무리해도 괜찮아요."
+
+msgid "방전되면 안 돼요!"
+msgstr "방전되면 안 돼요!"
+
+msgid "방해 금지 중 말풍선으로만 응답"
+msgstr "방해 금지 중 말풍선으로만 응답"
+
+msgid "방해 금지·전체 화면 반응"
+msgstr "방해 금지·전체 화면 반응"
+
+msgid "방화벽 설정 변경"
+msgstr "방화벽 설정 변경"
+
+msgid "배경"
+msgstr "배경"
+
+msgid "배터리가 {pct}%예요!"
+msgstr "배터리가 {pct}%예요!"
+
+msgid "배터리가 얼마 없어요!"
+msgstr "배터리가 얼마 없어요!"
+
+msgid "백업 생성 실패: {error}"
+msgstr "백업 생성 실패: {error}"
+
+msgid "백업 파일이 존재하지 않습니다."
+msgstr "백업 파일이 존재하지 않습니다."
+
+msgid "변경 사항"
+msgstr "변경 사항"
+
+msgid "별말씀을요!"
+msgstr "별말씀을요!"
+
+msgid "보이스 클로닝"
+msgstr "보이스 클로닝"
+
+msgid "보통"
+msgstr "보통"
+
+msgid "복구 가능한 백업을 찾지 못했습니다."
+msgstr "복구 가능한 백업을 찾지 못했습니다."
+
+msgid "복사"
+msgstr "복사"
+
+msgid "복잡한 목표를 steps별로 처리할게요."
+msgstr "복잡한 목표를 steps별로 처리할게요."
+
+msgid "복잡한 목표를 단계별로 처리할게요."
+msgstr "복잡한 목표를 단계별로 처리할게요."
+
+msgid "복잡한 중첩 코드 단일 블록 생성"
+msgstr "복잡한 중첩 코드 단일 블록 생성"
+
+msgid "복합 목표를 자율 에이전트 루프로 처리합니다."
+msgstr "복합 목표를 자율 에이전트 루프로 처리합니다."
+
+msgid "볼륨 조절 실패"
+msgstr "볼륨 조절 실패"
+
+msgid "볼륨을 {volume}%로 조절했습니다."
+msgstr "볼륨을 {volume}%로 조절했습니다."
+
+msgid "볼륨을 조절했습니다."
+msgstr "볼륨을 조절했습니다."
+
+msgid "부르셨나요, 주인님?"
+msgstr "부르셨나요, 주인님?"
+
+msgid "부르셨나요?"
+msgstr "부르셨나요?"
+
+msgid "부트 설정 변경"
+msgstr "부트 설정 변경"
 
 msgid "분"
 msgstr "분"
 
+msgid "분석 보고서"
+msgstr "분석 보고서"
+
+msgid "분석 질문"
+msgstr "분석 질문"
+
 msgid "분석/계획과 실행/수정 요청을 구분해 역할별 제공자·모델 설정을 우선 사용합니다."
 msgstr "분석/계획과 실행/수정 요청을 구분해 역할별 제공자·모델 설정을 우선 사용합니다."
+
+msgid "브라우저 또는 앱 상태가 목표와 일치해 작업을 완료했습니다."
+msgstr "브라우저 또는 앱 상태가 목표와 일치해 작업을 완료했습니다."
+
+msgid "비"
+msgstr "비"
 
 msgid "비워두면 AI 설정을 따릅니다."
 msgstr "비워두면 AI 설정을 따릅니다."
@@ -807,11 +3875,17 @@ msgstr "비워두면 AI 설정을 따릅니다."
 msgid "비워두면 Ollama 기본 경로 사용"
 msgstr "비워두면 Ollama 기본 경로 사용"
 
+msgid "비워두면 not-needed를 보냅니다."
+msgstr "비워두면 not-needed를 보냅니다."
+
 msgid "비워두면 기본 모델 경로 사용"
 msgstr "비워두면 기본 모델 경로 사용"
 
 msgid "비워두면 기본 모델과 동일"
 msgstr "비워두면 기본 모델과 동일"
+
+msgid "비워두면 실행 모델과 동일"
+msgstr "비워두면 실행 모델과 동일"
 
 msgid "비워두면 테마 기본 글꼴 사용"
 msgstr "비워두면 테마 기본 글꼴 사용"
@@ -819,20 +3893,131 @@ msgstr "비워두면 테마 기본 글꼴 사용"
 msgid "비활성화"
 msgstr "비활성화"
 
+msgid "빠른 로컬 명령 처리를 사용할 수 있습니다."
+msgstr "빠른 로컬 명령 처리를 사용할 수 있습니다."
+
+msgid "빠른 로컬 처리"
+msgstr "빠른 로컬 처리"
+
+msgid "빠른 처리"
+msgstr "빠른 처리"
+
+msgid "빠른 처리는 기본으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."
+msgstr "빠른 처리는 기본으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."
+
+msgid "사교적이시네요~"
+msgstr "사교적이시네요~"
+
 msgid "사실 (Facts)"
 msgstr "사실 (Facts)"
+
+msgid "사실 삭제"
+msgstr "사실 삭제"
+
+msgid "사실: {key} = {value}"
+msgstr "사실: {key} = {value}"
+
+msgid "사용 스킬이 없습니다."
+msgstr "사용 스킬이 없습니다."
+
+msgid "사용 안 함"
+msgstr "사용 안 함"
+
+msgid "사용 중"
+msgstr "사용 중"
+
+msgid "사용자 Cancel"
+msgstr "사용자 Cancel"
+
+msgid "사용자 계정 변경"
+msgstr "사용자 계정 변경"
+
+msgid "사용자 발화에서 기억 제안 추출"
+msgstr "사용자 발화에서 기억 제안 추출"
+
+msgid "사용자 요청으로 중단되었습니다."
+msgstr "사용자 요청으로 중단되었습니다."
 
 msgid "사용자 이름"
 msgstr "사용자 이름"
 
+msgid "사용자 지정 OpenAI 호환 제공자"
+msgstr "사용자 지정 OpenAI 호환 제공자"
+
+msgid "사용자 지정 제공자 설정"
+msgstr "사용자 지정 제공자 설정"
+
+msgid "사용자 취소"
+msgstr "사용자 취소"
+
 msgid "사용자 플러그인"
 msgstr "사용자 플러그인"
+
+msgid "사용자가 실행을 Cancel했습니다."
+msgstr "사용자가 실행을 Cancel했습니다."
+
+msgid "사용자가 실행을 취소했습니다."
+msgstr "사용자가 실행을 취소했습니다."
+
+msgid "사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 OK하세요."
+msgstr "사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 OK하세요."
+
+msgid "사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 확인하세요."
+msgstr "사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 확인하세요."
 
 msgid "사용할 제공자의 API Key와 모델명을 입력한 뒤 [검증]으로 연결을 확인하세요."
 msgstr "사용할 제공자의 API Key와 모델명을 입력한 뒤 [검증]으로 연결을 확인하세요."
 
+msgid "사전 검증 실패: {reason}"
+msgstr "사전 검증 실패: {reason}"
+
 msgid "삭제"
 msgstr "삭제"
+
+msgid "삭제를 Cancel했어요."
+msgstr "삭제를 Cancel했어요."
+
+msgid "삭제를 취소했어요."
+msgstr "삭제를 취소했어요."
+
+msgid "삭제할 기억 항목"
+msgstr "삭제할 기억 항목"
+
+msgid "삭제할 기억 항목을 Input해 주세요."
+msgstr "삭제할 기억 항목을 Input해 주세요."
+
+msgid "삭제할 기억 항목을 입력해 주세요."
+msgstr "삭제할 기억 항목을 입력해 주세요."
+
+msgid "삭제할 스킬이 없어요."
+msgstr "삭제할 스킬이 없어요."
+
+msgid "상대 경로만으로 파일 탐색"
+msgstr "상대 경로만으로 파일 탐색"
+
+msgid "상세 파싱 실패"
+msgstr "상세 파싱 실패"
+
+msgid "상태 검증 결과: {status}"
+msgstr "상태 검증 결과: {status}"
+
+msgid "상태 인식 자동화"
+msgstr "상태 인식 자동화"
+
+msgid "상황 블록을 참고해 말투를 조절하되, 내용을 그대로 언급하지 마세요."
+msgstr "상황 블록을 참고해 말투를 조절하되, 내용을 그대로 언급하지 마세요."
+
+msgid "새 메시지 입력..."
+msgstr "새 메시지 입력..."
+
+msgid "새 버전을 자동으로 확인합니다"
+msgstr "새 버전을 자동으로 확인합니다"
+
+msgid "새 버전을 확인하고 있습니다."
+msgstr "새 버전을 확인하고 있습니다."
+
+msgid "새 업데이트가 없습니다."
+msgstr "새 업데이트가 없습니다."
 
 msgid "새 웨이크워드를 입력하세요:"
 msgstr "새 웨이크워드를 입력하세요:"
@@ -840,8 +4025,59 @@ msgstr "새 웨이크워드를 입력하세요:"
 msgid "새 작업 추가"
 msgstr "새 작업 추가"
 
+msgid "새 텍스트"
+msgstr "새 텍스트"
+
+msgid "새 플러그인 '{name}'을 켤까요?"
+msgstr "새 플러그인 '{name}'을 켤까요?"
+
 msgid "새로 고침"
 msgstr "새로 고침"
+
+msgid "새벽 정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. {summary}"
+msgstr "새벽 정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. {summary}"
+
+msgid "새해 복 많이 받으세요!"
+msgstr "새해 복 많이 받으세요!"
+
+msgid "새해가 밝았어요!"
+msgstr "새해가 밝았어요!"
+
+msgid "생각 중..."
+msgstr "생각 중..."
+
+msgid "생일 등록"
+msgstr "생일 등록"
+
+msgid "생일 등록 완료! {date}"
+msgstr "생일 등록 완료! {date}"
+
+msgid "생일 축하드려요. 오늘 하루 즐겁게 보내세요."
+msgstr "생일 축하드려요. 오늘 하루 즐겁게 보내세요."
+
+msgid "생일 축하드려요. 좋은 하루 되세요."
+msgstr "생일 축하드려요. 좋은 하루 되세요."
+
+msgid "생일을 입력하세요 (MM-DD 형식, 예: 03-15):"
+msgstr "생일을 입력하세요 (MM-DD 형식, 예: 03-15):"
+
+msgid "생일이에요. 케이크 드세요."
+msgstr "생일이에요. 케이크 드세요."
+
+msgid "서버 URL (예: http://127.0.0.1:8880/v1):"
+msgstr "서버 URL (예: http://127.0.0.1:8880/v1):"
+
+msgid "서비스 중지/시작"
+msgstr "서비스 중지/시작"
+
+msgid "선물 기대돼요~"
+msgstr "선물 기대돼요~"
+
+msgid "선택"
+msgstr "선택"
+
+msgid "선택 사항"
+msgstr "선택 사항"
 
 msgid "선택 작업 취소"
 msgstr "선택 작업 취소"
@@ -849,14 +4085,41 @@ msgstr "선택 작업 취소"
 msgid "선택 플러그인 설치"
 msgstr "선택 플러그인 설치"
 
+msgid "선택적 패키지 동적 import 없이 참조"
+msgstr "선택적 패키지 동적 import 없이 참조"
+
+msgid "선택한 LLM 연결 확인"
+msgstr "선택한 LLM 연결 확인"
+
+msgid "선택한 TTS 엔진을 초기화하지 못해 다른 엔진으로 전환되었습니다. 설정을 확인해 주세요."
+msgstr "선택한 TTS 엔진을 초기화하지 못해 다른 엔진으로 전환되었습니다. 설정을 확인해 주세요."
+
+msgid "선택한 마이크를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
+msgstr "선택한 마이크를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
+
+msgid "선택한 모델이 없습니다."
+msgstr "선택한 모델이 없습니다."
+
 msgid "선택한 모델이 없습니다. Ollama 프로그램만 설치할까요?"
 msgstr "선택한 모델이 없습니다. Ollama 프로그램만 설치할까요?"
+
+msgid "선택한 스피커를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
+msgstr "선택한 스피커를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
+
+msgid "선택한 폴더에서 아리 데이터를 찾지 못했습니다.\n.ari_runtime 폴더나 그 폴더가 들어 있는 폴더를 선택하세요."
+msgstr "선택한 폴더에서 아리 데이터를 찾지 못했습니다.\n.ari_runtime 폴더나 그 폴더가 들어 있는 폴더를 선택하세요."
 
 msgid "선택한 플러그인의 ID를 찾지 못했습니다."
 msgstr "선택한 플러그인의 ID를 찾지 못했습니다."
 
 msgid "선호 "
 msgstr "선호 "
+
+msgid "선호: {key}"
+msgstr "선호: {key}"
+
+msgid "선호: {key} = {value}"
+msgstr "선호: {key} = {value}"
 
 msgid "선호도"
 msgstr "선호도"
@@ -876,6 +4139,12 @@ msgstr "설정창 안에서 플러그인을 검색하고 바로 설치할 수 �
 msgid "설치"
 msgstr "설치"
 
+msgid "설치 OK 없이 외부 패키지 직접 import"
+msgstr "설치 OK 없이 외부 패키지 직접 import"
+
+msgid "설치 later에도 ollama.exe를 찾지 못했습니다."
+msgstr "설치 later에도 ollama.exe를 찾지 못했습니다."
+
 msgid "설치 가능"
 msgstr "설치 가능"
 
@@ -885,11 +4154,47 @@ msgstr "설치 실패"
 msgid "설치 완료"
 msgstr "설치 완료"
 
+msgid "설치 원본 정보가 없습니다."
+msgstr "설치 원본 정보가 없습니다."
+
 msgid "설치 중"
 msgstr "설치 중"
 
+msgid "설치 확인 없이 외부 패키지 직접 import"
+msgstr "설치 확인 없이 외부 패키지 직접 import"
+
+msgid "설치 후에도 ollama.exe를 찾지 못했습니다."
+msgstr "설치 후에도 ollama.exe를 찾지 못했습니다."
+
+msgid "설치되지 않음"
+msgstr "설치되지 않음"
+
+msgid "설치된 모델: {models}"
+msgstr "설치된 모델: {models}"
+
+msgid "설치된 모델이 없습니다."
+msgstr "설치된 모델이 없습니다."
+
+msgid "설치된 스킬: {names}"
+msgstr "설치된 스킬: {names}"
+
+msgid "설치된 아리에서 사용할 수 없는 파이썬 package required: {packages}. 사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요."
+msgstr "설치된 아리에서 사용할 수 없는 파이썬 package required: {packages}. 사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요."
+
+msgid "설치된 아리에서 사용할 수 없는 파이썬 패키지가 필요합니다: {packages}. 사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요."
+msgstr "설치된 아리에서 사용할 수 없는 파이썬 패키지가 필요합니다: {packages}. 사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요."
+
+msgid "설치된 아리에서는 '{package}' 패키지를 자동으로 설치할 수 없습니다. 이 패키지 없이 할 수 있는 방법으로 다시 시도합니다."
+msgstr "설치된 아리에서는 '{package}' 패키지를 자동으로 설치할 수 없습니다. 이 패키지 없이 할 수 있는 방법으로 다시 시도합니다."
+
+msgid "설치된 플러그인을 찾지 못했습니다."
+msgstr "설치된 플러그인을 찾지 못했습니다."
+
 msgid "설치됨"
 msgstr "설치됨"
+
+msgid "설치됨: {path}"
+msgstr "설치됨: {path}"
 
 msgid "설치할 플러그인을 먼저 선택하세요."
 msgstr "설치할 플러그인을 먼저 선택하세요."
@@ -900,8 +4205,23 @@ msgstr "성격:"
 msgid "성공"
 msgstr "성공"
 
+msgid "세부 의존성 설치"
+msgstr "세부 의존성 설치"
+
+msgid "세션 종료"
+msgstr "세션 종료"
+
+msgid "소나기"
+msgstr "소나기"
+
 msgid "속도 (예: +0%, -10%):"
 msgstr "속도 (예: +0%, -10%):"
+
+msgid "수다스럽게"
+msgstr "수다스럽게"
+
+msgid "수정"
+msgstr "수정"
 
 msgid "스마트 어시스턴트 모드"
 msgstr "스마트 어시스턴트 모드"
@@ -909,8 +4229,80 @@ msgstr "스마트 어시스턴트 모드"
 msgid "스마트 어시스턴트 모드가 {status}되었습니다."
 msgstr "스마트 어시스턴트 모드가 {status}되었습니다."
 
+msgid "스마트 어시스턴트 모드가 비활성화되었습니다."
+msgstr "스마트 어시스턴트 모드가 비활성화되었습니다."
+
+msgid "스마트 어시스턴트 모드가 활성화되었습니다. 이제 제가 명령어를 자동으로 실행하고 주인님의 패턴을 학습하겠습니다."
+msgstr "스마트 어시스턴트 모드가 활성화되었습니다. 이제 제가 명령어를 자동으로 실행하고 주인님의 패턴을 학습하겠습니다."
+
+msgid "스케줄"
+msgstr "스케줄"
+
 msgid "스케줄 (예: 매일 09:00  /  매주 월요일 09:00  /  30분마다)"
 msgstr "스케줄 (예: 매일 09:00  /  매주 월요일 09:00  /  30분마다)"
+
+msgid "스케줄러를 사용할 수 없습니다."
+msgstr "스케줄러를 사용할 수 없습니다."
+
+msgid "스크린샷 분석 실패: {error}"
+msgstr "스크린샷 분석 실패: {error}"
+
+msgid "스크린샷을 Save했습니다: {path}"
+msgstr "스크린샷을 Save했습니다: {path}"
+
+msgid "스크린샷을 저장했습니다: {path}"
+msgstr "스크린샷을 저장했습니다: {path}"
+
+msgid "스킬 Update 기록을 지우지 못해 Update를 되돌렸습니다."
+msgstr "스킬 Update 기록을 지우지 못해 Update를 되돌렸습니다."
+
+msgid "스킬 관리 창 열기"
+msgstr "스킬 관리 창 열기"
+
+msgid "스킬 삭제"
+msgstr "스킬 삭제"
+
+msgid "스킬 설치 중..."
+msgstr "스킬 설치 중..."
+
+msgid "스킬 스크립트 경로"
+msgstr "스킬 스크립트 경로"
+
+msgid "스킬 업데이트 기록을 지우지 못해 업데이트를 되돌렸습니다."
+msgstr "스킬 업데이트 기록을 지우지 못해 업데이트를 되돌렸습니다."
+
+msgid "스킬 업데이트 중..."
+msgstr "스킬 업데이트 중..."
+
+msgid "스킬을 선택하면 SKILL.md 내용이 표시됩니다."
+msgstr "스킬을 선택하면 SKILL.md 내용이 표시됩니다."
+
+msgid "스킬을 설치할 수 없었습니다."
+msgstr "스킬을 설치할 수 없었습니다."
+
+msgid "스피커 출력 장치 선택:"
+msgstr "스피커 출력 장치 선택:"
+
+msgid "스피커 출력 장치를 열지 못했습니다: {error}"
+msgstr "스피커 출력 장치를 열지 못했습니다: {error}"
+
+msgid "스피커가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
+msgstr "스피커가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
+
+msgid "슬라이더를 움직이면 화면의 아리에게 바로 반영됩니다. 취소하면 원래대로 돌아갑니다."
+msgstr "슬라이더를 움직이면 화면의 아리에게 바로 반영됩니다. 취소하면 원래대로 돌아갑니다."
+
+msgid "승인"
+msgstr "승인"
+
+msgid "승인·거절 기록 없음"
+msgstr "승인·거절 기록 없음"
+
+msgid "승인된 조직만 사용 가능: 커스텀 보이스 ID (voice_...):"
+msgstr "승인된 조직만 사용 가능: 커스텀 보이스 ID (voice_...):"
+
+msgid "승인률 {rate}% ({approved}/{total})"
+msgstr "승인률 {rate}% ({approved}/{total})"
 
 msgid "시"
 msgstr "시"
@@ -920,6 +4312,9 @@ msgstr "시간"
 
 msgid "시간 표현"
 msgstr "시간 표현"
+
+msgid "시간이 늦었네요. 잠깐 쉬는 건 어때요?||아직 깨어 계셨네요. 조금 쉬어 가요."
+msgstr "시간이 늦었네요. 잠깐 쉬는 건 어때요?||아직 깨어 계셨네요. 조금 쉬어 가요."
 
 msgid "시나리오:"
 msgstr "시나리오:"
@@ -932,6 +4327,18 @@ msgstr "시스템"
 
 msgid "시스템 기본 마이크"
 msgstr "시스템 기본 마이크"
+
+msgid "시스템 기본 스피커"
+msgstr "시스템 기본 스피커"
+
+msgid "시스템 명령 실행 중 Error가 발생했습니다."
+msgstr "시스템 명령 실행 중 Error가 발생했습니다."
+
+msgid "시스템 명령 실행 중 오류가 발생했습니다."
+msgstr "시스템 명령 실행 중 오류가 발생했습니다."
+
+msgid "시스템 볼륨을 조절합니다."
+msgstr "시스템 볼륨을 조절합니다."
 
 msgid "시스템 재시작 명령 실행에 실패했습니다."
 msgstr "시스템 재시작 명령 실행에 실패했습니다."
@@ -951,11 +4358,92 @@ msgstr "시스템 종료 예약에 실패했습니다."
 msgid "시스템 프롬프트:"
 msgstr "시스템 프롬프트:"
 
+msgid "시작"
+msgstr "시작"
+
+msgid "시작 줄 (선택, Default 1)"
+msgstr "시작 줄 (선택, Default 1)"
+
+msgid "시작 줄 (선택, 기본 1)"
+msgstr "시작 줄 (선택, 기본 1)"
+
+msgid "시험 재생"
+msgstr "시험 재생"
+
+msgid "시험 재생 중..."
+msgstr "시험 재생 중..."
+
+msgid "신규 스킬 생성: {new}개 | Python 컴파일 완료: {compiled}개"
+msgstr "신규 스킬 생성: {new}개 | Python 컴파일 완료: {compiled}개"
+
+msgid "신뢰 정책에 포함된 사이트입니다."
+msgstr "신뢰 정책에 포함된 사이트입니다."
+
+msgid "신뢰도 낮은 스킬 {count}개 ({names})를 재학습하거나 비활성화하세요."
+msgstr "신뢰도 낮은 스킬 {count}개 ({names})를 재학습하거나 비활성화하세요."
+
+msgid "신뢰할 수 있는 앱입니다."
+msgstr "신뢰할 수 있는 앱입니다."
+
 msgid "실패"
 msgstr "실패"
 
+msgid "실패 기록"
+msgstr "실패 기록"
+
+msgid "실패율이 높습니다. 복잡한 목표를 더 작은 steps로 나눠보세요."
+msgstr "실패율이 높습니다. 복잡한 목표를 더 작은 steps로 나눠보세요."
+
+msgid "실패율이 높습니다. 복잡한 목표를 더 작은 단계로 나눠보세요."
+msgstr "실패율이 높습니다. 복잡한 목표를 더 작은 단계로 나눠보세요."
+
+msgid "실행 ({seconds}초)"
+msgstr "실행 ({seconds}초)"
+
+msgid "실행 결과 None"
+msgstr "실행 결과 None"
+
+msgid "실행 결과 없음"
+msgstr "실행 결과 없음"
+
+msgid "실행 보고서는 {location}에 Save했습니다."
+msgstr "실행 보고서는 {location}에 Save했습니다."
+
+msgid "실행 보고서는 {location}에 저장했습니다."
+msgstr "실행 보고서는 {location}에 저장했습니다."
+
+msgid "실행 시간 초과"
+msgstr "실행 시간 초과"
+
+msgid "실행 시간 초과 ({seconds}초)"
+msgstr "실행 시간 초과 ({seconds}초)"
+
+msgid "실행 실패: {error}"
+msgstr "실행 실패: {error}"
+
+msgid "실행 실패: {reason}"
+msgstr "실행 실패: {reason}"
+
+msgid "실행 앱 목록 조회 실패: {error}"
+msgstr "실행 앱 목록 조회 실패: {error}"
+
 msgid "실행 예정 시각"
 msgstr "실행 예정 시각"
+
+msgid "실행 완료. 출력: {output}"
+msgstr "실행 완료. 출력: {output}"
+
+msgid "실행 중인 앱 목록을 반환합니다."
+msgstr "실행 중인 앱 목록을 반환합니다."
+
+msgid "실행 중인 앱 목록입니다.\n{apps}"
+msgstr "실행 중인 앱 목록입니다.\n{apps}"
+
+msgid "실행 중인 앱이 {count}개 있어요: {apps}"
+msgstr "실행 중인 앱이 {count}개 있어요: {apps}"
+
+msgid "실행 파일을 찾을 수 없습니다: {path}"
+msgstr "실행 파일을 찾을 수 없습니다: {path}"
 
 msgid "실행/수정 모델 (선택):"
 msgstr "실행/수정 모델 (선택):"
@@ -963,8 +4451,32 @@ msgstr "실행/수정 모델 (선택):"
 msgid "실행/수정 제공자 (선택):"
 msgstr "실행/수정 제공자 (선택):"
 
+msgid "실행에 실패했습니다."
+msgstr "실행에 실패했습니다."
+
+msgid "실행을 Cancel했습니다."
+msgstr "실행을 Cancel했습니다."
+
 msgid "실행을 취소했습니다."
 msgstr "실행을 취소했습니다."
+
+msgid "실행이 완료되었습니다."
+msgstr "실행이 완료되었습니다."
+
+msgid "쓰다듬지 마세요."
+msgstr "쓰다듬지 마세요."
+
+msgid "쓰지 않는 API 키 {count}개 삭제"
+msgstr "쓰지 않는 API 키 {count}개 삭제"
+
+msgid "쓰지 않는 API 키 {count}개를 삭제할까요? 삭제한 키는 되돌릴 수 없습니다."
+msgstr "쓰지 않는 API 키 {count}개를 삭제할까요? 삭제한 키는 되돌릴 수 없습니다."
+
+msgid "쓰지 않는 API 키 삭제"
+msgstr "쓰지 않는 API 키 삭제"
+
+msgid "아니요"
+msgstr "아니요"
 
 msgid "아래 경로에 CosyVoice3를 설치할까요?\n\n{path}"
 msgstr "아래 경로에 CosyVoice3를 설치할까요?\n\n{path}"
@@ -972,23 +4484,164 @@ msgstr "아래 경로에 CosyVoice3를 설치할까요?\n\n{path}"
 msgid "아리"
 msgstr "아리"
 
+msgid "아리 설정"
+msgstr "아리 설정"
+
 msgid "아리의 기억 보기"
 msgstr "아리의 기억 보기"
+
+msgid "아직 Save된 스킬이 없어요."
+msgstr "아직 Save된 스킬이 없어요."
+
+msgid "아직 떠올릴 만한 기록이 충분하지 않아요."
+msgstr "아직 떠올릴 만한 기록이 충분하지 않아요."
+
+msgid "아직 업데이트 확인 기록이 없습니다."
+msgstr "아직 업데이트 확인 기록이 없습니다."
+
+msgid "아직 이전 요청을 처리하고 있어요."
+msgstr "아직 이전 요청을 처리하고 있어요."
 
 msgid "아직 저장된 사실이 없습니다."
 msgstr "아직 저장된 사실이 없습니다."
 
+msgid "아직 저장된 스킬이 없어요."
+msgstr "아직 저장된 스킬이 없어요."
+
+msgid "아직 히스토리가 없어요!"
+msgstr "아직 히스토리가 없어요!"
+
 msgid "안 해"
 msgstr "안 해"
+
+msgid "안개"
+msgstr "안개"
+
+msgid "안녕하세요!"
+msgstr "안녕하세요!"
 
 msgid "안녕하세요! 무엇을 도와드릴까요?"
 msgstr "안녕하세요! 무엇을 도와드릴까요?"
 
+msgid "안녕하세요. 음성 출력 시험 중입니다."
+msgstr "안녕하세요. 음성 출력 시험 중입니다."
+
+msgid "안전한 URL입니다."
+msgstr "안전한 URL입니다."
+
+msgid "안전한 명령입니다."
+msgstr "안전한 명령입니다."
+
+msgid "안전한 코드입니다."
+msgstr "안전한 코드입니다."
+
+msgid "알 수 없는 외부 앱({app}) 실행 시도입니다."
+msgstr "알 수 없는 외부 앱({app}) 실행 시도입니다."
+
+msgid "알 수 없음"
+msgstr "알 수 없음"
+
+msgid "알람"
+msgstr "알람"
+
+msgid "알려줘"
+msgstr "알려줘"
+
+msgid "알림용 카운트다운 타이머를 Settings합니다. 이름을 지정하면 여러 타이머를 동시에 관리할 수 있습니다. 타이머 종료 시 알림만 울리며 추가 동작은 없습니다. computer shutdown·파일 Save 등 지연 실행은 schedule_task를 사용하세요."
+msgstr "알림용 카운트다운 타이머를 Settings합니다. 이름을 지정하면 여러 타이머를 동시에 관리할 수 있습니다. 타이머 종료 시 알림만 울리며 추가 동작은 없습니다. computer shutdown·파일 Save 등 지연 실행은 schedule_task를 사용하세요."
+
+msgid "알림용 카운트다운 타이머를 설정합니다. 이름을 지정하면 여러 타이머를 동시에 관리할 수 있습니다. 타이머 종료 시 알림만 울리며 추가 동작은 없습니다. 컴퓨터 종료·파일 저장 등 지연 실행은 schedule_task를 사용하세요."
+msgstr "알림용 카운트다운 타이머를 설정합니다. 이름을 지정하면 여러 타이머를 동시에 관리할 수 있습니다. 타이머 종료 시 알림만 울리며 추가 동작은 없습니다. 컴퓨터 종료·파일 저장 등 지연 실행은 schedule_task를 사용하세요."
+
+msgid "암호화되지 않은(HTTP) 사이트 접근입니다."
+msgstr "암호화되지 않은(HTTP) 사이트 접근입니다."
+
+msgid "앞으로 잘 부탁드려요."
+msgstr "앞으로 잘 부탁드려요."
+
+msgid "앱 이름이나 경로로 애플리케이션을 실행합니다. 웹사이트나 웹 서비스는 브라우저 이름 대신 사이트 이름(예: naver, youtube)을 그대로 넘깁니다."
+msgstr "앱 이름이나 경로로 애플리케이션을 실행합니다. 웹사이트나 웹 서비스는 브라우저 이름 대신 사이트 이름(예: naver, youtube)을 그대로 넘깁니다."
+
+msgid "앱 종료 실패: {error}"
+msgstr "앱 종료 실패: {error}"
+
+msgid "앱 카테고리 반응 (기본 꺼짐)"
+msgstr "앱 카테고리 반응 (기본 꺼짐)"
+
+msgid "앱을 실행했습니다."
+msgstr "앱을 실행했습니다."
+
+msgid "앱을 종료했습니다."
+msgstr "앱을 종료했습니다."
+
+msgid "어떤 음악이나 zero상을 play할까요?"
+msgstr "어떤 음악이나 zero상을 play할까요?"
+
+msgid "어떤 음악이나 영상을 재생할까요?"
+msgstr "어떤 음악이나 영상을 재생할까요?"
+
+msgid "어린이날이에요!"
+msgstr "어린이날이에요!"
+
+msgid "어버이날이에요. 부모님께 연락해보세요 :)"
+msgstr "어버이날이에요. 부모님께 연락해보세요 :)"
+
 msgid "언어 설정"
 msgstr "언어 설정"
 
+msgid "얼마"
+msgstr "얼마"
+
+msgid "업데이트"
+msgstr "업데이트"
+
+msgid "업데이트 실패"
+msgstr "업데이트 실패"
+
+msgid "업데이트 완료"
+msgstr "업데이트 완료"
+
+msgid "업데이트 확인"
+msgstr "업데이트 확인"
+
+msgid "업무 중이시군요."
+msgstr "업무 중이시군요."
+
+msgid "없음"
+msgstr "없음"
+
 msgid "에"
 msgstr "에"
+
+msgid "에이전트"
+msgstr "에이전트"
+
+msgid "에이전트 대시보드"
+msgstr "에이전트 대시보드"
+
+msgid "에이전트 대시보드 사용"
+msgstr "에이전트 대시보드 사용"
+
+msgid "에이전트 실행"
+msgstr "에이전트 실행"
+
+msgid "여러 기억이 있어요: {items}. 어떤 기억인지 골라 주세요."
+msgstr "여러 기억이 있어요: {items}. 어떤 기억인지 골라 주세요."
+
+msgid "연결에 실패했습니다. URL, 모델, API 키를 확인해 주세요."
+msgstr "연결에 실패했습니다. URL, 모델, API 키를 확인해 주세요."
+
+msgid "열심히 코딩 중~"
+msgstr "열심히 코딩 중~"
+
+msgid "열심히 하시네요."
+msgstr "열심히 하시네요."
+
+msgid "영어 예시 대사:"
+msgstr "영어 예시 대사:"
+
+msgid "예"
+msgstr "예"
 
 msgid "예) 상냥하고 귀여운 AI 비서"
 msgstr "예) 상냥하고 귀여운 AI 비서"
@@ -1002,6 +4655,9 @@ msgstr "예: 1.0"
 msgid "예: C:/CosyVoice"
 msgstr "예: C:/CosyVoice"
 
+msgid "예: My LLM"
+msgstr "예: My LLM"
+
 msgid "예: gpt-4o, llama-3.3-70b-versatile..."
 msgstr "예: gpt-4o, llama-3.3-70b-versatile..."
 
@@ -1014,23 +4670,164 @@ msgstr "예: 고양이 좋아함, 야행성"
 msgid "예: 음악, 영화, 독서"
 msgstr "예: 음악, 영화, 독서"
 
+msgid "예시"
+msgstr "예시"
+
+msgid "예약"
+msgstr "예약"
+
+msgid "예약 작업 {total}건 처리 (성공 {success}건, 실패 {fail}건)"
+msgstr "예약 작업 {total}건 처리 (성공 {success}건, 실패 {fail}건)"
+
 msgid "예약 작업 관리"
 msgstr "예약 작업 관리"
+
+msgid "예약 작업 실패가 누적되고 있습니다. next_run과 실패 원인을 함께 점검하세요."
+msgstr "예약 작업 실패가 누적되고 있습니다. next_run과 실패 원인을 함께 점검하세요."
+
+msgid "예약 작업 실행"
+msgstr "예약 작업 실행"
+
+msgid "예약 작업 실행 실패"
+msgstr "예약 작업 실행 실패"
+
+msgid "예약 작업을 실행할 수 없어요."
+msgstr "예약 작업을 실행할 수 없어요."
+
+msgid "예약 작업이 가득 찼습니다. 사용하지 않는 예약을 정리한 뒤 다시 시도해주세요."
+msgstr "예약 작업이 가득 찼습니다. 사용하지 않는 예약을 정리한 뒤 다시 시도해주세요."
+
+msgid "예약된 작업 {count}개:"
+msgstr "예약된 작업 {count}개:"
+
+msgid "예약된 작업을 ID로 Cancel합니다."
+msgstr "예약된 작업을 ID로 Cancel합니다."
+
+msgid "예약된 작업을 ID로 취소합니다."
+msgstr "예약된 작업을 ID로 취소합니다."
+
+msgid "예약할 작업과 시간을 알려주세요."
+msgstr "예약할 작업과 시간을 알려주세요."
+
+msgid "오later"
+msgstr "오later"
+
+msgid "오늘"
+msgstr "오늘"
+
+msgid "오늘 생일이세요? 축하드려요."
+msgstr "오늘 생일이세요? 축하드려요."
+
+msgid "오늘 하루 수고 많으셨어요. 내일 날씨를 미리 OK해 드릴까요?"
+msgstr "오늘 하루 수고 많으셨어요. 내일 날씨를 미리 OK해 드릴까요?"
+
+msgid "오늘 하루 수고 많으셨어요. 내일 날씨를 미리 확인해 드릴까요?"
+msgstr "오늘 하루 수고 많으셨어요. 내일 날씨를 미리 확인해 드릴까요?"
+
+msgid "오늘은 발렌타인데이예요."
+msgstr "오늘은 발렌타인데이예요."
+
+msgid "오늘은 식목일이에요!"
+msgstr "오늘은 식목일이에요!"
 
 msgid "오디오 장치 설정"
 msgstr "오디오 장치 설정"
 
+msgid "오래 알고 지냈네요."
+msgstr "오래 알고 지냈네요."
+
+msgid "오래 집중하셨네요. 잠깐 쉬고 다시 해봐요.||많이 해내셨네요. 물 한잔 어때요?"
+msgstr "오래 집중하셨네요. 잠깐 쉬고 다시 해봐요.||많이 해내셨네요. 물 한잔 어때요?"
+
+msgid "오류: {error}"
+msgstr "오류: {error}"
+
 msgid "오류가 발생했습니다: {error}"
 msgstr "오류가 발생했습니다: {error}"
 
+msgid "오전"
+msgstr "오전"
+
+msgid "오케스트레이터가 연결되지 않았습니다."
+msgstr "오케스트레이터가 연결되지 않았습니다."
+
+msgid "오후"
+msgstr "오후"
+
+msgid "올해 마지막 날이에요! 잘 마무리해요~"
+msgstr "올해 마지막 날이에요! 잘 마무리해요~"
+
+msgid "올해도 잘 부탁해요~"
+msgstr "올해도 잘 부탁해요~"
+
 msgid "완료"
 msgstr "완료"
+
+msgid "완료 작업 {total}건 (성공 {success}건, 성공률 {rate}%, 실패 {fail}건)"
+msgstr "완료 작업 {total}건 (성공 {success}건, 성공률 {rate}%, 실패 {fail}건)"
+
+msgid "왜 그러세요."
+msgstr "왜 그러세요."
+
+msgid "왜~?"
+msgstr "왜~?"
+
+msgid "왜ㅋ"
+msgstr "왜ㅋ"
+
+msgid "왜요?"
+msgstr "왜요?"
+
+msgid "외부 URL 요청"
+msgstr "외부 URL 요청"
+
+msgid "외부 데이터 전송"
+msgstr "외부 데이터 전송"
+
+msgid "외부 프로세스 실행"
+msgstr "외부 프로세스 실행"
+
+msgid "왼쪽은 위로, 오른쪽은 아래로 내려갑니다. 직접 만든 이미지의 발이 바닥에서 뜨거나 파묻힐 때 맞추세요."
+msgstr "왼쪽은 위로, 오른쪽은 아래로 내려갑니다. 직접 만든 이미지의 발이 바닥에서 뜨거나 파묻힐 때 맞추세요."
+
+msgid "요청에 타임아웃과 재시도 로직을 추가하고, 오프라인 대안을 검토하세요."
+msgstr "요청에 타임아웃과 재시도 로직을 추가하고, 오프라인 대안을 검토하세요."
+
+msgid "요청을 처리했습니다."
+msgstr "요청을 처리했습니다."
+
+msgid "요청이 Cancel되어 도구를 실행하지 않았습니다."
+msgstr "요청이 Cancel되어 도구를 실행하지 않았습니다."
+
+msgid "요청이 취소되어 도구를 실행하지 않았습니다."
+msgstr "요청이 취소되어 도구를 실행하지 않았습니다."
+
+msgid "요청한 결과를 실제 상태로 검증하지 못했습니다."
+msgstr "요청한 결과를 실제 상태로 검증하지 못했습니다."
+
+msgid "요청한 대상의 실제 상태를 OK하지 못했습니다."
+msgstr "요청한 대상의 실제 상태를 OK하지 못했습니다."
+
+msgid "요청한 대상의 실제 상태를 확인하지 못했습니다."
+msgstr "요청한 대상의 실제 상태를 확인하지 못했습니다."
+
+msgid "요청한 작업을 완료하지 못했어요."
+msgstr "요청한 작업을 완료하지 못했어요."
+
+msgid "원격 임베딩 사용 중"
+msgstr "원격 임베딩 사용 중"
+
+msgid "원본 경로가 존재하지 않습니다."
+msgstr "원본 경로가 존재하지 않습니다."
 
 msgid "웨이크워드"
 msgstr "웨이크워드"
 
 msgid "웨이크워드 목록"
 msgstr "웨이크워드 목록"
+
+msgid "웨이크워드 사용"
+msgstr "웨이크워드 사용"
 
 msgid "웨이크워드 추가"
 msgstr "웨이크워드 추가"
@@ -1041,11 +4838,56 @@ msgstr "웨이크워드는 최소 1개 이상 필요합니다."
 msgid "웹 마켓플레이스 열기"
 msgstr "웹 마켓플레이스 열기"
 
+msgid "웹 페이지 내용을 가져옵니다."
+msgstr "웹 페이지 내용을 가져옵니다."
+
 msgid "위치"
 msgstr "위치"
 
+msgid "위치 지정"
+msgstr "위치 지정"
+
+msgid "위치: {path}"
+msgstr "위치: {path}"
+
+msgid "위험 앱 정책에 의해 차단된 대상입니다: {app}"
+msgstr "위험 앱 정책에 의해 차단된 대상입니다: {app}"
+
+msgid "위험한 시스템 명령 감지: {matched}"
+msgstr "위험한 시스템 명령 감지: {matched}"
+
+msgid "위험한 작업이 감지됐어요. {summary}. 실행할까요?"
+msgstr "위험한 작업이 감지됐어요. {summary}. 실행할까요?"
+
 msgid "위험한 파이썬 작업 감지: {matched}"
 msgstr "위험한 파이썬 작업 감지: {matched}"
+
+msgid "유튜브를 열게요."
+msgstr "유튜브를 열게요."
+
+msgid "유튜브에서 음악이나 영상을 검색하여 재생합니다."
+msgstr "유튜브에서 음악이나 영상을 검색하여 재생합니다."
+
+msgid "으... 쑥스러워요."
+msgstr "으... 쑥스러워요."
+
+msgid "으스스~ 할로윈이에요!"
+msgstr "으스스~ 할로윈이에요!"
+
+msgid "으으... 눈이 감겨요."
+msgstr "으으... 눈이 감겨요."
+
+msgid "음성 복제"
+msgstr "음성 복제"
+
+msgid "음성 복제 실패"
+msgstr "음성 복제 실패"
+
+msgid "음성 불러오기"
+msgstr "음성 불러오기"
+
+msgid "음성 불러오기 실패"
+msgstr "음성 불러오기 실패"
 
 msgid "음성 인식"
 msgstr "음성 인식"
@@ -1056,11 +4898,80 @@ msgstr "음성 인식 설정"
 msgid "음성 인식 설정..."
 msgstr "음성 인식 설정..."
 
+msgid "음성 인식 시험"
+msgstr "음성 인식 시험"
+
+msgid "음성 인식 시험에 실패했습니다: {error}"
+msgstr "음성 인식 시험에 실패했습니다: {error}"
+
 msgid "음성 인식 엔진:"
 msgstr "음성 인식 엔진:"
 
+msgid "음성 출력 시험"
+msgstr "음성 출력 시험"
+
 msgid "음성 합성 (TTS) 설정"
 msgstr "음성 합성 (TTS) 설정"
+
+msgid "음성:"
+msgstr "음성:"
+
+msgid "음성을 듣지 못했습니다. 다시 시험해 주세요."
+msgstr "음성을 듣지 못했습니다. 다시 시험해 주세요."
+
+msgid "음성을 인식하고 있습니다..."
+msgstr "음성을 인식하고 있습니다..."
+
+msgid "음성을 인식하지 못했습니다. 다시 말씀해 주세요."
+msgstr "음성을 인식하지 못했습니다. 다시 말씀해 주세요."
+
+msgid "음소거를 해제했습니다."
+msgstr "음소거를 해제했습니다."
+
+msgid "음소거했습니다."
+msgstr "음소거했습니다."
+
+msgid "응?"
+msgstr "응?"
+
+msgid "응?ㅋ"
+msgstr "응?ㅋ"
+
+msgid "응답 말수:"
+msgstr "응답 말수:"
+
+msgid "응답 생성 중 Error가 발생했습니다."
+msgstr "응답 생성 중 Error가 발생했습니다."
+
+msgid "응답 생성 중 오류가 발생했습니다."
+msgstr "응답 생성 중 오류가 발생했습니다."
+
+msgid "이 교훈 삭제"
+msgstr "이 교훈 삭제"
+
+msgid "이 버전 건너뛰기"
+msgstr "이 버전 건너뛰기"
+
+msgid "이 버전을 건너뛰었습니다."
+msgstr "이 버전을 건너뛰었습니다."
+
+msgid "이 사실이 언급된 대화 기록도 삭제"
+msgstr "이 사실이 언급된 대화 기록도 삭제"
+
+msgid "이 스킬 끄기"
+msgstr "이 스킬 끄기"
+
+msgid "이 스킬은 MCP 프로토콜을 사용합니다."
+msgstr "이 스킬은 MCP 프로토콜을 사용합니다."
+
+msgid "이 시간대에는 '{cmd}' 관련 요청이 많았어요. 바로 도와드릴까요?"
+msgstr "이 시간대에는 '{cmd}' 관련 요청이 많았어요. 바로 도와드릴까요?"
+
+msgid "이 요청은 최신 실시간 데이터가 필요합니다. 반드시 web_search 도구를 먼저 호출하세요."
+msgstr "이 요청은 최신 실시간 데이터가 필요합니다. 반드시 web_search 도구를 먼저 호출하세요."
+
+msgid "이기세요!"
+msgstr "이기세요!"
 
 msgid "이름"
 msgstr "이름"
@@ -1068,11 +4979,104 @@ msgstr "이름"
 msgid "이름 없음"
 msgstr "이름 없음"
 
+msgid "이미지 내용을 설명해 주세요."
+msgstr "이미지 내용을 설명해 주세요."
+
+msgid "이미지 분석 실패: {error}"
+msgstr "이미지 분석 실패: {error}"
+
+msgid "이미지 파일 내용을 분석합니다."
+msgstr "이미지 파일 내용을 분석합니다."
+
+msgid "이번 발화에서 명시적으로 요청한 사실만 기억합니다."
+msgstr "이번 발화에서 명시적으로 요청한 사실만 기억합니다."
+
+msgid "이번 요청에서 명시적으로 기억을 잊으라고 하지 않았어요."
+msgstr "이번 요청에서 명시적으로 기억을 잊으라고 하지 않았어요."
+
+msgid "이번 요청에서 명시적으로 기억해 달라고 하지 않았어요."
+msgstr "이번 요청에서 명시적으로 기억해 달라고 하지 않았어요."
+
+msgid "이번 주 자기개선 리포트예요!"
+msgstr "이번 주 자기개선 리포트예요!"
+
+msgid "이번 주 학습 결과를 정리해 뒀어요.||주간 리포트를 준비했어요. 편할 때 확인해 주세요."
+msgstr "이번 주 학습 결과를 정리해 뒀어요.||주간 리포트를 준비했어요. 편할 때 확인해 주세요."
+
+msgid "이번 주 학습 리포트를 정리했어요.||이번 주에 배운 내용을 모아뒀어요."
+msgstr "이번 주 학습 리포트를 정리했어요.||이번 주에 배운 내용을 모아뒀어요."
+
+msgid "이번 주 학습 리포트를 준비했어요.||주간 리포트를 확인할 수 있어요."
+msgstr "이번 주 학습 리포트를 준비했어요.||주간 리포트를 확인할 수 있어요."
+
+msgid "이슬비"
+msgstr "이슬비"
+
 msgid "이전 대화를 참고할 때의 태도"
 msgstr "이전 대화를 참고할 때의 태도"
 
+msgid "이전 버전 데이터 가져오기"
+msgstr "이전 버전 데이터 가져오기"
+
+msgid "이전 버전의 .ari_runtime 폴더 선택"
+msgstr "이전 버전의 .ari_runtime 폴더 선택"
+
+msgid "이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."
+msgstr "이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."
+
+msgid "이제 많이 친해진 것 같아요."
+msgstr "이제 많이 친해진 것 같아요."
+
+msgid "이제 편하게 얘기해요."
+msgstr "이제 편하게 얘기해요."
+
+msgid "이제 편해졌네요."
+msgstr "이제 편해졌네요."
+
+msgid "이해합니다!"
+msgstr "이해합니다!"
+
+msgid "인식 결과: {text}"
+msgstr "인식 결과: {text}"
+
+msgid "인터넷 서핑 중~"
+msgstr "인터넷 서핑 중~"
+
+msgid "인터넷 정보를 검색합니다."
+msgstr "인터넷 정보를 검색합니다."
+
 msgid "인터페이스 언어:"
 msgstr "인터페이스 언어:"
+
+msgid "일"
+msgstr "일"
+
+msgid "일본어 예시 대사:"
+msgstr "일본어 예시 대사:"
+
+msgid "일부 steps가 실패하여 목표를 달성하지 못했습니다."
+msgstr "일부 steps가 실패하여 목표를 달성하지 못했습니다."
+
+msgid "일부 단계가 실패하여 목표를 달성하지 못했습니다."
+msgstr "일부 단계가 실패하여 목표를 달성하지 못했습니다."
+
+msgid "임베딩을 사용할 수 없습니다. 어휘 점수만 사용합니다."
+msgstr "임베딩을 사용할 수 없습니다. 어휘 점수만 사용합니다."
+
+msgid "입니다."
+msgstr "입니다."
+
+msgid "입니다. "
+msgstr "입니다. "
+
+msgid "잊을 기억이 없어요."
+msgstr "잊을 기억이 없어요."
+
+msgid "자기개선 추정 토큰: {tokens:,} tokens/주"
+msgstr "자기개선 추정 토큰: {tokens:,} tokens/주"
+
+msgid "자동"
+msgstr "자동"
 
 msgid "자동 감도 조정 사용"
 msgstr "자동 감도 조정 사용"
@@ -1080,11 +5084,59 @@ msgstr "자동 감도 조정 사용"
 msgid "자동 감지"
 msgstr "자동 감지"
 
+msgid "자동 확인은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다."
+msgstr "자동 확인은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다."
+
+msgid "자리 비움 기준 (분)"
+msgstr "자리 비움 기준 (분)"
+
+msgid "자리 비움·복귀 반응"
+msgstr "자리 비움·복귀 반응"
+
 msgid "자주 쓰는 명령어"
 msgstr "자주 쓰는 명령어"
 
+msgid "자주 하는 작업은 {goals}예요."
+msgstr "자주 하는 작업은 {goals}예요."
+
+msgid "자주 하는 작업을 아직 충분히 배우지 못했어요."
+msgstr "자주 하는 작업을 아직 충분히 배우지 못했어요."
+
+msgid "작게 30% ↔ 크게 300% (기본 100%)"
+msgstr "작게 30% ↔ 크게 300% (기본 100%)"
+
+msgid "작업 {task_id}가 Cancel되었습니다."
+msgstr "작업 {task_id}가 Cancel되었습니다."
+
+msgid "작업 {task_id}가 취소되었습니다."
+msgstr "작업 {task_id}가 취소되었습니다."
+
+msgid "작업 결과가 나왔어요. 확인해 주세요: {summary}||요청하신 작업을 끝냈어요: {summary}"
+msgstr "작업 결과가 나왔어요. 확인해 주세요: {summary}||요청하신 작업을 끝냈어요: {summary}"
+
 msgid "작업 내용"
 msgstr "작업 내용"
+
+msgid "작업 실패 ({count}회 시도). {summary}"
+msgstr "작업 실패 ({count}회 시도). {summary}"
+
+msgid "작업 예약 완료 (ID: {task_id}){repeat}. {formatted}에 실행됩니다."
+msgstr "작업 예약 완료 (ID: {task_id}){repeat}. {formatted}에 실행됩니다."
+
+msgid "작업 완료"
+msgstr "작업 완료"
+
+msgid "작업 완료 ({steps}steps). {summary}"
+msgstr "작업 완료 ({steps}steps). {summary}"
+
+msgid "작업 완료 ({steps}단계). {summary}"
+msgstr "작업 완료 ({steps}단계). {summary}"
+
+msgid "작업 완료. {folder} 폴더에 {file}를 Save했습니다."
+msgstr "작업 완료. {folder} 폴더에 {file}를 Save했습니다."
+
+msgid "작업 완료. {folder} 폴더에 {file}를 저장했습니다."
+msgstr "작업 완료. {folder} 폴더에 {file}를 저장했습니다."
 
 msgid "작업 유형별 자동 라우팅 사용"
 msgstr "작업 유형별 자동 라우팅 사용"
@@ -1095,20 +5147,89 @@ msgstr "작업 이름 (예: 뉴스 요약)"
 msgid "작업 취소"
 msgstr "작업 취소"
 
+msgid "작업은 완료됐지만 OK 가능한 결과를 받지 못했습니다."
+msgstr "작업은 완료됐지만 OK 가능한 결과를 받지 못했습니다."
+
+msgid "작업은 완료됐지만 확인 가능한 결과를 받지 못했습니다."
+msgstr "작업은 완료됐지만 확인 가능한 결과를 받지 못했습니다."
+
+msgid "작업을 마쳤어요. 결과는 이렇습니다: {summary}||완료된 내용이에요: {summary}"
+msgstr "작업을 마쳤어요. 결과는 이렇습니다: {summary}||완료된 내용이에요: {summary}"
+
+msgid "작업이 끝났어요. 결과를 확인해 주세요: {summary}||요청하신 일을 마쳤어요: {summary}"
+msgstr "작업이 끝났어요. 결과를 확인해 주세요: {summary}||요청하신 일을 마쳤어요: {summary}"
+
+msgid "잘 모르겠습니다."
+msgstr "잘 모르겠습니다."
+
+msgid "잠금 중 웨이크 감지는 항상 정지됩니다."
+msgstr "잠금 중 웨이크 감지는 항상 정지됩니다."
+
+msgid "잠금이 풀렸어요."
+msgstr "잠금이 풀렸어요."
+
+msgid "잠깐 쉬어도 될까요..."
+msgstr "잠깐 쉬어도 될까요..."
+
+msgid "잠시만요."
+msgstr "잠시만요."
+
+msgid "장시간 계속 일하셨네요. 잠시 쉬어 가는 게 어때요?"
+msgstr "장시간 계속 일하셨네요. 잠시 쉬어 가는 게 어때요?"
+
 msgid "장치 설정"
 msgstr "장치 설정"
+
+msgid "재개할 작업이 없습니다."
+msgstr "재개할 작업이 없습니다."
 
 msgid "재계획 (시도 {count}회)"
 msgstr "재계획 (시도 {count}회)"
 
+msgid "재미있겠다~"
+msgstr "재미있겠다~"
+
 msgid "재부팅"
 msgstr "재부팅"
+
+msgid "재생 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):"
+msgstr "재생 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):"
+
+msgid "재시도 없는 단일 HTTP 요청"
+msgstr "재시도 없는 단일 HTTP 요청"
 
 msgid "재시작"
 msgstr "재시작"
 
+msgid "저도 보고 싶어요!"
+msgstr "저도 보고 싶어요!"
+
+msgid "저도 어린이예요."
+msgstr "저도 어린이예요."
+
+msgid "저수준 시스템 접근"
+msgstr "저수준 시스템 접근"
+
 msgid "저장"
 msgstr "저장"
+
+msgid "저장된 제안이 없습니다."
+msgstr "저장된 제안이 없습니다."
+
+msgid "저장소 클론"
+msgstr "저장소 클론"
+
+msgid "저한테 사탕 주실 건가요?"
+msgstr "저한테 사탕 주실 건가요?"
+
+msgid "적당히 해요."
+msgstr "적당히 해요."
+
+msgid "전략 검색"
+msgstr "전략 검색"
+
+msgid "전역 단축키:"
+msgstr "전역 단축키:"
 
 msgid "전원"
 msgstr "전원"
@@ -1116,17 +5237,92 @@ msgstr "전원"
 msgid "전원 꺼"
 msgstr "전원 꺼"
 
+msgid "전원 끄기"
+msgstr "전원 끄기"
+
+msgid "전체 실행 타임아웃 (초)"
+msgstr "전체 실행 타임아웃 (초)"
+
+msgid "전체 화면 스크린샷을 Save하고 경로를 반환합니다."
+msgstr "전체 화면 스크린샷을 Save하고 경로를 반환합니다."
+
+msgid "전체 화면 스크린샷을 저장하고 경로를 반환합니다."
+msgstr "전체 화면 스크린샷을 저장하고 경로를 반환합니다."
+
+msgid "절친"
+msgstr "절친"
+
+msgid "정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. {summary}"
+msgstr "정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. {summary}"
+
+msgid "정리 작업 결과예요. {summary}||새벽 정리 결과가 나왔어요. {summary}"
+msgstr "정리 작업 결과예요. {summary}||새벽 정리 결과가 나왔어요. {summary}"
+
+msgid "정보·업데이트"
+msgstr "정보·업데이트"
+
+msgid "제공자 삭제"
+msgstr "제공자 삭제"
+
 msgid "제공자 선택:"
 msgstr "제공자 선택:"
+
+msgid "제공자 추가"
+msgstr "제공자 추가"
 
 msgid "제공자별 API Key"
 msgstr "제공자별 API Key"
 
+msgid "제목 None"
+msgstr "제목 None"
+
+msgid "제목 없음"
+msgstr "제목 없음"
+
+msgid "제목 일부가 일치하는 창에 포커스를 맞춥니다."
+msgstr "제목 일부가 일치하는 창에 포커스를 맞춥니다."
+
+msgid "제안"
+msgstr "제안"
+
+msgid "제안을 불러오지 못했습니다."
+msgstr "제안을 불러오지 못했습니다."
+
+msgid "조금 익숙해졌네요."
+msgstr "조금 익숙해졌네요."
+
+msgid "조금만 기다려 주세요."
+msgstr "조금만 기다려 주세요."
+
+msgid "존재 OK 없이 파일·경로 사용"
+msgstr "존재 OK 없이 파일·경로 사용"
+
+msgid "존재 확인 없이 파일·경로 사용"
+msgstr "존재 확인 없이 파일·경로 사용"
+
+msgid "좀 간지럽네요."
+msgstr "좀 간지럽네요."
+
 msgid "종료"
 msgstr "종료"
 
+msgid "종료 Cancel"
+msgstr "종료 Cancel"
+
+msgid "종료 Cancel 명령 실행에 실패했습니다."
+msgstr "종료 Cancel 명령 실행에 실패했습니다."
+
+msgid "종료 OK 여부 (항상 true)"
+msgstr "종료 OK 여부 (항상 true)"
+
 msgid "종료 안 해"
 msgstr "종료 안 해"
+
+msgid "종료 예약을 Cancel했습니다."
+msgstr "종료 예약을 Cancel했습니다."
+
+msgid "종료 예약을 취소했습니다."
+msgstr "종료 예약을 취소했습니다."
 
 msgid "종료 취소"
 msgstr "종료 취소"
@@ -1137,26 +5333,158 @@ msgstr "종료 취소 명령 실행에 실패했습니다."
 msgid "종료 확인 여부 (항상 true)"
 msgstr "종료 확인 여부 (항상 true)"
 
+msgid "종료할 앱 이름이 필요합니다."
+msgstr "종료할 앱 이름이 필요합니다."
+
+msgid "좋은 아침이에요!"
+msgstr "좋은 아침이에요!"
+
+msgid "좋은 아침이에요! 오늘 날씨와 주요 뉴스를 요약해 드릴까요?"
+msgstr "좋은 아침이에요! 오늘 날씨와 주요 뉴스를 요약해 드릴까요?"
+
+msgid "좋음"
+msgstr "좋음"
+
 msgid "죄송합니다. AI 응답 엔진을 초기화할 수 없습니다."
 msgstr "죄송합니다. AI 응답 엔진을 초기화할 수 없습니다."
+
+msgid "죄송합니다. 이해하지 못했습니다."
+msgstr "죄송합니다. 이해하지 못했습니다."
+
+msgid "주간 리포트 생성 실패"
+msgstr "주간 리포트 생성 실패"
+
+msgid "주변"
+msgstr "주변"
 
 msgid "주세요"
 msgstr "주세요"
 
+msgid "주요 색상"
+msgstr "주요 색상"
+
+msgid "주의! {summary}"
+msgstr "주의! {summary}"
+
+msgid "주의: {msg}"
+msgstr "주의: {msg}"
+
+msgid "주의: {summary}. 실행합니다."
+msgstr "주의: {summary}. 실행합니다."
+
+msgid "주의가 필요한 명령: {matched}"
+msgstr "주의가 필요한 명령: {matched}"
+
+msgid "주의가 필요한 파이썬 작업: {matched}"
+msgstr "주의가 필요한 파이썬 작업: {matched}"
+
 msgid "주제 "
 msgstr "주제 "
+
+msgid "중지"
+msgstr "중지"
 
 msgid "줘"
 msgstr "줘"
 
+msgid "즐거운 성탄절 되세요!"
+msgstr "즐거운 성탄절 되세요!"
+
+msgid "지금 당장 뭔가 닫아야 해요!"
+msgstr "지금 당장 뭔가 닫아야 해요!"
+
 msgid "지금 실행"
 msgstr "지금 실행"
+
+msgid "지금 짧은 문장을 말씀해 주세요."
+msgstr "지금 짧은 문장을 말씀해 주세요."
+
+msgid "지금 확인"
+msgstr "지금 확인"
+
+msgid "지원되지 않는 Python 버전 {versions}을(를) 찾았습니다. CosyVoice에는 Python 3.10 또는 3.11(64비트)이 필요합니다. 기존 Python을 제거할 필요 없이 해당 버전을 추가로 설치해 주세요."
+msgstr "지원되지 않는 Python 버전 {versions}을(를) 찾았습니다. CosyVoice에는 Python 3.10 또는 3.11(64비트)이 필요합니다. 기존 Python을 제거할 필요 없이 해당 버전을 추가로 설치해 주세요."
+
+msgid "지원하지 않는 형식입니다."
+msgstr "지원하지 않는 형식입니다."
+
+msgid "지인"
+msgstr "지인"
+
+msgid "진행 중인 작업을 중단할게요."
+msgstr "진행 중인 작업을 중단할게요."
+
+msgid "진행 중인 타이머를 Cancel합니다. 이름이 없으면 가장 최근 타이머를 Cancel합니다."
+msgstr "진행 중인 타이머를 Cancel합니다. 이름이 없으면 가장 최근 타이머를 Cancel합니다."
+
+msgid "진행 중인 타이머를 취소합니다. 이름이 없으면 가장 최근 타이머를 취소합니다."
+msgstr "진행 중인 타이머를 취소합니다. 이름이 없으면 가장 최근 타이머를 취소합니다."
+
+msgid "집중하고 계시는군요!"
+msgstr "집중하고 계시는군요!"
+
+msgid "짧은 문장 인식"
+msgstr "짧은 문장 인식"
+
+msgid "참조 WAV 대본:"
+msgstr "참조 WAV 대본:"
+
+msgid "참조 WAV 선택"
+msgstr "참조 WAV 선택"
+
+msgid "참조 WAV 파일 (비워두면 기본 reference.wav 사용):"
+msgstr "참조 WAV 파일 (비워두면 기본 reference.wav 사용):"
+
+msgid "참조 WAV 파일을 찾을 수 없습니다."
+msgstr "참조 WAV 파일을 찾을 수 없습니다."
+
+msgid "참조 음성 복제"
+msgstr "참조 음성 복제"
+
+msgid "참조 음성으로 내 음성 만들기"
+msgstr "참조 음성으로 내 음성 만들기"
+
+msgid "창을 좀 닫아주세요~"
+msgstr "창을 좀 닫아주세요~"
+
+msgid "창을 활성화했습니다."
+msgstr "창을 활성화했습니다."
 
 msgid "찾아보기"
 msgstr "찾아보기"
 
+msgid "천둥번개"
+msgstr "천둥번개"
+
+msgid "천둥번개(우박)"
+msgstr "천둥번개(우박)"
+
+msgid "천만에요!"
+msgstr "천만에요!"
+
 msgid "초"
 msgstr "초"
+
+msgid "초면"
+msgstr "초면"
+
+msgid "초콜릿... 드릴까요."
+msgstr "초콜릿... 드릴까요."
+
+msgid "최근 '{top_topic}'에 대해 자주 대화하셨네요. 관련 정보를 더 찾아드릴까요?"
+msgstr "최근 '{top_topic}'에 대해 자주 대화하셨네요. 관련 정보를 더 찾아드릴까요?"
+
+msgid "최근 말풍선 기록 (최대 50개)"
+msgstr "최근 말풍선 기록 (최대 50개)"
+
+msgid "최근 유사 목표 에피소드:"
+msgstr "최근 유사 목표 에피소드:"
+
+msgid "최근 정책 기록"
+msgstr "최근 정책 기록"
+
+msgid "최근 주제 '{topic_name}'와 관련된 반복 전략이 보여요. 이어서 정리해드릴까요?"
+msgstr "최근 주제 '{topic_name}'와 관련된 반복 전략이 보여요. 이어서 정리해드릴까요?"
 
 msgid "추가"
 msgstr "추가"
@@ -1164,14 +5492,41 @@ msgstr "추가"
 msgid "추가 모델명 (쉼표로 여러 개 입력 가능):"
 msgstr "추가 모델명 (쉼표로 여러 개 입력 가능):"
 
+msgid "출력 파일은 Input 파일과 같을 수 없습니다."
+msgstr "출력 파일은 Input 파일과 같을 수 없습니다."
+
+msgid "출력 파일은 입력 파일과 같을 수 없습니다."
+msgstr "출력 파일은 입력 파일과 같을 수 없습니다."
+
+msgid "충전 빨리요!!"
+msgstr "충전 빨리요!!"
+
+msgid "충전기 꽂아주세요~"
+msgstr "충전기 꽂아주세요~"
+
+msgid "취소"
+msgstr "취소"
+
 msgid "취소할 작업 ID (list_scheduled_tasks로 확인)"
 msgstr "취소할 작업 ID (list_scheduled_tasks로 확인)"
+
+msgid "취소할 작업 ID를 알려주세요."
+msgstr "취소할 작업 ID를 알려주세요."
 
 msgid "취소할 타이머 이름 (선택)"
 msgstr "취소할 타이머 이름 (선택)"
 
+msgid "친구"
+msgstr "친구"
+
+msgid "친한친구"
+msgstr "친한친구"
+
 msgid "캐릭터 숨기기"
 msgstr "캐릭터 숨기기"
+
+msgid "캐릭터 위젯이 아직 초기화되지 않았습니다."
+msgstr "캐릭터 위젯이 아직 초기화되지 않았습니다."
 
 msgid "캐릭터 페르소나 설정"
 msgstr "캐릭터 페르소나 설정"
@@ -1179,11 +5534,26 @@ msgstr "캐릭터 페르소나 설정"
 msgid "캐릭터 표시"
 msgstr "캐릭터 표시"
 
+msgid "캐릭터 표시 설정"
+msgstr "캐릭터 표시 설정"
+
+msgid "캐릭터를 짧게 클릭하면 발화 끝을 감지하고, 길게 누르면 누르는 동안 듣습니다."
+msgstr "캐릭터를 짧게 클릭하면 발화 끝을 감지하고, 길게 누르면 누르는 동안 듣습니다."
+
+msgid "커스텀 메시지 관리"
+msgstr "커스텀 메시지 관리"
+
+msgid "컴포넌트 lift"
+msgstr "컴포넌트 lift"
+
 msgid "컴퓨터"
 msgstr "컴퓨터"
 
 msgid "컴퓨터 꺼 줘"
 msgstr "컴퓨터 꺼 줘"
+
+msgid "컴퓨터 꺼줘"
+msgstr "컴퓨터 꺼줘"
 
 msgid "컴퓨터 재시작"
 msgstr "컴퓨터 재시작"
@@ -1194,17 +5564,95 @@ msgstr "컴퓨터 종료"
 msgid "컴퓨터 종료해줘"
 msgstr "컴퓨터 종료해줘"
 
+msgid "컴퓨터가 뜨거워요!"
+msgstr "컴퓨터가 뜨거워요!"
+
 msgid "컴퓨터를 재시작합니다. 잠시만 기다려 주세요."
 msgstr "컴퓨터를 재시작합니다. 잠시만 기다려 주세요."
+
+msgid "컴퓨터를 종료합니다. 잠시만 기다려 주세요."
+msgstr "컴퓨터를 종료합니다. 잠시만 기다려 주세요."
+
+msgid "컴퓨터를 즉시 종료합니다. 시간 표현(예: '15분 뒤', '오later 11시')이 포함된 경우에는 schedule_task를 사용하세요."
+msgstr "컴퓨터를 즉시 종료합니다. 시간 표현(예: '15분 뒤', '오later 11시')이 포함된 경우에는 schedule_task를 사용하세요."
+
+msgid "컴퓨터를 즉시 종료합니다. 시간 표현(예: '15분 뒤', '오후 11시')이 포함된 경우에는 schedule_task를 사용하세요."
+msgstr "컴퓨터를 즉시 종료합니다. 시간 표현(예: '15분 뒤', '오후 11시')이 포함된 경우에는 schedule_task를 사용하세요."
 
 msgid "코드"
 msgstr "코드"
 
+msgid "코드 변경 later Save소 검증 명령이 성공적으로 완료됐습니다."
+msgstr "코드 변경 later Save소 검증 명령이 성공적으로 완료됐습니다."
+
+msgid "코드 변경 후 저장소 검증 명령이 성공적으로 완료됐습니다."
+msgstr "코드 변경 후 저장소 검증 명령이 성공적으로 완료됐습니다."
+
 msgid "코드 실행 시간이 너무 길어 중단했습니다."
 msgstr "코드 실행 시간이 너무 길어 중단했습니다."
 
+msgid "코드 실행 중 기술적인 문제가 발생했어요."
+msgstr "코드 실행 중 기술적인 문제가 발생했어요."
+
+msgid "코드의 들여쓰기와 따옴표를 재검토하고, 더 단순한 구조로 재작성하세요."
+msgstr "코드의 들여쓰기와 따옴표를 재검토하고, 더 단순한 구조로 재작성하세요."
+
+msgid "크기"
+msgstr "크기"
+
+msgid "클로닝:"
+msgstr "클로닝:"
+
+msgid "클립보드 텍스트를 반환합니다."
+msgstr "클립보드 텍스트를 반환합니다."
+
+msgid "클립보드에 Save했습니다."
+msgstr "클립보드에 Save했습니다."
+
+msgid "클립보드에 저장했습니다."
+msgstr "클립보드에 저장했습니다."
+
+msgid "클립보드에 텍스트를 Save합니다."
+msgstr "클립보드에 텍스트를 Save합니다."
+
+msgid "클립보드에 텍스트를 저장합니다."
+msgstr "클립보드에 텍스트를 저장합니다."
+
+msgid "타이머"
+msgstr "타이머"
+
+msgid "타이머 {index}"
+msgstr "타이머 {index}"
+
+msgid "타이머 시간을 말씀해 주세요."
+msgstr "타이머 시간을 말씀해 주세요."
+
+msgid "타이머 시간을 정확히 말씀해 주세요."
+msgstr "타이머 시간을 정확히 말씀해 주세요."
+
 msgid "타이머 이름 (선택)"
 msgstr "타이머 이름 (선택)"
+
+msgid "타이머가 Cancel되었습니다."
+msgstr "타이머가 Cancel되었습니다."
+
+msgid "타이머가 취소되었습니다."
+msgstr "타이머가 취소되었습니다."
+
+msgid "타이머는 max {max}개까지 Settings할 수 있습니다."
+msgstr "타이머는 max {max}개까지 Settings할 수 있습니다."
+
+msgid "타이머는 최대 {max}개까지 설정할 수 있습니다."
+msgstr "타이머는 최대 {max}개까지 설정할 수 있습니다."
+
+msgid "타임아웃 없는 네트워크 호출"
+msgstr "타임아웃 없는 네트워크 호출"
+
+msgid "탭·스페이스 혼합 들여쓰기"
+msgstr "탭·스페이스 혼합 들여쓰기"
+
+msgid "테두리"
+msgstr "테두리"
 
 msgid "테마 JSON 파일은 아래 폴더에서 직접 수정할 수 있습니다.\n\n{path}\n\n저장 후 설정창에서 다시 적용하면 열린 UI에 즉시 반영됩니다."
 msgstr "테마 JSON 파일은 아래 폴더에서 직접 수정할 수 있습니다.\n\n{path}\n\n저장 후 설정창에서 다시 적용하면 열린 UI에 즉시 반영됩니다."
@@ -1214,6 +5662,9 @@ msgstr "테마 미리보기"
 
 msgid "테마 설정이 저장되었습니다.\n열려 있는 UI에는 즉시 반영되며, TTS나 워커는 다시 시작하지 않습니다."
 msgstr "테마 설정이 저장되었습니다.\n열려 있는 UI에는 즉시 반영되며, TTS나 워커는 다시 시작하지 않습니다."
+
+msgid "테마 이름"
+msgstr "테마 이름"
 
 msgid "테마 저장"
 msgstr "테마 저장"
@@ -1233,11 +5684,131 @@ msgstr "테마 폴더 안내"
 msgid "테마 프리셋:"
 msgstr "테마 프리셋:"
 
+msgid "테마로 저장"
+msgstr "테마로 저장"
+
+msgid "텍스트"
+msgstr "텍스트"
+
+msgid "텍스트가 아닌 응답입니다: {content_type}"
+msgstr "텍스트가 아닌 응답입니다: {content_type}"
+
 msgid "통계"
 msgstr "통계"
 
+msgid "특정 시간에 작업을 예약 실행합니다. 'N분/시간 뒤', 'N시에' 등 시간 표현과 함께 computer shutdown·파일 Save 등 지연 실행 요청에 사용합니다."
+msgstr "특정 시간에 작업을 예약 실행합니다. 'N분/시간 뒤', 'N시에' 등 시간 표현과 함께 computer shutdown·파일 Save 등 지연 실행 요청에 사용합니다."
+
+msgid "특정 시간에 작업을 예약 실행합니다. 'N분/시간 뒤', 'N시에' 등 시간 표현과 함께 컴퓨터 종료·파일 저장 등 지연 실행 요청에 사용합니다."
+msgstr "특정 시간에 작업을 예약 실행합니다. 'N분/시간 뒤', 'N시에' 등 시간 표현과 함께 컴퓨터 종료·파일 저장 등 지연 실행 요청에 사용합니다."
+
+msgid "파괴적 작업 전에 사용자에게 미리 알리고, Cancel 시 롤백 steps를 포함하세요."
+msgstr "파괴적 작업 전에 사용자에게 미리 알리고, Cancel 시 롤백 steps를 포함하세요."
+
+msgid "파괴적 작업 전에 사용자에게 미리 알리고, 취소 시 롤백 단계를 포함하세요."
+msgstr "파괴적 작업 전에 사용자에게 미리 알리고, 취소 시 롤백 단계를 포함하세요."
+
+msgid "파이썬 실행 실패"
+msgstr "파이썬 실행 실패"
+
+msgid "파이썬 코드로 자율 처리합니다."
+msgstr "파이썬 코드로 자율 처리합니다."
+
+msgid "파이팅이에요!"
+msgstr "파이팅이에요!"
+
+msgid "파일 {count}개를 가져왔습니다. 이미 있던 파일은 그대로 두었습니다.\n가져온 데이터를 적용하려면 아리를 다시 시작하세요."
+msgstr "파일 {count}개를 가져왔습니다. 이미 있던 파일은 그대로 두었습니다.\n가져온 데이터를 적용하려면 아리를 다시 시작하세요."
+
+msgid "파일 내용을 읽어 반환합니다."
+msgstr "파일 내용을 읽어 반환합니다."
+
+msgid "파일 또는 빈 폴더를 삭제합니다."
+msgstr "파일 또는 빈 폴더를 삭제합니다."
+
+msgid "파일 또는 폴더를 이동하거나 이름을 변경합니다."
+msgstr "파일 또는 폴더를 이동하거나 이름을 변경합니다."
+
+msgid "파일 쓰기"
+msgstr "파일 쓰기"
+
+msgid "파일 인코딩을 OK할 수 없어 편집하지 않았습니다."
+msgstr "파일 인코딩을 OK할 수 없어 편집하지 않았습니다."
+
+msgid "파일 인코딩을 확인할 수 없어 편집하지 않았습니다."
+msgstr "파일 인코딩을 확인할 수 없어 편집하지 않았습니다."
+
+msgid "파일 정리 중이세요?"
+msgstr "파일 정리 중이세요?"
+
+msgid "파일/폴더 삭제"
+msgstr "파일/폴더 삭제"
+
+msgid "파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 steps를 먼저 실행하세요."
+msgstr "파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 steps를 먼저 실행하세요."
+
+msgid "파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 단계를 먼저 실행하세요."
+msgstr "파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 단계를 먼저 실행하세요."
+
+msgid "파일들 안에서 정규식 패턴을 검색합니다."
+msgstr "파일들 안에서 정규식 패턴을 검색합니다."
+
+msgid "파일에 내용을 씁니다 (덮어쓰기 또는 추가)."
+msgstr "파일에 내용을 씁니다 (덮어쓰기 또는 추가)."
+
+msgid "파일의 특정 문자열을 찾아 교체합니다 (diff 없이 정밀 편집)."
+msgstr "파일의 특정 문자열을 찾아 교체합니다 (diff 없이 정밀 편집)."
+
+msgid "파일이 존재하지 않습니다."
+msgstr "파일이 존재하지 않습니다."
+
+msgid "판정 보류(표본 부족)"
+msgstr "판정 보류(표본 부족)"
+
+msgid "팔레트 편집"
+msgstr "팔레트 편집"
+
+msgid "페이지 로드 Error: {error}"
+msgstr "페이지 로드 Error: {error}"
+
+msgid "페이지 로드 실패: {error}"
+msgstr "페이지 로드 실패: {error}"
+
+msgid "페이지 로드 오류: {error}"
+msgstr "페이지 로드 오류: {error}"
+
+msgid "평온"
+msgstr "평온"
+
+msgid "폴더 강제 삭제"
+msgstr "폴더 강제 삭제"
+
+msgid "표본 없음"
+msgstr "표본 없음"
+
+msgid "표시 이름"
+msgstr "표시 이름"
+
+msgid "표시 이름을 입력하세요."
+msgstr "표시 이름을 입력하세요."
+
 msgid "표시할 플러그인이 없습니다."
 msgstr "표시할 플러그인이 없습니다."
+
+msgid "표준 라이브러리 대체 없이 선택 패키지 의존"
+msgstr "표준 라이브러리 대체 없이 선택 패키지 의존"
+
+msgid "프로그램이 너무 많아요~"
+msgstr "프로그램이 너무 많아요~"
+
+msgid "프로세스 강제 종료"
+msgstr "프로세스 강제 종료"
+
+msgid "프로세스 이름으로 실행 중인 앱을 종료합니다."
+msgstr "프로세스 이름으로 실행 중인 앱을 종료합니다."
+
+msgid "프리셋 초기화"
+msgstr "프리셋 초기화"
 
 msgid "플래너 모델 (선택):"
 msgstr "플래너 모델 (선택):"
@@ -1251,6 +5822,9 @@ msgstr "플러그인"
 msgid "플러그인 검색"
 msgstr "플러그인 검색"
 
+msgid "플러그인 로드가 거부되었습니다."
+msgstr "플러그인 로드가 거부되었습니다."
+
 msgid "플러그인 목록 로드 실패: {error}"
 msgstr "플러그인 목록 로드 실패: {error}"
 
@@ -1259,6 +5833,21 @@ msgstr "플러그인 목록 새로고침"
 
 msgid "플러그인 설치"
 msgstr "플러그인 설치"
+
+msgid "플러그인 설치가 완료되었습니다."
+msgstr "플러그인 설치가 완료되었습니다."
+
+msgid "플러그인 설치에 실패했습니다."
+msgstr "플러그인 설치에 실패했습니다."
+
+msgid "플러그인 승인"
+msgstr "플러그인 승인"
+
+msgid "플러그인 파일은 저장되었지만 활성화에 실패했습니다: {error}"
+msgstr "플러그인 파일은 저장되었지만 활성화에 실패했습니다: {error}"
+
+msgid "플러그인 파일이 승인 후 변경되었습니다."
+msgstr "플러그인 파일이 승인 후 변경되었습니다."
 
 msgid "플러그인 폴더"
 msgstr "플러그인 폴더"
@@ -1269,8 +5858,50 @@ msgstr "플러그인 폴더 열기"
 msgid "플러그인 폴더:"
 msgstr "플러그인 폴더:"
 
+msgid "플러그인 핫 리로드 사용"
+msgstr "플러그인 핫 리로드 사용"
+
 msgid "플러그인이 없습니다. sample_plugin.py를 복사해 시작할 수 있습니다."
 msgstr "플러그인이 없습니다. sample_plugin.py를 복사해 시작할 수 있습니다."
+
+msgid "필요한 패키지가 없습니다. pip install로 설치 steps를 먼저 실행하거나 표준 라이브러리로 대체하세요."
+msgstr "필요한 패키지가 없습니다. pip install로 설치 steps를 먼저 실행하거나 표준 라이브러리로 대체하세요."
+
+msgid "필요한 패키지가 없습니다. pip install로 설치 단계를 먼저 실행하거나 표준 라이브러리로 대체하세요."
+msgstr "필요한 패키지가 없습니다. pip install로 설치 단계를 먼저 실행하거나 표준 라이브러리로 대체하세요."
+
+msgid "하아암... 주무실 시간이에요."
+msgstr "하아암... 주무실 시간이에요."
+
+msgid "하암~... 졸려요."
+msgstr "하암~... 졸려요."
+
+msgid "하위 폴더 포함 여부"
+msgstr "하위 폴더 포함 여부"
+
+msgid "학습"
+msgstr "학습"
+
+msgid "학습 기여도 진단"
+msgstr "학습 기여도 진단"
+
+msgid "학습 기여도: "
+msgstr "학습 기여도: "
+
+msgid "학습 스킬"
+msgstr "학습 스킬"
+
+msgid "한 번 눌러 시작 (toggle)"
+msgstr "한 번 눌러 시작 (toggle)"
+
+msgid "한국어"
+msgstr "한국어"
+
+msgid "한글날이에요. 한글은 정말 멋져요!"
+msgstr "한글날이에요. 한글은 정말 멋져요!"
+
+msgid "함께하니 좋아요."
+msgstr "함께하니 좋아요."
 
 msgid "해달라"
 msgstr "해달라"
@@ -1278,14 +5909,149 @@ msgstr "해달라"
 msgid "해줘"
 msgstr "해줘"
 
+msgid "핵심 의존성 설치"
+msgstr "핵심 의존성 설치"
+
+msgid "허용되지 않는 URL입니다: {url}"
+msgstr "허용되지 않는 URL입니다: {url}"
+
+msgid "허용되지 않는 모델 이름입니다: {model}"
+msgstr "허용되지 않는 모델 이름입니다: {model}"
+
+msgid "허용되지 않는 실행 파일입니다: {candidate}"
+msgstr "허용되지 않는 실행 파일입니다: {candidate}"
+
+msgid "허용되지 않은 URL입니다: {reason}"
+msgstr "허용되지 않은 URL입니다: {reason}"
+
+msgid "현재"
+msgstr "현재"
+
 msgid "현재 감도: {value}"
 msgstr "현재 감도: {value}"
+
+msgid "현재 날씨 정보를 조회합니다."
+msgstr "현재 날씨 정보를 조회합니다."
+
+msgid "현재 사용자의 화면 상태(작업표시줄 위치, 전체화면 모드 여부 등)를 OK합니다."
+msgstr "현재 사용자의 화면 상태(작업표시줄 위치, 전체화면 모드 여부 등)를 OK합니다."
+
+msgid "현재 사용자의 화면 상태(작업표시줄 위치, 전체화면 모드 여부 등)를 확인합니다."
+msgstr "현재 사용자의 화면 상태(작업표시줄 위치, 전체화면 모드 여부 등)를 확인합니다."
+
+msgid "현재 선택한 TTS 엔진의 시험 재생이 완료되었습니다."
+msgstr "현재 선택한 TTS 엔진의 시험 재생이 완료되었습니다."
+
+msgid "현재 스킬은 {skills}예요."
+msgstr "현재 스킬은 {skills}예요."
+
+msgid "현재 시간은 {time}입니다."
+msgstr "현재 시간은 {time}입니다."
+
+msgid "현재 시간을 알려줍니다."
+msgstr "현재 시간을 알려줍니다."
+
+msgid "현재 실행 중인 타이머가 없습니다."
+msgstr "현재 실행 중인 타이머가 없습니다."
+
+msgid "현재 예약된 작업 목록을 조회합니다. '예약된 작업 뭐 있어?', '스케줄 OK해줘' 등의 요청에 사용합니다."
+msgstr "현재 예약된 작업 목록을 조회합니다. '예약된 작업 뭐 있어?', '스케줄 OK해줘' 등의 요청에 사용합니다."
+
+msgid "현재 예약된 작업 목록을 조회합니다. '예약된 작업 뭐 있어?', '스케줄 확인해줘' 등의 요청에 사용합니다."
+msgstr "현재 예약된 작업 목록을 조회합니다. '예약된 작업 뭐 있어?', '스케줄 확인해줘' 등의 요청에 사용합니다."
+
+msgid "현재 예약된 작업이 없습니다."
+msgstr "현재 예약된 작업이 없습니다."
+
+msgid "현재 예약된 종료가 없거나 Cancel에 실패했습니다."
+msgstr "현재 예약된 종료가 없거나 Cancel에 실패했습니다."
 
 msgid "현재 예약된 종료가 없거나 취소에 실패했습니다."
 msgstr "현재 예약된 종료가 없거나 취소에 실패했습니다."
 
+msgid "현재 친밀도: {level_name} (Lv.{level}) — {points}pt"
+msgstr "현재 친밀도: {level_name} (Lv.{level}) — {points}pt"
+
+msgid "현재 화면 상태: {mode}\n"
+msgstr "현재 화면 상태: {mode}\n"
+
+msgid "현재 화면 스크린샷을 찍어 내용을 분석합니다."
+msgstr "현재 화면 스크린샷을 찍어 내용을 분석합니다."
+
+msgid "현재 화면 정보를 OK할 수 없습니다."
+msgstr "현재 화면 정보를 OK할 수 없습니다."
+
+msgid "현재 화면 정보를 확인할 수 없습니다."
+msgstr "현재 화면 정보를 확인할 수 없습니다."
+
+msgid "현재 화면을 설명해 주세요."
+msgstr "현재 화면을 설명해 주세요."
+
+msgid "현충일이에요. 감사한 마음 가져요."
+msgstr "현충일이에요. 감사한 마음 가져요."
+
+msgid "호출할 MCP 도구명 (예: search_coupang_products)"
+msgstr "호출할 MCP 도구명 (예: search_coupang_products)"
+
+msgid "화면 OCR에서 목표 관련 텍스트를 OK했습니다. ({found}/{total})"
+msgstr "화면 OCR에서 목표 관련 텍스트를 OK했습니다. ({found}/{total})"
+
+msgid "화면 OCR에서 목표 관련 텍스트를 확인했습니다. ({found}/{total})"
+msgstr "화면 OCR에서 목표 관련 텍스트를 확인했습니다. ({found}/{total})"
+
+msgid "화면 상태 OK 중 Error 발생: {error}"
+msgstr "화면 상태 OK 중 Error 발생: {error}"
+
+msgid "화면 상태 확인 중 오류 발생: {error}"
+msgstr "화면 상태 확인 중 오류 발생: {error}"
+
+msgid "화면 이미지 인식을 통해 목표 상태를 OK했습니다."
+msgstr "화면 이미지 인식을 통해 목표 상태를 OK했습니다."
+
+msgid "화면 이미지 인식을 통해 목표 상태를 확인했습니다."
+msgstr "화면 이미지 인식을 통해 목표 상태를 확인했습니다."
+
+msgid "화면 잠금 시 캐릭터 숨기기"
+msgstr "화면 잠금 시 캐릭터 숨기기"
+
+msgid "화이트데이예요!"
+msgstr "화이트데이예요!"
+
+msgid "화이팅!"
+msgstr "화이팅!"
+
+msgid "확인"
+msgstr "확인"
+
+msgid "확인 대기 중인 정보"
+msgstr "확인 대기 중인 정보"
+
+msgid "확인 없이 파괴적 작업 실행"
+msgstr "확인 없이 파괴적 작업 실행"
+
+msgid "확인 중..."
+msgstr "확인 중..."
+
+msgid "확인하겠습니다."
+msgstr "확인하겠습니다."
+
+msgid "확인해줘"
+msgstr "확인해줘"
+
 msgid "확장"
 msgstr "확장"
+
+msgid "활동 반응"
+msgstr "활동 반응"
+
+msgid "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 전송하지 않습니다."
+msgstr "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 전송하지 않습니다."
+
+msgid "활성 교훈"
+msgstr "활성 교훈"
+
+msgid "활성 스킬 {total}개 (컴파일 완료 {compiled}개)"
+msgstr "활성 스킬 {total}개 (컴파일 완료 {compiled}개)"
 
 msgid "활성화"
 msgstr "활성화"
@@ -1293,17 +6059,44 @@ msgstr "활성화"
 msgid "활성화/비활성화"
 msgstr "활성화/비활성화"
 
+msgid "회귀 경고: "
+msgstr "회귀 경고: "
+
 msgid "후"
 msgstr "후"
+
+msgid "흐림"
+msgstr "흐림"
+
+msgid "🎂 생일 등록"
+msgstr "🎂 생일 등록"
+
+msgid "🎨 Edit the palette directly"
+msgstr "🎨 팔레트 직접 편집"
 
 msgid "🎨 팔레트 직접 편집"
 msgstr "🎨 팔레트 직접 편집"
 
+msgid "🎮 Game mode (save GPU)"
+msgstr "🎮 게임 모드 (GPU 절약)"
+
 msgid "🎮 게임 모드 (GPU 절약)"
 msgstr "🎮 게임 모드 (GPU 절약)"
 
+msgid "💝 친밀도 확인"
+msgstr "💝 친밀도 확인"
+
+msgid "💡 Frequently used commands"
+msgstr "💡 자주 쓰는 명령"
+
 msgid "💡 자주 쓰는 명령"
 msgstr "💡 자주 쓰는 명령"
+
+msgid "💬 Chat with Ari"
+msgstr "💬 아리와 대화하기"
+
+msgid "💬 Text chat"
+msgstr "💬 텍스트 대화"
 
 msgid "💬 아리와 대화하기"
 msgstr "💬 아리와 대화하기"
@@ -1311,11 +6104,32 @@ msgstr "💬 아리와 대화하기"
 msgid "💬 텍스트 대화"
 msgstr "💬 텍스트 대화"
 
+msgid "💻 시스템 모니터"
+msgstr "💻 시스템 모니터"
+
+msgid "📜 최근 말풍선 히스토리"
+msgstr "📜 최근 말풍선 히스토리"
+
+msgid "🔍 Verifying..."
+msgstr "🔍 검증 중..."
+
 msgid "🔍 검증 중..."
 msgstr "🔍 검증 중..."
 
+msgid "🕐 {schedule}  →  next {next}"
+msgstr "🕐 {schedule}  →  다음 {next}"
+
 msgid "🕐 {schedule}  →  다음 {next}"
 msgstr "🕐 {schedule}  →  다음 {next}"
+
+msgid "🖥️ 앱 전환 반응"
+msgstr "🖥️ 앱 전환 반응"
+
+msgid "🤖 Plan: {count} steps"
+msgstr "🤖 계획 {count}steps"
+
+msgid "🤖 Running..."
+msgstr "🤖 실행 중..."
 
 msgid "🤖 계획 {count}단계"
 msgstr "🤖 계획 {count}단계"
@@ -1323,2808 +6137,8 @@ msgstr "🤖 계획 {count}단계"
 msgid "🤖 실행 중..."
 msgstr "🤖 실행 중..."
 
-msgid "🧩 스킬 관리"
+msgid "🧩 Skill management"
 msgstr "🧩 스킬 관리"
 
-msgid "Agent Skills"
-msgstr "에이전트 스킬"
-
-msgid "[사용 가능한 스킬]"
-msgstr "[사용 가능한 스킬]"
-
-msgid "스킬 스크립트 경로"
-msgstr "스킬 스크립트 경로"
-
-msgid "MCP 실행 안내"
-msgstr "MCP 실행 안내"
-
-msgid "이 스킬은 MCP 프로토콜을 사용합니다."
-msgstr "이 스킬은 MCP 프로토콜을 사용합니다."
-
-msgid "curl 명령 대신 mcp_call 도구를 사용하세요."
-msgstr "curl 명령 대신 mcp_call 도구를 사용하세요."
-
-msgid "예시"
-msgstr "예시"
-
-msgid "MCP 스킬 도구를 호출합니다. MCP 엔드포인트 URL, 도구명, 파라미터를 지정하세요."
-msgstr "MCP 스킬 도구를 호출합니다. MCP 엔드포인트 URL, 도구명, 파라미터를 지정하세요."
-
-msgid "MCP 서버 엔드포인트 URL (예: https://yuju777-coupang-mcp.hf.space/mcp)"
-msgstr "MCP 서버 엔드포인트 URL (예: https://yuju777-coupang-mcp.hf.space/mcp)"
-
-msgid "호출할 MCP 도구명 (예: search_coupang_products)"
-msgstr "호출할 MCP 도구명 (예: search_coupang_products)"
-
-msgid "도구에 전달할 파라미터 (JSON 객체)"
-msgstr "도구에 전달할 파라미터 (JSON 객체)"
-
-msgid "MCP 호출 실패: endpoint와 tool이 필요합니다."
-msgstr "MCP 호출 실패: endpoint와 tool이 필요합니다."
-
-msgid "MCP 도구 호출 중 오류가 발생했습니다: {error}"
-msgstr "MCP 도구 호출 중 오류가 발생했습니다: {error}"
-
-msgid "SKILL.md 포맷 스킬. Claude Code 등 다른 에이전트와 공유 가능."
-msgstr "SKILL.md 포맷 스킬. Claude Code 등 다른 에이전트와 공유 가능."
-
-msgid "GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로"
-msgstr "GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로"
-
-msgid "스킬을 선택하면 SKILL.md 내용이 표시됩니다."
-msgstr "스킬을 선택하면 SKILL.md 내용이 표시됩니다."
-
-msgid "설치된 스킬: {names}"
-msgstr "설치된 스킬: {names}"
-
-msgid "스킬을 설치할 수 없었습니다."
-msgstr "스킬을 설치할 수 없었습니다."
-
-msgid "{name} 스킬을 삭제할까요?"
-msgstr "{name} 스킬을 삭제할까요?"
-
-msgid "{name} 업데이트 완료"
-msgstr "{name} 업데이트 완료"
-
-msgid "업데이트"
-msgstr "업데이트"
-
-msgid "업데이트 실패"
-msgstr "업데이트 실패"
-
-msgid "설치 원본 정보가 없습니다."
-msgstr "설치 원본 정보가 없습니다."
-
-msgid "스킬 관리 창 열기"
-msgstr "스킬 관리 창 열기"
-
-msgid "스킬 삭제"
-msgstr "스킬 삭제"
-
-msgid "스킬 설치 중..."
-msgstr "스킬 설치 중..."
-
-msgid "[실시간 데이터 응답 지침]\n- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n- 정보가 없으면 '검색 결과에서 확인하지 못했습니다'라고 솔직하게 말하세요.\n- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
-msgstr "[실시간 데이터 응답 지침]\n- 검색 결과에 없는 정보는 절대 지어내지 마세요.\n- 정보가 없으면 '검색 결과에서 확인하지 못했습니다'라고 솔직하게 말하세요.\n- 데이터 출처(웹 검색, 공식 API 등)를 짧게 언급하세요."
-
-msgid "이 요청은 최신 실시간 데이터가 필요합니다. 반드시 web_search 도구를 먼저 호출하세요."
-msgstr "이 요청은 최신 실시간 데이터가 필요합니다. 반드시 web_search 도구를 먼저 호출하세요."
-
-msgid "권장 검색어: {query}"
-msgstr "권장 검색어: {query}"
-
-msgid "{name} 스킬 실행을 위해 에이전트 모드로 전환합니다."
-msgstr "{name} 스킬 실행을 위해 에이전트 모드로 전환합니다."
-
-msgid "\n(교훈: {lesson})"
-msgstr "\n(교훈: {lesson})"
-
-msgid "[{cause}] {goal}: {failure}"
-msgstr "[{cause}] {goal}: {failure}"
-
-msgid "{goal} 작업 실패. {fix}"
-msgstr "{goal} 작업 실패. {fix}"
-
-msgid "대기 시간을 늘리거나 비동기 폴링 방식으로 전환하고, 재시도 횟수를 명시하세요."
-msgstr "대기 시간을 늘리거나 비동기 폴링 방식으로 전환하고, 재시도 횟수를 명시하세요."
-
-msgid "관리자 권한 없이 접근 가능한 경로를 먼저 확인하거나, 권한 요청 단계를 선행하세요."
-msgstr "관리자 권한 없이 접근 가능한 경로를 먼저 확인하거나, 권한 요청 단계를 선행하세요."
-
-msgid "필요한 패키지가 없습니다. pip install로 설치 단계를 먼저 실행하거나 표준 라이브러리로 대체하세요."
-msgstr "필요한 패키지가 없습니다. pip install로 설치 단계를 먼저 실행하거나 표준 라이브러리로 대체하세요."
-
-msgid "파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 단계를 먼저 실행하세요."
-msgstr "파일·경로 존재 여부를 사전에 검증하고, 없으면 생성 단계를 먼저 실행하세요."
-
-msgid "코드의 들여쓰기와 따옴표를 재검토하고, 더 단순한 구조로 재작성하세요."
-msgstr "코드의 들여쓰기와 따옴표를 재검토하고, 더 단순한 구조로 재작성하세요."
-
-msgid "사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 확인하세요."
-msgstr "사용할 모듈과 함수명을 명확히 지정하고, 동적 import 경로를 확인하세요."
-
-msgid "요청에 타임아웃과 재시도 로직을 추가하고, 오프라인 대안을 검토하세요."
-msgstr "요청에 타임아웃과 재시도 로직을 추가하고, 오프라인 대안을 검토하세요."
-
-msgid "파괴적 작업 전에 사용자에게 미리 알리고, 취소 시 롤백 단계를 포함하세요."
-msgstr "파괴적 작업 전에 사용자에게 미리 알리고, 취소 시 롤백 단계를 포함하세요."
-
-msgid "단계를 더 작게 나누고, 각 단계의 사전 조건을 검증하는 로직을 추가하세요."
-msgstr "단계를 더 작게 나누고, 각 단계의 사전 조건을 검증하는 로직을 추가하세요."
-
-msgid "동일한 대기 시간 단순 재시도"
-msgstr "동일한 대기 시간 단순 재시도"
-
-msgid "blocking I/O 루프 없는 대기"
-msgstr "blocking I/O 루프 없는 대기"
-
-msgid "권한 없는 시스템 경로 직접 쓰기"
-msgstr "권한 없는 시스템 경로 직접 쓰기"
-
-msgid "관리자 권한 검증 없이 레지스트리 접근"
-msgstr "관리자 권한 검증 없이 레지스트리 접근"
-
-msgid "설치 확인 없이 외부 패키지 직접 import"
-msgstr "설치 확인 없이 외부 패키지 직접 import"
-
-msgid "표준 라이브러리 대체 없이 선택 패키지 의존"
-msgstr "표준 라이브러리 대체 없이 선택 패키지 의존"
-
-msgid "존재 확인 없이 파일·경로 사용"
-msgstr "존재 확인 없이 파일·경로 사용"
-
-msgid "상대 경로만으로 파일 탐색"
-msgstr "상대 경로만으로 파일 탐색"
-
-msgid "복잡한 중첩 코드 단일 블록 생성"
-msgstr "복잡한 중첩 코드 단일 블록 생성"
-
-msgid "탭·스페이스 혼합 들여쓰기"
-msgstr "탭·스페이스 혼합 들여쓰기"
-
-msgid "미확인 모듈명 직접 사용"
-msgstr "미확인 모듈명 직접 사용"
-
-msgid "선택적 패키지 동적 import 없이 참조"
-msgstr "선택적 패키지 동적 import 없이 참조"
-
-msgid "재시도 없는 단일 HTTP 요청"
-msgstr "재시도 없는 단일 HTTP 요청"
-
-msgid "타임아웃 없는 네트워크 호출"
-msgstr "타임아웃 없는 네트워크 호출"
-
-msgid "확인 없이 파괴적 작업 실행"
-msgstr "확인 없이 파괴적 작업 실행"
-
-msgid "동일 실패 패턴 조건 변경 없이 반복"
-msgstr "동일 실패 패턴 조건 변경 없이 반복"
-
-msgid "최근 유사 목표 에피소드:"
-msgstr "최근 유사 목표 에피소드:"
-
-msgid "## 자기개선 루프 활동 (최근 {days}일)"
-msgstr "## 자기개선 루프 활동 (최근 {days}일)"
-
-msgid "{component}: {count}회 활성화, 성공률 {rate}%"
-msgstr "{component}: {count}회 활성화, 성공률 {rate}%"
-
-msgid "신규 스킬 생성: {new}개 | Python 컴파일 완료: {compiled}개"
-msgstr "신규 스킬 생성: {new}개 | Python 컴파일 완료: {compiled}개"
-
-msgid "자기개선 추정 토큰: {tokens:,} tokens/주"
-msgstr "자기개선 추정 토큰: {tokens:,} tokens/주"
-
-msgid "다른 작업이 진행 중입니다."
-msgstr "다른 작업이 진행 중입니다."
-
-
-msgid "[걱정] 오류 발생, 수정 중입니다. ({att}/{max})"
-msgstr "[걱정] 오류 발생, 수정 중입니다. ({att}/{max})"
-
-
-msgid "반복 실패 패턴 감지: {reason}"
-msgstr "반복 실패 패턴 감지: {reason}"
-
-
-msgid "다음 코드가 실패했습니다:\n{content}\n오류: {error}\n기능을 유지하되 최대한 단순하게 다시 작성하세요. 표준 라이브러리만 사용하고, try/except 추가 금지."
-msgstr "다음 코드가 실패했습니다:\n{content}\n오류: {error}\n기능을 유지하되 최대한 단순하게 다시 작성하세요. 표준 라이브러리만 사용하고, try/except 추가 금지."
-
-
-msgid "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). 단계를 더 작게 분할하거나 비동기 방식을 고려하세요."
-msgstr "step {step_id} 실행 시간 {elapsed:.0f}s 초과 (예상 {expected:.0f}s). 단계를 더 작게 분할하거나 비동기 방식을 고려하세요."
-
-
-msgid "계획 수립에 실패했습니다."
-msgstr "계획 수립에 실패했습니다."
-
-
-msgid "사전 검증 실패: {reason}"
-msgstr "사전 검증 실패: {reason}"
-
-
-msgid "실행 실패: {reason}"
-msgstr "실행 실패: {reason}"
-
-
-msgid "[진지] 접근 방법을 바꿔서 다시 시도합니다."
-msgstr "[진지] 접근 방법을 바꿔서 다시 시도합니다."
-
-
-msgid "[진지] 목표를 아직 달성하지 못했어요. 다시 시도합니다."
-msgstr "[진지] 목표를 아직 달성하지 못했어요. 다시 시도합니다."
-
-msgid "좀 간지럽네요."
-msgstr "좀 간지럽네요."
-
-msgid "아직 히스토리가 없어요!"
-msgstr "아직 히스토리가 없어요!"
-
-msgid "새해 복 많이 받으세요!"
-msgstr "새해 복 많이 받으세요!"
-
-msgid "BOO! 깜짝이야~"
-msgstr "BOO! 깜짝이야~"
-
-msgid "이제 많이 친해진 것 같아요."
-msgstr "이제 많이 친해진 것 같아요."
-
-msgid "현재 친밀도: {level_name} (Lv.{level}) — {points}pt"
-msgstr "현재 친밀도: {level_name} (Lv.{level}) — {points}pt"
-
-msgid "개천절이에요!"
-msgstr "개천절이에요!"
-
-msgid "💝 친밀도 확인"
-msgstr "💝 친밀도 확인"
-
-msgid "그냥 두세요."
-msgstr "그냥 두세요."
-
-msgid "새해가 밝았어요!"
-msgstr "새해가 밝았어요!"
-
-msgid "초면"
-msgstr "초면"
-
-msgid "부르셨나요, 주인님?"
-msgstr "부르셨나요, 주인님?"
-
-msgid "올해 마지막 날이에요! 잘 마무리해요~"
-msgstr "올해 마지막 날이에요! 잘 마무리해요~"
-
-msgid "친구"
-msgstr "친구"
-
-msgid "화이트데이예요!"
-msgstr "화이트데이예요!"
-
-msgid "깔끔하게요~"
-msgstr "깔끔하게요~"
-
-msgid "CPU가 너무 바빠요! 좀 쉬게 해줘요!"
-msgstr "CPU가 너무 바빠요! 좀 쉬게 해줘요!"
-
-msgid "CPU가 힘들어하고 있어요!"
-msgstr "CPU가 힘들어하고 있어요!"
-
-msgid "생일을 입력하세요 (MM-DD 형식, 예: 03-15):"
-msgstr "생일을 입력하세요 (MM-DD 형식, 예: 03-15):"
-
-msgid "재미있겠다~"
-msgstr "재미있겠다~"
-
-msgid "오늘 생일이세요? 축하드려요."
-msgstr "오늘 생일이세요? 축하드려요."
-
-msgid "배터리가 얼마 없어요!"
-msgstr "배터리가 얼마 없어요!"
-
-msgid "현충일이에요. 감사한 마음 가져요."
-msgstr "현충일이에요. 감사한 마음 가져요."
-
-msgid "어버이날이에요. 부모님께 연락해보세요 :)"
-msgstr "어버이날이에요. 부모님께 연락해보세요 :)"
-
-msgid "방전되면 안 돼요!"
-msgstr "방전되면 안 돼요!"
-
-msgid "최근 말풍선 기록 (최대 50개)"
-msgstr "최근 말풍선 기록 (최대 50개)"
-
-msgid "하암~... 졸려요."
-msgstr "하암~... 졸려요."
-
-msgid "왜~?"
-msgstr "왜~?"
-
-msgid "응?"
-msgstr "응?"
-
-msgid "메리 크리스마스!"
-msgstr "메리 크리스마스!"
-
-msgid "메모리가 꽉 찼어요..."
-msgstr "메모리가 꽉 찼어요..."
-
-msgid "램이 부족해요!"
-msgstr "램이 부족해요!"
-
-msgid "말풍선 히스토리"
-msgstr "말풍선 히스토리"
-
-msgid "파이팅이에요!"
-msgstr "파이팅이에요!"
-
-msgid "왜요?"
-msgstr "왜요?"
-
-msgid "지인"
-msgstr "지인"
-
-msgid "올해도 잘 부탁해요~"
-msgstr "올해도 잘 부탁해요~"
-
-msgid "즐거운 성탄절 되세요!"
-msgstr "즐거운 성탄절 되세요!"
-
-msgid "생일 등록"
-msgstr "생일 등록"
-
-msgid "창을 좀 닫아주세요~"
-msgstr "창을 좀 닫아주세요~"
-
-msgid "저도 어린이예요."
-msgstr "저도 어린이예요."
-
-msgid "컴퓨터가 뜨거워요!"
-msgstr "컴퓨터가 뜨거워요!"
-
-msgid "화이팅!"
-msgstr "화이팅!"
-
-msgid "으스스~ 할로윈이에요!"
-msgstr "으스스~ 할로윈이에요!"
-
-msgid "뭐예요?"
-msgstr "뭐예요?"
-
-msgid "저한테 사탕 주실 건가요?"
-msgstr "저한테 사탕 주실 건가요?"
-
-msgid "충전기 꽂아주세요~"
-msgstr "충전기 꽂아주세요~"
-
-msgid "왜 그러세요."
-msgstr "왜 그러세요."
-
-msgid "앞으로 잘 부탁드려요."
-msgstr "앞으로 잘 부탁드려요."
-
-msgid "누구랑 얘기 중이에요?"
-msgstr "누구랑 얘기 중이에요?"
-
-msgid "생일 축하드려요. 좋은 하루 되세요."
-msgstr "생일 축하드려요. 좋은 하루 되세요."
-
-msgid "많이 친해졌네요."
-msgstr "많이 친해졌네요."
-
-msgid "오늘은 발렌타인데이예요."
-msgstr "오늘은 발렌타인데이예요."
-
-msgid "광복절이에요! 대한민국 만세~"
-msgstr "광복절이에요! 대한민국 만세~"
-
-msgid "열심히 코딩 중~"
-msgstr "열심히 코딩 중~"
-
-msgid "이기세요!"
-msgstr "이기세요!"
-
-msgid "인터넷 서핑 중~"
-msgstr "인터넷 서핑 중~"
-
-msgid "네, 주인님?"
-msgstr "네, 주인님?"
-
-msgid "열심히 하시네요."
-msgstr "열심히 하시네요."
-
-msgid "🎂 생일 등록"
-msgstr "🎂 생일 등록"
-
-msgid "💻 시스템 모니터"
-msgstr "💻 시스템 모니터"
-
-msgid "그만해요."
-msgstr "그만해요."
-
-msgid "뭐 찾고 계세요?"
-msgstr "뭐 찾고 계세요?"
-
-msgid "적당히 해요."
-msgstr "적당히 해요."
-
-msgid "생일이에요. 케이크 드세요."
-msgstr "생일이에요. 케이크 드세요."
-
-msgid "과부하예요, 조심해요!"
-msgstr "과부하예요, 조심해요!"
-
-msgid "뭐 보세요?"
-msgstr "뭐 보세요?"
-
-msgid "업무 중이시군요."
-msgstr "업무 중이시군요."
-
-msgid "커스텀 메시지 관리"
-msgstr "커스텀 메시지 관리"
-
-msgid "이제 편하게 얘기해요."
-msgstr "이제 편하게 얘기해요."
-
-msgid "프로그램이 너무 많아요~"
-msgstr "프로그램이 너무 많아요~"
-
-msgid "생일 축하드려요. 오늘 하루 즐겁게 보내세요."
-msgstr "생일 축하드려요. 오늘 하루 즐겁게 보내세요."
-
-msgid "초콜릿... 드릴까요."
-msgstr "초콜릿... 드릴까요."
-
-msgid "등록된 메시지 목록"
-msgstr "등록된 메시지 목록"
-
-msgid "한글날이에요. 한글은 정말 멋져요!"
-msgstr "한글날이에요. 한글은 정말 멋져요!"
-
-msgid "절친"
-msgstr "절친"
-
-msgid "새 메시지 입력..."
-msgstr "새 메시지 입력..."
-
-msgid "생일 등록 완료! {date}"
-msgstr "생일 등록 완료! {date}"
-
-msgid "네?"
-msgstr "네?"
-
-msgid "게임 하세요? 저도 보고 싶어요!"
-msgstr "게임 하세요? 저도 보고 싶어요!"
-
-msgid "좋은 아침이에요!"
-msgstr "좋은 아침이에요!"
-
-msgid "사교적이시네요~"
-msgstr "사교적이시네요~"
-
-msgid "배터리가 {pct}%예요!"
-msgstr "배터리가 {pct}%예요!"
-
-msgid "쓰다듬지 마세요."
-msgstr "쓰다듬지 마세요."
-
-msgid "파일 정리 중이세요?"
-msgstr "파일 정리 중이세요?"
-
-msgid "어린이날이에요!"
-msgstr "어린이날이에요!"
-
-msgid "꾸벅..."
-msgstr "꾸벅..."
-
-msgid "충전 빨리요!!"
-msgstr "충전 빨리요!!"
-
-msgid "저도 보고 싶어요!"
-msgstr "저도 보고 싶어요!"
-
-msgid "오래 알고 지냈네요."
-msgstr "오래 알고 지냈네요."
-
-msgid "꺼지기 전에 충전해요!"
-msgstr "꺼지기 전에 충전해요!"
-
-msgid "친한친구"
-msgstr "친한친구"
-
-msgid "나무 심어요~"
-msgstr "나무 심어요~"
-
-msgid "하아암... 주무실 시간이에요."
-msgstr "하아암... 주무실 시간이에요."
-
-msgid "...알겠어요."
-msgstr "...알겠어요."
-
-msgid "조금 익숙해졌네요."
-msgstr "조금 익숙해졌네요."
-
-msgid "📜 최근 말풍선 히스토리"
-msgstr "📜 최근 말풍선 히스토리"
-
-msgid "지금 당장 뭔가 닫아야 해요!"
-msgstr "지금 당장 뭔가 닫아야 해요!"
-
-msgid "메모리가 위험해요!"
-msgstr "메모리가 위험해요!"
-
-msgid "선물 기대돼요~"
-msgstr "선물 기대돼요~"
-
-msgid "잠깐 쉬어도 될까요..."
-msgstr "잠깐 쉬어도 될까요..."
-
-msgid "으으... 눈이 감겨요."
-msgstr "으으... 눈이 감겨요."
-
-msgid "이제 편해졌네요."
-msgstr "이제 편해졌네요."
-
-msgid "으... 쑥스러워요."
-msgstr "으... 쑥스러워요."
-
-msgid "집중하고 계시는군요!"
-msgstr "집중하고 계시는군요!"
-
-msgid "함께하니 좋아요."
-msgstr "함께하니 좋아요."
-
-msgid "🖥️ 앱 전환 반응"
-msgstr "🖥️ 앱 전환 반응"
-
-msgid "✏️ 커스텀 메시지 관리"
-msgstr "✏️ 커스텀 메시지 관리"
-
-msgid "왜ㅋ"
-msgstr "왜ㅋ"
-
-msgid "오늘은 식목일이에요!"
-msgstr "오늘은 식목일이에요!"
-
-msgid "응?ㅋ"
-msgstr "응?ㅋ"
-
-msgid "내일은 크리스마스예요!"
-msgstr "내일은 크리스마스예요!"
-
-msgid "부르셨나요?"
-msgstr "부르셨나요?"
-
-msgid "타이머는 최대 {max}개까지 설정할 수 있습니다."
-msgstr "타이머는 최대 {max}개까지 설정할 수 있습니다."
-
-msgid "{label} 타이머를 설정했습니다."
-msgstr "{label} 타이머를 설정했습니다."
-
-msgid "'{name}' 타이머를 설정했습니다. ({label})"
-msgstr "'{name}' 타이머를 설정했습니다. ({label})"
-
-msgid "'{name}' 타이머를 찾지 못했습니다."
-msgstr "'{name}' 타이머를 찾지 못했습니다."
-
-msgid "타이머가 취소되었습니다."
-msgstr "타이머가 취소되었습니다."
-
-msgid "'{name}' 타이머를 취소했습니다."
-msgstr "'{name}' 타이머를 취소했습니다."
-
-msgid "{label} 타이머가 완료되었습니다."
-msgstr "{label} 타이머가 완료되었습니다."
-
-msgid "'{name}' 타이머가 완료되었습니다."
-msgstr "'{name}' 타이머가 완료되었습니다."
-
-msgid "타이머 {index}"
-msgstr "타이머 {index}"
-
-msgid "⚠️ 위험한 작업 확인"
-msgstr "⚠️ 위험한 작업 확인"
-
-msgid "⚠️  위험한 작업이 감지되었습니다"
-msgstr "⚠️  위험한 작업이 감지되었습니다"
-
-msgid "<b>요청된 작업:</b><br>{action_desc}"
-msgstr "<b>요청된 작업:</b><br>{action_desc}"
-
-msgid "<b>감지된 위험 항목:</b><br>{patterns_html}"
-msgstr "<b>감지된 위험 항목:</b><br>{patterns_html}"
-
-msgid "실행 ({seconds}초)"
-msgstr "실행 ({seconds}초)"
-
-msgid "위험한 작업이 감지됐어요. {summary}. 실행할까요?"
-msgstr "위험한 작업이 감지됐어요. {summary}. 실행할까요?"
-
-msgid "위험한 시스템 명령 감지: {matched}"
-msgstr "위험한 시스템 명령 감지: {matched}"
-
-msgid "주의가 필요한 파이썬 작업: {matched}"
-msgstr "주의가 필요한 파이썬 작업: {matched}"
-
-msgid "안전한 코드입니다."
-msgstr "안전한 코드입니다."
-
-msgid "안전한 명령입니다."
-msgstr "안전한 명령입니다."
-
-msgid "주의가 필요한 명령: {matched}"
-msgstr "주의가 필요한 명령: {matched}"
-
-msgid "민감하거나 파괴적인 웹 작업 가능성이 있는 주소입니다 ({blocked})."
-msgstr "민감하거나 파괴적인 웹 작업 가능성이 있는 주소입니다 ({blocked})."
-
-msgid "민감한 페이지 접근 감지 ({matched}). 자동화 시 보안 위험이 있습니다."
-msgstr "민감한 페이지 접근 감지 ({matched}). 자동화 시 보안 위험이 있습니다."
-
-msgid "암호화되지 않은(HTTP) 사이트 접근입니다."
-msgstr "암호화되지 않은(HTTP) 사이트 접근입니다."
-
-msgid "신뢰 정책에 포함된 사이트입니다."
-msgstr "신뢰 정책에 포함된 사이트입니다."
-
-msgid "안전한 URL입니다."
-msgstr "안전한 URL입니다."
-
-msgid "위험 앱 정책에 의해 차단된 대상입니다: {app}"
-msgstr "위험 앱 정책에 의해 차단된 대상입니다: {app}"
-
-msgid "신뢰할 수 있는 앱입니다."
-msgstr "신뢰할 수 있는 앱입니다."
-
-msgid "알 수 없는 외부 앱({app}) 실행 시도입니다."
-msgstr "알 수 없는 외부 앱({app}) 실행 시도입니다."
-
-msgid "파일/폴더 삭제"
-msgstr "파일/폴더 삭제"
-
-msgid "폴더 강제 삭제"
-msgstr "폴더 강제 삭제"
-
-msgid "저수준 시스템 접근"
-msgstr "저수준 시스템 접근"
-
-msgid "Windows API/레지스트리 접근"
-msgstr "Windows API/레지스트리 접근"
-
-msgid "데이터 외부 전송/수정"
-msgstr "데이터 외부 전송/수정"
-
-msgid "파일 쓰기"
-msgstr "파일 쓰기"
-
-msgid "외부 프로세스 실행"
-msgstr "외부 프로세스 실행"
-
-msgid "GUI 직접 제어"
-msgstr "GUI 직접 제어"
-
-msgid "세션 종료"
-msgstr "세션 종료"
-
-msgid "디스크 포맷"
-msgstr "디스크 포맷"
-
-msgid "강제 파일 삭제"
-msgstr "강제 파일 삭제"
-
-msgid "레지스트리 삭제"
-msgstr "레지스트리 삭제"
-
-msgid "방화벽 설정 변경"
-msgstr "방화벽 설정 변경"
-
-msgid "부트 설정 변경"
-msgstr "부트 설정 변경"
-
-msgid "디스크 파티션 조작"
-msgstr "디스크 파티션 조작"
-
-msgid "외부 데이터 전송"
-msgstr "외부 데이터 전송"
-
-msgid "프로세스 강제 종료"
-msgstr "프로세스 강제 종료"
-
-msgid "사용자 계정 변경"
-msgstr "사용자 계정 변경"
-
-msgid "서비스 중지/시작"
-msgstr "서비스 중지/시작"
-
-msgid "로그인 자동화"
-msgstr "로그인 자동화"
-
-msgid "민감 정보 입력 자동화"
-msgstr "민감 정보 입력 자동화"
-
-msgid "상태 인식 자동화"
-msgstr "상태 인식 자동화"
-
-msgid "매일"
-msgstr "매일"
-
-msgid "매주"
-msgstr "매주"
-
-msgid "매시간"
-msgstr "매시간"
-
-msgid "오늘"
-msgstr "오늘"
-
-msgid "내일"
-msgstr "내일"
-
-msgid "스케줄"
-msgstr "스케줄"
-
-msgid "예약"
-msgstr "예약"
-
-msgid "반복"
-msgstr "반복"
-
-msgid "알려줘"
-msgstr "알려줘"
-
-msgid "확인해줘"
-msgstr "확인해줘"
-
-msgid "타이머 시간을 말씀해 주세요."
-msgstr "타이머 시간을 말씀해 주세요."
-
-msgid "'{when}' 시간 표현을 이해하지 못했어요. '5분 뒤', '11시 30분에', '매일 오전 9시' 형식으로 말씀해 주세요."
-msgstr "'{when}' 시간 표현을 이해하지 못했어요. '5분 뒤', '11시 30분에', '매일 오전 9시' 형식으로 말씀해 주세요."
-
-msgid "예약할 작업과 시간을 알려주세요."
-msgstr "예약할 작업과 시간을 알려주세요."
-
-msgid "스케줄러를 사용할 수 없습니다."
-msgstr "스케줄러를 사용할 수 없습니다."
-
-msgid " (반복)"
-msgstr " (반복)"
-
-msgid "작업 예약 완료 (ID: {task_id}){repeat}. {formatted}에 실행됩니다."
-msgstr "작업 예약 완료 (ID: {task_id}){repeat}. {formatted}에 실행됩니다."
-
-msgid "취소할 작업 ID를 알려주세요."
-msgstr "취소할 작업 ID를 알려주세요."
-
-msgid "작업 {task_id}가 취소되었습니다."
-msgstr "작업 {task_id}가 취소되었습니다."
-
-msgid "ID '{task_id}'에 해당하는 작업을 찾을 수 없어요."
-msgstr "ID '{task_id}'에 해당하는 작업을 찾을 수 없어요."
-
-msgid "현재 예약된 작업이 없습니다."
-msgstr "현재 예약된 작업이 없습니다."
-
-msgid "예약된 작업 {count}개:"
-msgstr "예약된 작업 {count}개:"
-
-msgid "  [{task_id}] {time}{repeat} — {goal}"
-msgstr "  [{task_id}] {time}{repeat} — {goal}"
-
-msgid "{month}월 {day}일 {time}"
-msgstr "{month}월 {day}일 {time}"
-
-msgid "{when}에 컴퓨터 꺼줘"
-msgstr "{when}에 컴퓨터 꺼줘"
-
-msgid "{when}에 컴퓨터 재시작해줘"
-msgstr "{when}에 컴퓨터 재시작해줘"
-
-msgid "전원 끄기"
-msgstr "전원 끄기"
-
-msgid " [반복]"
-msgstr " [반복]"
-
-msgid "{mins}분"
-msgstr "{mins}분"
-
-msgid "{mins}분 {secs}초"
-msgstr "{mins}분 {secs}초"
-
-msgid "{secs}초"
-msgstr "{secs}초"
-
-msgid "주의: {msg}"
-msgstr "주의: {msg}"
-
-msgid "복잡한 목표를 단계별로 처리할게요."
-msgstr "복잡한 목표를 단계별로 처리할게요."
-
-msgid "{folder} 폴더의 {file}"
-msgstr "{folder} 폴더의 {file}"
-
-msgid "사용자가 실행을 취소했습니다."
-msgstr "사용자가 실행을 취소했습니다."
-
-msgid "실행 실패: {error}"
-msgstr "실행 실패: {error}"
-
-msgid "실행에 실패했습니다."
-msgstr "실행에 실패했습니다."
-
-msgid "실행 완료. 출력: {output}"
-msgstr "실행 완료. 출력: {output}"
-
-msgid "실행이 완료되었습니다."
-msgstr "실행이 완료되었습니다."
-
-msgid "작업 완료. {folder} 폴더에 {file}를 저장했습니다."
-msgstr "작업 완료. {folder} 폴더에 {file}를 저장했습니다."
-
-msgid "작업 완료 ({steps}단계). {summary}"
-msgstr "작업 완료 ({steps}단계). {summary}"
-
-msgid "작업 실패 ({count}회 시도). {summary}"
-msgstr "작업 실패 ({count}회 시도). {summary}"
-
-msgid "실행 보고서는 {location}에 저장했습니다."
-msgstr "실행 보고서는 {location}에 저장했습니다."
-
-msgid "외부 URL 요청"
-msgstr "외부 URL 요청"
-
-msgid "안녕하세요!"
-msgstr "안녕하세요!"
-
-msgid "반갑습니다!"
-msgstr "반갑습니다!"
-
-msgid "네, 무엇을 도와드릴까요?"
-msgstr "네, 무엇을 도와드릴까요?"
-
-msgid "천만에요!"
-msgstr "천만에요!"
-
-msgid "별말씀을요!"
-msgstr "별말씀을요!"
-
-msgid "도움이 되었다니 기쁩니다!"
-msgstr "도움이 되었다니 기쁩니다!"
-
-msgid "괜찮습니다!"
-msgstr "괜찮습니다!"
-
-msgid "걱정 마세요!"
-msgstr "걱정 마세요!"
-
-msgid "이해합니다!"
-msgstr "이해합니다!"
-
-msgid "죄송합니다. 이해하지 못했습니다."
-msgstr "죄송합니다. 이해하지 못했습니다."
-
-msgid "다시 한번 말씀해 주시겠어요?"
-msgstr "다시 한번 말씀해 주시겠어요?"
-
-msgid "잘 모르겠습니다."
-msgstr "잘 모르겠습니다."
-
-msgid "thinking"
-msgstr "생각 중..."
-
-
-msgid "tool.delegate_to_subagent.description"
-msgstr "독립적인 하위 목표를 별도 에이전트에 위임합니다. 병렬 작업에 유리합니다."
-
-msgid "tool.subagent.goal"
-msgstr "하위 목표"
-
-msgid "tool.subagent.context"
-msgstr "하위 에이전트에게 전달할 배경 정보"
-
-msgid "tool.timeout_seconds"
-msgstr "최대 실행 시간(초)"
-
-msgid "tool.api_call.description"
-msgstr "등록된 외부 REST API를 호출합니다."
-
-msgid "tool.api_call.service"
-msgstr "서비스명"
-
-msgid "tool.api_call.operation"
-msgstr "작업명"
-
-msgid "tool.api_call.params"
-msgstr "호출 파라미터"
-
-msgid "tool.get_calendar_events.description"
-msgstr "Google Calendar에서 일정 목록을 가져옵니다."
-
-msgid "tool.calendar.days"
-msgstr "조회할 일수"
-
-msgid "tool.max_results"
-msgstr "최대 결과 수"
-
-msgid "tool.calendar.id"
-msgstr "캘린더 ID"
-
-msgid "tool.create_calendar_event.description"
-msgstr "Google Calendar에 일정을 생성합니다."
-
-msgid "tool.send_email.description"
-msgstr "Gmail로 이메일을 발송합니다."
-
-msgid "tool.read_emails.description"
-msgstr "Gmail 받은 편지함의 최근 메일을 조회합니다."
-
-msgid "tool.generate_image.description"
-msgstr "프롬프트로 이미지를 생성하고 파일 경로를 반환합니다."
-
-msgid "tool.image.size_example"
-msgstr "예: 1024x1024"
-
-msgid "subagent.goal_required"
-msgstr "하위 목표가 필요합니다."
-
-msgid "subagent.timeout"
-msgstr "하위 에이전트 실행 시간 초과"
-
-msgid "subagent.failed"
-msgstr "하위 에이전트 오류: {error}"
-
-msgid "api_call.failed"
-msgstr "API 호출 실패: {error}"
-
-msgid "calendar.events.failed"
-msgstr "캘린더 조회 실패: {error}"
-
-msgid "calendar.create.failed"
-msgstr "캘린더 생성 실패: {error}"
-
-msgid "email.send.failed"
-msgstr "이메일 발송 실패: {error}"
-
-msgid "email.read.failed"
-msgstr "이메일 조회 실패: {error}"
-
-msgid "image.generate.failed"
-msgstr "이미지 생성 실패: {error}"
-
-msgid "settings.agent.max_subagents"
-msgstr "최대 하위 에이전트 수"
-
-msgid "settings.agent.google_tools"
-msgstr "Google Calendar/Gmail 도구 사용"
-
-msgid "settings.agent.google_client_id"
-msgstr "Google OAuth Client ID"
-
-msgid "settings.agent.google_client_secret"
-msgstr "Google OAuth Client Secret"
-
-msgid "settings.agent.google_connected"
-msgstr "Google 계정 연결됨"
-
-msgid "settings.agent.google_not_connected"
-msgstr "Google 계정 연결 안 됨"
-
-msgid "settings.agent.google_connect"
-msgstr "Google 계정 연결"
-
-msgid "settings.agent.google_disconnect"
-msgstr "연결 해제"
-
-msgid "settings.agent.google_connecting"
-msgstr "Google 계정 연결 중..."
-
-msgid "settings.agent.google_disconnecting"
-msgstr "Google 계정 연결 해제 중..."
-
-msgid "settings.agent.google_auth_success"
-msgstr "Google 계정 인증 완료"
-
-msgid "settings.agent.google_disconnected"
-msgstr "Google 계정 연결 해제 완료"
-
-msgid "settings.agent.google_auth_failed"
-msgstr "Google 계정 연결 실패: {error}"
-
-msgid "settings.agent.google_credentials_required"
-msgstr "Client ID와 Client Secret을 입력해 주세요."
-
-msgid "settings.agent.google_cancel"
-msgstr "취소"
-
-msgid "settings.agent.google_auth_cancelled"
-msgstr "연결을 취소했습니다."
-
-msgid "Google 인증 브라우저를 열 수 없습니다."
-msgstr "Google 인증 브라우저를 열 수 없습니다."
-
-msgid "Google 인증 시간이 초과되었습니다."
-msgstr "Google 인증 시간이 초과되었습니다."
-
-msgid "Google 인증이 취소되었습니다."
-msgstr "Google 인증이 취소되었습니다."
-
-msgid "Google 인증 코드가 없습니다."
-msgstr "Google 인증 코드가 없습니다."
-
-msgid "Google 인증이 완료되었습니다. 이 창을 닫아도 됩니다."
-msgstr "Google 인증이 완료되었습니다. 이 창을 닫아도 됩니다."
-
-msgid "settings.agent.image_generation"
-msgstr "이미지 생성 도구 사용"
-
-# CosyVoice installer runtime messages
-msgid "CosyVoice 전용 가상환경 Python을 찾지 못했습니다: {python_exe}"
-msgstr "CosyVoice 전용 가상환경 Python을 찾지 못했습니다: {python_exe}"
-
-msgid "Git이 설치되어 있지 않습니다. (https://git-scm.com)"
-msgstr "Git이 설치되어 있지 않습니다. (https://git-scm.com)"
-
-msgid "\n설치 경로: {path}\n"
-msgstr "\n설치 경로: {path}\n"
-
-msgid "[1/4] 저장소 클론 중..."
-msgstr "[1/4] 저장소 클론 중..."
-
-msgid "[1/4] 저장소 이미 존재: {path}"
-msgstr "[1/4] 저장소 이미 존재: {path}"
-
-msgid "\n[2/4] 핵심 의존성 설치 중..."
-msgstr "\n[2/4] 핵심 의존성 설치 중..."
-
-msgid "\n[3/4] 모델 다운로드 중 (Fun-CosyVoice3-0.5B, 약 2GB)..."
-msgstr "\n[3/4] 모델 다운로드 중 (Fun-CosyVoice3-0.5B, 약 2GB)..."
-
-msgid "\n[3/4] 모델 이미 존재: {path}"
-msgstr "\n[3/4] 모델 이미 존재: {path}"
-
-msgid "\n[4/4] 세부 의존성 설치 중 (시간이 다소 소요될 수 있습니다)..."
-msgstr "\n[4/4] 세부 의존성 설치 중 (시간이 다소 소요될 수 있습니다)..."
-
-msgid "✨ CosyVoice3 설치가 완료되었습니다!"
-msgstr "✨ CosyVoice3 설치가 완료되었습니다!"
-
-msgid "위치: {path}"
-msgstr "위치: {path}"
-
-msgid "다음 단계:"
-msgstr "다음 단계:"
-
-msgid "  1. 아리 설정 → TTS 모드 → 로컬 (CosyVoice3) 선택"
-msgstr "  1. 아리 설정 → TTS 모드 → 로컬 (CosyVoice3) 선택"
-
-msgid "  2. 설정 → CosyVoice 경로 → {path} 입력 (또는 자동 감지)"
-msgstr "  2. 설정 → CosyVoice 경로 → {path} 입력 (또는 자동 감지)"
-
-msgid "캐릭터 표시 설정"
-msgstr "캐릭터 표시 설정"
-
-msgid "슬라이더를 움직이면 화면의 아리에게 바로 반영됩니다. 취소하면 원래대로 돌아갑니다."
-msgstr "슬라이더를 움직이면 화면의 아리에게 바로 반영됩니다. 취소하면 원래대로 돌아갑니다."
-
-msgid "크기"
-msgstr "크기"
-
-msgid "작게 30% ↔ 크게 300% (기본 100%)"
-msgstr "작게 30% ↔ 크게 300% (기본 100%)"
-
-msgid "바닥 위치"
-msgstr "바닥 위치"
-
-msgid "왼쪽은 위로, 오른쪽은 아래로 내려갑니다. 직접 만든 이미지의 발이 바닥에서 뜨거나 파묻힐 때 맞추세요."
-msgstr "왼쪽은 위로, 오른쪽은 아래로 내려갑니다. 직접 만든 이미지의 발이 바닥에서 뜨거나 파묻힐 때 맞추세요."
-
-msgid "기본값으로 되돌리기"
-msgstr "기본값으로 되돌리기"
-
-msgid "재개할 작업이 없습니다."
-msgstr "재개할 작업이 없습니다."
-
-msgid "사용자 요청으로 중단되었습니다."
-msgstr "사용자 요청으로 중단되었습니다."
-
-msgid "실행 시간 초과"
-msgstr "실행 시간 초과"
-
-msgid "파일 내용을 읽어 반환합니다."
-msgstr "파일 내용을 읽어 반환합니다."
-
-msgid "시작 줄 (선택, 기본 1)"
-msgstr "시작 줄 (선택, 기본 1)"
-
-msgid "끝 줄 (선택)"
-msgstr "끝 줄 (선택)"
-
-msgid "파일에 내용을 씁니다 (덮어쓰기 또는 추가)."
-msgstr "파일에 내용을 씁니다 (덮어쓰기 또는 추가)."
-
-msgid "기본 overwrite"
-msgstr "기본 overwrite"
-
-msgid "파일의 특정 문자열을 찾아 교체합니다 (diff 없이 정밀 편집)."
-msgstr "파일의 특정 문자열을 찾아 교체합니다 (diff 없이 정밀 편집)."
-
-msgid "교체할 원본 텍스트 (파일 내 고유해야 함)"
-msgstr "교체할 원본 텍스트 (파일 내 고유해야 함)"
-
-msgid "새 텍스트"
-msgstr "새 텍스트"
-
-msgid "디렉토리 내 파일/폴더 목록을 반환합니다."
-msgstr "디렉토리 내 파일/폴더 목록을 반환합니다."
-
-msgid "glob 패턴 (선택, 예: *.py)"
-msgstr "glob 패턴 (선택, 예: *.py)"
-
-msgid "하위 폴더 포함 여부"
-msgstr "하위 폴더 포함 여부"
-
-msgid "파일들 안에서 정규식 패턴을 검색합니다."
-msgstr "파일들 안에서 정규식 패턴을 검색합니다."
-
-msgid "검색할 정규식"
-msgstr "검색할 정규식"
-
-msgid "대상 파일 glob (예: *.py)"
-msgstr "대상 파일 glob (예: *.py)"
-
-msgid "파일 또는 폴더를 이동하거나 이름을 변경합니다."
-msgstr "파일 또는 폴더를 이동하거나 이름을 변경합니다."
-
-msgid "파일 또는 빈 폴더를 삭제합니다."
-msgstr "파일 또는 빈 폴더를 삭제합니다."
-
-msgid "현재 화면 스크린샷을 찍어 내용을 분석합니다."
-msgstr "현재 화면 스크린샷을 찍어 내용을 분석합니다."
-
-msgid "분석 질문"
-msgstr "분석 질문"
-
-msgid "이미지 파일 내용을 분석합니다."
-msgstr "이미지 파일 내용을 분석합니다."
-
-msgid "앱 이름이나 경로로 애플리케이션을 실행합니다. 웹사이트나 웹 서비스는 브라우저 이름 대신 사이트 이름(예: naver, youtube)을 그대로 넘깁니다."
-msgstr "앱 이름이나 경로로 애플리케이션을 실행합니다. 웹사이트나 웹 서비스는 브라우저 이름 대신 사이트 이름(예: naver, youtube)을 그대로 넘깁니다."
-
-msgid "프로세스 이름으로 실행 중인 앱을 종료합니다."
-msgstr "프로세스 이름으로 실행 중인 앱을 종료합니다."
-
-msgid "실행 중인 앱 목록을 반환합니다."
-msgstr "실행 중인 앱 목록을 반환합니다."
-
-msgid "제목 일부가 일치하는 창에 포커스를 맞춥니다."
-msgstr "제목 일부가 일치하는 창에 포커스를 맞춥니다."
-
-msgid "전체 화면 스크린샷을 저장하고 경로를 반환합니다."
-msgstr "전체 화면 스크린샷을 저장하고 경로를 반환합니다."
-
-msgid "클립보드 텍스트를 반환합니다."
-msgstr "클립보드 텍스트를 반환합니다."
-
-msgid "클립보드에 텍스트를 저장합니다."
-msgstr "클립보드에 텍스트를 저장합니다."
-
-msgid "진행 중인 작업을 중단할게요."
-msgstr "진행 중인 작업을 중단할게요."
-
-msgid "일"
-msgstr "일"
-
-msgid "현재 화면을 설명해 주세요."
-msgstr "현재 화면을 설명해 주세요."
-
-msgid "스크린샷 분석 실패: {error}"
-msgstr "스크린샷 분석 실패: {error}"
-
-msgid "이미지 내용을 설명해 주세요."
-msgstr "이미지 내용을 설명해 주세요."
-
-msgid "이미지 분석 실패: {error}"
-msgstr "이미지 분석 실패: {error}"
-
-msgid "종료할 앱 이름이 필요합니다."
-msgstr "종료할 앱 이름이 필요합니다."
-
-msgid "앱 종료 실패: {error}"
-msgstr "앱 종료 실패: {error}"
-
-msgid "실행 앱 목록 조회 실패: {error}"
-msgstr "실행 앱 목록 조회 실패: {error}"
-
-msgid "클립보드에 저장했습니다."
-msgstr "클립보드에 저장했습니다."
-
-msgid "사용자 취소"
-msgstr "사용자 취소"
-
-msgid "에이전트 대시보드"
-msgstr "에이전트 대시보드"
-
-msgid "생각 중..."
-msgstr "생각 중..."
-
-msgid "에이전트 실행"
-msgstr "에이전트 실행"
-
-msgid "전체 실행 타임아웃 (초)"
-msgstr "전체 실행 타임아웃 (초)"
-
-msgid "에이전트 대시보드 사용"
-msgstr "에이전트 대시보드 사용"
-
-msgid "도구 실행 감사 로그 기록"
-msgstr "도구 실행 감사 로그 기록"
-
-msgid "로컬 MCP 서버 사용"
-msgstr "로컬 MCP 서버 사용"
-
-msgid "{seconds}초"
-msgstr "{seconds}초"
-
-msgid "응답 말수:"
-msgstr "응답 말수:"
-
-msgid "간결하게 (한두 문장)"
-msgstr "간결하게 (한두 문장)"
-
-msgid "보통"
-msgstr "보통"
-
-msgid "수다스럽게"
-msgstr "수다스럽게"
-
-msgid "스피커 출력 장치 선택:"
-msgstr "스피커 출력 장치 선택:"
-
-msgid "시스템 기본 스피커"
-msgstr "시스템 기본 스피커"
-
-msgid "에이전트"
-msgstr "에이전트"
-
-msgid "재생 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):"
-msgstr "재생 볼륨 배율 (0.0 ~ 2.0, 1.0 = 원본):"
-
-msgid "최근 '{top_topic}'에 대해 자주 대화하셨네요. 관련 정보를 더 찾아드릴까요?"
-msgstr "최근 '{top_topic}'에 대해 자주 대화하셨네요. 관련 정보를 더 찾아드릴까요?"
-
-msgid "최근 주제 '{topic_name}'와 관련된 반복 전략이 보여요. 이어서 정리해드릴까요?"
-msgstr "최근 주제 '{topic_name}'와 관련된 반복 전략이 보여요. 이어서 정리해드릴까요?"
-
-msgid "이 시간대에는 '{cmd}' 관련 요청이 많았어요. 바로 도와드릴까요?"
-msgstr "이 시간대에는 '{cmd}' 관련 요청이 많았어요. 바로 도와드릴까요?"
-
-msgid "좋은 아침이에요! 오늘 날씨와 주요 뉴스를 요약해 드릴까요?"
-msgstr "좋은 아침이에요! 오늘 날씨와 주요 뉴스를 요약해 드릴까요?"
-
-msgid "오늘 하루 수고 많으셨어요. 내일 날씨를 미리 확인해 드릴까요?"
-msgstr "오늘 하루 수고 많으셨어요. 내일 날씨를 미리 확인해 드릴까요?"
-
-msgid "(기쁨) 알람 시간이에요! 요청하신 '{goal}' 시각입니다."
-msgstr "(기쁨) 알람 시간이에요! 요청하신 '{goal}' 시각입니다."
-
-msgid " 알림 사운드: {alarm_sound}"
-msgstr " 알림 사운드: {alarm_sound}"
-
-msgid "메모리 정리 완료: 사실 {facts}개, 전략 {strategies}개, 대화 {conversations}건 정리"
-msgstr "메모리 정리 완료: 사실 {facts}개, 전략 {strategies}개, 대화 {conversations}건 정리"
-
-msgid "메모리 정리 실패"
-msgstr "메모리 정리 실패"
-
-msgid "주간 리포트 생성 실패"
-msgstr "주간 리포트 생성 실패"
-
-msgid "(진지) 예약된 작업을 시작할게요: {goal}"
-msgstr "(진지) 예약된 작업을 시작할게요: {goal}"
-
-msgid "오케스트레이터가 연결되지 않았습니다."
-msgstr "오케스트레이터가 연결되지 않았습니다."
-
-msgid "예약 작업을 실행할 수 없어요."
-msgstr "예약 작업을 실행할 수 없어요."
-
-msgid "작업 완료"
-msgstr "작업 완료"
-
-msgid "예약 작업 실행 실패"
-msgstr "예약 작업 실행 실패"
-
-msgid "실행 결과 없음"
-msgstr "실행 결과 없음"
-
-msgid "예약 작업 실행"
-msgstr "예약 작업 실행"
-
-msgid "자주 하는 작업을 아직 충분히 배우지 못했어요."
-msgstr "자주 하는 작업을 아직 충분히 배우지 못했어요."
-
-msgid "자주 하는 작업은 {goals}예요."
-msgstr "자주 하는 작업은 {goals}예요."
-
-msgid "아직 떠올릴 만한 기록이 충분하지 않아요."
-msgstr "아직 떠올릴 만한 기록이 충분하지 않아요."
-
-msgid "기억나는 최근 기록은 {records}"
-msgstr "기억나는 최근 기록은 {records}"
-
-msgid "아직 저장된 스킬이 없어요."
-msgstr "아직 저장된 스킬이 없어요."
-
-msgid "현재 스킬은 {skills}예요."
-msgstr "현재 스킬은 {skills}예요."
-
-msgid "삭제할 스킬이 없어요."
-msgstr "삭제할 스킬이 없어요."
-
-msgid "{name} 스킬을 비활성화했어요."
-msgstr "{name} 스킬을 비활성화했어요."
-
-msgid "메모리 정리를 마쳤어요. 사실 {facts}개, 전략 {strategies}개가 현재 유지 중이에요."
-msgstr "메모리 정리를 마쳤어요. 사실 {facts}개, 전략 {strategies}개가 현재 유지 중이에요."
-
-msgid "어떤 음악이나 영상을 재생할까요?"
-msgstr "어떤 음악이나 영상을 재생할까요?"
-
-msgid "캐릭터 위젯이 아직 초기화되지 않았습니다."
-msgstr "캐릭터 위젯이 아직 초기화되지 않았습니다."
-
-msgid "현재 화면 정보를 확인할 수 없습니다."
-msgstr "현재 화면 정보를 확인할 수 없습니다."
-
-msgid "현재 화면 상태: {mode}\n"
-msgstr "현재 화면 상태: {mode}\n"
-
-msgid "[전체화면 모드]"
-msgstr "[전체화면 모드]"
-
-msgid "[일반 모드]"
-msgstr "[일반 모드]"
-
-msgid "- 가용 화면 크기: {width}x{height}\n"
-msgstr "- 가용 화면 크기: {width}x{height}\n"
-
-msgid "- 전체 모니터 크기: {width}x{height}\n"
-msgstr "- 전체 모니터 크기: {width}x{height}\n"
-
-msgid "- 현재 작업표시줄이 화면의 일부를 차지하고 있어, 저는 작업표시줄 바로 위에 서 있습니다."
-msgstr "- 현재 작업표시줄이 화면의 일부를 차지하고 있어, 저는 작업표시줄 바로 위에 서 있습니다."
-
-msgid "- 현재 게임이나 영상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다."
-msgstr "- 현재 게임이나 영상이 전체화면으로 실행 중이거나 작업표시줄이 숨겨져 있어, 저는 화면 맨 아래 바닥에 서 있습니다."
-
-msgid "화면 상태 확인 중 오류 발생: {error}"
-msgstr "화면 상태 확인 중 오류 발생: {error}"
-
-msgid "검색 오류: {error}"
-msgstr "검색 오류: {error}"
-
-msgid "페이지 로드 오류: {error}"
-msgstr "페이지 로드 오류: {error}"
-
-msgid "AI 기능을 사용할 수 없습니다."
-msgstr "AI 기능을 사용할 수 없습니다."
-
-msgid "응답 생성 중 오류가 발생했습니다."
-msgstr "응답 생성 중 오류가 발생했습니다."
-
-msgid "일부 단계가 실패하여 목표를 달성하지 못했습니다."
-msgstr "일부 단계가 실패하여 목표를 달성하지 못했습니다."
-
-msgid "브라우저 또는 앱 상태가 목표와 일치해 작업을 완료했습니다."
-msgstr "브라우저 또는 앱 상태가 목표와 일치해 작업을 완료했습니다."
-
-msgid "화면 이미지 인식을 통해 목표 상태를 확인했습니다."
-msgstr "화면 이미지 인식을 통해 목표 상태를 확인했습니다."
-
-msgid "검증 단계가 실패하여 저장소 작업을 완료하지 못했습니다."
-msgstr "검증 단계가 실패하여 저장소 작업을 완료하지 못했습니다."
-
-msgid "검증 로그에 실패 신호가 남아 있어 저장소 작업이 완료되지 않았습니다."
-msgstr "검증 로그에 실패 신호가 남아 있어 저장소 작업이 완료되지 않았습니다."
-
-msgid "코드 변경 후 저장소 검증 명령이 성공적으로 완료됐습니다."
-msgstr "코드 변경 후 저장소 검증 명령이 성공적으로 완료됐습니다."
-
-msgid "검증 단계는 있었지만 성공 신호가 명확하지 않아 저장소 작업을 완료로 볼 수 없습니다."
-msgstr "검증 단계는 있었지만 성공 신호가 명확하지 않아 저장소 작업을 완료로 볼 수 없습니다."
-
-msgid "화면 OCR에서 목표 관련 텍스트를 확인했습니다. ({found}/{total})"
-msgstr "화면 OCR에서 목표 관련 텍스트를 확인했습니다. ({found}/{total})"
-
-msgid "상태 검증 결과: {status}"
-msgstr "상태 검증 결과: {status}"
-
-msgid "미달성"
-msgstr "미달성"
-
-msgid "LLM 검증 실패"
-msgstr "LLM 검증 실패"
-
-msgid "주의! {summary}"
-msgstr "주의! {summary}"
-
-msgid "주의: {summary}. 실행합니다."
-msgstr "주의: {summary}. 실행합니다."
-
-msgid "복구 가능한 백업을 찾지 못했습니다."
-msgstr "복구 가능한 백업을 찾지 못했습니다."
-
-msgid "백업 파일이 존재하지 않습니다."
-msgstr "백업 파일이 존재하지 않습니다."
-
-msgid "코드 실행 중 기술적인 문제가 발생했어요."
-msgstr "코드 실행 중 기술적인 문제가 발생했어요."
-
-msgid "파이썬 실행 실패"
-msgstr "파이썬 실행 실패"
-
-msgid "실행 시간 초과 ({seconds}초)"
-msgstr "실행 시간 초과 ({seconds}초)"
-
-msgid "명령어 실행 시간이 너무 길어 중단했습니다."
-msgstr "명령어 실행 시간이 너무 길어 중단했습니다."
-
-msgid "시스템 명령 실행 중 오류가 발생했습니다."
-msgstr "시스템 명령 실행 중 오류가 발생했습니다."
-
-msgid "문서 저장 실패: {error}"
-msgstr "문서 저장 실패: {error}"
-
-msgid "백업 생성 실패: {error}"
-msgstr "백업 생성 실패: {error}"
-
-msgid "디렉터리가 아닙니다."
-msgstr "디렉터리가 아닙니다."
-
-msgid "오류: {error}"
-msgstr "오류: {error}"
-
-msgid "출력 파일은 입력 파일과 같을 수 없습니다."
-msgstr "출력 파일은 입력 파일과 같을 수 없습니다."
-
-msgid "\n--- 원본 파일: {filename} ---\n"
-msgstr "\n--- 원본 파일: {filename} ---\n"
-
-msgid "파일이 존재하지 않습니다."
-msgstr "파일이 존재하지 않습니다."
-
-msgid "상세 파싱 실패"
-msgstr "상세 파싱 실패"
-
-msgid "지원하지 않는 형식입니다."
-msgstr "지원하지 않는 형식입니다."
-
-msgid "분석 보고서"
-msgstr "분석 보고서"
-
-msgid "*생성 일시: {timestamp}*\n\n"
-msgstr "*생성 일시: {timestamp}*\n\n"
-
-msgid "path가 비어 있습니다."
-msgstr "path가 비어 있습니다."
-
-msgid "old_string이 비어 있습니다."
-msgstr "old_string이 비어 있습니다."
-
-msgid "old_string은 파일 내 정확히 1회 등장해야 합니다. 현재 {count}회"
-msgstr "old_string은 파일 내 정확히 1회 등장해야 합니다. 현재 {count}회"
-
-msgid "원본 경로가 존재하지 않습니다."
-msgstr "원본 경로가 존재하지 않습니다."
-
-msgid "대상 경로가 존재하지 않습니다."
-msgstr "대상 경로가 존재하지 않습니다."
-
-msgid "검색 결과가 없습니다."
-msgstr "검색 결과가 없습니다."
-
-msgid "제목 없음"
-msgstr "제목 없음"
-
-msgid "검색 중 오류 발생: {error}"
-msgstr "검색 중 오류 발생: {error}"
-
-msgid "페이지 로드 실패: {error}"
-msgstr "페이지 로드 실패: {error}"
-
-msgid "로그인 완료를 감지하지 못했습니다."
-msgstr "로그인 완료를 감지하지 못했습니다."
-
-msgid "DOM 에러 상태 감지"
-msgstr "DOM 에러 상태 감지"
-
-msgid "다운로드 완료 파일을 찾지 못했습니다."
-msgstr "다운로드 완료 파일을 찾지 못했습니다."
-
-msgid "허용되지 않는 URL입니다: {url}"
-msgstr "허용되지 않는 URL입니다: {url}"
-
-msgid "플러그인 파일은 저장되었지만 활성화에 실패했습니다: {error}"
-msgstr "플러그인 파일은 저장되었지만 활성화에 실패했습니다: {error}"
-
-msgid "실행 파일을 찾을 수 없습니다: {path}"
-msgstr "실행 파일을 찾을 수 없습니다: {path}"
-
-msgid "허용되지 않는 실행 파일입니다: {candidate}"
-msgstr "허용되지 않는 실행 파일입니다: {candidate}"
-
-msgid "허용되지 않는 모델 이름입니다: {model}"
-msgstr "허용되지 않는 모델 이름입니다: {model}"
-
-msgid "Ollama 설치 파일 다운로드 중..."
-msgstr "Ollama 설치 파일 다운로드 중..."
-
-msgid "Ollama 설치 프로그램을 실행합니다. 설치 창이 뜨면 계속 진행하세요."
-msgstr "Ollama 설치 프로그램을 실행합니다. 설치 창이 뜨면 계속 진행하세요."
-
-msgid "Ollama 설치 프로그램 실행 실패: {result}"
-msgstr "Ollama 설치 프로그램 실행 실패: {result}"
-
-msgid "모델 저장 경로 설정: {models_dir}"
-msgstr "모델 저장 경로 설정: {models_dir}"
-
-msgid "Ollama 서버를 시작합니다..."
-msgstr "Ollama 서버를 시작합니다..."
-
-msgid "Ollama 서버가 30초 내에 시작되지 않았습니다."
-msgstr "Ollama 서버가 30초 내에 시작되지 않았습니다."
-
-msgid "모델 다운로드 중: {safe_model}"
-msgstr "모델 다운로드 중: {safe_model}"
-
-msgid "Ollama 자동 설치는 현재 Windows만 지원합니다."
-msgstr "Ollama 자동 설치는 현재 Windows만 지원합니다."
-
-msgid "Ollama가 이미 설치되어 있어 설치 단계는 건너뜁니다."
-msgstr "Ollama가 이미 설치되어 있어 설치 단계는 건너뜁니다."
-
-msgid "설치 후에도 ollama.exe를 찾지 못했습니다."
-msgstr "설치 후에도 ollama.exe를 찾지 못했습니다."
-
-msgid "Ollama 설치 작업이 완료되었습니다."
-msgstr "Ollama 설치 작업이 완료되었습니다."
-
-msgid "맑음"
-msgstr "맑음"
-
-msgid "대체로 맑음"
-msgstr "대체로 맑음"
-
-msgid "구름 많음"
-msgstr "구름 많음"
-
-msgid "흐림"
-msgstr "흐림"
-
-msgid "안개"
-msgstr "안개"
-
-msgid "이슬비"
-msgstr "이슬비"
-
-msgid "비"
-msgstr "비"
-
-msgid "강한 비"
-msgstr "강한 비"
-
-msgid "눈"
-msgstr "눈"
-
-msgid "강한 눈"
-msgstr "강한 눈"
-
-msgid "소나기"
-msgstr "소나기"
-
-msgid "강한 소나기"
-msgstr "강한 소나기"
-
-msgid "천둥번개"
-msgstr "천둥번개"
-
-msgid "천둥번개(우박)"
-msgstr "천둥번개(우박)"
-
-msgid "알 수 없음"
-msgstr "알 수 없음"
-
-msgid "주변"
-msgstr "주변"
-
-msgid "현재"
-msgstr "현재"
-
-msgid "모레"
-msgstr "모레"
-
-msgid "{location}{day_label} 날씨는 {status}입니다. "
-msgstr "{location}{day_label} 날씨는 {status}입니다. "
-
-msgid "기온은 {temp:.0f}도"
-msgstr "기온은 {temp:.0f}도"
-
-msgid ", 습도는 {humidity}%"
-msgstr ", 습도는 {humidity}%"
-
-msgid ", 강수량은 {rain:.1f}밀리미터"
-msgstr ", 강수량은 {rain:.1f}밀리미터"
-
-msgid "입니다. "
-msgstr "입니다. "
-
-msgid "{day_label} 최고 {t_max:.0f}도, 최저 {t_min:.0f}도"
-msgstr "{day_label} 최고 {t_max:.0f}도, 최저 {t_min:.0f}도"
-
-msgid ", 강수 확률은 {pop}%"
-msgstr ", 강수 확률은 {pop}%"
-
-msgid "입니다."
-msgstr "입니다."
-
-msgid "날씨 정보를 가져오는 중 오류가 발생했습니다."
-msgstr "날씨 정보를 가져오는 중 오류가 발생했습니다."
-
-msgid "skills.update_missing_existing"
-msgstr "기존 스킬이 업데이트 결과에 포함되지 않았습니다."
-
-msgid "skills.update_restore_failed"
-msgstr "스킬 복구에 실패했습니다. 보존된 경로를 확인하세요: {path}"
-
-msgid "settings.save_failed"
-msgstr "설정을 저장하지 못했습니다"
-
-msgid "settings.secret_save_failed"
-msgstr "파일 쓰기 권한과 암호화 저장소를 확인해 주세요. 암호화 저장을 지원하지 않는 환경에서는 환경변수 또는 런타임 폴더의 .env로 키를 설정하세요. 입력한 내용은 이 창에 남아 있습니다."
-
-msgid "검증할 실행 결과가 없습니다."
-msgstr "검증할 실행 결과가 없습니다."
-
-msgid "요청한 대상의 실제 상태를 확인하지 못했습니다."
-msgstr "요청한 대상의 실제 상태를 확인하지 못했습니다."
-
-msgid "요청한 결과를 실제 상태로 검증하지 못했습니다."
-msgstr "요청한 결과를 실제 상태로 검증하지 못했습니다."
-
-msgid "(걱정) 연결 설정을 확인해주세요. 기본 명령은 그대로 쓸 수 있어요."
-msgstr "(걱정) 연결 설정을 확인해주세요. 기본 명령은 그대로 쓸 수 있어요."
-
-msgid "(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 확인해주세요."
-msgstr "(걱정) 서버에 연결할 수 없어요. 네트워크 상태를 확인해주세요."
-
-msgid "(걱정) 인증에 실패했어요. 설정에서 인증 정보를 확인해주세요."
-msgstr "(걱정) 인증에 실패했어요. 설정에서 인증 정보를 확인해주세요."
-
-msgid "(걱정) 서버 오류로 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
-msgstr "(걱정) 서버 오류로 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
-
-msgid "(걱정) 요청 한도를 초과했어요. 잠시 후 다시 시도해주세요."
-msgstr "(걱정) 요청 한도를 초과했어요. 잠시 후 다시 시도해주세요."
-
-msgid "(걱정) 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
-msgstr "(걱정) 요청을 처리하지 못했어요. 잠시 후 다시 시도해주세요."
-
-msgid "요청한 작업을 완료하지 못했어요."
-msgstr "요청한 작업을 완료하지 못했어요."
-
-msgid "빠른 로컬 처리"
-msgstr "빠른 로컬 처리"
-
-msgid "간단한 명령을 로컬에서 바로 처리"
-msgstr "간단한 명령을 로컬에서 바로 처리"
-
-msgid "빠른 처리는 기본으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."
-msgstr "빠른 처리는 기본으로 켜져 있습니다. 진단용 기록 모드는 별도로 선택할 수 있습니다."
-
-msgid "파일 인코딩을 확인할 수 없어 편집하지 않았습니다."
-msgstr "파일 인코딩을 확인할 수 없어 편집하지 않았습니다."
-
-msgid "작업은 완료됐지만 확인 가능한 결과를 받지 못했습니다."
-msgstr "작업은 완료됐지만 확인 가능한 결과를 받지 못했습니다."
-
-msgid "등록되지 않은 도구라 실행하지 못했습니다."
-msgstr "등록되지 않은 도구라 실행하지 못했습니다."
-
-msgid "요청이 취소되어 도구를 실행하지 않았습니다."
-msgstr "요청이 취소되어 도구를 실행하지 않았습니다."
-
-msgid "도구가 완료됐지만 반환값이 없습니다."
-msgstr "도구가 완료됐지만 반환값이 없습니다."
-
-msgid "고급: 동작 모드"
-msgstr "고급: 동작 모드"
-
-msgid "기록만 (진단용)"
-msgstr "기록만 (진단용)"
-
-msgid "빠른 처리"
-msgstr "빠른 처리"
-
-msgid "로컬 판단 모델: 준비됨"
-msgstr "로컬 판단 모델: 준비됨"
-
-msgid "로컬 판단 모델: 오류 ({code})"
-msgstr "로컬 판단 모델: 오류 ({code})"
-
-msgid "로컬 판단 모델: 아직 불러오지 않음 (첫 명령 때 불러옵니다)"
-msgstr "로컬 판단 모델: 아직 불러오지 않음 (첫 명령 때 불러옵니다)"
-
-msgid "모델 다시 불러오기"
-msgstr "모델 다시 불러오기"
-
-msgid "설치된 아리에서는 '{package}' 패키지를 자동으로 설치할 수 없습니다. 이 패키지 없이 할 수 있는 방법으로 다시 시도합니다."
-msgstr "설치된 아리에서는 '{package}' 패키지를 자동으로 설치할 수 없습니다. 이 패키지 없이 할 수 있는 방법으로 다시 시도합니다."
-
-msgid "이전 버전 데이터 가져오기"
-msgstr "이전 버전 데이터 가져오기"
-
-msgid "이전 버전의 .ari_runtime 폴더 선택"
-msgstr "이전 버전의 .ari_runtime 폴더 선택"
-
-msgid "선택한 폴더에서 아리 데이터를 찾지 못했습니다.\n.ari_runtime 폴더나 그 폴더가 들어 있는 폴더를 선택하세요."
-msgstr "선택한 폴더에서 아리 데이터를 찾지 못했습니다.\n.ari_runtime 폴더나 그 폴더가 들어 있는 폴더를 선택하세요."
-
-msgid "데이터를 가져오지 못했습니다: {error}"
-msgstr "데이터를 가져오지 못했습니다: {error}"
-
-msgid "파일 {count}개를 가져왔습니다. 이미 있던 파일은 그대로 두었습니다.\n가져온 데이터를 적용하려면 아리를 다시 시작하세요."
-msgstr "파일 {count}개를 가져왔습니다. 이미 있던 파일은 그대로 두었습니다.\n가져온 데이터를 적용하려면 아리를 다시 시작하세요."
-
-msgid "다시 찾기"
-msgstr "다시 찾기"
-
-msgid "위치 지정"
-msgstr "위치 지정"
-
-msgid "확인 중..."
-msgstr "확인 중..."
-
-msgid "모델 받기"
-msgstr "모델 받기"
-
-msgid "설치됨: {path}"
-msgstr "설치됨: {path}"
-
-msgid "설치되지 않음"
-msgstr "설치되지 않음"
-
-msgid "Ollama 서버가 응답하지 않아 설치된 모델을 확인하지 못했습니다."
-msgstr "Ollama 서버가 응답하지 않아 설치된 모델을 확인하지 못했습니다."
-
-msgid "설치된 모델이 없습니다."
-msgstr "설치된 모델이 없습니다."
-
-msgid "설치된 모델: {models}"
-msgstr "설치된 모델: {models}"
-
-msgid "Ollama 모델 받기"
-msgstr "Ollama 모델 받기"
-
-msgid "Ollama가 이미 설치되어 있습니다. 받을 모델을 선택하세요."
-msgstr "Ollama가 이미 설치되어 있습니다. 받을 모델을 선택하세요."
-
-msgid "선택한 모델이 없습니다."
-msgstr "선택한 모델이 없습니다."
-
-msgid "Ollama 모델을 받는 중입니다.\n모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
-msgstr "Ollama 모델을 받는 중입니다.\n모델 다운로드는 콘솔 없이 백그라운드로 계속됩니다."
-
-msgid "ollama.exe 위치 선택"
-msgstr "ollama.exe 위치 선택"
-
-msgid "ollama.exe 파일을 선택하세요."
-msgstr "ollama.exe 파일을 선택하세요."
-
-msgid "CosyVoice3가 이미 설치되어 있습니다.\n\n{path}\n\n다시 설치할까요?"
-msgstr "CosyVoice3가 이미 설치되어 있습니다.\n\n{path}\n\n다시 설치할까요?"
-
-msgid "사용자 지정 제공자 설정"
-msgstr "사용자 지정 제공자 설정"
-
-msgid "표시 이름"
-msgstr "표시 이름"
-
-msgid "기본 URL"
-msgstr "기본 URL"
-
-msgid "예: My LLM"
-msgstr "예: My LLM"
-
-msgid "API 키와 기본 모델은 제공자별 설정 목록에서 수정할 수 있습니다."
-msgstr "API 키와 기본 모델은 제공자별 설정 목록에서 수정할 수 있습니다."
-
-msgid "표시 이름을 입력하세요."
-msgstr "표시 이름을 입력하세요."
-
-msgid "기본 URL은 사용자 정보, 쿼리 또는 프래그먼트가 없는 http 또는 https 주소여야 합니다."
-msgstr "기본 URL은 사용자 정보, 쿼리 또는 프래그먼트가 없는 http 또는 https 주소여야 합니다."
-
-msgid "기본 모델을 입력하세요."
-msgstr "기본 모델을 입력하세요."
-
-msgid "✓ {model} 연결 성공"
-msgstr "✓ {model} 연결 성공"
-
-msgid "연결에 실패했습니다. URL, 모델, API 키를 확인해 주세요."
-msgstr "연결에 실패했습니다. URL, 모델, API 키를 확인해 주세요."
-
-msgid "사용자 지정 OpenAI 호환 제공자"
-msgstr "사용자 지정 OpenAI 호환 제공자"
-
-msgid "OpenAI 호환 서버의 이름과 기본 URL을 등록합니다. API 키와 기본 모델은 아래에서 설정합니다."
-msgstr "OpenAI 호환 서버의 이름과 기본 URL을 등록합니다. API 키와 기본 모델은 아래에서 설정합니다."
-
-msgid "제공자 추가"
-msgstr "제공자 추가"
-
-msgid "선택 사항"
-msgstr "선택 사항"
-
-msgid "수정"
-msgstr "수정"
-
-msgid "API 키 (선택 사항)"
-msgstr "API 키 (선택 사항)"
-
-msgid "제공자 삭제"
-msgstr "제공자 삭제"
-
-msgid "스마트 어시스턴트 모드가 비활성화되었습니다."
-msgstr "스마트 어시스턴트 모드가 비활성화되었습니다."
-
-msgid "스마트 어시스턴트 모드가 활성화되었습니다. 이제 제가 명령어를 자동으로 실행하고 주인님의 패턴을 학습하겠습니다."
-msgstr "스마트 어시스턴트 모드가 활성화되었습니다. 이제 제가 명령어를 자동으로 실행하고 주인님의 패턴을 학습하겠습니다."
-
-msgid "플러그인 설치가 완료되었습니다."
-msgstr "플러그인 설치가 완료되었습니다."
-
-msgid "플러그인 설치에 실패했습니다."
-msgstr "플러그인 설치에 실패했습니다."
-
-msgid "✗ Ollama 서버에 연결할 수 없어요. Ollama 실행 여부를 확인하세요."
-msgstr "✗ Ollama 서버에 연결할 수 없어요. Ollama 실행 여부를 확인하세요."
-
-msgid "✗ 모델 '{model}'을(를) {label}에서 찾을 수 없습니다. 모델명을 확인해 주세요."
-msgstr "✗ 모델 '{model}'을(를) {label}에서 찾을 수 없습니다. 모델명을 확인해 주세요."
-
-msgid "✗ API Key가 유효하지 않습니다. 키를 확인해 주세요."
-msgstr "✗ API Key가 유효하지 않습니다. 키를 확인해 주세요."
-
-msgid "3초 녹음 후 재생"
-msgstr "3초 녹음 후 재생"
-
-msgid "3초 동안 녹음하고 있습니다. 잠시 말씀해 주세요..."
-msgstr "3초 동안 녹음하고 있습니다. 잠시 말씀해 주세요..."
-
-msgid "CosyVoice 다시 설치"
-msgstr "CosyVoice 다시 설치"
-
-msgid "CosyVoice 모델 파일이 모두 다운로드되지 않았습니다. 다시 설치해 주세요."
-msgstr "CosyVoice 모델 파일이 모두 다운로드되지 않았습니다. 다시 설치해 주세요."
-
-msgid "CosyVoice 설치 단계에 실패했습니다: {step} ({error})"
-msgstr "CosyVoice 설치 단계에 실패했습니다: {step} ({error})"
-
-msgid "CosyVoice 설치 단계에 실패했습니다: {step} (종료 코드: {returncode})"
-msgstr "CosyVoice 설치 단계에 실패했습니다: {step} (종료 코드: {returncode})"
-
-msgid "CosyVoice 설치가 감지되지 않았습니다. 설치하거나 폴더를 지정해 주세요."
-msgstr "CosyVoice 설치가 감지되지 않았습니다. 설치하거나 폴더를 지정해 주세요."
-
-msgid "CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 확인해 주세요."
-msgstr "CosyVoice 설치가 완료되지 않았습니다. 모델 파일을 확인해 주세요."
-
-msgid "CosyVoice 저장소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
-msgstr "CosyVoice 저장소가 완전하지 않습니다. requirements.txt가 없어 설치를 계속할 수 없습니다."
-
-msgid "CosyVoice 전용 가상환경을 만드는 중입니다..."
-msgstr "CosyVoice 전용 가상환경을 만드는 중입니다..."
-
-msgid "CosyVoice 전용 가상환경을 만들지 못했습니다 (종료 코드: {returncode})"
-msgstr "CosyVoice 전용 가상환경을 만들지 못했습니다 (종료 코드: {returncode})"
-
-msgid "CosyVoice 전용 가상환경을 만들지 못했습니다: {error}"
-msgstr "CosyVoice 전용 가상환경을 만들지 못했습니다: {error}"
-
-msgid "Python을 찾지 못했습니다. Python 3.10 또는 3.11(64비트)을 설치한 뒤 다시 시도해 주세요."
-msgstr "Python을 찾지 못했습니다. Python 3.10 또는 3.11(64비트)을 설치한 뒤 다시 시도해 주세요."
-
-msgid "지원되지 않는 Python 버전 {versions}을(를) 찾았습니다. CosyVoice에는 Python 3.10 또는 3.11(64비트)이 필요합니다. 기존 Python을 제거할 필요 없이 해당 버전을 추가로 설치해 주세요."
-msgstr "지원되지 않는 Python 버전 {versions}을(를) 찾았습니다. CosyVoice에는 Python 3.10 또는 3.11(64비트)이 필요합니다. 기존 Python을 제거할 필요 없이 해당 버전을 추가로 설치해 주세요."
-
-msgid "TTS 시험 재생에 실패했습니다. 설정과 출력 장치를 확인해 주세요."
-msgstr "TTS 시험 재생에 실패했습니다. 설정과 출력 장치를 확인해 주세요."
-
-msgid "TTS 시험 재생에 실패했습니다: {error}"
-msgstr "TTS 시험 재생에 실패했습니다: {error}"
-
-msgid "녹음한 소리를 선택한 스피커로 재생했습니다."
-msgstr "녹음한 소리를 선택한 스피커로 재생했습니다."
-
-msgid "마이크 레벨 확인"
-msgstr "마이크 레벨 확인"
-
-msgid "마이크 및 스피커 진단"
-msgstr "마이크 및 스피커 진단"
-
-msgid "마이크 입력 레벨:"
-msgstr "마이크 입력 레벨:"
-
-msgid "마이크 입력을 확인하고 있습니다..."
-msgstr "마이크 입력을 확인하고 있습니다..."
-
-msgid "마이크 확인을 중지하고 있습니다..."
-msgstr "마이크 확인을 중지하고 있습니다..."
-
-msgid "마이크가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
-msgstr "마이크가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
-
-msgid "마이크를 준비하고 있습니다..."
-msgstr "마이크를 준비하고 있습니다..."
-
-msgid "선택한 LLM 연결 확인"
-msgstr "선택한 LLM 연결 확인"
-
-msgid "선택한 TTS 엔진을 초기화하지 못해 다른 엔진으로 전환되었습니다. 설정을 확인해 주세요."
-msgstr "선택한 TTS 엔진을 초기화하지 못해 다른 엔진으로 전환되었습니다. 설정을 확인해 주세요."
-
-msgid "선택한 마이크를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
-msgstr "선택한 마이크를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
-
-msgid "선택한 스피커를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
-msgstr "선택한 스피커를 찾을 수 없습니다. 장치를 다시 선택해 주세요."
-
-msgid "설치된 아리에서 사용할 수 없는 파이썬 패키지가 필요합니다: {packages}. 사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요."
-msgstr "설치된 아리에서 사용할 수 없는 파이썬 패키지가 필요합니다: {packages}. 사용할 수 있는 패키지로 바꾸어 다시 실행해 주세요."
-
-msgid "세부 의존성 설치"
-msgstr "세부 의존성 설치"
-
-msgid "스피커 출력 장치를 열지 못했습니다: {error}"
-msgstr "스피커 출력 장치를 열지 못했습니다: {error}"
-
-msgid "스피커가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
-msgstr "스피커가 다른 작업에서 사용 중입니다. 잠시 후 다시 시도해 주세요."
-
-msgid "시험 재생"
-msgstr "시험 재생"
-
-msgid "시험 재생 중..."
-msgstr "시험 재생 중..."
-
-msgid "안녕하세요. 음성 출력 시험 중입니다."
-msgstr "안녕하세요. 음성 출력 시험 중입니다."
-
-msgid "음성 인식 시험"
-msgstr "음성 인식 시험"
-
-msgid "음성 인식 시험에 실패했습니다: {error}"
-msgstr "음성 인식 시험에 실패했습니다: {error}"
-
-msgid "음성 출력 시험"
-msgstr "음성 출력 시험"
-
-msgid "음성을 듣지 못했습니다. 다시 시험해 주세요."
-msgstr "음성을 듣지 못했습니다. 다시 시험해 주세요."
-
-msgid "음성을 인식하고 있습니다..."
-msgstr "음성을 인식하고 있습니다..."
-
-msgid "음성을 인식하지 못했습니다. 다시 말씀해 주세요."
-msgstr "음성을 인식하지 못했습니다. 다시 말씀해 주세요."
-
-msgid "인식 결과: {text}"
-msgstr "인식 결과: {text}"
-
-msgid "저장소 클론"
-msgstr "저장소 클론"
-
-msgid "지금 짧은 문장을 말씀해 주세요."
-msgstr "지금 짧은 문장을 말씀해 주세요."
-
-msgid "짧은 문장 인식"
-msgstr "짧은 문장 인식"
-
-msgid "핵심 의존성 설치"
-msgstr "핵심 의존성 설치"
-
-msgid "현재 선택한 TTS 엔진의 시험 재생이 완료되었습니다."
-msgstr "현재 선택한 TTS 엔진의 시험 재생이 완료되었습니다."
-
-msgid "마이크를 찾을 수 없어 음성 인식을 사용할 수 없습니다. 설정에서 마이크를 지정해 주세요."
-msgstr "마이크를 찾을 수 없어 음성 인식을 사용할 수 없습니다. 설정에서 마이크를 지정해 주세요."
-
-msgid "아직 이전 요청을 처리하고 있어요."
-msgstr "아직 이전 요청을 처리하고 있어요."
-
-msgid "Version: {version} · Commit: {commit}"
-msgstr "버전 {version} · 커밋 {commit}"
-
-msgid "같은 명령을 방금 들어서 무시했어요."
-msgstr "같은 명령을 방금 들어서 무시했어요."
-
-msgid "판정 보류(표본 부족)"
-msgstr "판정 보류(표본 부족)"
-
-msgid "학습 기여도 진단"
-msgstr "학습 기여도 진단"
-
-msgid "{component}: {status}"
-msgstr "{component}: {status}"
-
-msgid "플러그인 승인"
-msgstr "플러그인 승인"
-
-msgid "새 플러그인 '{name}'을 켤까요?"
-msgstr "새 플러그인 '{name}'을 켤까요?"
-
-msgid "플러그인 로드가 거부되었습니다."
-msgstr "플러그인 로드가 거부되었습니다."
-
-msgid "플러그인 파일이 승인 후 변경되었습니다."
-msgstr "플러그인 파일이 승인 후 변경되었습니다."
-
-msgid "개발자 설정"
-msgstr "개발자 설정"
-
-msgid "플러그인 핫 리로드 사용"
-msgstr "플러그인 핫 리로드 사용"
-
-msgid "다음 앱 시작 때 적용됩니다."
-msgstr "다음 앱 시작 때 적용됩니다."
-
-msgid "설치된 플러그인을 찾지 못했습니다."
-msgstr "설치된 플러그인을 찾지 못했습니다."
-
-msgid "확인 대기 중인 정보"
-msgstr "확인 대기 중인 정보"
-
-msgid "{field}: {value}"
-msgstr "{field}: {value}"
-
-msgid "승인"
-msgstr "승인"
-
-msgid "사실 삭제"
-msgstr "사실 삭제"
-
-msgid "'{key}' 사실을 삭제할까요?"
-msgstr "'{key}' 사실을 삭제할까요?"
-
-msgid "이 사실이 언급된 대화 기록도 삭제"
-msgstr "이 사실이 언급된 대화 기록도 삭제"
-
-msgid ""
-"[상황] 전{elapsed} · 오늘{today}회 · 연속{continuous} · "
-"시각{time} · 칭찬24h {praise}회"
-msgstr ""
-"[상황] 전{elapsed} · 오늘{today}회 · 연속{continuous} · "
-"시각{time} · 칭찬24h {praise}회"
-
-msgid " · 전체 화면: {fullscreen}"
-msgstr " · 전체 화면: {fullscreen}"
-
-msgid "{minutes}분"
-msgstr "{minutes}분"
-
-msgid "{hours}시간"
-msgstr "{hours}시간"
-
-msgid "상황 블록을 참고해 말투를 조절하되, 내용을 그대로 언급하지 마세요."
-msgstr "상황 블록을 참고해 말투를 조절하되, 내용을 그대로 언급하지 마세요."
-
-msgid "없음"
-msgstr "없음"
-
-msgid "예"
-msgstr "예"
-
-msgid "아니요"
-msgstr "아니요"
-
-msgid "Ari {version}을 사용할 수 있어요."
-msgstr "Ari {version}을 사용할 수 있어요."
-
-msgid "Ari {version}은 직접 설치해야 합니다."
-msgstr "Ari {version}은 직접 설치해야 합니다."
-
-msgid "업데이트 확인"
-msgstr "업데이트 확인"
-
-msgid "Ari {version}으로 업데이트됐어요."
-msgstr "Ari {version}으로 업데이트됐어요."
-
-msgid "업데이트 완료"
-msgstr "업데이트 완료"
-
-msgid "정보·업데이트"
-msgstr "정보·업데이트"
-
-msgid "새 버전을 자동으로 확인합니다"
-msgstr "새 버전을 자동으로 확인합니다"
-
-msgid "Ari {version} 업데이트를 사용할 수 있습니다."
-msgstr "Ari {version} 업데이트를 사용할 수 있습니다."
-
-msgid "새 업데이트가 없습니다."
-msgstr "새 업데이트가 없습니다."
-
-msgid "아직 업데이트 확인 기록이 없습니다."
-msgstr "아직 업데이트 확인 기록이 없습니다."
-
-msgid "변경 사항"
-msgstr "변경 사항"
-
-msgid "지금 확인"
-msgstr "지금 확인"
-
-msgid "이 버전 건너뛰기"
-msgstr "이 버전 건너뛰기"
-
-msgid "새 버전을 확인하고 있습니다."
-msgstr "새 버전을 확인하고 있습니다."
-
-msgid "이 버전을 건너뛰었습니다."
-msgstr "이 버전을 건너뛰었습니다."
-
-msgid "빠른 로컬 명령 처리를 사용할 수 있습니다."
-msgstr "빠른 로컬 명령 처리를 사용할 수 있습니다."
-
-msgid "자동 확인은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다."
-msgstr "자동 확인은 GitHub에서 버전 정보만 받고, 개인 식별 정보는 보내지 않습니다."
-
-msgid "무엇을 기억할까요?"
-msgstr "무엇을 기억할까요?"
-
-msgid "민감 정보는 저장하지 않아요."
-msgstr "민감 정보는 저장하지 않아요."
-
-msgid "기억을 저장하지 못했어요."
-msgstr "기억을 저장하지 못했어요."
-
-msgid "기억했어요: {value}"
-msgstr "기억했어요: {value}"
-
-msgid "무엇을 잊을까요?"
-msgstr "무엇을 잊을까요?"
-
-msgid "잊을 기억이 없어요."
-msgstr "잊을 기억이 없어요."
-
-msgid "기억을 삭제하지 못했어요."
-msgstr "기억을 삭제하지 못했어요."
-
-msgid "여러 기억이 있어요: {items}. 어떤 기억인지 골라 주세요."
-msgstr "여러 기억이 있어요: {items}. 어떤 기억인지 골라 주세요."
-
-msgid "기억 삭제"
-msgstr "기억 삭제"
-
-msgid "기억·관련 대화 기록·맞는 선호 삭제: {fact}"
-msgstr "기억·관련 대화 기록·맞는 선호 삭제: {fact}"
-
-msgid "기억, 관련 대화 기록, 맞는 선호를 삭제합니다."
-msgstr "기억, 관련 대화 기록, 맞는 선호를 삭제합니다."
-
-msgid "선호: {key}"
-msgstr "선호: {key}"
-
-msgid "삭제를 취소했어요."
-msgstr "삭제를 취소했어요."
-
-msgid "기억을 잊었어요: {key}"
-msgstr "기억을 잊었어요: {key}"
-
-msgid "활동 반응"
-msgstr "활동 반응"
-
-msgid "자리 비움·복귀 반응"
-msgstr "자리 비움·복귀 반응"
-
-msgid "자리 비움 기준 (분)"
-msgstr "자리 비움 기준 (분)"
-
-msgid "화면 잠금 시 캐릭터 숨기기"
-msgstr "화면 잠금 시 캐릭터 숨기기"
-
-msgid "방해 금지·전체 화면 반응"
-msgstr "방해 금지·전체 화면 반응"
-
-msgid "앱 카테고리 반응 (기본 꺼짐)"
-msgstr "앱 카테고리 반응 (기본 꺼짐)"
-
-msgid "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 전송하지 않습니다."
-msgstr "활동 정보는 앱 카테고리와 경과 시간만 포함하며, 창 제목·프로세스명은 전송하지 않습니다."
-
-msgid "잠금 중 웨이크 감지는 항상 정지됩니다."
-msgstr "잠금 중 웨이크 감지는 항상 정지됩니다."
-
-msgid "돌아오셨네요! 부재 중 완료된 작업은 없어요."
-msgstr "돌아오셨네요! 부재 중 완료된 작업은 없어요."
-
-msgid "돌아오셨네요! 부재 중 완료 {completed}건, 대기 {waiting}건이에요."
-msgstr "돌아오셨네요! 부재 중 완료 {completed}건, 대기 {waiting}건이에요."
-
-msgid "다음 일정은 {next_task}예요."
-msgstr "다음 일정은 {next_task}예요."
-
-msgid "방해 금지 중 말풍선으로만 응답"
-msgstr "방해 금지 중 말풍선으로만 응답"
-
-msgid "게임·영상 앱에서 게임 모드 자동 적용"
-msgstr "게임·영상 앱에서 게임 모드 자동 적용"
-
-msgid "IDE 3시간 연속 사용 알림"
-msgstr "IDE 3시간 연속 사용 알림"
-
-msgid "잠금이 풀렸어요."
-msgstr "잠금이 풀렸어요."
-
-msgid "장시간 계속 일하셨네요. 잠시 쉬어 가는 게 어때요?"
-msgstr "장시간 계속 일하셨네요. 잠시 쉬어 가는 게 어때요?"
-
-msgid "[캐릭터 성격]"
-msgstr "[캐릭터 성격]"
-
-msgid "[현재 상황]"
-msgstr "[현재 상황]"
-
-msgid "[대화 방식]"
-msgstr "[대화 방식]"
-
-msgid "[예시 대사]"
-msgstr "[예시 대사]"
-
-msgid "영어 예시 대사:"
-msgstr "영어 예시 대사:"
-
-msgid "일본어 예시 대사:"
-msgstr "일본어 예시 대사:"
-
-msgid "단축키·클릭으로 듣기"
-msgstr "단축키·클릭으로 듣기"
-
-msgid "전역 단축키:"
-msgstr "전역 단축키:"
-
-msgid "듣기 방식:"
-msgstr "듣기 방식:"
-
-msgid "누르고 있는 동안 듣기 (push-to-talk)"
-msgstr "누르고 있는 동안 듣기 (push-to-talk)"
-
-msgid "한 번 눌러 시작 (toggle)"
-msgstr "한 번 눌러 시작 (toggle)"
-
-msgid "웨이크워드 사용"
-msgstr "웨이크워드 사용"
-
-msgid "캐릭터를 짧게 클릭하면 발화 끝을 감지하고, 길게 누르면 누르는 동안 듣습니다."
-msgstr "캐릭터를 짧게 클릭하면 발화 끝을 감지하고, 길게 누르면 누르는 동안 듣습니다."
-
-msgid "단축키가 다른 앱에서 사용 중이면 등록되지 않습니다. 앱은 계속 실행됩니다."
-msgstr "단축키가 다른 앱에서 사용 중이면 등록되지 않습니다. 앱은 계속 실행됩니다."
-
-msgid "단축키 설정"
-msgstr "단축키 설정"
-
-msgid "Ctrl+Alt+Space처럼 수정 키와 기본 키를 함께 지정하세요."
-msgstr "Ctrl+Alt+Space처럼 수정 키와 기본 키를 함께 지정하세요."
-
-msgid "전략 검색"
-msgstr "전략 검색"
-
-msgid "OpenAI 임베딩 사용 (전략 텍스트 외부 전송)"
-msgstr "OpenAI 임베딩 사용 (전략 텍스트 외부 전송)"
-
-msgid "원격 임베딩 사용 중"
-msgstr "원격 임베딩 사용 중"
-
-msgid "로컬 임베딩 모델: 준비됨"
-msgstr "로컬 임베딩 모델: 준비됨"
-
-msgid "로컬 임베딩 모델 다운로드 중: {progress}%"
-msgstr "로컬 임베딩 모델 다운로드 중: {progress}%"
-
-msgid "로컬 임베딩 모델 불러오는 중"
-msgstr "로컬 임베딩 모델 불러오는 중"
-
-msgid "임베딩을 사용할 수 없습니다. 어휘 점수만 사용합니다."
-msgstr "임베딩을 사용할 수 없습니다. 어휘 점수만 사용합니다."
-
-msgid "로컬 임베딩 모델: 다운로드 대기"
-msgstr "로컬 임베딩 모델: 다운로드 대기"
-
-msgid "사용자 발화에서 기억 제안 추출"
-msgstr "사용자 발화에서 기억 제안 추출"
-
-msgid "기억 추출 제공자 (선택):"
-msgstr "기억 추출 제공자 (선택):"
-
-msgid "기억 추출 모델 (선택):"
-msgstr "기억 추출 모델 (선택):"
-
-msgid "비워두면 실행 모델과 동일"
-msgstr "비워두면 실행 모델과 동일"
-
-msgid "제안"
-msgstr "제안"
-
-msgid "제안을 불러오지 못했습니다."
-msgstr "제안을 불러오지 못했습니다."
-
-msgid "승인률 {rate}% ({approved}/{total})"
-msgstr "승인률 {rate}% ({approved}/{total})"
-
-msgid "승인·거절 기록 없음"
-msgstr "승인·거절 기록 없음"
-
-msgid "저장된 제안이 없습니다."
-msgstr "저장된 제안이 없습니다."
-
-msgid "선호: {key} = {value}"
-msgstr "선호: {key} = {value}"
-
-msgid "사실: {key} = {value}"
-msgstr "사실: {key} = {value}"
-
-msgid "근거: {evidence}"
-msgstr "근거: {evidence}"
-
-msgid "거절"
-msgstr "거절"
-
-msgid "좋음"
-msgstr "좋음"
-
-msgid "평온"
-msgstr "평온"
-
-msgid "가라앉음"
-msgstr "가라앉음"
-
-msgid " · 기분 {mood}"
-msgstr " · 기분 {mood}"
-
-msgid "기억한 사실, 대화, 일일 요약을 검색합니다."
-msgstr "기억한 사실, 대화, 일일 요약을 검색합니다."
-
-msgid "검색 종류 (선택)"
-msgstr "검색 종류 (선택)"
-
-msgid "검색 시작일 또는 시각 (ISO 8601, 선택)"
-msgstr "검색 시작일 또는 시각 (ISO 8601, 선택)"
-
-msgid "이번 발화에서 명시적으로 요청한 사실만 기억합니다."
-msgstr "이번 발화에서 명시적으로 요청한 사실만 기억합니다."
-
-msgid "기억 항목 이름"
-msgstr "기억 항목 이름"
-
-msgid "기억할 내용"
-msgstr "기억할 내용"
-
-msgid "명시적 삭제 요청을 확인 후 기억에서 삭제합니다."
-msgstr "명시적 삭제 요청을 확인 후 기억에서 삭제합니다."
-
-msgid "삭제할 기억 항목"
-msgstr "삭제할 기억 항목"
-
-msgid "검색어를 입력해 주세요."
-msgstr "검색어를 입력해 주세요."
-
-msgid "기억 검색 종류가 올바르지 않아요."
-msgstr "기억 검색 종류가 올바르지 않아요."
-
-msgid "검색 날짜 형식은 ISO 8601이어야 해요."
-msgstr "검색 날짜 형식은 ISO 8601이어야 해요."
-
-msgid "기억 검색 결과가 없어요."
-msgstr "기억 검색 결과가 없어요."
-
-msgid "기억 검색 결과:\n{results}"
-msgstr "기억 검색 결과:\n{results}"
-
-msgid "이번 요청에서 명시적으로 기억해 달라고 하지 않았어요."
-msgstr "이번 요청에서 명시적으로 기억해 달라고 하지 않았어요."
-
-msgid "기억 항목 이름과 내용을 입력해 주세요."
-msgstr "기억 항목 이름과 내용을 입력해 주세요."
-
-msgid "이번 요청에서 명시적으로 기억을 잊으라고 하지 않았어요."
-msgstr "이번 요청에서 명시적으로 기억을 잊으라고 하지 않았어요."
-
-msgid "삭제할 기억 항목을 입력해 주세요."
-msgstr "삭제할 기억 항목을 입력해 주세요."
-
-msgid "[기억하고 있는 사실]"
-msgstr "[기억하고 있는 사실]"
-
-msgid ""
-"Create a daily digest for {date} in UI language {language}. "
-"Write 3-5 sentences, then a keyword line labeled {keywords_label}. "
-"Use only the records below."
-msgstr ""
-"{date}의 기록만 사용해 UI 언어({language})로 3~5문장 요약을 작성하고, "
-"마지막에 {keywords_label}를 붙이세요."
-
-msgid "Keywords:"
-msgstr "키워드:"
-
-msgid "success"
-msgstr "성공"
-
-msgid "failure"
-msgstr "실패"
-
-msgid "Episode ({outcome}): {content}"
-msgstr "에피소드 ({outcome}): {content}"
-
-msgid "Local command: {content}"
-msgstr "로컬 명령: {content}"
-
-msgid "Scheduled run ({outcome}): {content}"
-msgstr "예약 실행 ({outcome}): {content}"
-
-msgid "학습"
-msgstr "학습"
-
-msgid "학습 스킬"
-msgstr "학습 스킬"
-
-msgid "{rate}%"
-msgstr "{rate}%"
-
-msgid "표본 없음"
-msgstr "표본 없음"
-
-msgid "사용 중"
-msgstr "사용 중"
-
-msgid "꺼짐"
-msgstr "꺼짐"
-
-msgid "{name} · 성공률 {rate} · 마지막 사용: {last_used} · 상태: {status}"
-msgstr "{name} · 성공률 {rate} · 마지막 사용: {last_used} · 상태: {status}"
-
-msgid "사용 스킬이 없습니다."
-msgstr "사용 스킬이 없습니다."
-
-msgid "이 스킬 끄기"
-msgstr "이 스킬 끄기"
-
-msgid "활성 교훈"
-msgstr "활성 교훈"
-
-msgid "교훈이 없습니다."
-msgstr "교훈이 없습니다."
-
-msgid "이 교훈 삭제"
-msgstr "이 교훈 삭제"
-
-msgid "최근 정책 기록"
-msgstr "최근 정책 기록"
-
-msgid "컴포넌트 lift"
-msgstr "컴포넌트 lift"
-
-msgid "{component}: {lift:+d}%p"
-msgstr "{component}: {lift:+d}%p"
-
-msgid ""
-"다시 오셨네요, 반가워요.||돌아오셔서 기뻐요. "
-"같이 이어서 해봐요."
-msgstr ""
-"다시 오셨네요, 반가워요.||돌아오셔서 기뻐요. "
-"같이 이어서 해봐요."
-
-msgid "다시 오셨네요.||돌아오셨군요. 어디부터 이어갈까요?"
-msgstr "다시 오셨네요.||돌아오셨군요. 어디부터 이어갈까요?"
-
-msgid ""
-"돌아오셨네요. 천천히 다시 시작해요.||기다리고 있었어요. "
-"무리하지 말고 해봐요."
-msgstr ""
-"돌아오셨네요. 천천히 다시 시작해요.||기다리고 있었어요. "
-"무리하지 말고 해봐요."
-
-msgid ""
-"오래 집중하셨네요. 잠깐 쉬고 다시 해봐요.||많이 해내셨네요. "
-"물 한잔 어때요?"
-msgstr ""
-"오래 집중하셨네요. 잠깐 쉬고 다시 해봐요.||많이 해내셨네요. "
-"물 한잔 어때요?"
-
-msgid ""
-"계속 집중하고 계시네요. 잠깐 쉬어 가는 건 어때요?||오래 일하셨네요. "
-"잠깐 몸을 풀어봐요."
-msgstr ""
-"계속 집중하고 계시네요. 잠깐 쉬어 가는 건 어때요?||오래 일하셨네요. "
-"잠깐 몸을 풀어봐요."
-
-msgid ""
-"너무 오래 붙잡고 계셨어요. 조금 쉬어요.||잠깐 쉬어도 괜찮아요. "
-"몸을 돌봐주세요."
-msgstr ""
-"너무 오래 붙잡고 계셨어요. 조금 쉬어요.||잠깐 쉬어도 괜찮아요. "
-"몸을 돌봐주세요."
-
-msgid ""
-"늦은 시간까지 수고 많으셨어요. 이제 쉬어도 좋아요.||오늘은 여기까지 하고 "
-"푹 쉬어요."
-msgstr ""
-"늦은 시간까지 수고 많으셨어요. 이제 쉬어도 좋아요.||오늘은 여기까지 하고 "
-"푹 쉬어요."
-
-msgid ""
-"시간이 늦었네요. 잠깐 쉬는 건 어때요?||아직 깨어 계셨네요. "
-"조금 쉬어 가요."
-msgstr ""
-"시간이 늦었네요. 잠깐 쉬는 건 어때요?||아직 깨어 계셨네요. "
-"조금 쉬어 가요."
-
-msgid ""
-"밤이 꽤 깊었어요. 무리하지 말고 쉬어요.||오늘은 일찍 마무리해도 "
-"괜찮아요."
-msgstr ""
-"밤이 꽤 깊었어요. 무리하지 말고 쉬어요.||오늘은 일찍 마무리해도 "
-"괜찮아요."
-
-msgid ""
-"작업이 끝났어요. 결과를 확인해 주세요: {summary}||요청하신 일을 "
-"마쳤어요: {summary}"
-msgstr ""
-"작업이 끝났어요. 결과를 확인해 주세요: {summary}||요청하신 일을 "
-"마쳤어요: {summary}"
-
-msgid ""
-"작업을 마쳤어요. 결과는 이렇습니다: {summary}||완료된 내용이에요: "
-"{summary}"
-msgstr ""
-"작업을 마쳤어요. 결과는 이렇습니다: {summary}||완료된 내용이에요: "
-"{summary}"
-
-msgid ""
-"작업 결과가 나왔어요. 확인해 주세요: {summary}||요청하신 작업을 "
-"끝냈어요: {summary}"
-msgstr ""
-"작업 결과가 나왔어요. 확인해 주세요: {summary}||요청하신 작업을 "
-"끝냈어요: {summary}"
-
-msgid ""
-"이번 주 학습 리포트를 정리했어요.||이번 주에 배운 내용을 "
-"모아뒀어요."
-msgstr ""
-"이번 주 학습 리포트를 정리했어요.||이번 주에 배운 내용을 "
-"모아뒀어요."
-
-msgid ""
-"이번 주 학습 리포트를 준비했어요.||주간 리포트를 확인할 수 "
-"있어요."
-msgstr ""
-"이번 주 학습 리포트를 준비했어요.||주간 리포트를 확인할 수 "
-"있어요."
-
-msgid ""
-"이번 주 학습 결과를 정리해 뒀어요.||주간 리포트를 준비했어요. "
-"편할 때 확인해 주세요."
-msgstr ""
-"이번 주 학습 결과를 정리해 뒀어요.||주간 리포트를 준비했어요. "
-"편할 때 확인해 주세요."
-
-msgid ""
-"계속 칭찬해 주셔서 기분이 좋아요.||칭찬을 들으니 더 힘이 "
-"나요."
-msgstr ""
-"계속 칭찬해 주셔서 기분이 좋아요.||칭찬을 들으니 더 힘이 "
-"나요."
-
-msgid ""
-"따뜻한 말씀 고마워요.||계속 응원해 주셔서 "
-"고마워요."
-msgstr ""
-"따뜻한 말씀 고마워요.||계속 응원해 주셔서 "
-"고마워요."
-
-msgid ""
-"다정하게 말해 주셔서 고마워요.||칭찬해 주셔서 "
-"힘이 나요."
-msgstr ""
-"다정하게 말해 주셔서 고마워요.||칭찬해 주셔서 "
-"힘이 나요."
-
-msgid ""
-"새벽 정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. "
-"{summary}"
-msgstr ""
-"새벽 정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. "
-"{summary}"
-
-msgid ""
-"정리 작업 결과예요. {summary}||새벽 정리 결과가 나왔어요. "
-"{summary}"
-msgstr ""
-"정리 작업 결과예요. {summary}||새벽 정리 결과가 나왔어요. "
-"{summary}"
-
-msgid ""
-"정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. "
-"{summary}"
-msgstr ""
-"정리 결과가 나왔어요. {summary}||메모리 정리 결과예요. "
-"{summary}"
-
-msgid "⏰ {command}"
-msgstr "⏰ {command}"
-
-msgid "→ {command}"
-msgstr "→ {command}"
-
-msgid "확인하겠습니다."
-msgstr "확인하겠습니다."
-
-msgid "바로 살펴보겠습니다."
-msgstr "바로 살펴보겠습니다."
-
-msgid "잠시만요."
-msgstr "잠시만요."
-
-msgid "곧 확인하겠습니다."
-msgstr "곧 확인하겠습니다."
-
-msgid "조금만 기다려 주세요."
-msgstr "조금만 기다려 주세요."
-
-msgid "OpenAI 호환 TTS"
-msgstr "OpenAI 호환 TTS"
-
-msgid "OpenAI 호환 TTS 설정"
-msgstr "OpenAI 호환 TTS 설정"
-
-msgid "공통 TTS 설정"
-msgstr "공통 TTS 설정"
-
-msgid "보이스 클로닝"
-msgstr "보이스 클로닝"
-
-msgid "참조 WAV 파일 (비워두면 기본 reference.wav 사용):"
-msgstr "참조 WAV 파일 (비워두면 기본 reference.wav 사용):"
-
-msgid "참조 WAV 대본:"
-msgstr "참조 WAV 대본:"
-
-msgid "참조 WAV 선택"
-msgstr "참조 WAV 선택"
-
-msgid "참조 음성 복제"
-msgstr "참조 음성 복제"
-
-msgid "기본 음성"
-msgstr "기본 음성"
-
-msgid "클로닝:"
-msgstr "클로닝:"
-
-msgid "감정 지시문 사용"
-msgstr "감정 지시문 사용"
-
-msgid "자동"
-msgstr "자동"
-
-msgid "한국어"
-msgstr "한국어"
-
-msgid "서버 URL (예: http://127.0.0.1:8880/v1):"
-msgstr "서버 URL (예: http://127.0.0.1:8880/v1):"
-
-msgid "비워두면 not-needed를 보냅니다."
-msgstr "비워두면 not-needed를 보냅니다."
-
-msgid "감정:"
-msgstr "감정:"
-
-msgid "음성:"
-msgstr "음성:"
-
-msgid "사용 안 함"
-msgstr "사용 안 함"
-
-msgid "승인된 조직만 사용 가능: 커스텀 보이스 ID (voice_...):"
-msgstr "승인된 조직만 사용 가능: 커스텀 보이스 ID (voice_...):"
-
-msgid "모델 불러오기"
-msgstr "모델 불러오기"
-
-msgid "음성 불러오기"
-msgstr "음성 불러오기"
-
-msgid "음성 복제"
-msgstr "음성 복제"
-
-msgid "음성 복제 실패"
-msgstr "음성 복제 실패"
-
-msgid "참조 음성으로 내 음성 만들기"
-msgstr "참조 음성으로 내 음성 만들기"
-
-msgid "WAV 파일 (*.wav)"
-msgstr "WAV 파일 (*.wav)"
-
-msgid "참조 WAV 파일을 찾을 수 없습니다."
-msgstr "참조 WAV 파일을 찾을 수 없습니다."
-
-msgid "API Key를 입력하세요."
-msgstr "API Key를 입력하세요."
-
-msgid "모델 불러오기 실패"
-msgstr "모델 불러오기 실패"
-
-msgid "음성 불러오기 실패"
-msgstr "음성 불러오기 실패"
-
-msgid "TTS 감정 조절"
-msgstr "TTS 감정 조절"
-
-msgid "대화 검색"
-msgstr "대화 검색"
-
-msgid "시작"
-msgstr "시작"
-
-msgid "끝"
-msgstr "끝"
-
-msgid "관심사"
-msgstr "관심사"
-
-msgid "메모"
-msgstr "메모"
-
-msgid "ctypes 저수준 DLL 로드"
-msgstr "ctypes 저수준 DLL 로드"
-
-msgid "ctypes 포인터 캐스팅"
-msgstr "ctypes 포인터 캐스팅"
-
-msgid "게임 모드 해제. 원래 TTS로 복원되었습니다."
-msgstr "게임 모드 해제. 원래 TTS로 복원되었습니다."
-
-msgid "ElevenLabs에서 추가 인증을 마쳐야 이 음성을 쓸 수 있습니다."
-msgstr "ElevenLabs에서 추가 인증을 마쳐야 이 음성을 쓸 수 있습니다."
-
-msgid "TTS 재생에 실패했습니다. 로그에서 자세한 내용을 확인하세요."
-msgstr "TTS 재생에 실패했습니다. 로그에서 자세한 내용을 확인하세요."
-
-msgid "예약 작업이 가득 찼습니다. 사용하지 않는 예약을 정리한 뒤 다시 시도해주세요."
-msgstr "예약 작업이 가득 찼습니다. 사용하지 않는 예약을 정리한 뒤 다시 시도해주세요."
-
-msgid "스킬 업데이트 중..."
-msgstr "스킬 업데이트 중..."
-
-msgid "텍스트가 아닌 응답입니다: {content_type}"
-msgstr "텍스트가 아닌 응답입니다: {content_type}"
-
-msgid "허용되지 않은 URL입니다: {reason}"
-msgstr "허용되지 않은 URL입니다: {reason}"
-
-msgid "이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."
-msgstr "이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."
-
-msgid "스킬 업데이트 기록을 지우지 못해 업데이트를 되돌렸습니다."
-msgstr "스킬 업데이트 기록을 지우지 못해 업데이트를 되돌렸습니다."
-
-msgid "'{name}' 제공자를 삭제할까요? 저장된 API 키도 함께 삭제됩니다."
-msgstr "'{name}' 제공자를 삭제할까요? 저장된 API 키도 함께 삭제됩니다."
-
-msgid "쓰지 않는 API 키 {count}개 삭제"
-msgstr "쓰지 않는 API 키 {count}개 삭제"
-
-msgid "쓰지 않는 API 키 삭제"
-msgstr "쓰지 않는 API 키 삭제"
-
-msgid "쓰지 않는 API 키 {count}개를 삭제할까요? 삭제한 키는 되돌릴 수 없습니다."
-msgstr "쓰지 않는 API 키 {count}개를 삭제할까요? 삭제한 키는 되돌릴 수 없습니다."
+msgid "🧩 스킬 관리"
+msgstr "🧩 스킬 관리"

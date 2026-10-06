@@ -1,4 +1,4 @@
-"""Settings창용 마켓플레이스 조회/설치 스레드."""
+"""Marketplace lookup/install thread for the settings window."""
 from __future__ import annotations
 
 from PySide6.QtCore import QThread, Signal
@@ -45,6 +45,6 @@ class MarketplaceInstallThread(QThread):
             if ok:
                 self.done.emit(True, _("Plugins Installation complete."))
             else:
-                self.done.emit(False, _("Plugins 설치에 실패했습니다."))
+                self.done.emit(False, _("Failed to install the plugin."))
         except Exception as exc:
             self.done.emit(False, str(exc))
