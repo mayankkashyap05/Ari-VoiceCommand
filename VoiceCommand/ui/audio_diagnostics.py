@@ -1,4 +1,4 @@
-"""Settings 화면의 Microphone OK과 녹음 play 작업."""
+"""Microphone checks and recording playback tasks for the settings screen."""
 from __future__ import annotations
 
 import time
@@ -52,12 +52,12 @@ class AudioDiagnosticThread(QThread):
                 if self.output_device_name:
                     output_device_indices = find_output_device_candidates(self.output_device_name)
                     if not output_device_indices:
-                        raise RuntimeError(_("선택한 스피커not found. 장치를 다시 선택해 주세요."))
+                        raise RuntimeError(_("The selected speaker could not be found. Please choose the device again."))
                 else:
                     output_device_indices = [None]
 
             if not input_lock.acquire(timeout=3):
-                raise RuntimeError(_("Microphone가 다른 작업에서 사용 중입니다. 잠시 later 다시 시도해 주세요."))
+                raise RuntimeError(_("The microphone is in use by another task. Please try again in a moment."))
             input_acquired = True
             input_stream = GlobalAudio.open_stream(
                 format=pyaudio.paInt16,
@@ -92,7 +92,7 @@ class AudioDiagnosticThread(QThread):
                 return
 
             if not output_lock.acquire(timeout=3):
-                raise RuntimeError(_("스피커가 다른 작업에서 사용 중입니다. 잠시 later 다시 시도해 주세요."))
+                raise RuntimeError(_("The speaker is in use by another task. Please try again in a moment."))
             try:
                 audio_data = b"".join(chunks)
                 last_error = None
@@ -112,7 +112,7 @@ class AudioDiagnosticThread(QThread):
                         last_error = exc
                 if output_stream is None:
                     raise RuntimeError(
-                        _("스피커 출력 장치를 열지 못했습니다: {error}").format(error=last_error)
+                        _("Could not open the speaker output device: {error}").format(error=last_error)
                     )
                 try:
                     frame_bytes = 1024 * 2
@@ -128,7 +128,7 @@ class AudioDiagnosticThread(QThread):
             if self.isInterruptionRequested():
                 self.done.emit(self, True, "")
             else:
-                self.done.emit(self, True, _("녹음한 소리를 선택한 스피커로 play했습니다."))
+                self.done.emit(self, True, _("Played the recording through the selected speaker."))
         except Exception as exc:
             self.done.emit(self, False, str(exc))
         finally:

@@ -1,6 +1,6 @@
 """
-실시간 Theme 반zero 유틸리티
-Theme JSON Save later 앱 전체 재시작 없이 열려 있는 UI를 새 Theme 기준으로 play성한다.
+Live theme application utilities.
+Applies the saved theme JSON to the open UI without restarting the whole app.
 """
 from __future__ import annotations
 

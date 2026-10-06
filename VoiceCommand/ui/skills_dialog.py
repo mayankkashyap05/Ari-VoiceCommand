@@ -1,4 +1,4 @@
-"""에이전트 스킬 관리 다이얼로그."""
+"""Agent skill management dialog."""
 from __future__ import annotations
 
 from PySide6.QtCore import Qt, QThread, Signal
@@ -32,13 +32,13 @@ def _release_install_thread(thread: QThread) -> None:
 
 
 def _install_running() -> bool:
-    """창을 닫았다 다시 열어도 앞서 시작한 설치가 돌고 있는지 알려 준다."""
+    """Reports whether a previously started installation is still running after the window is closed and reopened."""
     for thread in list(_live_install_threads):
         try:
             if thread.isRunning():
                 return True
         except RuntimeError:
-            # 이미 지워진 Qt 객체는 실행 중이 아니다.
+            # A Qt object that has already been deleted is not running.
             continue
     return False
 
@@ -69,7 +69,7 @@ class _SkillInstallThread(QThread):
 
 
 class SkillsDialog(QDialog):
-    """설치된 SKILL.md 스킬을 미리보기/설치/활성화/삭제한다."""
+    """Preview, install, enable, and delete installed SKILL.md skills."""
 
     _ACTION_BUTTON_HEIGHT = BUTTON_LG + 6
 
@@ -82,22 +82,22 @@ class SkillsDialog(QDialog):
         app = QApplication.instance()
         if app is not None:
             app.aboutToQuit.connect(self._mark_app_quitting)
-        self.setWindowTitle(_("🧩 스킬 관리"))
+        self.setWindowTitle(_("🧩 Skill management"))
         self.resize(860, 580)
         self._init_ui()
         self._refresh_list()
 
     def _init_ui(self) -> None:
         layout = QVBoxLayout(self)
-        layout.addWidget(create_muted_label(_("스킬을 선택하면 SKILL.md 내용이 표시됩니다.")))
+        layout.addWidget(create_muted_label(_("Select a skill to see its SKILL.md contents.")))
 
         source_row = QHBoxLayout()
         self.source_input = QLineEdit()
         self.source_input.setPlaceholderText(
-            _("GitHub (예: NomaDamas/k-skill) 또는 URL 또는 로컬 경로")
+            _("GitHub (e.g. NomaDamas/k-skill), URL, or local path")
         )
         source_row.addWidget(self.source_input, 1)
-        install_button = QPushButton(_("설치"))
+        install_button = QPushButton(_("Install"))
         install_button.setStyleSheet(secondary_btn_style())
         install_button.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         install_button.clicked.connect(self._on_install)
@@ -123,7 +123,7 @@ class SkillsDialog(QDialog):
         layout.addLayout(content_row, 1)
 
         button_row = QHBoxLayout()
-        self.toggle_button = QPushButton(_("비활성화"))
+        self.toggle_button = QPushButton(_("Disable"))
         self.toggle_button.setStyleSheet(secondary_btn_style())
         self.toggle_button.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         self.toggle_button.setMinimumWidth(120)
@@ -133,7 +133,7 @@ class SkillsDialog(QDialog):
         update_button.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         update_button.setMinimumWidth(120)
         update_button.clicked.connect(self._on_update)
-        delete_button = QPushButton(_("삭제"))
+        delete_button = QPushButton(_("Delete"))
         delete_button.setStyleSheet(secondary_btn_style())
         delete_button.setMinimumHeight(self._ACTION_BUTTON_HEIGHT)
         delete_button.setMinimumWidth(120)
@@ -182,7 +182,7 @@ class SkillsDialog(QDialog):
             return
         self.summary_label.setText(skill.description)
         self.preview.setPlainText(skill.content)
-        self.toggle_button.setText(_("활성화") if not skill.enabled else _("비활성화"))
+        self.toggle_button.setText(_("Enable") if not skill.enabled else _("Disable"))
         if skill.is_mcp_skill:
             self.mcp_label.setText(f"🔌 MCP: {skill.mcp_endpoint}")
             self.mcp_label.setVisible(True)
@@ -196,13 +196,13 @@ class SkillsDialog(QDialog):
         if self._install_thread and self._install_thread.isRunning():
             return
         if _install_running():
-            QMessageBox.information(self, _("설치 중"), _("이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."))
+            QMessageBox.information(self, _("Installing"), _("A previously started installation is still running. Please try again once it finishes."))
             return
 
         from agent.skill_manager import get_skill_manager
 
-        progress = QProgressDialog(_("설치 중"), None, 0, 0, self)
-        progress.setLabelText(_("스킬 설치 중..."))
+        progress = QProgressDialog(_("Installing"), None, 0, 0, self)
+        progress.setLabelText(_("Installing skill..."))
         progress.setWindowModality(Qt.WindowModal)
         progress.show()
 
@@ -226,18 +226,18 @@ class SkillsDialog(QDialog):
         if installed_names:
             QMessageBox.information(
                 self,
-                _("설치 완료"),
+                _("Installation complete"),
                 _("Installed skills: {names}").format(names=", ".join(installed_names)),
             )
             self._refresh_list()
         else:
-            QMessageBox.warning(self, _("설치 실패"), _("스킬을 설치할 수 없었습니다."))
+            QMessageBox.warning(self, _("Installation failed"), _("The skill could not be installed."))
 
     def _on_install_error(self, message: str, progress: QProgressDialog) -> None:
         if self._closed:
             return
         progress.close()
-        QMessageBox.warning(self, _("설치 실패"), message)
+        QMessageBox.warning(self, _("Installation failed"), message)
 
     def _on_install_thread_finished(self, thread: _SkillInstallThread) -> None:
         if self._install_thread is thread:
@@ -265,7 +265,7 @@ class SkillsDialog(QDialog):
         if self._install_thread and self._install_thread.isRunning():
             return
         if _install_running():
-            QMessageBox.information(self, _("Update"), _("이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."))
+            QMessageBox.information(self, _("Update"), _("A previously started installation is still running. Please try again once it finishes."))
             return
         skill_manager = get_skill_manager()
         skill = skill_manager.get_skill(name)
@@ -273,7 +273,7 @@ class SkillsDialog(QDialog):
             return
 
         progress = QProgressDialog(_("Update"), None, 0, 0, self)
-        progress.setLabelText(_("스킬 Update 중..."))
+        progress.setLabelText(_("Updating skill..."))
         progress.setWindowModality(Qt.WindowModal)
         progress.show()
         self._install_thread = _SkillInstallThread(
@@ -300,15 +300,15 @@ class SkillsDialog(QDialog):
         progress.close()
         if result:
             self._refresh_list()
-            QMessageBox.information(self, _("Update"), _("{name} Update 완료").format(name=name))
+            QMessageBox.information(self, _("Update"), _("{name} updated").format(name=name))
         else:
-            QMessageBox.warning(self, _("Update 실패"), _("설치 원본 정보가 없습니다."))
+            QMessageBox.warning(self, _("Update failed"), _("No source information is available for this installation."))
 
     def _on_update_error(self, message: str, progress: QProgressDialog) -> None:
         if self._closed:
             return
         progress.close()
-        QMessageBox.warning(self, _("Update 실패"), message)
+        QMessageBox.warning(self, _("Update failed"), message)
 
     def _mark_app_quitting(self) -> None:
         self._app_quitting = True
@@ -320,8 +320,8 @@ class SkillsDialog(QDialog):
             self._close_notice_shown = True
             QMessageBox.information(
                 self,
-                _("설치 중"),
-                _("이전에 시작한 설치가 아직 진행 중입니다. 끝난 뒤 다시 시도해 주세요."),
+                _("Installing"),
+                _("A previously started installation is still running. Please try again once it finishes."),
             )
         return True
 
@@ -346,8 +346,8 @@ class SkillsDialog(QDialog):
             return
         confirmed = QMessageBox.question(
             self,
-            _("스킬 삭제"),
-            _("{name} 스킬을 삭제할까요?").format(name=name),
+            _("Delete skill"),
+            _("Delete the skill {name}?").format(name=name),
             QMessageBox.Yes | QMessageBox.No,
             QMessageBox.No,
         )

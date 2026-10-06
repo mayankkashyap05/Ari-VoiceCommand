@@ -1,4 +1,4 @@
-"""System tray 메뉴와 Settings 대화상자 진입점을 제공하는 UI 래퍼."""
+"""UI wrapper that provides the system tray menu and the entry point to the settings dialog."""
 
 import logging
 from PySide6.QtGui import QAction
@@ -20,18 +20,18 @@ class SystemTrayIcon(QSystemTrayIcon):
         self._apply_menu_theme()
         self.setContextMenu(self.menu)
 
-        self.chat_action = self.menu.addAction(_("💬 텍스트 대화"))
+        self.chat_action = self.menu.addAction(_("💬 Text chat"))
         self.chat_action.triggered.connect(self.open_text_interface)
 
-        self.stop_speaking_action = self.menu.addAction(_("말하기 중단"))
+        self.stop_speaking_action = self.menu.addAction(_("Stop speaking"))
         self.stop_speaking_action.triggered.connect(self.stop_speaking)
 
-        self.character_action = self.menu.addAction(_("Character 표시"))
+        self.character_action = self.menu.addAction(_("Show character"))
         self.character_action.triggered.connect(self.toggle_character)
 
         self.menu.addSeparator()
 
-        self.game_mode_action = self.menu.addAction(_("🎮 게임 모드 (GPU 절약)"))
+        self.game_mode_action = self.menu.addAction(_("🎮 Game mode (save GPU)"))
         self.game_mode_action.setCheckable(True)
         self.game_mode_action.triggered.connect(self.toggle_game_mode)
 
@@ -39,25 +39,25 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.smart_mode_action.setCheckable(True)
         self.smart_mode_action.triggered.connect(self.toggle_smart_mode)
 
-        self.mouse_reaction_action = self.menu.addAction(_("마우스 반응"))
+        self.mouse_reaction_action = self.menu.addAction(_("Mouse reactions"))
         self.mouse_reaction_action.setCheckable(True)
         self.mouse_reaction_action.triggered.connect(self.toggle_mouse_reaction)
 
         self._plugin_separator = self.menu.addSeparator()
         self._plugin_actions: list = []
 
-        self.skills_action = self.menu.addAction(_("🧩 스킬 관리"))
+        self.skills_action = self.menu.addAction(_("🧩 Skill management"))
         self.skills_action.triggered.connect(self.open_skills_dialog)
 
         self.settings_action = self.menu.addAction(_("Settings"))
         self.settings_action.triggered.connect(self.open_settings)
 
-        self.scheduled_tasks_action = self.menu.addAction(_("예약 작업 관리"))
+        self.scheduled_tasks_action = self.menu.addAction(_("Scheduled task management"))
         self.scheduled_tasks_action.triggered.connect(self.open_scheduled_tasks)
 
         self.menu.addSeparator()
 
-        self.exit_action = self.menu.addAction(_("종료"))
+        self.exit_action = self.menu.addAction(_("Quit"))
         self.exit_action.triggered.connect(self.exit)
 
         self.menu.aboutToShow.connect(self.update_character_menu_text)
@@ -67,7 +67,7 @@ class SystemTrayIcon(QSystemTrayIcon):
         self.menu.aboutToShow.connect(self._apply_menu_theme)
 
     def add_plugin_menu_action(self, label: str, callback) -> None:
-        """Plugins이 트레이 메뉴에 항목을 추가하는 공개 API."""
+        """Public API that lets plugins add items to the tray menu."""
         action = QAction(label, self.menu)
         action.triggered.connect(callback)
         self.menu.insertAction(self.settings_action, action)
@@ -93,11 +93,11 @@ class SystemTrayIcon(QSystemTrayIcon):
         if self.game_mode_action.isChecked():
             enable_game_mode()
             if self.character_widget:
-                self.character_widget.say(_("게임 모드 ON. GPU 메모리 해제했습니다."), duration=3000)
+                self.character_widget.say(_("Game mode on. GPU memory released."), duration=3000)
         else:
             disable_game_mode()
             if self.character_widget:
-                self.character_widget.say(_("게임 모드 OFF. TTS 복원 중..."), duration=3000)
+                self.character_widget.say(_("Game mode off. Restoring TTS..."), duration=3000)
 
     def update_game_mode_status(self):
         from VoiceCommand import is_game_mode
@@ -106,10 +106,10 @@ class SystemTrayIcon(QSystemTrayIcon):
     def toggle_smart_mode(self):
         from VoiceCommand import learning_mode
         learning_mode['enabled'] = self.smart_mode_action.isChecked()
-        status = _("활성화") if learning_mode['enabled'] else _("비활성화")
+        status = _("Enable") if learning_mode['enabled'] else _("Disable")
         logging.info(f"Smart assistant mode {status}")
         if self.character_widget:
-            message = _("Smart assistant mode가 {status}되었습니다.").format(status=status)
+            message = _("Smart assistant mode has been {status}.").format(status=status)
             self.character_widget.say(message, duration=3000)
 
     def update_smart_mode_status(self):
@@ -149,7 +149,7 @@ class SystemTrayIcon(QSystemTrayIcon):
 
             SkillsDialog(parent=None).exec()
         except Exception as e:
-            logging.error("스킬 Failed to open management window: %s", e)
+            logging.error("Failed to open the skill management window: %s", e)
 
     def open_scheduled_tasks(self):
         try:
@@ -162,7 +162,7 @@ class SystemTrayIcon(QSystemTrayIcon):
             self._scheduled_tasks_dialog.raise_()
             self._scheduled_tasks_dialog.activateWindow()
         except Exception as e:
-            logging.error(f"예약 Failed to open task window: {e}")
+            logging.error(f"Failed to open the scheduled task window: {e}")
 
     def exit(self):
         self.should_exit = True
@@ -171,7 +171,7 @@ class SystemTrayIcon(QSystemTrayIcon):
     def set_character_widget(self, character_widget):
         self.character_widget = character_widget
         self.update_character_menu_text()
-        logging.info("System tray에 Character 위젯 Reference has been set.")
+        logging.info("The character widget reference has been set on the system tray.")
 
     def set_text_interface(self, text_interface):
         self.text_interface = text_interface
@@ -190,26 +190,26 @@ class SystemTrayIcon(QSystemTrayIcon):
             return
         if self.character_widget.isVisible():
             self.character_widget.hide()
-            logging.info("Character를 Hidden.")
+            logging.info("Character hidden.")
         else:
             self.character_widget.show()
-            logging.info("Character를 Shown.")
+            logging.info("Character shown.")
 
     def update_character_menu_text(self):
         if self.character_widget and self.character_widget.isVisible():
-            self.character_action.setText(_("Character 숨기기"))
+            self.character_action.setText(_("Hide character"))
         else:
-            self.character_action.setText(_("Character 표시"))
+            self.character_action.setText(_("Show character"))
 
     def refresh_language(self) -> None:
-        """Language 변경 시 트레이 메뉴 텍스트를 즉시 갱신한다."""
-        self.chat_action.setText(_("💬 텍스트 대화"))
-        self.stop_speaking_action.setText(_("말하기 중단"))
-        self.game_mode_action.setText(_("🎮 게임 모드 (GPU 절약)"))
+        """Refresh the tray menu text immediately when the language changes."""
+        self.chat_action.setText(_("💬 Text chat"))
+        self.stop_speaking_action.setText(_("Stop speaking"))
+        self.game_mode_action.setText(_("🎮 Game mode (save GPU)"))
         self.smart_mode_action.setText(_("Smart assistant mode"))
-        self.mouse_reaction_action.setText(_("마우스 반응"))
-        self.skills_action.setText(_("🧩 스킬 관리"))
+        self.mouse_reaction_action.setText(_("Mouse reactions"))
+        self.skills_action.setText(_("🧩 Skill management"))
         self.settings_action.setText(_("Settings"))
-        self.scheduled_tasks_action.setText(_("예약 작업 관리"))
-        self.exit_action.setText(_("종료"))
+        self.scheduled_tasks_action.setText(_("Scheduled task management"))
+        self.exit_action.setText(_("Quit"))
         self.update_character_menu_text()

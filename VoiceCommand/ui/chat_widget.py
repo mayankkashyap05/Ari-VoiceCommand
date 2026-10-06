@@ -13,10 +13,10 @@ from ui import theme as theme_module
 from i18n.translator import _
 from core.emotions import EMOTION_EMOJI, parse_emotion_text
 
-# ── 채팅 위젯 ────────────────────────────────────────────────────────────────
+# ── Chat widget ────────────────────────────────────────────────────────────────
 
 class ChatWidget(QFrame):
-    """채팅 메시지를 표시하는 위젯. max MAX_MESSAGES개 메시지 유지."""
+    """Widget that displays chat messages. Keeps at most MAX_MESSAGES messages."""
 
     MAX_MESSAGES = 50
     MIN_BUBBLE_WIDTH = 220
@@ -55,7 +55,7 @@ class ChatWidget(QFrame):
             self.history = self.history[-self.MAX_MESSAGES:]
             self.render_history()
             return
-        # 스트리밍 중 매번 전체를 다시 만들면 채팅창이 깜박이므로 새 줄만 붙인다.
+        # Rebuilding the whole view on every streaming tick makes the chat flicker, so append only the new line.
         self._add_message_widget(self.history[-1])
 
     def update_message(self, index: int, message: str) -> None:
@@ -81,7 +81,7 @@ class ChatWidget(QFrame):
             and event.size().width() != event.oldSize().width()
             and not self._resize_timer.isActive()
         ):
-            # 끄는 동안에도 간격마다 한 번은 다시 그려 말풍선이 잘린 채 남지 않게 한다.
+            # Repaint at intervals while dragging so the speech bubble never stays clipped.
             self._resize_timer.start()
 
     def closeEvent(self, event) -> None:
@@ -106,7 +106,7 @@ class ChatWidget(QFrame):
             if pure_text:
                 display_message = f"{emoji} {pure_text}".strip() if emoji else pure_text
 
-        sender_name  = _("나") if is_user else _("아리")
+        sender_name  = _("Me") if is_user else _("Ari")
         sender_color = COLOR_PRIMARY if is_user else COLOR_ACCENT
         bg_color     = COLOR_BG_CHAT_USER if is_user else COLOR_BG_CHAT_AARI
         corner_style = "border-top-right-radius: 0px;" if is_user else "border-top-left-radius: 0px;"

@@ -1,5 +1,5 @@
 """
-speech recognition(STT) Settings 다이얼로그 — STT 엔진, Whisper 옵션, Microphone 감도, Wake word
+Speech recognition (STT) settings dialog — STT engine, Whisper options, microphone sensitivity, wake words
 """
 import logging
 import threading
@@ -41,8 +41,8 @@ class STTSettingsDialog(QDialog):
     def _init_ui(self):
         layout = QVBoxLayout(self)
 
-        # ── 음성 Input ──────────────────────────────────────────────────────────
-        input_group = QGroupBox(_("단축키·클릭으로 듣기"))
+        # ── Voice input ──────────────────────────────────────────────────────────
+        input_group = QGroupBox(_("Hotkey and click to listen"))
         ivbox = QVBoxLayout(input_group)
         ivbox.addWidget(QLabel(_("Global hotkey:")))
         self.voice_hotkey_edit = QKeySequenceEdit()
@@ -50,43 +50,43 @@ class STTSettingsDialog(QDialog):
             str(self.settings.get("voice_activation_hotkey", "Ctrl+Alt+Space"))
         ))
         ivbox.addWidget(self.voice_hotkey_edit)
-        ivbox.addWidget(QLabel(_("듣기 방식:")))
+        ivbox.addWidget(QLabel(_("Listening mode:")))
         self.voice_activation_mode_combo = QComboBox()
         self.voice_activation_mode_combo.addItem(
-            _("누르고 있는 동안 듣기 (push-to-talk)"), "push_to_talk"
+            _("Listen while held (push-to-talk)"), "push_to_talk"
         )
         self.voice_activation_mode_combo.addItem(
-            _("한 번 눌러 시작 (toggle)"), "toggle"
+            _("Press once to start (toggle)"), "toggle"
         )
         self._set_combo(
             self.voice_activation_mode_combo,
             self.settings.get("voice_activation_mode", "push_to_talk"),
         )
         ivbox.addWidget(self.voice_activation_mode_combo)
-        self.wake_word_enabled_checkbox = QCheckBox(_("Wake word 사용"))
+        self.wake_word_enabled_checkbox = QCheckBox(_("Use wake words"))
         self.wake_word_enabled_checkbox.setChecked(
             bool(self.settings.get("wake_word_enabled", True))
         )
         ivbox.addWidget(self.wake_word_enabled_checkbox)
         input_hint = QLabel(
-            _("Character를 짧게 클릭하면 발화 끝을 감지하고, 길게 누르면 누르는 동안 듣습니다.")
+            _("A short click on the character detects the end of speech; holding it down listens while pressed.")
         )
         input_hint.setWordWrap(True)
         ivbox.addWidget(input_hint)
         hotkey_hint = QLabel(
-            _("단축키가 다른 앱에서 사용 중이면 등록되지 않습니다. 앱은 계속 실행됩니다.")
+            _("If another app is using the hotkey it will not be registered. The app keeps running.")
         )
         hotkey_hint.setWordWrap(True)
         ivbox.addWidget(hotkey_hint)
         layout.addWidget(input_group)
 
-        # ── STT 엔진 ──────────────────────────────────────────────────────────
-        engine_group = QGroupBox(_("STT 엔진"))
+        # ── STT engine ──────────────────────────────────────────────────────────
+        engine_group = QGroupBox(_("STT engine"))
         eg_vbox = QVBoxLayout(engine_group)
-        eg_vbox.addWidget(QLabel(_("speech recognition 엔진:")))
+        eg_vbox.addWidget(QLabel(_("Speech recognition engine:")))
         self.stt_provider_combo = QComboBox()
-        self.stt_provider_combo.addItem(_("Google STT (온라인)"), "google")
-        self.stt_provider_combo.addItem(_("Whisper (오프라인)"), "whisper")
+        self.stt_provider_combo.addItem(_("Google STT (online)"), "google")
+        self.stt_provider_combo.addItem(_("Whisper (offline)"), "whisper")
         self._set_combo(self.stt_provider_combo, self.settings.get("stt_provider", "google"))
         self.stt_provider_combo.currentIndexChanged.connect(self._on_stt_changed)
         eg_vbox.addWidget(self.stt_provider_combo)
@@ -94,13 +94,13 @@ class STTSettingsDialog(QDialog):
         # ── Whisper Settings ───────────────────────────────────────────────────────
         self.whisper_group = QGroupBox(_("Whisper Settings"))
         wg_vbox = QVBoxLayout(self.whisper_group)
-        wg_vbox.addWidget(QLabel(_("모델 크기:")))
+        wg_vbox.addWidget(QLabel(_("Model size:")))
         self.whisper_model_combo = QComboBox()
         for model_name in ("tiny", "small", "medium"):
             self.whisper_model_combo.addItem(model_name, model_name)
         self._set_combo(self.whisper_model_combo, self.settings.get("whisper_model", "small"))
         wg_vbox.addWidget(self.whisper_model_combo)
-        self.whisper_download_btn = QPushButton(_("모델 다운로드"))
+        self.whisper_download_btn = QPushButton(_("Download model"))
         self.whisper_download_btn.clicked.connect(self._download_whisper_model)
         wg_vbox.addWidget(self.whisper_download_btn)
         eg_vbox.addWidget(self.whisper_group)
@@ -112,8 +112,8 @@ class STTSettingsDialog(QDialog):
         )
         layout.addWidget(self.stt_diagnostic_panel)
 
-        # ── Microphone 감도 ────────────────────────────────────────────────────────
-        mic_group = QGroupBox(_("Microphone 감도"))
+        # ── Microphone sensitivity ────────────────────────────────────────────────────────
+        mic_group = QGroupBox(_("Microphone sensitivity"))
         mg_vbox = QVBoxLayout(mic_group)
         self.stt_energy_slider = QSlider(Qt.Horizontal)
         energy_threshold = int(self.settings.get("stt_energy_threshold", 300))
@@ -123,22 +123,22 @@ class STTSettingsDialog(QDialog):
         mg_vbox.addWidget(self.stt_energy_slider)
         self.stt_energy_label = QLabel("")
         mg_vbox.addWidget(self.stt_energy_label)
-        self.stt_dynamic_checkbox = QCheckBox(_("자동 감도 조정 사용"))
+        self.stt_dynamic_checkbox = QCheckBox(_("Use automatic sensitivity adjustment"))
         self.stt_dynamic_checkbox.setChecked(bool(self.settings.get("stt_dynamic_energy", False)))
         mg_vbox.addWidget(self.stt_dynamic_checkbox)
         layout.addWidget(mic_group)
 
         # ── Wake word ─────────────────────────────────────────────────────────
-        wake_group = QGroupBox(_("Wake word 목록"))
+        wake_group = QGroupBox(_("Wake word list"))
         wk_vbox = QVBoxLayout(wake_group)
         self.wake_words_list = QListWidget()
-        for word in self.settings.get("wake_words", ["아리야", "시작"]):
+        for word in self.settings.get("wake_words", ["Hey Ari", "Start"]):
             self.wake_words_list.addItem(QListWidgetItem(str(word)))
         wk_vbox.addWidget(self.wake_words_list)
         btn_row = QHBoxLayout()
-        add_btn = QPushButton(_("추가"))
+        add_btn = QPushButton(_("Add"))
         add_btn.clicked.connect(self._add_wake_word)
-        remove_btn = QPushButton(_("삭제"))
+        remove_btn = QPushButton(_("Delete"))
         remove_btn.clicked.connect(self._remove_wake_word)
         btn_row.addWidget(add_btn)
         btn_row.addWidget(remove_btn)
@@ -156,7 +156,7 @@ class STTSettingsDialog(QDialog):
         self._on_energy_changed(self.stt_energy_slider.value())
         self._on_stt_changed()
 
-    # ── 헬퍼 ──────────────────────────────────────────────────────────────────
+    # ── Helpers ──────────────────────────────────────────────────────────────────
 
     def _set_combo(self, combo: QComboBox, value) -> None:
         for i in range(combo.count()):
@@ -181,7 +181,7 @@ class STTSettingsDialog(QDialog):
         return settings
 
     def _on_energy_changed(self, value: int):
-        self.stt_energy_label.setText(_("현재 감도: {value}").format(value=value))
+        self.stt_energy_label.setText(_("Current sensitivity: {value}").format(value=value))
 
     def _download_whisper_model(self):
         model_name = self.whisper_model_combo.currentData() or "small"
@@ -189,7 +189,7 @@ class STTSettingsDialog(QDialog):
         compute_type = self.settings.get("whisper_compute_type", "int8")
 
         self.whisper_download_btn.setEnabled(False)
-        self.whisper_download_btn.setText(_("다운로드 중..."))
+        self.whisper_download_btn.setText(_("Downloading..."))
 
         signals = _DownloadSignals()
         signals.finished.connect(self._on_download_finished)
@@ -200,27 +200,27 @@ class STTSettingsDialog(QDialog):
                 provider = WhisperSTTProvider(
                     model_size=model_name, device=device, compute_type=compute_type
                 )
-                # 워커 정상 시작 OK later 즉시 종료
+                # Worker started successfully, checked and shut down immediately
                 del provider
-                signals.finished.emit(True, _("'{model}' 모델 준비가 완료되었습니다.").format(model=model_name))
+                signals.finished.emit(True, _("The '{model}' model is ready.").format(model=model_name))
             except Exception as exc:
-                signals.finished.emit(False, _("모델 준비에 실패했습니다.\n{error}").format(error=exc))
+                signals.finished.emit(False, _("Failed to prepare the model.\n{error}").format(error=exc))
 
-        # 참조 유지 (GC 방지)
+        # Keep a reference (prevents GC)
         self._download_signals = signals
         threading.Thread(target=_run, daemon=True, name="Whisper-Download").start()
 
     def _on_download_finished(self, success: bool, message: str):
         self.whisper_download_btn.setEnabled(True)
-        self.whisper_download_btn.setText(_("모델 다운로드"))
+        self.whisper_download_btn.setText(_("Download model"))
         self._download_signals = None
         if success:
-            QMessageBox.information(self, _("Whisper 다운로드"), message)
+            QMessageBox.information(self, _("Download Whisper"), message)
         else:
-            QMessageBox.warning(self, _("Whisper 다운로드"), message)
+            QMessageBox.warning(self, _("Download Whisper"), message)
 
     def _add_wake_word(self):
-        text, ok = QInputDialog.getText(self, _("Wake word 추가"), _("새 Wake word를 Please enter:"))
+        text, ok = QInputDialog.getText(self, _("Add wake word"), _("Please enter a new wake word:"))
         value = text.strip()
         if ok and value:
             self.wake_words_list.addItem(QListWidgetItem(value))
@@ -230,7 +230,7 @@ class STTSettingsDialog(QDialog):
         if row < 0:
             return
         if self.wake_words_list.count() <= 1:
-            QMessageBox.warning(self, _("Wake word"), _("Wake word는 최소 1개 이상 필요합니다."))
+            QMessageBox.warning(self, _("Wake word"), _("At least one wake word is required."))
             return
         self.wake_words_list.takeItem(row)
 
@@ -243,8 +243,8 @@ class STTSettingsDialog(QDialog):
         except ValueError:
             QMessageBox.warning(
                 self,
-                _("단축키 Settings"),
-                _("Ctrl+Alt+Space처럼 수정 키와 Default 키를 함께 지정하세요."),
+                _("Hotkey settings"),
+                _("Specify a modifier together with a default key, such as Ctrl+Alt+Space."),
             )
             return
 
@@ -254,7 +254,7 @@ class STTSettingsDialog(QDialog):
             if self.wake_words_list.item(i).text().strip()
         ]
         if not wake_words:
-            QMessageBox.warning(self, _("Wake word"), _("Wake word는 최소 1개 이상 필요합니다."))
+            QMessageBox.warning(self, _("Wake word"), _("At least one wake word is required."))
             return
 
         current = ConfigManager.load_settings()

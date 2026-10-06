@@ -9,10 +9,10 @@ from ui import theme as theme_module
 from i18n.translator import _
 
 
-# ── 선제적 제안 바 ────────────────────────────────────────────────────────────
+# ── Proactive suggestion bar ────────────────────────────────────────────────────────────
 
 class ProactiveSuggestionBar(QFrame):
-    """시간 패턴·명령 빈도 기반 제안 칩을 표시하는 바."""
+    """Bar that shows suggestion chips based on time patterns and command frequency."""
 
     suggestion_clicked = Signal(str)
 
@@ -20,12 +20,12 @@ class ProactiveSuggestionBar(QFrame):
         super().__init__(parent)
         self._ctx = ctx_manager
         self._shown_suggestions = None
-        # 긴 제안 문구가 채팅창의 최소 폭을 넓히지 않게 한다.
+        # Keep long suggestions from widening the chat window minimum width.
         self.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
         self._build_ui()
         self._refresh_timer = QTimer(self)
         self._refresh_timer.timeout.connect(self._refresh_suggestions)
-        # 창이 표시될 때만 타이머 가동 (showEvent/hideEvent에서 제어)
+        # Run the timer only while the window is visible (controlled in showEvent/hideEvent)
         self._refresh_suggestions()
 
     def _build_ui(self) -> None:
@@ -34,12 +34,12 @@ class ProactiveSuggestionBar(QFrame):
                       border-bottom: 1px solid rgba(74,144,226,40); }}
         """)
         lay = QVBoxLayout(self)
-        # 부모 없이 잠깐 표시될 때 칩 폭이 최소 크기로 굳지 않게 한다.
+        # Keep the chip width from freezing at its minimum size when shown briefly without a parent.
         lay.setSizeConstraint(QVBoxLayout.SetNoConstraint)
         lay.setContentsMargins(12, 6, 12, 6)
         lay.setSpacing(2)
 
-        hint_lbl = QLabel(_("💡 자주 쓰는 명령"))
+        hint_lbl = QLabel(_("💡 Frequently used commands"))
         hint_lbl.setFont(QFont(FONT_KO, FONT_SIZE_SMALL))
         hint_lbl.setStyleSheet(f"color: {COLOR_MUTED};")
         lay.addWidget(hint_lbl)
@@ -51,11 +51,11 @@ class ProactiveSuggestionBar(QFrame):
 
     def _refresh_suggestions(self, force: bool = False) -> None:
         suggestions = self._build_suggestions()[:4]
-        # 내용이 같으면 칩을 다시 만들지 않아 주기적인 깜박임을 막는다.
+        # Do not rebuild chips when the content is unchanged, which prevents periodic flicker.
         if not force and suggestions == self._shown_suggestions:
             return
         self._shown_suggestions = suggestions
-        # 기존 칩 제거
+        # Remove existing chips
         while self._chips_row.count():
             item = self._chips_row.takeAt(0)
             if item and item.widget():
@@ -86,7 +86,7 @@ class ProactiveSuggestionBar(QFrame):
         self.show()
 
     def _fit_chips(self) -> None:
-        """칩 문구를 바 폭에 맞춰 말줄임으로 자른다."""
+        """Trim the chip text with an ellipsis to fit the bar width."""
         count = self._chips_row.count()
         if not count:
             return
@@ -99,7 +99,7 @@ class ProactiveSuggestionBar(QFrame):
                 continue
             full_text = str(btn.property("full_text") or "")
             metrics = QFontMetrics(btn.font())
-            # 좌우 padding 12px씩을 뺀 폭 안에 들어가게 하고, 짧은 문구는 제 폭만 쓴다.
+            # Fit within the width minus 12px of padding on each side, and let short phrases use only their own width.
             btn.setText(metrics.elidedText(full_text, Qt.ElideRight, chip_width - 24))
             btn.setFixedWidth(min(chip_width, metrics.horizontalAdvance(full_text) + 24))
 

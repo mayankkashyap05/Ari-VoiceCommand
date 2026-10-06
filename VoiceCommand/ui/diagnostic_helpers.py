@@ -1,4 +1,4 @@
-"""Settings 화면의 장치 진단에 사용하는 작은 헬퍼."""
+"""Small helper used by the device diagnostics on the settings screen."""
 from __future__ import annotations
 
 import logging
@@ -16,7 +16,7 @@ def run_tts_diagnostic(
     provider_factory=None,
     is_cancelled=None,
 ) -> tuple[bool, str]:
-    """현재 선택값으로 TTS를 실행하고 실제 선택 엔진이 동작했는지 반환한다."""
+    """Run TTS with the current selection and return whether the selected engine actually ran."""
     from audio.audio_manager import output_device_override
     from tts.tts_factory import create_tts_provider
 
@@ -29,19 +29,19 @@ def run_tts_diagnostic(
                 return False, ""
             if actual_mode != selected_mode:
                 return False, _(
-                    "선택한 TTS 엔진을 초기화하지 못해 다른 엔진으로 전환되었습니다. Settings을 OK해 주세요."
+                    "The selected TTS engine could not be initialized, so another engine was used instead. Please check the settings."
                 )
             if not provider.speak(sentence):
-                return False, _("TTS 시험 play에 실패했습니다. Settings과 출력 장치를 OK해 주세요.")
-        return True, _("현재 선택한 TTS 엔진의 시험 play이 완료되었습니다.")
+                return False, _("The TTS test playback failed. Please check the settings and the output device.")
+        return True, _("Test playback with the currently selected TTS engine finished.")
     except Exception as exc:
-        return False, _("TTS 시험 play에 실패했습니다: {error}").format(error=exc)
+        return False, _("The TTS test playback failed: {error}").format(error=exc)
     finally:
         _cleanup_provider(provider)
 
 
 def transcribe_diagnostic_sample(audio_data, settings: dict, provider_factory=None) -> tuple[bool, str]:
-    """현재 STT Settings으로 캡처한 샘플을 인식한다."""
+    """Recognize the sample captured with the current STT settings."""
     from core.stt_provider import create_stt_provider
 
     factory = provider_factory or create_stt_provider
@@ -50,16 +50,16 @@ def transcribe_diagnostic_sample(audio_data, settings: dict, provider_factory=No
         provider = factory(settings)
         text = provider.transcribe(audio_data)
         if not text or not str(text).strip():
-            return False, _("음성을 인식하지 못했습니다. 다시 말씀해 주세요.")
-        return True, _("인식 결과: {text}").format(text=str(text).strip())
+            return False, _("Speech was not recognized. Please say it again.")
+        return True, _("Recognition result: {text}").format(text=str(text).strip())
     except Exception as exc:
-        return False, _("speech recognition 시험에 실패했습니다: {error}").format(error=exc)
+        return False, _("The speech recognition test failed: {error}").format(error=exc)
     finally:
         _cleanup_provider(provider)
 
 
 def _cleanup_provider(provider) -> None:
-    """진단용으로 만든 제공자를 정리한다. 정리 실패는 진단 결과에 zero향을 주지 않는다."""
+    """Clean up the provider created for diagnostics. A cleanup failure does not affect the diagnostic result."""
     if provider is None or not hasattr(provider, "cleanup"):
         return
     try:
@@ -69,7 +69,7 @@ def _cleanup_provider(provider) -> None:
 
 
 def resolve_input_device_index(selected_name: str, devices: list[dict]) -> int | None:
-    """Save 전 Input 장치 선택 이름을 PyAudio Input 장치 인덱스로 변환한다."""
+    """Convert the input device name selected before saving into a PyAudio input device index."""
     if not selected_name:
         return None
     wanted = _normalize_device_name(selected_name)
@@ -78,11 +78,11 @@ def resolve_input_device_index(selected_name: str, devices: list[dict]) -> int |
             str(device.get("name", ""))
         ) == wanted:
             return index
-    raise ValueError(_("선택한 Microphonenot found. 장치를 다시 선택해 주세요."))
+    raise ValueError(_("The selected microphone could not be found. Please choose the device again."))
 
 
 def pcm_level_percent(pcm_data: bytes) -> int:
-    """16-bit little-endian PCM의 RMS 레벨을 0~100 범위로 계산한다."""
+    """Compute the RMS level of 16-bit little-endian PCM on a 0~100 scale."""
     usable_length = len(pcm_data) - len(pcm_data) % 2
     if usable_length == 0:
         return 0

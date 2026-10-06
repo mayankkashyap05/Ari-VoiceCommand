@@ -1,7 +1,8 @@
 """
-UI Theme 로더
-Default Theme JSON을 `theme/` 폴더에 두고, 배포 시 `%APPDATA%/Ari/theme`로 복사해
-사용자가 Python 코드 수정 없이 JSON만 편집해 UI Theme를 바꿀 수 있게 한다.
+UI theme loader.
+Keeps the default theme JSON in the `theme/` folder and copies it to
+`%APPDATA%/Ari/theme` on deployment, so users can change the UI theme by
+editing JSON only, without touching the Python code.
 """
 from __future__ import annotations
 
@@ -23,8 +24,8 @@ _BASE_FONT_SIZES = {
 
 _DEFAULT_THEME_DATA: Dict[str, object] = {
     "id": "default",
-    "name": "Default 블루",
-    "font_family": "맑은 고딕",
+    "name": "Default Blue",
+    "font_family": "Malgun Gothic",
     "colors": {
         "primary": "#4a90e2",
         "primary_dark": "#357abd",

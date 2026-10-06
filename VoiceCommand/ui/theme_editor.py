@@ -1,5 +1,5 @@
 """
-Theme 팔레트 편집 위젯.
+Theme palette editing widget.
 """
 
 from __future__ import annotations
@@ -19,11 +19,11 @@ from i18n.translator import _
 
 def _color_groups():
     return {
-        _("주요 색상"): ["primary", "primary_dark", "accent", "success", "warning", "danger", "muted"],
-        _("텍스트"): ["text_primary", "text_secondary", "text_panel"],
-        _("배경"): ["bg_main", "bg_panel", "bg_white", "bg_input", "bg_chat_user", "bg_chat_aari"],
-        _("테두리"): ["border_light", "border_div", "border_input", "border_card"],
-        _("기타"): ["titlebar", "bg_suggestion", "bg_chip_primary", "bg_chip_warn"],
+        _("Primary colors"): ["primary", "primary_dark", "accent", "success", "warning", "danger", "muted"],
+        _("Text"): ["text_primary", "text_secondary", "text_panel"],
+        _("Background"): ["bg_main", "bg_panel", "bg_white", "bg_input", "bg_chat_user", "bg_chat_aari"],
+        _("Border"): ["border_light", "border_div", "border_input", "border_card"],
+        _("Other"): ["titlebar", "bg_suggestion", "bg_chip_primary", "bg_chip_warn"],
     }
 HEX_ONLY_KEYS = {"bg_main", "bg_panel", "bg_suggestion", "bg_status", "bg_dashboard"}
 
@@ -37,7 +37,7 @@ class ColorSwatch(QWidget):
         self._swatch = QLabel()
         self._label = QLabel(color_key)
         self.value_input = QLineEdit(initial_value)
-        self._pick_btn = QPushButton(_("선택"))
+        self._pick_btn = QPushButton(_("Select"))
         self._build_ui()
         self.set_value(initial_value)
 
@@ -94,12 +94,12 @@ class ThemeEditorWidget(QWidget):
 
     def _build_ui(self):
         root = QVBoxLayout(self)
-        palette_group = QGroupBox(_("팔레트 편집"))
+        palette_group = QGroupBox(_("Edit palette"))
         palette_layout = QVBoxLayout(palette_group)
         top = QHBoxLayout()
-        self.name_input.setPlaceholderText(_("Theme 이름"))
-        save_btn = QPushButton(_("Theme로 Save"))
-        reset_btn = QPushButton(_("프리셋 초기화"))
+        self.name_input.setPlaceholderText(_("Theme name"))
+        save_btn = QPushButton(_("Save as theme"))
+        reset_btn = QPushButton(_("Reset preset"))
         save_btn.clicked.connect(self._on_save)
         reset_btn.clicked.connect(self._on_reset)
         top.addWidget(self.name_input, 1)
@@ -124,13 +124,13 @@ class ThemeEditorWidget(QWidget):
         scroll.setWidget(scroll_body)
         palette_layout.addWidget(scroll)
         root.addWidget(palette_group)
-        json_group = QGroupBox(_("JSON 직접 편집"))
+        json_group = QGroupBox(_("Edit JSON directly"))
         json_layout = QVBoxLayout(json_group)
         self.json_edit.setFont(QFont("Consolas", 9))
         json_layout.addWidget(self.json_edit)
         buttons = QHBoxLayout()
         parse_btn = QPushButton(_("JSON Apply"))
-        copy_btn = QPushButton(_("복사"))
+        copy_btn = QPushButton(_("Copy"))
         parse_btn.clicked.connect(self._on_parse_json)
         copy_btn.clicked.connect(lambda: self.json_edit.selectAll() or self.json_edit.copy())
         buttons.addWidget(parse_btn)
@@ -158,9 +158,9 @@ class ThemeEditorWidget(QWidget):
         try:
             parsed = json.loads(self.json_edit.toPlainText() or "{}")
             if not isinstance(parsed, dict):
-                raise ValueError(_("dict 형식 필요"))
+                raise ValueError(_("A dict is required"))
         except Exception:
-            QMessageBox.warning(self, _("JSON 형식 Error"), _("JSON 형식 Error"))
+            QMessageBox.warning(self, _("JSON format error"), _("JSON format error"))
             return
         self._load_colors({str(key): str(value) for key, value in parsed.items()})
         self.palette_changed.emit()
@@ -171,9 +171,9 @@ class ThemeEditorWidget(QWidget):
         try:
             theme.save_custom_theme(theme_key, name, self._colors, "")
         except Exception as exc:
-            QMessageBox.warning(self, _("Theme Save 실패"), str(exc))
+            QMessageBox.warning(self, _("Failed to save the theme"), str(exc))
             return
-        QMessageBox.information(self, _("Theme Save complete"), _("'{name}' Save됨").format(name=name))
+        QMessageBox.information(self, _("Theme Save complete"), _("'{name}' saved").format(name=name))
         self.theme_saved.emit(theme_key)
 
     def _on_reset(self):
@@ -189,14 +189,14 @@ class ThemeEditorWidget(QWidget):
 
 
 class ThemeEditorDialog(QDialog):
-    """ThemeEditorWidget을 별도 창으로 감싸는 다이얼로그."""
+    """Dialog that wraps ThemeEditorWidget in its own window."""
 
     palette_changed = Signal()
     theme_saved = Signal(str)
 
     def __init__(self, initial_colors: dict[str, str], parent=None):
         super().__init__(parent)
-        self.setWindowTitle(_("팔레트 편집"))
+        self.setWindowTitle(_("Edit palette"))
         self.setWindowFlags(Qt.Window)
         self.setMinimumSize(620, 720)
         self.setAttribute(Qt.WA_DeleteOnClose, False)
